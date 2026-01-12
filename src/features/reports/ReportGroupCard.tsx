@@ -77,9 +77,9 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
         </div>
 
         {(data.indicacao_clinica || data.tecnica) && (
-          <div className="text-xs text-muted font-mono mb-2 p-2 bg-black/20 rounded border border-white/5">
-             {data.indicacao_clinica && <p className="mb-1"><strong className="text-secondary">INDICAÇÃO:</strong> {data.indicacao_clinica}</p>}
-             {data.tecnica && <p><strong className="text-secondary">TÉCNICA:</strong> {data.tecnica}</p>}
+          <div className="text-sm text-primary mb-3 p-3 bg-surface-elevated rounded border border-subtle">
+             {data.indicacao_clinica && <p className="mb-2"><strong className="text-accent">INDICAÇÃO:</strong> <span className="text-secondary">{data.indicacao_clinica}</span></p>}
+             {data.tecnica && <p><strong className="text-accent">TÉCNICA:</strong> <span className="text-secondary">{data.tecnica}</span></p>}
           </div>
         )}
 
