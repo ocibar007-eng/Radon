@@ -54,19 +54,22 @@ const SimpleMarkdownParser: React.FC<{ content: string }> = ({ content }) => {
     const parts = text.split(regex);
 
     return parts.map((part, i) => {
-      // Se for um dos termos chave, aplica o highlight
-      if (regex.test(part)) {
-        // Regex.test avança o índice se for global, cuidado. Melhor checking string match simples ou resetar lastIndex se for complexo.
-        // Como split já separou, basta verificar se "soa" como um termo.
-        return <strong key={i} className="term-highlight">{part}</strong>;
+      // Verifica se este part é um termo médico usando match direto (evita bug do regex.test)
+      const isKeyTerm = /^(Contraste:|Cirurgias? Prévias?|Alergias?|Medicações?|Histórico Familiar?|Indicação:?|Técnica:?)$/i.test(part.trim());
+
+      if (isKeyTerm) {
+        // Remove asteriscos se existirem e aplica highlight amarelo
+        const cleanText = part.replace(/\*\*/g, '');
+        return <strong key={i} className="term-highlight">{cleanText}</strong>;
       }
 
-      // Processa bold normal (**texto**) dentro do resto
+      // Processa bold normal (**texto**) dentro do resto - remove asteriscos
       const boldParts = part.split(/(\*\*.*?\*\*)/g);
       return (
         <React.Fragment key={i}>
           {boldParts.map((subPart, j) => {
             if (subPart.startsWith('**') && subPart.endsWith('**')) {
+              // Remove os asteriscos antes de renderizar
               return <strong key={j}>{subPart.slice(2, -2)}</strong>;
             }
             return subPart;
