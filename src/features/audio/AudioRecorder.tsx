@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Mic, Square, Upload } from 'lucide-react';
+import { Mic, Square, Upload, Pause, Play } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 
 interface Props {
@@ -10,6 +10,7 @@ interface Props {
 
 export const AudioRecorder: React.FC<Props> = ({ onRecordingComplete, isProcessing }) => {
   const [isRecording, setIsRecording] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
 
   // Refs
@@ -160,10 +161,36 @@ export const AudioRecorder: React.FC<Props> = ({ onRecordingComplete, isProcessi
     animate();
   };
 
+  const pauseRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      mediaRecorderRef.current.pause();
+      setIsPaused(true);
+
+      // Pause timer
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    }
+  };
+
+  const resumeRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'paused') {
+      mediaRecorderRef.current.resume();
+      setIsPaused(false);
+
+      // Resume timer
+      timerRef.current = window.setInterval(() => {
+        setRecordingTime(prev => prev + 1);
+      }, 1000);
+    }
+  };
+
   const stopRecording = () => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
+      setIsPaused(false);
       cleanupAudio();
     }
   };
@@ -214,21 +241,35 @@ export const AudioRecorder: React.FC<Props> = ({ onRecordingComplete, isProcessi
           </Button>
         </div>
       ) : (
-        <button className="btn btn-danger w-full btn-recording" onClick={stopRecording}>
-          <canvas
-            ref={canvasRef}
-            width="120"
-            height="32"
-            className="audio-visualizer-canvas"
-          />
+        <div className="flex gap-2 w-full">
+          <button
+            className="btn btn-danger flex-1 btn-recording"
+            onClick={stopRecording}
+            style={{ minWidth: 0 }}
+          >
+            <canvas
+              ref={canvasRef}
+              width="120"
+              height="32"
+              className="audio-visualizer-canvas"
+            />
 
-          <div className="recording-content">
-            <Square size={14} className="fill-current animate-pulse" />
-            <span className="font-mono">{formatTime(recordingTime)}</span>
-          </div>
+            <div className="recording-content">
+              <Square size={14} className="fill-current animate-pulse" />
+              <span className="font-mono">{formatTime(recordingTime)}</span>
+            </div>
 
-          <div className="recording-bg-pulse" />
-        </button>
+            <div className="recording-bg-pulse" />
+          </button>
+
+          <button
+            className="btn btn-secondary px-3"
+            onClick={isPaused ? resumeRecording : pauseRecording}
+            title={isPaused ? "Retomar gravação" : "Pausar gravação"}
+          >
+            {isPaused ? <Play size={16} /> : <Pause size={16} />}
+          </button>
+        </div>
       )}
     </div>
   );
