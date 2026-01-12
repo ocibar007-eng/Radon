@@ -1,0 +1,22 @@
+[
+    {
+        "origin": [
+            "http://localhost:3000",
+            "http://127.0.0.1:3000"
+        ],
+        "method": [
+            "GET",
+            "PUT",
+            "POST",
+            "DELETE",
+            "HEAD",
+            "OPTIONS"
+        ],
+        "responseHeader": [
+            "Content-Type",
+            "Firebase-Storage-Resumable-Upload-Protocol",
+            "X-Firebase-Storage-Content-Length"
+        ],
+        "maxAgeSeconds": 3600
+    }
+]

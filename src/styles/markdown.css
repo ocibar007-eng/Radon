@@ -1,0 +1,89 @@
+
+.markdown-content {
+  max-width: 100%;
+}
+
+/* === VARIANT: CLINICAL (Resumo) === */
+.markdown-clinical {
+  font-family: var(--font-sans);
+  font-size: 0.95rem; /* ~15px */
+  line-height: 1.6;
+  color: var(--color-text-primary);
+}
+
+.markdown-clinical h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-accent-primary);
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid var(--color-border-default);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Pseudo-icons for headers if we rely on text matching */
+/* Using generic header styling to keep it clean */
+
+.markdown-clinical p {
+  margin-bottom: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.markdown-clinical ul {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 1.25rem;
+}
+
+.markdown-clinical li {
+  position: relative;
+  padding-left: 1.25rem;
+  margin-bottom: 0.375rem;
+  color: var(--color-text-primary);
+}
+
+.markdown-clinical li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: var(--color-accent-primary);
+  font-weight: bold;
+}
+
+.markdown-clinical strong {
+  color: white;
+  font-weight: 600;
+}
+
+/* === VARIANT: VERBATIM (Laudos) === */
+.markdown-verbatim {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  white-space: pre-wrap;
+  background: var(--color-bg-tertiary); /* Slate mais escuro, integrado */
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-default);
+}
+
+.markdown-verbatim h1,
+.markdown-verbatim h2, 
+.markdown-verbatim h3 {
+  font-size: 1rem;
+  color: var(--color-text-primary);
+  margin-top: 1rem;
+}
+
+/* General overrides */
+.markdown-content hr {
+  border: 0;
+  border-top: 1px dashed var(--color-border-subtle);
+  margin: 2rem 0;
+}
