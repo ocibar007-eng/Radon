@@ -54,24 +54,32 @@ export const AudioJobsPanel: React.FC<Props> = ({ jobs }) => {
                   </div>
                 )}
 
-                {/* Download Action */}
+                {/* Download Audio Action */}
                 <div className="border-t border-subtle mt-3 pt-2 flex justify-end">
                   <button
                     className="text-xs flex items-center gap-1 text-tertiary hover:text-primary transition-colors"
                     onClick={(e) => {
                       e.stopPropagation();
-                      const content = job.transcriptRows?.map(r => `[${r.tempo}] ${r.texto}`).join('\n') || job.transcriptRaw;
-                      if (!content) return;
 
-                      const blob = new Blob([content], { type: 'text/plain' });
-                      const url = URL.createObjectURL(blob);
-                      const a = document.createElement('a');
-                      a.href = url;
-                      a.download = `transcricao_${job.id.slice(0, 6)}.txt`;
-                      a.click();
+                      // Try to download from blob or storageUrl
+                      if (job.blob) {
+                        const url = URL.createObjectURL(job.blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `audio_${job.id.slice(0, 6)}.mp3`;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                      } else if (job.storageUrl) {
+                        const a = document.createElement('a');
+                        a.href = job.storageUrl;
+                        a.download = `audio_${job.id.slice(0, 6)}.mp3`;
+                        a.target = '_blank';
+                        a.click();
+                      }
                     }}
+                    disabled={!job.blob && !job.storageUrl}
                   >
-                    <Download size={12} /> Baixar Transcrição
+                    <Download size={12} /> Baixar Áudio
                   </button>
                 </div>
               </div>
