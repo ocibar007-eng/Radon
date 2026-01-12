@@ -18,6 +18,7 @@ export const AudioRecorder: React.FC<Props> = ({ onRecordingComplete, isProcessi
   const chunksRef = useRef<BlobPart[]>([]);
   const timerRef = useRef<number | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const recordingTimeRef = useRef<number>(0);
 
   // Audio Viz
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -69,6 +70,27 @@ export const AudioRecorder: React.FC<Props> = ({ onRecordingComplete, isProcessi
 
       mediaRecorder.onstop = () => {
         const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        const finalRecordingTime = recordingTimeRef.current;
+
+        // Validate audio before processing
+        if (finalRecordingTime < 2) {
+          alert('⚠️ Gravação muito curta (menos de 2 segundos). Por favor, grave um áudio mais longo.');
+          if (streamRef.current) {
+            streamRef.current.getTracks().forEach(track => track.stop());
+            streamRef.current = null;
+          }
+          return;
+        }
+
+        if (blob.size < 1000) {
+          alert('⚠️ Arquivo de áudio muito pequeno ou possivelmente vazio. Verifique se o microfone está funcionando.');
+          if (streamRef.current) {
+            streamRef.current.getTracks().forEach(track => track.stop());
+            streamRef.current = null;
+          }
+          return;
+        }
+
         onRecordingComplete(blob);
 
         if (streamRef.current) {
@@ -80,9 +102,14 @@ export const AudioRecorder: React.FC<Props> = ({ onRecordingComplete, isProcessi
       mediaRecorder.start();
       setIsRecording(true);
       setRecordingTime(0);
+      recordingTimeRef.current = 0;
 
       timerRef.current = window.setInterval(() => {
-        setRecordingTime(prev => prev + 1);
+        setRecordingTime(prev => {
+          const newTime = prev + 1;
+          recordingTimeRef.current = newTime;
+          return newTime;
+        });
       }, 1000);
 
     } catch (err) {
@@ -181,7 +208,11 @@ export const AudioRecorder: React.FC<Props> = ({ onRecordingComplete, isProcessi
 
       // Resume timer
       timerRef.current = window.setInterval(() => {
-        setRecordingTime(prev => prev + 1);
+        setRecordingTime(prev => {
+          const newTime = prev + 1;
+          recordingTimeRef.current = newTime;
+          return newTime;
+        });
       }, 1000);
     }
   };
