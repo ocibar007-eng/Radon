@@ -21,7 +21,7 @@ export const IntakeCard: React.FC<Props> = ({ data, headerDoc }) => {
   }
 
   return (
-    <Card className="intake-card p-0 overflow-hidden flex flex-row h-32 border-subtle bg-surface">
+    <Card className="intake-card p-0 flex flex-row h-auto min-h-[8rem] border-subtle bg-surface">
       {/* Coluna 1: Imagem (Thumbnail) - Agora com fundo Slate e não Preto */}
       <div
         className="w-32 h-full relative border-r border-subtle group cursor-pointer"
@@ -51,28 +51,28 @@ export const IntakeCard: React.FC<Props> = ({ data, headerDoc }) => {
               <span className="text-[10px] uppercase tracking-wider text-tertiary font-bold mb-1 flex items-center gap-1.5">
                 <User size={10} /> Paciente
               </span>
-              <span className="text-xl text-primary font-semibold tracking-tight block truncate" title={data.paciente?.valor}>
+              <span className="text-xl text-primary font-bold tracking-tight block truncate" title={data.paciente?.valor}>
                 {data.paciente?.valor || 'Paciente não identificado'}
               </span>
             </div>
 
-            {/* OS / ID */}
+            {/* Realização - Coluna da Esquerda (Sem borda) */}
             <div className="flex flex-col justify-center min-w-0">
-              <span className="text-[10px] uppercase tracking-wider text-tertiary font-bold mb-0.5 flex items-center gap-1.5 whitespace-nowrap">
-                <Hash size={10} /> OS / Pedido
-              </span>
-              <span className="text-sm font-mono text-secondary truncate" title={data.os?.valor}>
-                {data.os?.valor || 'N/A'}
-              </span>
-            </div>
-
-            {/* Data */}
-            <div className="flex flex-col justify-center border-l border-subtle pl-4 min-w-0">
               <span className="text-[10px] uppercase tracking-wider text-tertiary font-bold mb-0.5 flex items-center gap-1.5 whitespace-nowrap">
                 <Calendar size={10} /> Realização
               </span>
               <span className="text-sm font-mono text-accent truncate" title={data.data_exame?.valor}>
                 {data.data_exame?.valor || 'N/A'}
+              </span>
+            </div>
+
+            {/* OS / Pedido - Coluna da Direita (Com borda) */}
+            <div className="flex flex-col justify-center min-w-0 border-l border-subtle pl-4">
+              <span className="text-[10px] uppercase tracking-wider text-tertiary font-bold mb-0.5 flex items-center gap-1.5 whitespace-nowrap">
+                <Hash size={10} /> OS / Pedido
+              </span>
+              <span className="text-base font-mono text-secondary truncate" title={data.os?.valor}>
+                {data.os?.valor || 'N/A'}
               </span>
             </div>
           </>

@@ -1,4 +1,3 @@
-
 .markdown-content {
   max-width: 100%;
 }
@@ -6,17 +5,22 @@
 /* === VARIANT: CLINICAL (Resumo) === */
 .markdown-clinical {
   font-family: var(--font-sans);
-  font-size: 0.95rem; /* ~15px */
+  font-size: 0.95rem;
+  /* ~15px */
   line-height: 1.6;
   color: var(--color-text-primary);
 }
 
 .markdown-clinical h3 {
+  font-family: var(--font-sans) !important;
   font-size: 1rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--color-accent-primary);
+  color: var(--color-accent-primary) !important;
+  /* Force Amber */
+  background: transparent !important;
+  /* Fix potential black bg */
   margin-top: 1.5rem;
   margin-bottom: 0.75rem;
   padding-bottom: 0.25rem;
@@ -24,6 +28,14 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+/* Fix for black-on-black blocks if they exist */
+.markdown-clinical pre,
+.markdown-clinical code {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-text-primary);
+  font-family: var(--font-mono);
 }
 
 /* Pseudo-icons for headers if we rely on text matching */
@@ -55,9 +67,29 @@
   font-weight: bold;
 }
 
+/* Hard override for highlights */
+.term-highlight {
+  color: #fbbf24;
+  /* Amber-400 explicitly for high visibility */
+  background: rgba(251, 191, 36, 0.1);
+  padding: 0 4px;
+  border-radius: 4px;
+  font-weight: 700;
+  display: inline-block;
+  /* Garante que padding funcione bem */
+}
+
 .markdown-clinical strong {
-  color: white;
-  font-weight: 600;
+  color: var(--color-text-primary);
+  font-weight: 700;
+}
+
+/* FIX: Ensure Sans-Serif is used everywhere in clinical mode, no typewriters allowed! */
+.markdown-clinical p,
+.markdown-clinical li,
+.markdown-clinical span {
+  font-family: var(--font-sans) !important;
+  letter-spacing: 0.01em;
 }
 
 /* === VARIANT: VERBATIM (Laudos) === */
@@ -67,14 +99,15 @@
   line-height: 1.5;
   color: var(--color-text-secondary);
   white-space: pre-wrap;
-  background: var(--color-bg-tertiary); /* Slate mais escuro, integrado */
+  background: var(--color-bg-tertiary);
+  /* Slate mais escuro, integrado */
   padding: 1rem;
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border-default);
 }
 
 .markdown-verbatim h1,
-.markdown-verbatim h2, 
+.markdown-verbatim h2,
 .markdown-verbatim h3 {
   font-size: 1rem;
   color: var(--color-text-primary);

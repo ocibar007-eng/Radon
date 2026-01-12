@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Mic, Square } from 'lucide-react';
+import { Mic, Square, Upload } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 
 interface Props {
@@ -11,18 +11,19 @@ interface Props {
 export const AudioRecorder: React.FC<Props> = ({ onRecordingComplete, isProcessing }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
-  
-  // Refs para gravação
+
+  // Refs
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<BlobPart[]>([]);
   const timerRef = useRef<number | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
-  // Refs para visualização de áudio (Web Audio API)
+  // Audio Viz
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animationFrameRef = useRef<number | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     return () => {
@@ -30,11 +31,9 @@ export const AudioRecorder: React.FC<Props> = ({ onRecordingComplete, isProcessi
     };
   }, []);
 
-  // Monitora a entrada no modo de gravação para iniciar o visualizador
-  // Isso garante que o elemento <canvas> já existe no DOM
   useEffect(() => {
     if (isRecording && streamRef.current) {
-        setupVisualizer(streamRef.current);
+      setupVisualizer(streamRef.current);
     }
   }, [isRecording]);
 
@@ -51,10 +50,7 @@ export const AudioRecorder: React.FC<Props> = ({ onRecordingComplete, isProcessi
       audioContextRef.current.close();
       audioContextRef.current = null;
     }
-    if (!isRecording && streamRef.current) {
-        // streamRef.current.getTracks().forEach(t => t.stop());
-        // streamRef.current = null;
-    }
+    // stream cleanup omitted to be safe or managed by stop
   };
 
   const startRecording = async () => {
@@ -73,18 +69,17 @@ export const AudioRecorder: React.FC<Props> = ({ onRecordingComplete, isProcessi
       mediaRecorder.onstop = () => {
         const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
         onRecordingComplete(blob);
-        
-        // Limpa as tracks ao finalizar
+
         if (streamRef.current) {
-            streamRef.current.getTracks().forEach(track => track.stop());
-            streamRef.current = null;
+          streamRef.current.getTracks().forEach(track => track.stop());
+          streamRef.current = null;
         }
       };
 
       mediaRecorder.start();
       setIsRecording(true);
       setRecordingTime(0);
-      
+
       timerRef.current = window.setInterval(() => {
         setRecordingTime(prev => prev + 1);
       }, 1000);
@@ -97,26 +92,26 @@ export const AudioRecorder: React.FC<Props> = ({ onRecordingComplete, isProcessi
 
   const setupVisualizer = async (stream: MediaStream) => {
     if (!canvasRef.current) return;
-    if (audioContextRef.current) return; 
+    if (audioContextRef.current) return;
 
     try {
-        const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-        audioContextRef.current = audioCtx;
-        
-        if (audioCtx.state === 'suspended') {
-            await audioCtx.resume();
-        }
+      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      audioContextRef.current = audioCtx;
 
-        const analyser = audioCtx.createAnalyser();
-        analyser.fftSize = 256; 
-        analyserRef.current = analyser;
+      if (audioCtx.state === 'suspended') {
+        await audioCtx.resume();
+      }
 
-        const source = audioCtx.createMediaStreamSource(stream);
-        source.connect(analyser);
+      const analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 256;
+      analyserRef.current = analyser;
 
-        draw();
+      const source = audioCtx.createMediaStreamSource(stream);
+      source.connect(analyser);
+
+      draw();
     } catch (e) {
-        console.error("Falha ao iniciar visualizador:", e);
+      console.error("Falha ao iniciar visualizador:", e);
     }
   };
 
@@ -126,15 +121,15 @@ export const AudioRecorder: React.FC<Props> = ({ onRecordingComplete, isProcessi
     const canvas = canvasRef.current;
     const canvasCtx = canvas.getContext('2d');
     const analyser = analyserRef.current;
-    
+
     if (!canvasCtx) return;
 
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
 
     const animate = () => {
-      if (!analyserRef.current) return; 
-      
+      if (!analyserRef.current) return;
+
       animationFrameRef.current = requestAnimationFrame(animate);
       analyser.getByteTimeDomainData(dataArray);
 
@@ -148,7 +143,7 @@ export const AudioRecorder: React.FC<Props> = ({ onRecordingComplete, isProcessi
       let x = 0;
 
       for (let i = 0; i < bufferLength; i++) {
-        const v = dataArray[i] / 128.0; 
+        const v = dataArray[i] / 128.0;
         const y = (v * canvas.height) / 2;
 
         if (i === 0) {
@@ -179,29 +174,60 @@ export const AudioRecorder: React.FC<Props> = ({ onRecordingComplete, isProcessi
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check type
+    if (!file.type.startsWith('audio/')) {
+      alert('Por favor, selecione um arquivo de áudio válido.');
+      return;
+    }
+
+    onRecordingComplete(file);
+    e.target.value = '';
+  };
+
   return (
     <div className="recorder-wrapper">
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept="audio/*"
+        style={{ display: 'none' }}
+      />
+
       {!isRecording ? (
-        <Button onClick={startRecording} variant="primary" className="w-full">
-          <Mic size={16} style={{marginRight: 8}} />
-          Gravar
-        </Button>
+        <div className="flex gap-2 w-full">
+          <Button onClick={startRecording} variant="primary" className="flex-1">
+            <Mic size={16} style={{ marginRight: 8 }} />
+            Gravar
+          </Button>
+
+          <Button onClick={handleUploadClick} variant="secondary" className="px-3" title="Upload de áudio">
+            <Upload size={16} />
+          </Button>
+        </div>
       ) : (
         <button className="btn btn-danger w-full btn-recording" onClick={stopRecording}>
-            {/* Visualizer Canvas */}
-            <canvas 
-                ref={canvasRef} 
-                width="120" 
-                height="32" 
-                className="audio-visualizer-canvas"
-            />
-            
-            <div className="recording-content">
-                <Square size={14} className="fill-current animate-pulse" />
-                <span className="font-mono">{formatTime(recordingTime)}</span>
-            </div>
-            
-            <div className="recording-bg-pulse" />
+          <canvas
+            ref={canvasRef}
+            width="120"
+            height="32"
+            className="audio-visualizer-canvas"
+          />
+
+          <div className="recording-content">
+            <Square size={14} className="fill-current animate-pulse" />
+            <span className="font-mono">{formatTime(recordingTime)}</span>
+          </div>
+
+          <div className="recording-bg-pulse" />
         </button>
       )}
     </div>

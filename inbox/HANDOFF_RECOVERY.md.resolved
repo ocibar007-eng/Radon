@@ -1,0 +1,54 @@
+# 🚨 EMERGENCY HANDOFF: UI & AUDIO RECOVERY 🚨
+
+**To the Next Agent:**
+I was unable to complete the UI/Audio fixes due to repeated `replace_file_content` failures (target not found) and partial updates. The user is frustrated. **DO NOT TRY TO PATCH**. Use `write_to_file` to rewrite broken components entirely if needed.
+
+---
+
+## 🏗️ Project Context
+- **Type**: Medical OCR & Audio Processing App (Vite + React + Firebase).
+- **Core Feature**: Users record/upload audio (medical dictation), it gets transcribed/processed, and displayed as a structured markdown report.
+- **Tech Stack**: Tailwind CSS, Lucide React, Context API (`SessionContext`), Custom Hooks ([usePipeline](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/src/hooks/usePipeline.ts#8-233)).
+
+## 💥 Current Broken State (Critical)
+
+### 1. Markdown Report Rendering ([MarkdownRenderer.tsx](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/src/components/MarkdownRenderer.tsx))
+- **Symptoms**:
+    - Asterisks visible in output: `**Contraste:**` (should be **Contraste:** yellow highlight).
+    - Headers might look like "typewriter" font (Monospace black on black).
+- **The Fail**: My attempts to regex-strip the `**` failed because the file on disk kept drifting from what I thought it was.
+- **Action Required**:
+    - Rewrite [highlightTerms](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/src/components/MarkdownRenderer.tsx#46-78) function to **aggressively** strip `**` and `__` before wrapping in `<strong className="term-highlight">`.
+    - **Verify** regex logic: `/(\*\*|__)?(KeyWord)(...)?/`.
+
+### 2. Header Layout ([IntakeCard.tsx](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/src/features/intake/IntakeCard.tsx))
+- **Symptoms**: Text "OS/Pedido" or Patient Name gets cut off vertically or horizontally.
+- **The Fail**: I set `min-h-[8rem]` but the internal flex layout might still be checking for `h-32`.
+- **Action Required**: Ensure the card container allows vertical expansion (`h-auto`) and the inner grid doesn't force a fixed height.
+
+### 3. Audio & UI ([AudioRecorder.tsx](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/src/features/audio/AudioRecorder.tsx), [AudioJobsPanel.tsx](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/src/features/audio/AudioJobsPanel.tsx))
+- **Symptoms**: User reported not seeing Upload/Download buttons.
+- **The Fail**: Browser cache vs. Server HMR. I did a full rewrite of these files in the last step.
+- **Action Required**: **Verify** availability of [Upload](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/src/features/audio/AudioRecorder.tsx#177-180) icon in Recorder and `Download` icon in JobsPanel. If missing, force another rewrite.
+
+## 📂 Critical Files Reference
+
+| File | Issue | Goal |
+|------|-------|------|
+| [src/components/MarkdownRenderer.tsx](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/src/components/MarkdownRenderer.tsx) | Regex parser is "dirty" (leaves asterisks) | Clean highlights (Yellow background, no asterisks). |
+| [src/styles/markdown.css](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/src/styles/markdown.css) | Potential black-on-black text in headers | Ensure Headers are Amber/Yellow and Text is Sans-Serif (White/Gray). |
+| [src/features/intake/IntakeCard.tsx](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/src/features/intake/IntakeCard.tsx) | Vertical truncation | Responsive height (`h-auto` + `min-h`). |
+| [src/features/audio/AudioRecorder.tsx](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/src/features/audio/AudioRecorder.tsx) | Missing Upload button? | Add File Input + Upload Button. |
+
+## ⚠️ Execution Warnings
+1. **DO NOT TRUST `replace_file_content`** on [MarkdownRenderer.tsx](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/src/components/MarkdownRenderer.tsx). The file content is volatile. Read it first, or overwrite the whole function.
+2. **User "Reset"**: The user cleared cache/restarted server. Persistence *should* be fine now, but double check.
+3. **CSS Specificity**: Use `!important` on [markdown.css](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/src/styles/markdown.css) overrides if Tailwind classes are fighting back.
+
+## 🚀 Immediate Next Steps for You
+1. **Read** [MarkdownRenderer.tsx](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/src/components/MarkdownRenderer.tsx) and [markdown.css](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/src/styles/markdown.css).
+2. **Fix** the regex to be bulletproof (test it mentally: input `**Contraste:**` -> output `<strong class="term-highlight">Contraste:</strong>`).
+3. **Verify** [IntakeCard](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/src/features/intake/IntakeCard.tsx#12-93) height logic.
+4. **Notify User** only when confident the code on disk is correct.
+
+Good luck. Fixing the "Visual Bugs" is the P0 priority.
