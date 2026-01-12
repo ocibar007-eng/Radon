@@ -51,7 +51,7 @@ export const IntakeCard: React.FC<Props> = ({ data, headerDoc }) => {
               <span className="text-[10px] uppercase tracking-wider text-tertiary font-bold mb-1 flex items-center gap-1.5">
                 <User size={10} /> Paciente
               </span>
-              <span className="text-xl text-primary font-bold tracking-tight block truncate" title={data.paciente?.valor}>
+              <span className="text-xl text-primary font-bold tracking-tight block break-words" title={data.paciente?.valor}>
                 {data.paciente?.valor || 'Paciente não identificado'}
               </span>
             </div>
