@@ -1,7 +1,7 @@
 
 import { PatientRegistrationDetails, ClinicalSummary, AttachmentDoc, AudioJob, AppSession } from './index';
 
-export type PatientStatus = 'waiting' | 'processing' | 'ready' | 'done';
+export type PatientStatus = 'waiting' | 'processing' | 'in_progress' | 'ready' | 'done';
 
 export interface Patient {
   id: string;
@@ -22,6 +22,12 @@ export interface Patient {
   docsCount: number;
   audioCount: number;
   hasClinicalSummary: boolean;
+
+  // Novos campos para rastreamento de anexos e finalização
+  hasAttachments?: boolean;      // true se tem docs ou audio
+  finalized?: boolean;           // true se botão finalizar clicado
+  finalizedAt?: number;          // timestamp da finalização
+  finalizedBy?: string;          // user que finalizou (futuro)
 
   // Dados Completos (podem ser carregados sob demanda em otimizações futuras)
   details?: PatientRegistrationDetails | null;
