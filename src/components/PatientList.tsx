@@ -1,13 +1,16 @@
 
 import React, { useState } from 'react';
-import { Plus, Search, RefreshCw, AlertTriangle, ScanLine, UploadCloud, Loader2, Zap } from 'lucide-react';
+import { Plus, Search, RefreshCw, AlertTriangle, ScanLine, UploadCloud, Loader2, Zap, Table } from 'lucide-react';
 import { usePatients } from '../hooks/usePatients';
 import { PatientCard } from './PatientCard';
 import { Button } from './ui/Button';
 import { Modal } from './ui/Modal';
+import { BatchUploadModal } from './BatchUploadModal';
 import { Patient } from '../types/patient';
 import { isFirebaseEnabled } from '../core/firebase';
-import { extractHeaderInfo } from '../adapters/gemini-prompts';
+import { extractHeaderInfo, extractBatchTable, detectIfTableImage } from '../adapters/gemini-prompts';
+import { parseCSV, parseExcel, PatientBatchItem } from '../utils/batch-parsers';
+import { PatientService } from '../services/patient-service';
 
 import '../styles/patient-list.css';
 
@@ -19,15 +22,20 @@ interface Props {
 export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) => {
   const { patients, loading, error, filter, setFilter, refresh, createPatient, deletePatient } = usePatients();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  
+
   // Form State
   const [newName, setNewName] = useState('');
   const [newOS, setNewOS] = useState('');
   const [newExamType, setNewExamType] = useState('');
-  
+
   // Loading States
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isReadingOCR, setIsReadingOCR] = useState(false);
+
+  // Batch Upload State
+  const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
+  const [batchItems, setBatchItems] = useState<PatientBatchItem[]>([]);
+  const [isProcessingBatch, setIsProcessingBatch] = useState(false);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,6 +87,68 @@ export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) 
     }
   };
 
+  const handleBatchUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.length) return;
+    const file = e.target.files[0];
+
+    setIsProcessingBatch(true);
+    try {
+      let items: PatientBatchItem[] = [];
+
+      // Detectar tipo de arquivo
+      const extension = file.name.split('.').pop()?.toLowerCase();
+
+      if (extension === 'csv') {
+        // CSV direto
+        items = await parseCSV(file);
+      } else if (extension === 'xls' || extension === 'xlsx') {
+        // Excel direto
+        items = await parseExcel(file);
+      } else if (['jpg', 'jpeg', 'png', 'pdf'].includes(extension || '')) {
+        // Imagem ou PDF - verificar se é tabela
+        const isTable = await detectIfTableImage(file);
+        if (isTable) {
+          items = await extractBatchTable(file);
+        } else {
+          alert('⚠️ Não foi detectada uma tabela com múltiplos exames neste arquivo.');
+          return;
+        }
+      } else {
+        alert('⚠️ Formato não suportado. Use CSV, Excel, ou imagem/PDF com tabela.');
+        return;
+      }
+
+      if (items.length === 0) {
+        alert('⚠️ Nenhum exame foi detectado no arquivo.');
+        return;
+      }
+
+      // Mostrar modal de preview
+      setBatchItems(items);
+      setIsBatchModalOpen(true);
+    } catch (error) {
+      console.error('Erro ao processar batch:', error);
+      alert('❌ Erro ao processar arquivo. Verifique o formato e tente novamente.');
+    } finally {
+      setIsProcessingBatch(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleBatchConfirm = async (validItems: PatientBatchItem[]) => {
+    try {
+      const createdIds = await PatientService.createBatchPatients(validItems);
+
+      // Refresh da lista
+      await refresh();
+
+      alert(`✅ ${createdIds.length} exame(s) criado(s) com sucesso!`);
+    } catch (error) {
+      console.error('Erro ao criar lote:', error);
+      throw error;
+    }
+  };
+
   const firebaseActive = isFirebaseEnabled();
 
   return (
@@ -101,6 +171,20 @@ export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) 
           <p className="pl-subtitle">Gerencie os exames e laudos em andamento.</p>
         </div>
         <div className="flex gap-2">
+          <label>
+            <Button variant="secondary" disabled={isProcessingBatch} isLoading={isProcessingBatch}>
+              {!isProcessingBatch && <Table size={16} className="mr-2" />}
+              Upload em Lote
+            </Button>
+            <input
+              type="file"
+              hidden
+              accept=".csv,.xls,.xlsx,image/*,application/pdf"
+              onChange={handleBatchUpload}
+              disabled={isProcessingBatch}
+            />
+          </label>
+
           <Button variant="secondary" onClick={onQuickStart} title="Laudo sem cadastro">
             <Zap size={16} className="mr-2 text-accent" /> Laudo Rápido
           </Button>
@@ -238,6 +322,14 @@ export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) 
           </form>
         </div>
       </Modal>
+
+      {/* Batch Upload Modal */}
+      <BatchUploadModal
+        isOpen={isBatchModalOpen}
+        items={batchItems}
+        onClose={() => setIsBatchModalOpen(false)}
+        onConfirm={handleBatchConfirm}
+      />
     </div>
   );
 };

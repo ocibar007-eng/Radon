@@ -263,5 +263,43 @@ export const PatientService = {
     }
     // 2. Caminho Offline (Memória)
     return memoryStore.find(p => p.id === id) || null;
+  },
+
+  /**
+   * Cria múltiplos pacientes em lote
+   * Retorna array de IDs criados
+   */
+  async createBatchPatients(items: Array<{
+    os: string;
+    paciente: string;
+    tipo_exame: string;
+    data_exame: string;
+    data_entrega?: string;
+  }>): Promise<string[]> {
+    const createdIds: string[] = [];
+    const now = Date.now();
+
+    for (const item of items) {
+      const patient: Patient = {
+        id: crypto.randomUUID(),
+        name: item.paciente || 'Sem Nome',
+        os: item.os || `AUTO-${Date.now()}`,
+        examType: item.tipo_exame || 'Não especificado',
+        examDate: item.data_exame,
+        status: 'waiting',
+        createdAt: now,
+        updatedAt: now,
+        docsCount: 0,
+        audioCount: 0,
+        hasClinicalSummary: false,
+        hasAttachments: false,
+        finalized: false,
+      };
+
+      await this.createPatient(patient);
+      createdIds.push(patient.id);
+    }
+
+    return createdIds;
   }
 };
