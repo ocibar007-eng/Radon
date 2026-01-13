@@ -42,9 +42,14 @@ const ResilientString = z.preprocess((v) => v ? String(v) : '', z.string().defau
 // Schema para campos OCR Texto Simples
 export const OCRFieldSchema = z.object({
   valor: ResilientString,
-  confianca: ConfiancaSchema, 
+  confianca: ConfiancaSchema,
   evidencia: ResilientString,
   candidatos: z.array(z.string()).optional().default([])
+}).catch({
+  valor: '',
+  confianca: 'baixa',
+  evidencia: 'Erro de processamento',
+  candidatos: []
 });
 
 // Schema para o Campo de Data Complexo
@@ -63,6 +68,13 @@ export const DateOCRFieldSchema = z.object({
   confianca: ConfiancaSchema,
   evidencia: ResilientString,
   candidatos: z.array(DateCandidateSchema).optional().default([])
+}).catch({
+  valor: '',
+  data_normalizada: null,
+  hora: null,
+  confianca: 'baixa',
+  evidencia: 'Erro de processamento',
+  candidatos: []
 });
 
 // 1. Header Intake
@@ -79,12 +91,19 @@ export const PatientRegistrationSchema = z.object({
     hora: z.string().nullable().default(null)
   })).optional().default([]),
   observacoes: z.array(z.string()).optional().default([])
+}).catch({
+  os: { valor: '', confianca: 'baixa', evidencia: '', candidatos: [] },
+  paciente: { valor: '', confianca: 'baixa', evidencia: '', candidatos: [] },
+  tipo_exame: { valor: '', confianca: 'baixa', evidencia: '', candidatos: [] },
+  data_exame: { valor: '', confianca: 'baixa', evidencia: '', data_normalizada: null, hora: null, candidatos: [] },
+  outras_datas_encontradas: [],
+  observacoes: ['Erro crítico de validação de dados do paciente.']
 });
 
 // 2. Classificação de Documentos
 // Relaxamos classification para aceitar string e tentar normalizar via catch
 export const DocumentAnalysisSchema = z.object({
-  classification: z.string().default('indeterminado'), 
+  classification: z.string().default('indeterminado'),
   texto_verbatim: ResilientString,
   report_group_hint: z.string().optional().default('')
 });
@@ -102,17 +121,17 @@ export const StructuredReportBodySchema = z.object({
   data_exame_detectada: z.string().optional(),
   indicacao_clinica: ResilientString,
   tecnica: ResilientString,
-  
+
   achados_por_estrutura: z.array(StructuredFindingSchema).default([]),
-  
+
   linfonodos: z.object({
     achados_literais_em_topicos: z.array(z.string()).default([]),
     pontos_de_comparacao: z.array(z.string()).default([]),
     status: FindingSeveritySchema
   }).optional(),
-  
+
   impressao_diagnostica_ou_conclusao_literal: ResilientString,
-  
+
   // Novos campos de controle
   alertas_de_fidelidade: z.array(z.string()).default([]),
   texto_parece_completo: z.boolean().default(true)
@@ -121,6 +140,8 @@ export const StructuredReportBodySchema = z.object({
 // 3. Metadados Detalhados de Laudo
 export const ReportMetadataSchema = z.object({
   tipo_exame: ResilientString,
+  os: ResilientString, // NOVO: Para validação cruzada
+  paciente: ResilientString, // NOVO: Para validação cruzada
   origem: OrigemSchema,
   datas_encontradas: z.array(z.object({
     rotulo: ResilientString,

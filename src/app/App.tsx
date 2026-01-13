@@ -26,6 +26,7 @@ import { usePersistence } from '../hooks/usePersistence';
 import { useWorkspaceActions } from '../hooks/useWorkspaceActions';
 import { usePasteHandler } from '../hooks/usePasteHandler';
 import { Patient, PatientStatus } from '../types/patient';
+import { StorageService } from '../services/storage-service';
 
 const DEBUG_LOGS = true;
 
@@ -189,7 +190,17 @@ function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: Workspa
 
       setIsHydrating(true);
       try {
-        // OPTIMIZATION: Se for um paciente temporário (Quick Start), não buscamos no banco.
+        // 1. Prioridade Máxima: IndexedDB (Crash Recovery)
+        const localSession = await StorageService.loadSession(patient.id);
+
+        if (localSession && mounted) {
+          console.log(`[Hydrate] Restaurando sessão do IndexedDB para ${patient.id}...`);
+          dispatch({ type: 'RESTORE_SESSION', payload: localSession });
+          setIsHydrating(false);
+          return;
+        }
+
+        // 2. Fallback: Firestore (Modo Nuvem)
         const isTempPatient = patient.os && patient.os.startsWith('TMP-');
         const fullPatient = isTempPatient ? null : await PatientService.getPatient(patient.id);
 
@@ -197,31 +208,10 @@ function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: Workspa
 
         if (fullPatient && fullPatient.workspace) {
           const workspace = fullPatient.workspace as any;
-          const workspacePatientId = workspace.patientId;
-          const workspaceOs = workspace.patient?.os?.valor;
-          const shouldRestore = (workspacePatientId && workspacePatientId === patient.id) ||
-            (workspaceOs && workspaceOs === patient.os);
-
-          if (shouldRestore) {
-            dispatch({ type: 'RESTORE_SESSION', payload: workspace });
-            dispatch({ type: 'SET_PATIENT_ID', payload: patient.id });
-          } else {
-            dispatch({ type: 'CLEAR_SESSION' });
-            dispatch({
-              type: 'SET_PATIENT',
-              payload: {
-                paciente: { valor: patient.name, confianca: 'alta', evidencia: 'Cadastro', candidatos: [] },
-                os: { valor: patient.os, confianca: 'alta', evidencia: 'Cadastro', candidatos: [] },
-                tipo_exame: { valor: patient.examType, confianca: 'media', evidencia: 'Cadastro', candidatos: [] },
-                data_exame: { valor: '', confianca: 'baixa', evidencia: '', data_normalizada: null, hora: null, candidatos: [] },
-                outras_datas_encontradas: [],
-                observacoes: []
-              }
-            });
-            dispatch({ type: 'SET_PATIENT_ID', payload: patient.id });
-          }
+          dispatch({ type: 'RESTORE_SESSION', payload: workspace });
+          dispatch({ type: 'SET_PATIENT_ID', payload: patient.id });
         } else {
-          // Se não existe ou é novo, iniciamos limpo (e garantimos novamente)
+          // 3. New Session
           dispatch({ type: 'CLEAR_SESSION' });
           dispatch({
             type: 'SET_PATIENT',
@@ -375,7 +365,7 @@ function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: Workspa
     event.stopPropagation();
     setIsDragOverDocs(false);
 
-    const files = Array.from(event.dataTransfer.files || []);
+    const files = Array.from(event.dataTransfer.files || []) as File[];
     if (!files.length) return;
 
     const forcedType = activeTab === 'reports' ? 'laudo_previo' : 'assistencial';

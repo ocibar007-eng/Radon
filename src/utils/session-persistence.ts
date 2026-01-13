@@ -23,3 +23,14 @@ export function buildSessionSnapshot(session: AppSession): Partial<AppSession> {
     audioJobs: session.audioJobs.map(j => ({ ...j, blob: undefined }))
   };
 }
+
+/**
+ * Snapshot COMPLETO para IndexedDB (mantém Blobs/Files).
+ * Essencial para "Resumir Sessão Anterior" após um crash.
+ */
+export function buildPersistentSnapshot(session: AppSession): AppSession {
+  return {
+    ...session
+    // Dexie suporta Blobs/Files nativamente no IndexedDB.
+  };
+}

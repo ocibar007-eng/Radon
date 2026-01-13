@@ -143,6 +143,8 @@ SAÍDA JSON ESPERADA:
 {
   "report_metadata": {
     "tipo_exame": "...",
+    "os": "Número da OS/Pedido encontrado NESTA página",
+    "paciente": "Nome do paciente encontrado NESTA página",
     "origem": "interno_sabin" | "externo",
     "datas_encontradas": [{ "rotulo": "...", "data_literal": "..." }],
     "data_realizacao": "...",

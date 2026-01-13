@@ -23,8 +23,9 @@ export function usePipeline() {
     docsRef.current = session.docs;
   }, [session.docs]);
 
-  // Fila de processamento sequencial
+  // Fila de processamento sequencial e trava de execução
   const [queue, setQueue] = useState<ProcessingQueueItem[]>([]);
+  const isProcessingRef = useRef(false);
 
   // FIX: Resume jobs that were left hanging (e.g. user switched tabs)
   useEffect(() => {
@@ -53,18 +54,22 @@ export function usePipeline() {
 
   // Add item to processing queue
   const enqueue = (id: string, type: 'header' | 'doc' | 'audio') => {
-    // @ts-ignore - TS union type matching simplified
-    setQueue(prev => [...prev, { type, docId: id, jobId: id }]);
-    if (DEBUG_LOGS) {
-      console.log('[Debug][Pipeline] enqueue', { type, id });
-    }
+    setQueue(prev => {
+      // Evita duplicatas na fila para o mesmo ID/Tipo
+      const exists = prev.some(item => (item.type === type && (item.docId === id || item.jobId === id)));
+      if (exists) return prev;
+      // @ts-ignore
+      return [...prev, { type, docId: id, jobId: id }];
+    });
   };
 
   const enqueueGroupAnalysis = (docIds: string[], fullText: string) => {
-    setQueue(prev => [...prev, { type: 'group_analysis', docIds, fullText }]);
-    if (DEBUG_LOGS) {
-      console.log('[Debug][Pipeline] enqueueGroupAnalysis', { docIds, length: fullText.length });
-    }
+    setQueue(prev => {
+      const groupKey = [...docIds].sort().join('|');
+      const exists = prev.some(item => item.type === 'group_analysis' && item.docIds && [...item.docIds].sort().join('|') === groupKey);
+      if (exists) return prev;
+      return [...prev, { type: 'group_analysis', docIds, fullText }];
+    });
   };
 
   // 1. WATCHER DE GRUPOS (Lógica de "Full Transcription")
@@ -103,38 +108,33 @@ export function usePipeline() {
   }, [session.docs]);
 
 
-  // 2. QUEUE PROCESSOR
+  // 2. QUEUE PROCESSOR (Atomic & Sequential)
   useEffect(() => {
     const processNext = async () => {
-      if (queue.length === 0) return;
+      if (queue.length === 0 || isProcessingRef.current) return;
 
+      isProcessingRef.current = true;
       const item = queue[0];
-      const groupKey = item.type === 'group_analysis'
-        ? [...item.docIds].sort().join('|')
-        : null;
-      if (DEBUG_LOGS) {
-        console.log('[Debug][Pipeline] process:start', { type: item.type, docId: item.docId, jobId: item.jobId });
-      }
 
       try {
+        if (DEBUG_LOGS) console.log('[Debug][Pipeline] process:start', { type: item.type, id: item.docId || item.jobId });
+
         // --- HEADER PROCESSING ---
         if (item.type === 'header') {
           const { docId } = item;
           const headerDoc = session.headerImage;
-          if (headerDoc && headerDoc.id === docId && headerDoc.status === 'pending') {
+          if (headerDoc?.id === docId && headerDoc.status === 'pending' && headerDoc.file) {
             dispatch({ type: 'UPDATE_DOC', payload: { id: docId, updates: { status: 'processing' } } });
-            if (headerDoc.file) {
-              const data = await PipelineActions.processHeader(headerDoc.file);
-              if (isMounted.current) {
-                dispatch({ type: 'SET_PATIENT', payload: data });
-                dispatch({ type: 'SET_HEADER', payload: { ...headerDoc, status: 'done' } });
-              }
+            const data = await PipelineActions.processHeader(headerDoc.file);
+            if (isMounted.current) {
+              dispatch({ type: 'SET_PATIENT', payload: data });
+              dispatch({ type: 'SET_HEADER', payload: { ...headerDoc, status: 'done' } });
             }
           }
         }
 
         // --- DOC PROCESSING (OCR ONLY) ---
-        if (item.type === 'doc') {
+        else if (item.type === 'doc') {
           const { docId } = item;
           const doc = session.docs.find(d => d.id === docId);
 
@@ -153,8 +153,9 @@ export function usePipeline() {
         }
 
         // --- GROUP ANALYSIS (INTELLIGENCE) ---
-        if (item.type === 'group_analysis') {
+        else if (item.type === 'group_analysis') {
           const { docIds, fullText } = item;
+          const groupKey = [...docIds].sort().join('|');
           const result = await PipelineActions.processGroupAnalysis(fullText);
 
           if (isMounted.current) {
@@ -174,17 +175,12 @@ export function usePipeline() {
             });
 
             // Limpa o set de grupos analisados
-            if (groupKey) {
-              analyzingGroupsRef.current.delete(groupKey);
-            }
-            if (DEBUG_LOGS) {
-              console.log('[Debug][Pipeline] group:done', { docIds });
-            }
+            analyzingGroupsRef.current.delete(groupKey);
           }
         }
 
         // --- AUDIO PROCESSING ---
-        if (item.type === 'audio') {
+        else if (item.type === 'audio') {
           const { jobId } = item;
           const job = session.audioJobs.find(j => j.id === jobId);
           if (job && job.status === 'processing' && job.blob) {
@@ -213,14 +209,13 @@ export function usePipeline() {
       } finally {
         if (isMounted.current) {
           setQueue(prev => prev.slice(1));
-          if (DEBUG_LOGS) {
-            console.log('[Debug][Pipeline] process:done', { type: item.type, docId: item.docId, jobId: item.jobId });
-          }
         }
+        isProcessingRef.current = false;
+        if (DEBUG_LOGS) console.log('[Debug][Pipeline] process:done');
       }
     };
 
-    if (queue.length > 0) {
+    if (queue.length > 0 && !isProcessingRef.current) {
       processNext();
     }
   }, [queue, session.docs, session.headerImage, session.audioJobs, dispatch]);

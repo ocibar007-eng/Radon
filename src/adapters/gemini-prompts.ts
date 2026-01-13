@@ -119,6 +119,8 @@ export async function extractReportDetailedMetadata(fullText: string): Promise<R
     const fallback: ReportAnalysis = {
       report_metadata: {
         tipo_exame: 'Não identificado',
+        os: '',
+        paciente: '',
         origem: 'externo',
         datas_encontradas: [],
         data_realizacao: '',
