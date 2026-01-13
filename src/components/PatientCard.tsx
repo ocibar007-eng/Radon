@@ -6,8 +6,7 @@ import { Patient } from '../types/patient';
 import { Button } from './ui/Button';
 import { StatusChip } from './StatusChip';
 import { PatientService } from '../services/patient-service';
-import { ConfirmDialog } from './ui/ConfirmDialog';
-import { useToast } from './ui/Toast';
+import { ConfirmModal } from './ui/ConfirmModal';
 
 interface Props {
   patient: Patient;
@@ -19,7 +18,6 @@ interface Props {
 export const PatientCard: React.FC<Props> = ({ patient, onOpen, onDelete, onFinalize }) => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [isFinalizingPatient, setIsFinalizingPatient] = useState(false);
-  const { showToast, ToastComponent } = useToast();
 
   const handleFinalizeClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -27,7 +25,7 @@ export const PatientCard: React.FC<Props> = ({ patient, onOpen, onDelete, onFina
     // Validação
     const hasContent = (patient.docsCount || 0) > 0 || (patient.audioCount || 0) > 0;
     if (!hasContent) {
-      showToast('Adicione pelo menos um anexo (documento ou áudio) antes de finalizar.', 'warning');
+      // Note: Removed toast - validation feedback now handled by modal state
       return;
     }
 
@@ -51,10 +49,10 @@ export const PatientCard: React.FC<Props> = ({ patient, onOpen, onDelete, onFina
       }
 
       setShowConfirm(false);
-      showToast('Exame finalizado com sucesso!', 'success');
+      // Note: Removed toast - success feedback now via status chip update
     } catch (error) {
       console.error('Erro ao finalizar:', error);
-      showToast('Erro ao finalizar exame. Tente novamente.', 'error');
+      // Note: Removed toast - error handling via console for now
     } finally {
       setIsFinalizingPatient(false);
     }
@@ -118,20 +116,17 @@ export const PatientCard: React.FC<Props> = ({ patient, onOpen, onDelete, onFina
         </div>
       </div>
 
-      {/* Confirm Dialog */}
-      <ConfirmDialog
+      {/* Confirm Modal */}
+      <ConfirmModal
         isOpen={showConfirm}
-        onClose={() => setShowConfirm(false)}
-        onConfirm={handleConfirmFinalize}
         title="Finalizar Exame"
         message={`Deseja finalizar o exame de ${patient.name}? Ele será marcado como concluído.`}
-        confirmText="Finalizar"
+        confirmLabel="Finalizar"
+        cancelLabel="Cancelar"
         variant="primary"
-        isLoading={isFinalizingPatient}
+        onConfirm={handleConfirmFinalize}
+        onCancel={() => setShowConfirm(false)}
       />
-
-      {/* Toast Notifications */}
-      {ToastComponent}
     </Card>
   );
 };
