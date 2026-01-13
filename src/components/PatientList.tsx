@@ -171,25 +171,31 @@ export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) 
           <p className="pl-subtitle">Gerencie os exames e laudos em andamento.</p>
         </div>
         <div className="flex gap-2">
-          <label>
-            <Button variant="secondary" disabled={isProcessingBatch} isLoading={isProcessingBatch}>
-              {!isProcessingBatch && <Table size={16} className="mr-2" />}
+          <div style={{ position: 'relative', display: 'inline-block' }}>
+            <Button
+              variant="secondary"
+              disabled={isProcessingBatch}
+              isLoading={isProcessingBatch}
+              onClick={() => document.getElementById('batch-upload-input')?.click()}
+            >
+              {!isProcessingBatch && <Table size={16} />}
               Upload em Lote
             </Button>
             <input
+              id="batch-upload-input"
               type="file"
-              hidden
+              style={{ display: 'none' }}
               accept=".csv,.xls,.xlsx,image/*,application/pdf"
               onChange={handleBatchUpload}
               disabled={isProcessingBatch}
             />
-          </label>
+          </div>
 
           <Button variant="secondary" onClick={onQuickStart} title="Laudo sem cadastro">
-            <Zap size={16} className="mr-2 text-accent" /> Laudo Rápido
+            <Zap size={16} /> Laudo Rápido
           </Button>
           <Button onClick={() => setIsCreateModalOpen(true)}>
-            <Plus size={16} className="mr-2" /> Novo Paciente
+            <Plus size={16} /> Novo Paciente
           </Button>
         </div>
       </div>
@@ -240,11 +246,12 @@ export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) 
       ) : (
         <div className="pl-grid">
           {patients.map(p => (
-            <PatientCard 
-              key={p.id} 
-              patient={p} 
-              onOpen={onSelectPatient} 
-              onDelete={deletePatient} 
+            <PatientCard
+              key={p.id}
+              patient={p}
+              onOpen={onSelectPatient}
+              onDelete={deletePatient}
+              onFinalize={() => refresh()}
             />
           ))}
         </div>
