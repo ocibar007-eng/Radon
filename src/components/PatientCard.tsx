@@ -4,6 +4,7 @@ import { Calendar, FileText, Mic, Trash2, ArrowRight } from 'lucide-react';
 import { Card } from './ui/Card';
 import { Patient } from '../types/patient';
 import { Button } from './ui/Button';
+import { StatusChip } from './StatusChip';
 
 interface Props {
   patient: Patient;
@@ -12,13 +13,6 @@ interface Props {
 }
 
 export const PatientCard: React.FC<Props> = ({ patient, onOpen, onDelete }) => {
-  const statusLabels = {
-    waiting: 'Aguardando',
-    processing: 'Processando',
-    ready: 'Pronto p/ Laudo',
-    done: 'Finalizado'
-  };
-
   return (
     <Card className="patient-card" isInteractive onClick={() => onOpen(patient)}>
       <div>
@@ -27,9 +21,7 @@ export const PatientCard: React.FC<Props> = ({ patient, onOpen, onDelete }) => {
             <h3 className="pc-name">{patient.name}</h3>
             <span className="pc-os">{patient.os || 'Sem OS'}</span>
           </div>
-          <span className={`pc-status-badge status-${patient.status}`}>
-            {statusLabels[patient.status]}
-          </span>
+          <StatusChip status={patient.status} />
         </div>
         
         <div className="pc-meta">

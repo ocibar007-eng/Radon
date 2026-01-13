@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { FileText, History, Download, RefreshCw, Loader2 } from 'lucide-react';
+import { FileText, History, Download, RefreshCw, Loader2, CheckCircle } from 'lucide-react';
 import { IntakeCard } from '../features/intake/IntakeCard';
 import { Button } from '../components/ui/Button';
 import { ConfirmModal } from '../components/ui/ConfirmModal';
@@ -113,7 +113,8 @@ function WorkspaceLayout({ patient, onExit }: WorkspaceProps) {
     handleSplitReportGroup,
     handleClearSession,
     handleAudioComplete,
-    downloadAll
+    downloadAll,
+    handleFinalize
   } = useWorkspaceActions(patient);
 
   // 3. Estado Local de UI
@@ -243,6 +244,13 @@ function WorkspaceLayout({ patient, onExit }: WorkspaceProps) {
             {!isGeneratingReport && <Download className="w-4 h-4 mr-2" size={16} />}
             Download Report
           </Button>
+
+          {patient && patient.status !== 'done' && (
+            <Button variant="primary" onClick={handleFinalize}>
+              <CheckCircle size={16} />
+              Finalizar
+            </Button>
+          )}
 
           <Button variant="secondary" onClick={() => setShowClearConfirm(true)} title="Limpar Tela">
             <RefreshCw className="w-4 h-4" size={16} />

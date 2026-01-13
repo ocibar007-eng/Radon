@@ -3,6 +3,7 @@ import React, { useState, useCallback } from 'react';
 import { useSession } from '../context/SessionContext';
 import { usePipeline } from './usePipeline';
 import { StorageService } from '../services/storage-service';
+import { PatientService } from '../services/patient-service';
 import { convertPdfToImages, PdfLoadError } from '../utils/pdf';
 import { groupDocsVisuals } from '../utils/grouping';
 import * as GeminiAdapter from '../adapters/gemini-prompts';
@@ -254,6 +255,41 @@ export function useWorkspaceActions(patient: Patient | null) {
     }
   }, [session]);
 
+  const handleFinalize = useCallback(async () => {
+    if (!patient) return;
+
+    // Validação - verificar se tem anexos
+    const hasContent = session.docs.length > 0 || session.audioJobs.length > 0 || session.headerImage !== null;
+
+    if (!hasContent) {
+      alert('⚠️ Adicione pelo menos um anexo antes de finalizar o exame.');
+      return;
+    }
+
+    // Confirmação
+    const confirmed = window.confirm(
+      'Deseja finalizar este exame? Ele será marcado como concluído.'
+    );
+    if (!confirmed) return;
+
+    // Atualizar patient no Firestore
+    try {
+      const updates = {
+        status: 'done' as const,
+        finalized: true,
+        finalizedAt: Date.now(),
+        hasAttachments: hasContent,
+      };
+
+      await PatientService.updatePatient(patient.id, updates);
+
+      alert('✅ Exame finalizado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao finalizar:', error);
+      alert('❌ Erro ao finalizar exame. Tente novamente.');
+    }
+  }, [patient, session]);
+
   return {
     isGeneratingReport,
     handleFileUpload,
@@ -263,6 +299,7 @@ export function useWorkspaceActions(patient: Patient | null) {
     handleSplitReportGroup,
     handleClearSession,
     handleAudioComplete,
-    downloadAll
+    downloadAll,
+    handleFinalize
   };
 }

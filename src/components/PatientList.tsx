@@ -111,26 +111,32 @@ export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) 
       </div>
 
       <div className="pl-filters">
-        <button 
-          className={`filter-chip ${filter === 'all' ? 'active' : ''}`} 
+        <button
+          className={`filter-chip ${filter === 'all' ? 'active' : ''}`}
           onClick={() => setFilter('all')}
         >
           Todos
         </button>
-        <button 
-          className={`filter-chip ${filter === 'waiting' ? 'active' : ''}`} 
+        <button
+          className={`filter-chip ${filter === 'waiting' ? 'active' : ''}`}
           onClick={() => setFilter('waiting')}
         >
           Aguardando
         </button>
-        <button 
-          className={`filter-chip ${filter === 'ready' ? 'active' : ''}`} 
+        <button
+          className={`filter-chip ${filter === 'in_progress' ? 'active' : ''}`}
+          onClick={() => setFilter('in_progress')}
+        >
+          Em Andamento
+        </button>
+        <button
+          className={`filter-chip ${filter === 'ready' ? 'active' : ''}`}
           onClick={() => setFilter('ready')}
         >
           Pronto p/ Laudo
         </button>
-        <button 
-          className={`filter-chip ${filter === 'done' ? 'active' : ''}`} 
+        <button
+          className={`filter-chip ${filter === 'done' ? 'active' : ''}`}
           onClick={() => setFilter('done')}
         >
           Finalizados
