@@ -1,5 +1,7 @@
 import Dexie, { Table } from 'dexie';
 import { AppSession } from '../types';
+import { storage } from '../core/firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 export interface PersistentSession extends AppSession {
   id: string;
@@ -43,5 +45,27 @@ export const StorageService = {
 
   async deleteSession(id: string) {
     await db.sessions.delete(id);
+  },
+
+  /**
+   * Upload file to Firebase Storage
+   * @param patientId - Patient ID for folder organization
+   * @param file - File to upload
+   * @param customName - Optional custom filename
+   * @returns Download URL of uploaded file
+   */
+  async uploadFile(patientId: string, file: File | Blob, customName?: string): Promise<string> {
+    if (!storage) {
+      throw new Error('Firebase Storage not initialized');
+    }
+
+    const filename = customName || (file instanceof File ? file.name : `file_${Date.now()}`);
+    const path = `patients/${patientId}/attachments/${filename}`;
+    const storageRef = ref(storage, path);
+
+    await uploadBytes(storageRef, file);
+    const downloadURL = await getDownloadURL(storageRef);
+
+    return downloadURL;
   }
 };
