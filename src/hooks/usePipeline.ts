@@ -1,247 +1,228 @@
 
-import { useState, useEffect, useRef } from 'react';
+import { useReducer, useEffect, useRef } from 'react';
 import { useSession } from '../context/SessionContext';
-import { groupDocsVisuals } from '../utils/grouping';
-import { ProcessingQueueItem } from '../types';
+import { pipelineReducer, createInitialState } from './pipeline.reducer';
+import { getItemId, DEFAULT_PIPELINE_CONFIG, ProcessingQueueItem } from './pipeline.types';
 import * as PipelineActions from '../core/pipeline-actions';
 
 const DEBUG_LOGS = true;
 
+/**
+ * usePipeline - Robust State Machine-based Pipeline
+ * 
+ * State Machine Architecture:
+ * - Atomic state transitions via useReducer
+ * - Explicit job status tracking
+ * - Built-in retry mechanism (3 attempts)
+ * - Single processing loop (no race conditions)
+ * - Fully testable (pure reducer)
+ */
 export function usePipeline() {
-  const { session, dispatch } = useSession();
+    const { session, dispatch: sessionDispatch } = useSession();
+    const [state, dispatch] = useReducer(pipelineReducer, undefined, createInitialState);
 
-  // CORREÇÃO CENÁRIO 2: Race Condition Protection
-  const isMounted = useRef(true);
-  useEffect(() => {
-    isMounted.current = true;
-    return () => { isMounted.current = false; };
-  }, []);
+    const isMounted = useRef(true);
+    useEffect(() => {
+        isMounted.current = true;
+        return () => { isMounted.current = false; };
+    }, []);
 
-  // Ref para acessar o estado mais recente dos docs dentro do callback assíncrono
-  const docsRef = useRef(session.docs);
-  useEffect(() => {
-    docsRef.current = session.docs;
-  }, [session.docs]);
+    // Ref to access latest session data in async callbacks
+    const docsRef = useRef(session.docs);
+    useEffect(() => {
+        docsRef.current = session.docs;
+    }, [session.docs]);
 
-  // Fila de processamento sequencial e trava de execução
-  const [queue, setQueue] = useState<ProcessingQueueItem[]>([]);
-  const isProcessingRef = useRef(false);
+    // --- PUBLIC API ---
 
-  // FIX: Resume jobs that were left hanging (e.g. user switched tabs)
-  useEffect(() => {
-    const stalledJobs = session.audioJobs.filter(j => j.status === 'processing');
-    if (stalledJobs.length > 0) {
-      console.log(`[Pipeline] Resuming ${stalledJobs.length} stalled audio jobs...`);
-      stalledJobs.forEach(job => {
-        // Only resume if we have the blob in memory (session/context)
-        if (job.blob) {
-          enqueue(job.id, 'audio');
-        } else {
-          // If blob is missing (page reload), mark as error since we can't process
-          dispatch({
-            type: 'UPDATE_AUDIO_JOB',
-            payload: { id: job.id, updates: { status: 'error', transcriptRaw: 'Áudio perdido (navegação).' } }
-          });
-        }
-      });
-    }
-  }, []); // Run ONCE on mount
-
-  // Refs para controle de debounce e tracking de grupos já analisados
-  const prevAssistencialCountRef = useRef(0);
-  const summaryTimeoutRef = useRef<number | null>(null);
-  const analyzingGroupsRef = useRef<Set<string>>(new Set());
-
-  // Add item to processing queue
-  const enqueue = (id: string, type: 'header' | 'doc' | 'audio') => {
-    setQueue(prev => {
-      // Evita duplicatas na fila para o mesmo ID/Tipo
-      const exists = prev.some(item => (item.type === type && (item.docId === id || item.jobId === id)));
-      if (exists) return prev;
-      // @ts-ignore
-      return [...prev, { type, docId: id, jobId: id }];
-    });
-  };
-
-  const enqueueGroupAnalysis = (docIds: string[], fullText: string) => {
-    setQueue(prev => {
-      const groupKey = [...docIds].sort().join('|');
-      const exists = prev.some(item => item.type === 'group_analysis' && item.docIds && [...item.docIds].sort().join('|') === groupKey);
-      if (exists) return prev;
-      return [...prev, { type: 'group_analysis', docIds, fullText }];
-    });
-  };
-
-  // 1. WATCHER DE GRUPOS (Lógica de "Full Transcription")
-  useEffect(() => {
-    const groups = groupDocsVisuals(session.docs);
-    if (DEBUG_LOGS) {
-      console.log('[Debug][Pipeline] groups:scan', { groups: groups.length, docs: session.docs.length });
-    }
-
-    groups.forEach(group => {
-      // Usar todos os IDs ordenados como chave única do grupo
-      const groupKey = [...group.docIds].sort().join('|');
-
-      if (analyzingGroupsRef.current.has(groupKey)) return;
-
-      // Critérios para disparar Análise Unificada:
-      // 1. É um laudo prévio
-      // 2. Todos os docs do grupo estão com status 'done' (OCR finalizado) e têm texto verbatim.
-      // 3. Verifica se precisa de análise (isUnified=false)
-      const isLaudoGroup = group.docs.every(d => d.classification === 'laudo_previo');
-      const allPagesReady = group.docs.every(d => d.status === 'done' && d.verbatimText);
-      const needsUnifiedAnalysis = !group.docs[0].isUnified;
-
-      if (isLaudoGroup && allPagesReady && needsUnifiedAnalysis) {
-        analyzingGroupsRef.current.add(groupKey);
-
-        const combinedText = group.docs
-          .map((d, i) => `--- PÁGINA ${i + 1} (${d.source}) ---\n${d.verbatimText}`)
-          .join('\n\n');
-
-        console.log(`[Pipeline] Disparando Análise Unificada para grupo ${group.title} (${group.docs.length} páginas).`);
-
-        enqueueGroupAnalysis(group.docIds, combinedText);
-      }
-    });
-  }, [session.docs]);
-
-
-  // 2. QUEUE PROCESSOR (Atomic & Sequential)
-  useEffect(() => {
-    const processNext = async () => {
-      if (queue.length === 0 || isProcessingRef.current) return;
-
-      isProcessingRef.current = true;
-      const item = queue[0];
-
-      try {
-        if (DEBUG_LOGS) console.log('[Debug][Pipeline] process:start', { type: item.type, id: item.docId || item.jobId });
-
-        // --- HEADER PROCESSING ---
-        if (item.type === 'header') {
-          const { docId } = item;
-          const headerDoc = session.headerImage;
-          if (headerDoc?.id === docId && headerDoc.status === 'pending' && headerDoc.file) {
-            dispatch({ type: 'UPDATE_DOC', payload: { id: docId, updates: { status: 'processing' } } });
-            const data = await PipelineActions.processHeader(headerDoc.file);
-            if (isMounted.current) {
-              dispatch({ type: 'SET_PATIENT', payload: data });
-              dispatch({ type: 'SET_HEADER', payload: { ...headerDoc, status: 'done' } });
-            }
-          }
-        }
-
-        // --- DOC PROCESSING (OCR ONLY) ---
-        else if (item.type === 'doc') {
-          const { docId } = item;
-          const doc = session.docs.find(d => d.id === docId);
-
-          if (doc && doc.status === 'pending' && doc.file) {
-            dispatch({ type: 'UPDATE_DOC', payload: { id: docId, updates: { status: 'processing' } } });
-
-            // Obtemos a referência mais recente para checar overrides manuais
-            const latestDoc = docsRef.current.find(d => d.id === docId) || doc;
-
-            const updates = await PipelineActions.processDocument(doc.file, latestDoc);
-
-            if (isMounted.current) {
-              dispatch({ type: 'UPDATE_DOC', payload: { id: docId, updates } });
-            }
-          }
-        }
-
-        // --- GROUP ANALYSIS (INTELLIGENCE) ---
-        else if (item.type === 'group_analysis') {
-          const { docIds, fullText } = item;
-          const groupKey = [...docIds].sort().join('|');
-          const result = await PipelineActions.processGroupAnalysis(fullText);
-
-          if (isMounted.current) {
-            docIds.forEach(id => {
-              dispatch({
-                type: 'UPDATE_DOC',
-                payload: {
-                  id,
-                  updates: {
-                    detailedAnalysis: result.detailedAnalysis,
-                    isUnified: true,
-                    metadata: result.metadata,
-                    summary: result.summary
-                  }
-                }
-              });
-            });
-
-            // Limpa o set de grupos analisados
-            analyzingGroupsRef.current.delete(groupKey);
-          }
-        }
-
-        // --- AUDIO PROCESSING ---
-        else if (item.type === 'audio') {
-          const { jobId } = item;
-          const job = session.audioJobs.find(j => j.id === jobId);
-          if (job && job.status === 'processing' && job.blob) {
-            const result = await PipelineActions.processAudio(job.blob);
-            if (isMounted.current) {
-              dispatch({
-                type: 'UPDATE_AUDIO_JOB',
-                payload: {
-                  id: jobId,
-                  updates: { status: 'done', ...result }
-                }
-              });
-            }
-          } else if (job && !job.blob) {
-            if (isMounted.current) {
-              dispatch({ type: 'UPDATE_AUDIO_JOB', payload: { id: jobId, updates: { status: 'error', transcriptRaw: 'Áudio perdido.' } } });
-            }
-          }
-        }
-
-      } catch (error) {
-        console.error("Pipeline Error:", error);
-        if (item.type === 'doc' && isMounted.current) {
-          dispatch({ type: 'UPDATE_DOC', payload: { id: item.docId, updates: { status: 'error', errorMessage: 'Falha no processamento' } } });
-        }
-      } finally {
-        if (isMounted.current) {
-          setQueue(prev => prev.slice(1));
-        }
-        isProcessingRef.current = false;
-        if (DEBUG_LOGS) console.log('[Debug][Pipeline] process:done');
-      }
+    /**
+     * Add items to processing queue
+     */
+    const enqueue = (items: ProcessingQueueItem | ProcessingQueueItem[]) => {
+        const itemsArray = Array.isArray(items) ? items : [items];
+        dispatch({ type: 'ENQUEUE', items: itemsArray });
     };
 
-    if (queue.length > 0 && !isProcessingRef.current) {
-      processNext();
-    }
-  }, [queue, session.docs, session.headerImage, session.audioJobs, dispatch]);
+    /**
+     * Pause pipeline processing
+     */
+    const pause = () => dispatch({ type: 'PAUSE' });
 
+    /**
+     * Resume pipeline processing
+     */
+    const resume = () => dispatch({ type: 'RESUME' });
 
-  // 3. Auto Clinical Summarizer
-  useEffect(() => {
-    const readyDocs = session.docs.filter(d => d.classification === 'assistencial' && d.status === 'done' && d.verbatimText);
+    /**
+     * Retry a failed job
+     */
+    const retry = (itemId: string) => dispatch({ type: 'RETRY_JOB', itemId });
 
-    if (readyDocs.length > 0 && readyDocs.length !== prevAssistencialCountRef.current) {
-      if (summaryTimeoutRef.current) clearTimeout(summaryTimeoutRef.current);
+    // --- PROCESSING LOOP (THE HEART OF V2) ---
 
-      summaryTimeoutRef.current = window.setTimeout(async () => {
-        prevAssistencialCountRef.current = readyDocs.length;
-        try {
-          const result = await PipelineActions.processClinicalSummary(readyDocs);
-          if (result && isMounted.current) {
-            dispatch({
-              type: 'SET_CLINICAL_MARKDOWN',
-              payload: { markdown: result.markdown_para_ui, data: result }
+    useEffect(() => {
+        // Don't process if paused or nothing to do
+        if (state.status === 'paused') return;
+        if (state.queue.length === 0) return;
+
+        const { maxConcurrency } = DEFAULT_PIPELINE_CONFIG;
+        const activeJobs = Array.from(state.processing.values()).filter(
+            job => job.status === 'processing'
+        ).length;
+
+        // Check concurrency limit
+        if (activeJobs >= maxConcurrency) return;
+
+        // Get next item from queue
+        const nextItem = state.queue[0];
+        if (!nextItem) return;
+
+        const itemId = getItemId(nextItem);
+
+        // Check if already processing (safety check, should never happen with reducer)
+        if (state.processing.has(itemId) && state.processing.get(itemId)?.status === 'processing') {
+            console.warn(`[PipelineV2] Item ${itemId} already processing, skipping`);
+            return;
+        }
+
+        // Start processing
+        if (DEBUG_LOGS) {
+            console.log('[PipelineV2] Starting job:', { type: nextItem.type, id: itemId });
+        }
+
+        dispatch({ type: 'START_JOB', itemId });
+
+        // Execute the actual processing (async)
+        processItem(nextItem, sessionDispatch, session, docsRef.current)
+            .then(result => {
+                if (isMounted.current) {
+                    dispatch({ type: 'JOB_SUCCESS', itemId, result });
+                    if (DEBUG_LOGS) {
+                        console.log('[PipelineV2] Job succeeded:', itemId);
+                    }
+                }
+            })
+            .catch(error => {
+                if (isMounted.current) {
+                    dispatch({ type: 'JOB_ERROR', itemId, error });
+                    console.error('[PipelineV2] Job failed:', itemId, error);
+                }
             });
-          }
-        } catch (err) { console.error("Summary failed", err); }
-      }, 2000);
-    }
-  }, [session.docs, dispatch]);
 
-  return { enqueue, processingQueueLength: queue.length };
+    }, [state.queue, state.processing, state.status, session, sessionDispatch]);
+
+    // Cleanup completed jobs periodically
+    useEffect(() => {
+        const interval = setInterval(() => {
+            dispatch({ type: 'CLEAR_COMPLETED' });
+        }, 60000); // Every minute
+
+        return () => clearInterval(interval);
+    }, []);
+
+    // --- RETURN PUBLIC INTERFACE ---
+
+    return {
+        // Actions
+        enqueue,
+        pause,
+        resume,
+        retry,
+
+        // Read-only state
+        queueLength: state.queue.length,
+        processingCount: state.processing.size,
+        errorCount: state.errors.size,
+        status: state.status,
+
+        // For debugging
+        errors: Array.from(state.errors.entries()).map(([id, info]) => ({
+            id,
+            error: info.error.message,
+            attempts: info.attempts
+        }))
+    };
+}
+
+/**
+ * Process a single queue item (async)
+ * 
+ * This is extracted to make testing easier and keep the hook clean
+ */
+async function processItem(
+    item: ProcessingQueueItem,
+    sessionDispatch: any,
+    session: any,
+    latestDocs: any[]
+): Promise<any> {
+
+    switch (item.type) {
+        case 'header': {
+            const headerDoc = session.headerImage;
+            if (headerDoc?.id === item.docId && headerDoc.status === 'pending' && headerDoc.file) {
+                sessionDispatch({ type: 'UPDATE_DOC', payload: { id: item.docId, updates: { status: 'processing' } } });
+                const data = await PipelineActions.processHeader(headerDoc.file);
+                sessionDispatch({ type: 'SET_PATIENT', payload: data });
+                sessionDispatch({ type: 'SET_HEADER', payload: { ...headerDoc, status: 'done' } });
+                return data;
+            }
+            break;
+        }
+
+        case 'doc': {
+            const doc = session.docs.find((d: any) => d.id === item.docId);
+            if (doc && doc.status === 'pending' && doc.file) {
+                sessionDispatch({ type: 'UPDATE_DOC', payload: { id: item.docId, updates: { status: 'processing' } } });
+                const latestDoc = latestDocs.find((d: any) => d.id === item.docId) || doc;
+                const updates = await PipelineActions.processDocument(doc.file, latestDoc);
+                sessionDispatch({ type: 'UPDATE_DOC', payload: { id: item.docId, updates } });
+                return updates;
+            }
+            break;
+        }
+
+        case 'group_analysis': {
+            if (!item.docIds || !item.fullText) {
+                throw new Error('Group analysis missing docIds or fullText');
+            }
+            const result = await PipelineActions.processGroupAnalysis(item.fullText);
+            item.docIds.forEach((id: string) => {
+                sessionDispatch({
+                    type: 'UPDATE_DOC',
+                    payload: {
+                        id,
+                        updates: {
+                            detailedAnalysis: result.detailedAnalysis,
+                            isUnified: true,
+                            metadata: result.metadata,
+                            summary: result.summary
+                        }
+                    }
+                });
+            });
+            return result;
+        }
+
+        case 'audio': {
+            const job = session.audioJobs.find((j: any) => j.id === item.jobId);
+            if (job && job.status === 'processing' && job.blob) {
+                const result = await PipelineActions.processAudio(job.blob);
+                sessionDispatch({
+                    type: 'UPDATE_AUDIO_JOB',
+                    payload: { id: item.jobId, updates: { status: 'done', ...result } }
+                });
+                return result;
+            } else if (job && !job.blob) {
+                sessionDispatch({
+                    type: 'UPDATE_AUDIO_JOB',
+                    payload: { id: item.jobId, updates: { status: 'error', transcriptRaw: 'Áudio perdido.' } }
+                });
+                throw new Error('Audio blob missing');
+            }
+            break;
+        }
+
+        default:
+            throw new Error(`Unknown job type: ${(item as any).type}`);
+    }
 }
