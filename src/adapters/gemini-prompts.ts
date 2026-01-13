@@ -222,46 +222,60 @@ export async function extractBatchTable(file: File): Promise<any[]> {
   const client = getGeminiClient();
   const part = await fileToPart(file);
 
-  const prompt = `Você está analisando uma imagem/PDF/screenshot que contém uma TABELA com MÚLTIPLOS EXAMES médicos.
+  const prompt = `Você está analisando uma imagem/PDF/screenshot que contém MÚLTIPLOS EXAMES médicos.
 
-TAREFA: Extraia TODAS as linhas de dados da tabela (ignore apenas o cabeçalho).
+O documento pode estar em QUALQUER um destes formatos:
 
-MAPEAMENTO DE COLUNAS (procure estas variações):
-- "os": OS, Pedido, Protocolo, Nº, Número, N°, ID, Código
-- "paciente": Paciente, Nome, Nome Paciente, Nome do Paciente, Patient
-- "tipo_exame": Exame, Tipo, Modalidade, Tipo Exame, Tipo de Exame, Procedimento
-- "data_exame": Data, Data Exame, Data Realiz., Data Realização, Data do Exame, Realização
-- "data_entrega": Entrega, Data Entrega, Prazo, Data de Entrega, Delivery
+FORMATO 1 - TABELA (com colunas):
+- Linhas com colunas: OS | Paciente | Exame | Data | Entrega
 
-NORMALIZAÇÃO DE DATAS:
-- Converta SEMPRE para formato ISO: YYYY-MM-DD
-- Exemplos: "09/01/2026" → "2026-01-09", "14/01/2026" → "2026-01-14"
-- Se data não estiver clara, use ""
+FORMATO 2 - RELATÓRIO PDF/LISTA (blocos de texto):
+Exemplo:
+"Origem: UBA - CRU - MATRIZ     Data O.S.: 21/01/2025
+ O.S.: 870-67226-13510 - REGINA HELENA BRIGADAO CALDEIRA
+ Procedimentos: TCSAF (HU)
+ Entrega: 24/01/2025"
 
-FORMATO DE SAÍDA (JSON válido):
+FORMATO 3 - LISTA COLORIDA WEB (linhas alternadas):
+- Cada linha tem: código, nome, exame, datas, checkboxes
+
+TAREFA: Extraia TODOS os exames encontrados.
+
+MAPEAMENTO DE CAMPOS (procure em qualquer parte do texto):
+- "os": Linha que contém "O.S.:" ou coluna "OS/Pedido/Protocolo"
+  Exemplo: "O.S.: 870-67226-13510" → extraia "870-67226-13510"
+
+- "paciente": Nome após o número da OS (separado por hífen) ou coluna "Paciente"
+  Exemplo: "870-67226-13510 - REGINA HELENA" → extraia "REGINA HELENA..."
+
+- "tipo_exame": Linha "Procedimentos:" ou coluna "Exame/Tipo"
+  Exemplo: "Procedimentos: TCSAF (HU)" → extraia "TCSAF"
+  Remova siglas de unidade: (HU), (EP), etc.
+
+- "data_exame": Linha "Data O.S.:" ou coluna "Data/Realização"
+  Normalize para YYYY-MM-DD
+
+- "data_entrega": Linha "Entrega:" ou coluna "Entrega"
+  Normalize para YYYY-MM-DD
+
+FORMATO DE SAÍDA (JSON):
 [
   {
-    "os": "870-67579-10256",
-    "paciente": "DORA MARIA DE PAIVA VON GLEHN",
-    "tipo_exame": "TCTORAX",
-    "data_exame": "2026-01-09",
-    "data_entrega": "2026-01-14"
-  },
-  {
-    "os": "870-67579-429",
-    "paciente": "LUCIANA CUNHA CASTRO LOUREIRO BORGES",
-    "tipo_exame": "TCTORAX",
-    "data_exame": "2026-01-09",
-    "data_entrega": "2026-01-14"
+    "os": "870-67226-13510",
+    "paciente": "REGINA HELENA BRIGADAO CALDEIRA",
+    "tipo_exame": "TCSAF",
+    "data_exame": "2025-01-21",
+    "data_entrega": "2025-01-24"
   }
 ]
 
-REGRAS IMPORTANTES:
-1. Extraia TODAS as linhas visíveis (não limite a quantidade)
-2. Se campo não encontrado → use "" (string vazia)
-3. Mantenha nomes em UPPERCASE se assim estiverem na tabela
-4. Se tabela não identificável ou vazia → retorne []
-5. NÃO invente dados, só extraia o que está VISÍVEL`;
+REGRAS:
+1. Extraia TODOS os exames (sem limites)
+2. Campo vazio → use ""
+3. Preserve UPPERCASE dos nomes
+4. Normalize datas: DD/MM/YYYY → YYYY-MM-DD
+5. Remova parênteses dos exames: "TCSAF (HU)" → "TCSAF"
+6. Se não encontrar dados → retorne []`;
 
   const response = await withExponentialBackoff<GenerateContentResponse>(() =>
     client.models.generateContent({
@@ -284,20 +298,37 @@ export async function detectIfTableImage(file: File): Promise<boolean> {
   const client = getGeminiClient();
   const part = await fileToPart(file);
 
-  const prompt = `Analise esta imagem e identifique se contém uma TABELA com MÚLTIPLOS EXAMES/PACIENTES.
+  const prompt = `Analise esta imagem/documento e identifique se contém uma LISTA ou TABELA com MÚLTIPLOS EXAMES/PACIENTES.
 
-CRITÉRIOS para responder "SIM":
-- Tem 2 OU MAIS linhas de dados (não conte cabeçalho)
-- Tem colunas como: OS/Pedido/Protocolo, Paciente/Nome, Exame/Tipo, Data
-- É uma tabela/lista/planilha organizada em linhas e colunas
-- Pode ser screenshot, foto de tela, PDF exportado, tabela HTML, etc.
+RESPONDA "SIM" se encontrar QUALQUER um destes formatos:
 
-CRITÉRIOS para responder "NÃO":
-- Apenas 1 paciente/exame (cabeçalho individual, etiqueta, requisição única)
-- Texto corrido sem estrutura tabular
-- Laudo médico com texto descritivo
+1. TABELA ESTRUTURADA (com colunas visíveis):
+   - Linhas em grade/tabela com colunas: OS, Paciente, Exame, Data, Entrega
+   - Screenshot de planilha Excel/Google Sheets
+   - Tabela HTML exportada
 
-RESPONDA APENAS: "sim" ou "não" (sem pontuação, sem explicação)`;
+2. RELATÓRIO PDF/LISTA (texto corrido mas estruturado):
+   - Título como "Relatório de O.S.", "Lista de Exames", "Pendências"
+   - Múltiplas entradas com padrão repetido tipo:
+     "Origem: ... Data O.S.: ...
+      O.S.: 870-67226-XXXX - NOME DO PACIENTE
+      Procedimentos: EXAME (HU)
+      Entrega: DD/MM/YYYY"
+   - Cada exame em bloco separado por linhas ou espaçamento
+   - PDF renderizado, print/screenshot desse PDF, foto de tela
+
+3. LISTA VERDE/COLORIDA (sistema web):
+   - Linhas alternadas com fundo colorido
+   - Cada linha com: código, nome, exame, datas, checkboxes
+   - Pode ter botões de ação no final
+
+RESPONDA "NÃO" apenas se:
+- Apenas 1 paciente/exame isolado
+- Etiqueta individual de requisição
+- Laudo médico descritivo (não é lista)
+- Documento sem padrão repetitivo
+
+RESPONDA APENAS: "sim" ou "não" (lowercase, sem pontuação)`;
 
   const response = await withExponentialBackoff<GenerateContentResponse>(() =>
     client.models.generateContent({
