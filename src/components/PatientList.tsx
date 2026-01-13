@@ -40,6 +40,7 @@ export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) 
   const [batchItems, setBatchItems] = useState<PatientBatchItem[]>([]);
   const [isProcessingBatch, setIsProcessingBatch] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [isDragOverOCR, setIsDragOverOCR] = useState(false);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,28 +68,30 @@ export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) 
     setIsReadingOCR(false);
   };
 
-  const handleHeaderUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files?.length) return;
-    const file = e.target.files[0];
-    
+  const processHeaderImage = useCallback(async (file: File) => {
     setIsReadingOCR(true);
     try {
-      // Usa a IA para extrair dados da imagem
       const data = await extractHeaderInfo(file);
-      
+
       // Preenche o formulário automaticamente
       if (data.paciente?.valor) setNewName(data.paciente.valor);
       if (data.os?.valor) setNewOS(data.os.valor);
       if (data.tipo_exame?.valor) setNewExamType(data.tipo_exame.valor);
-      
+
+      showToast('Dados extraídos com sucesso!', 'success');
     } catch (err) {
       console.error("Erro OCR:", err);
-      alert("Não foi possível ler os dados da imagem. Tente preencher manualmente.");
+      showToast("Não foi possível ler os dados da imagem. Tente preencher manualmente.", 'error');
     } finally {
       setIsReadingOCR(false);
-      // Limpa o input para permitir re-upload do mesmo arquivo se necessário
-      e.target.value = '';
     }
+  }, [showToast]);
+
+  const handleHeaderUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.length) return;
+    const file = e.target.files[0];
+    await processHeaderImage(file);
+    e.target.value = '';
   };
 
   // Processa arquivo para batch (reutilizável para input, paste e drag & drop)
@@ -161,6 +164,18 @@ export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) 
 
   usePasteHandler({ onFilePaste: handlePaste, enabled: !isCreateModalOpen });
 
+  // Paste handler for individual patient modal (OCR)
+  const handlePasteOCR = useCallback((files: File[]) => {
+    if (files.length > 0 && !isReadingOCR && isCreateModalOpen) {
+      const file = files[0];
+      if (file.type.startsWith('image/')) {
+        processHeaderImage(file);
+      }
+    }
+  }, [processHeaderImage, isReadingOCR, isCreateModalOpen]);
+
+  usePasteHandler({ onFilePaste: handlePasteOCR, enabled: isCreateModalOpen });
+
   // Drag & Drop handlers
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -184,6 +199,35 @@ export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) 
       await processFileForBatch(files[0]);
     }
   }, [processFileForBatch, isProcessingBatch]);
+
+  // Drag & Drop for OCR area in modal
+  const handleDragOverOCR = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOverOCR(true);
+  }, []);
+
+  const handleDragLeaveOCR = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOverOCR(false);
+  }, []);
+
+  const handleDropOCR = useCallback(async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOverOCR(false);
+
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0 && !isReadingOCR) {
+      const file = files[0];
+      if (file.type.startsWith('image/')) {
+        await processHeaderImage(file);
+      } else {
+        showToast('Por favor, envie apenas imagens.', 'warning');
+      }
+    }
+  }, [processHeaderImage, isReadingOCR, showToast]);
 
   const firebaseActive = isFirebaseEnabled();
 
@@ -306,24 +350,34 @@ export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) 
       >
         <div className="p-1">
           {/* ÁREA DE UPLOAD OCR */}
-          <label className={`modal-ocr-upload ${isReadingOCR ? 'modal-ocr-loading' : ''}`}>
+          <label
+            className={`modal-ocr-upload ${isReadingOCR ? 'modal-ocr-loading' : ''} ${isDragOverOCR ? 'modal-ocr-drag-over' : ''}`}
+            onDragOver={handleDragOverOCR}
+            onDragLeave={handleDragLeaveOCR}
+            onDrop={handleDropOCR}
+          >
             {isReadingOCR ? (
               <>
                 <Loader2 size={32} className="text-accent icon-spin" />
                 <span className="modal-ocr-text text-accent">Lendo dados com IA...</span>
               </>
+            ) : isDragOverOCR ? (
+              <>
+                <UploadCloud size={32} className="text-accent animate-bounce" />
+                <span className="modal-ocr-text text-accent">Solte a imagem aqui</span>
+              </>
             ) : (
               <>
                 <ScanLine size={32} className="text-accent" />
                 <span className="modal-ocr-text">Escanear Etiqueta / Cabeçalho</span>
-                <span className="modal-ocr-subtext">Clique para preencher automaticamente via OCR</span>
+                <span className="modal-ocr-subtext">Clique, arraste ou cole (Ctrl+V) uma imagem</span>
               </>
             )}
-            <input 
-              type="file" 
-              accept="image/*" 
-              hidden 
-              onChange={handleHeaderUpload} 
+            <input
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={handleHeaderUpload}
               disabled={isReadingOCR}
             />
           </label>

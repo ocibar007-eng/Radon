@@ -317,6 +317,14 @@
   background: rgba(245, 158, 11, 0.05);
 }
 
+.modal-ocr-upload.modal-ocr-drag-over {
+  border-color: var(--color-accent-primary);
+  background: rgba(245, 158, 11, 0.15);
+  border-style: solid;
+  border-width: 2px;
+  transform: scale(1.02);
+}
+
 .modal-ocr-text {
   color: var(--color-text-primary);
   font-size: 0.95rem;
