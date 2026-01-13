@@ -215,3 +215,79 @@ export async function compileFinalReport(session: AppSession): Promise<string> {
 
   return response.text || '# Erro ao gerar relatório final.';
 }
+/**
+ * Extrai tabela com múltiplos exames de uma imagem
+ */
+export async function extractBatchTable(file: File): Promise<any[]> {
+  const client = getGeminiClient();
+  const part = await fileToPart(file);
+
+  const prompt = `Você está analisando uma imagem/PDF que contém uma tabela com múltiplos exames médicos.
+
+INSTRUÇÕES:
+1. Identifique TODAS as linhas da tabela (ignore cabeçalhos)
+2. Para cada linha, extraia os seguintes campos:
+   - os: Número da Ordem de Serviço (pode ser: OS, Pedido, Protocolo, Nº)
+   - paciente: Nome completo do paciente
+   - tipo_exame: Tipo/modalidade do exame (ex: Raio-X, TC, RM, US)
+   - data_exame: Data de realização (normalizar para YYYY-MM-DD)
+   - data_entrega: Data de entrega (normalizar para YYYY-MM-DD, opcional)
+
+3. Retorne JSON array válido:
+[
+  {
+    "os": "12345",
+    "paciente": "João Silva",
+    "tipo_exame": "TC Abdome",
+    "data_exame": "2024-01-15",
+    "data_entrega": "2024-01-17"
+  }
+]
+
+REGRAS:
+- Se campo não encontrado, use string vazia ""
+- Normalize datas para formato ISO (YYYY-MM-DD)
+- Se tabela não identificável, retorne array vazio []
+- Não invente dados, só extraia o que está visível`;
+
+  const response = await withExponentialBackoff<GenerateContentResponse>(() =>
+    client.models.generateContent({
+      model: CONFIG.MODEL_NAME,
+      contents: { role: 'user', parts: [part, { text: prompt }] },
+      generationConfig: { responseMimeType: 'application/json' }
+    })
+  );
+
+  const text = response.text || '[]';
+  const json = safeJsonParse(text, []);
+
+  return Array.isArray(json) ? json : [];
+}
+
+/**
+ * Detecta se uma imagem contém uma tabela com múltiplos pacientes
+ */
+export async function detectIfTableImage(file: File): Promise<boolean> {
+  const client = getGeminiClient();
+  const part = await fileToPart(file);
+
+  const prompt = `Esta imagem contém uma tabela com múltiplos exames/pacientes?
+
+Responda APENAS com "sim" ou "não".
+
+Uma tabela válida deve ter:
+- Múltiplas linhas (mais de 1 paciente/exame)
+- Colunas organizadas (OS, Paciente, Exame, Data, etc.)
+
+Se for apenas um cabeçalho/etiqueta de um único paciente, responda "não".`;
+
+  const response = await withExponentialBackoff<GenerateContentResponse>(() =>
+    client.models.generateContent({
+      model: CONFIG.MODEL_NAME,
+      contents: { role: 'user', parts: [part, { text: prompt }] }
+    })
+  );
+
+  const text = (response.text || '').toLowerCase().trim();
+  return text.includes('sim');
+}
