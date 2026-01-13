@@ -2,7 +2,7 @@
 
 Plataforma inteligente para processamento de exames, transcrição de áudio e gerenciamento de fluxo de trabalho para radiologia e medicina, integrada com Google Gemini e Firebase.
 
-[![Vercel Deployment](https://img.shields.io/badge/Vercel-Operational-success?style=for-the-badge&logo=vercel)](https://app-ocr-v6.vercel.app)
+[![Vercel Deployment](https://img.shields.io/badge/Vercel-Operational-success?style=for-the-badge&logo=vercel)](https://radon-lite.vercel.app)
 
 ## 🔗 Acesso Rápido
 - **Produção:** [https://radon-lite.vercel.app](https://radon-lite.vercel.app)
