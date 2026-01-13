@@ -27,9 +27,10 @@ export function ChaosPanel() {
         }
 
         // Trigger upload via hidden file input (simulating user action)
-        const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+        // IMPORTANT: Avoid audio input, target document/image input
+        const fileInput = document.querySelector('input[type="file"]:not([accept*="audio"])') as HTMLInputElement;
         if (!fileInput) {
-            console.error('[ChaosPanel] No file input found');
+            console.error('[ChaosPanel] No document file input found');
             setIsRunning(false);
             return;
         }
