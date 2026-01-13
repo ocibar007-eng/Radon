@@ -57,7 +57,7 @@ export const BatchUploadModal: React.FC<Props> = ({ isOpen, items: initialItems,
         <div className="modal-header">
           <div>
             <h2 className="text-xl font-bold text-primary flex items-center gap-2">
-              📋 Exames Detectados ({items.length})
+              Exames Detectados ({items.length})
             </h2>
             <p className="text-sm text-secondary mt-1">
               Revise e edite os dados antes de criar os exames

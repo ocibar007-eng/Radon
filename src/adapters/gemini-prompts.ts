@@ -222,33 +222,46 @@ export async function extractBatchTable(file: File): Promise<any[]> {
   const client = getGeminiClient();
   const part = await fileToPart(file);
 
-  const prompt = `Você está analisando uma imagem/PDF que contém uma tabela com múltiplos exames médicos.
+  const prompt = `Você está analisando uma imagem/PDF/screenshot que contém uma TABELA com MÚLTIPLOS EXAMES médicos.
 
-INSTRUÇÕES:
-1. Identifique TODAS as linhas da tabela (ignore cabeçalhos)
-2. Para cada linha, extraia os seguintes campos:
-   - os: Número da Ordem de Serviço (pode ser: OS, Pedido, Protocolo, Nº)
-   - paciente: Nome completo do paciente
-   - tipo_exame: Tipo/modalidade do exame (ex: Raio-X, TC, RM, US)
-   - data_exame: Data de realização (normalizar para YYYY-MM-DD)
-   - data_entrega: Data de entrega (normalizar para YYYY-MM-DD, opcional)
+TAREFA: Extraia TODAS as linhas de dados da tabela (ignore apenas o cabeçalho).
 
-3. Retorne JSON array válido:
+MAPEAMENTO DE COLUNAS (procure estas variações):
+- "os": OS, Pedido, Protocolo, Nº, Número, N°, ID, Código
+- "paciente": Paciente, Nome, Nome Paciente, Nome do Paciente, Patient
+- "tipo_exame": Exame, Tipo, Modalidade, Tipo Exame, Tipo de Exame, Procedimento
+- "data_exame": Data, Data Exame, Data Realiz., Data Realização, Data do Exame, Realização
+- "data_entrega": Entrega, Data Entrega, Prazo, Data de Entrega, Delivery
+
+NORMALIZAÇÃO DE DATAS:
+- Converta SEMPRE para formato ISO: YYYY-MM-DD
+- Exemplos: "09/01/2026" → "2026-01-09", "14/01/2026" → "2026-01-14"
+- Se data não estiver clara, use ""
+
+FORMATO DE SAÍDA (JSON válido):
 [
   {
-    "os": "12345",
-    "paciente": "João Silva",
-    "tipo_exame": "TC Abdome",
-    "data_exame": "2024-01-15",
-    "data_entrega": "2024-01-17"
+    "os": "870-67579-10256",
+    "paciente": "DORA MARIA DE PAIVA VON GLEHN",
+    "tipo_exame": "TCTORAX",
+    "data_exame": "2026-01-09",
+    "data_entrega": "2026-01-14"
+  },
+  {
+    "os": "870-67579-429",
+    "paciente": "LUCIANA CUNHA CASTRO LOUREIRO BORGES",
+    "tipo_exame": "TCTORAX",
+    "data_exame": "2026-01-09",
+    "data_entrega": "2026-01-14"
   }
 ]
 
-REGRAS:
-- Se campo não encontrado, use string vazia ""
-- Normalize datas para formato ISO (YYYY-MM-DD)
-- Se tabela não identificável, retorne array vazio []
-- Não invente dados, só extraia o que está visível`;
+REGRAS IMPORTANTES:
+1. Extraia TODAS as linhas visíveis (não limite a quantidade)
+2. Se campo não encontrado → use "" (string vazia)
+3. Mantenha nomes em UPPERCASE se assim estiverem na tabela
+4. Se tabela não identificável ou vazia → retorne []
+5. NÃO invente dados, só extraia o que está VISÍVEL`;
 
   const response = await withExponentialBackoff<GenerateContentResponse>(() =>
     client.models.generateContent({
@@ -271,15 +284,20 @@ export async function detectIfTableImage(file: File): Promise<boolean> {
   const client = getGeminiClient();
   const part = await fileToPart(file);
 
-  const prompt = `Esta imagem contém uma tabela com múltiplos exames/pacientes?
+  const prompt = `Analise esta imagem e identifique se contém uma TABELA com MÚLTIPLOS EXAMES/PACIENTES.
 
-Responda APENAS com "sim" ou "não".
+CRITÉRIOS para responder "SIM":
+- Tem 2 OU MAIS linhas de dados (não conte cabeçalho)
+- Tem colunas como: OS/Pedido/Protocolo, Paciente/Nome, Exame/Tipo, Data
+- É uma tabela/lista/planilha organizada em linhas e colunas
+- Pode ser screenshot, foto de tela, PDF exportado, tabela HTML, etc.
 
-Uma tabela válida deve ter:
-- Múltiplas linhas (mais de 1 paciente/exame)
-- Colunas organizadas (OS, Paciente, Exame, Data, etc.)
+CRITÉRIOS para responder "NÃO":
+- Apenas 1 paciente/exame (cabeçalho individual, etiqueta, requisição única)
+- Texto corrido sem estrutura tabular
+- Laudo médico com texto descritivo
 
-Se for apenas um cabeçalho/etiqueta de um único paciente, responda "não".`;
+RESPONDA APENAS: "sim" ou "não" (sem pontuação, sem explicação)`;
 
   const response = await withExponentialBackoff<GenerateContentResponse>(() =>
     client.models.generateContent({
