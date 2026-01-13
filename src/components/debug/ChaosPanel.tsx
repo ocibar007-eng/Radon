@@ -6,8 +6,8 @@ import { Zap, AlertTriangle } from 'lucide-react';
 /**
  * ChaosPanel - Development-only stress testing component
  * 
- * Simulates high-volume upload scenarios with mocked API responses
- * to validate pipeline robustness without incurring API costs.
+ * Simulates high-volume upload scenarios with REAL PDF files
+ * to validate pipeline robustness end-to-end.
  */
 export function ChaosPanel() {
     const [isRunning, setIsRunning] = useState(false);
@@ -17,13 +17,32 @@ export function ChaosPanel() {
         setIsRunning(true);
         console.log(`[ChaosPanel] Starting ${count} simulated uploads (mock: ${useMock})`);
 
-        // Create fake File objects
+        // Load real PDFs from test-assets
+        const testPDFs = [
+            '/test-assets/test_patient_01.pdf',
+            '/test-assets/test_patient_02.pdf',
+            '/test-assets/test_patient_03.pdf',
+            '/test-assets/test_patient_04.pdf',
+            '/test-assets/test_patient_05.pdf',
+        ];
+
         const fakeFiles: File[] = [];
-        for (let i = 0; i < count; i++) {
-            const content = `Simulated PDF content for test document ${i + 1}`;
-            const blob = new Blob([content], { type: 'application/pdf' });
-            const file = new File([blob], `chaos_test_${i + 1}.pdf`, { type: 'application/pdf' });
-            fakeFiles.push(file);
+
+        try {
+            // Fetch real PDFs and create File objects
+            for (let i = 0; i < Math.min(count, testPDFs.length * 10); i++) {
+                const pdfIndex = i % testPDFs.length; // Cycle through available PDFs
+                const pdfUrl = testPDFs[pdfIndex];
+
+                const response = await fetch(pdfUrl);
+                const blob = await response.blob();
+                const file = new File([blob], `chaos_test_${i + 1}.pdf`, { type: 'application/pdf' });
+                fakeFiles.push(file);
+            }
+        } catch (error) {
+            console.error('[ChaosPanel] Failed to load test PDFs:', error);
+            setIsRunning(false);
+            return;
         }
 
         // Trigger upload via hidden file input (simulating user action)
@@ -44,7 +63,7 @@ export function ChaosPanel() {
         const event = new Event('change', { bubbles: true });
         fileInput.dispatchEvent(event);
 
-        console.log(`[ChaosPanel] Dispatched ${count} files to pipeline`);
+        console.log(`[ChaosPanel] Dispatched ${fakeFiles.length} REAL PDF files to pipeline`);
 
         // Reset after a delay
         setTimeout(() => setIsRunning(false), 2000);
