@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Plus, Search, RefreshCw, AlertTriangle, ScanLine, UploadCloud, Loader2, Zap, Table } from 'lucide-react';
 import { usePatients } from '../hooks/usePatients';
 import { PatientCard } from './PatientCard';
@@ -11,6 +11,8 @@ import { isFirebaseEnabled } from '../core/firebase';
 import { extractHeaderInfo, extractBatchTable, detectIfTableImage } from '../adapters/gemini-prompts';
 import { parseCSV, parseExcel, PatientBatchItem } from '../utils/batch-parsers';
 import { PatientService } from '../services/patient-service';
+import { usePasteHandler } from '../hooks/usePasteHandler';
+import { useToast } from './ui/Toast';
 
 import '../styles/patient-list.css';
 
@@ -21,6 +23,7 @@ interface Props {
 
 export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) => {
   const { patients, loading, error, filter, setFilter, refresh, createPatient, deletePatient } = usePatients();
+  const { showToast, ToastComponent } = useToast();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   // Form State
@@ -36,6 +39,7 @@ export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) 
   const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
   const [batchItems, setBatchItems] = useState<PatientBatchItem[]>([]);
   const [isProcessingBatch, setIsProcessingBatch] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,10 +91,8 @@ export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) 
     }
   };
 
-  const handleBatchUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files?.length) return;
-    const file = e.target.files[0];
-
+  // Processa arquivo para batch (reutilizável para input, paste e drag & drop)
+  const processFileForBatch = useCallback(async (file: File) => {
     setIsProcessingBatch(true);
     try {
       let items: PatientBatchItem[] = [];
@@ -99,10 +101,8 @@ export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) 
       const extension = file.name.split('.').pop()?.toLowerCase();
 
       if (extension === 'csv') {
-        // CSV direto
         items = await parseCSV(file);
       } else if (extension === 'xls' || extension === 'xlsx') {
-        // Excel direto
         items = await parseExcel(file);
       } else if (['jpg', 'jpeg', 'png', 'pdf'].includes(extension || '')) {
         // Imagem ou PDF - verificar se é tabela
@@ -110,16 +110,16 @@ export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) 
         if (isTable) {
           items = await extractBatchTable(file);
         } else {
-          alert('⚠️ Não foi detectada uma tabela com múltiplos exames neste arquivo.');
+          showToast('Não foi detectada uma tabela com múltiplos exames neste arquivo.', 'warning');
           return;
         }
       } else {
-        alert('⚠️ Formato não suportado. Use CSV, Excel, ou imagem/PDF com tabela.');
+        showToast('Formato não suportado. Use CSV, Excel, ou imagem/PDF com tabela.', 'warning');
         return;
       }
 
       if (items.length === 0) {
-        alert('⚠️ Nenhum exame foi detectado no arquivo.');
+        showToast('Nenhum exame foi detectado no arquivo.', 'warning');
         return;
       }
 
@@ -128,31 +128,72 @@ export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) 
       setIsBatchModalOpen(true);
     } catch (error) {
       console.error('Erro ao processar batch:', error);
-      alert('❌ Erro ao processar arquivo. Verifique o formato e tente novamente.');
+      showToast('Erro ao processar arquivo. Verifique o formato e tente novamente.', 'error');
     } finally {
       setIsProcessingBatch(false);
-      e.target.value = '';
     }
+  }, [showToast]);
+
+  const handleBatchUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.length) return;
+    const file = e.target.files[0];
+    await processFileForBatch(file);
+    e.target.value = '';
   };
 
   const handleBatchConfirm = async (validItems: PatientBatchItem[]) => {
     try {
       const createdIds = await PatientService.createBatchPatients(validItems);
-
-      // Refresh da lista
       await refresh();
-
-      alert(`✅ ${createdIds.length} exame(s) criado(s) com sucesso!`);
+      showToast(`${createdIds.length} exame(s) criado(s) com sucesso!`, 'success');
     } catch (error) {
       console.error('Erro ao criar lote:', error);
       throw error;
     }
   };
 
+  // Paste handler (Ctrl+V / Cmd+V)
+  const handlePaste = useCallback((files: File[]) => {
+    if (files.length > 0 && !isProcessingBatch) {
+      processFileForBatch(files[0]); // Processa primeiro arquivo
+    }
+  }, [processFileForBatch, isProcessingBatch]);
+
+  usePasteHandler({ onFilePaste: handlePaste, enabled: !isCreateModalOpen });
+
+  // Drag & Drop handlers
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  }, []);
+
+  const handleDrop = useCallback(async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0 && !isProcessingBatch) {
+      await processFileForBatch(files[0]);
+    }
+  }, [processFileForBatch, isProcessingBatch]);
+
   const firebaseActive = isFirebaseEnabled();
 
   return (
-    <div className="patient-list-container">
+    <div
+      className="patient-list-container"
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
       {!firebaseActive && (
         <div className="mb-4 p-4 border border-yellow-500 bg-yellow-900/20 text-yellow-200 rounded flex items-center gap-2">
           <AlertTriangle size={20} />
@@ -337,6 +378,23 @@ export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) 
         onClose={() => setIsBatchModalOpen(false)}
         onConfirm={handleBatchConfirm}
       />
+
+      {/* Drag & Drop Overlay */}
+      {isDragOver && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/80 backdrop-blur-sm animate-fade-in"
+          style={{ pointerEvents: 'none' }}
+        >
+          <div className="text-center">
+            <UploadCloud size={64} className="mx-auto text-amber-500 mb-4 animate-bounce" />
+            <p className="text-2xl font-bold text-white mb-2">Solte o arquivo aqui</p>
+            <p className="text-zinc-400">CSV, Excel, ou imagem/PDF com tabela</p>
+          </div>
+        </div>
+      )}
+
+      {/* Toast Notifications */}
+      {ToastComponent}
     </div>
   );
 };

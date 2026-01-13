@@ -1,11 +1,13 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Calendar, FileText, Mic, Trash2, ArrowRight, CheckCircle } from 'lucide-react';
 import { Card } from './ui/Card';
 import { Patient } from '../types/patient';
 import { Button } from './ui/Button';
 import { StatusChip } from './StatusChip';
 import { PatientService } from '../services/patient-service';
+import { ConfirmDialog } from './ui/ConfirmDialog';
+import { useToast } from './ui/Toast';
 
 interface Props {
   patient: Patient;
@@ -15,24 +17,28 @@ interface Props {
 }
 
 export const PatientCard: React.FC<Props> = ({ patient, onOpen, onDelete, onFinalize }) => {
-  const handleFinalize = async (e: React.MouseEvent) => {
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [isFinalizingPatient, setIsFinalizingPatient] = useState(false);
+  const { showToast, ToastComponent } = useToast();
+
+  const handleFinalizeClick = (e: React.MouseEvent) => {
     e.stopPropagation();
 
     // Validação
     const hasContent = (patient.docsCount || 0) > 0 || (patient.audioCount || 0) > 0;
     if (!hasContent) {
-      alert('⚠️ Adicione pelo menos um anexo (documento ou áudio) antes de finalizar.');
+      showToast('Adicione pelo menos um anexo (documento ou áudio) antes de finalizar.', 'warning');
       return;
     }
 
-    // Confirmação
-    const confirmed = window.confirm(
-      `Deseja finalizar o exame de ${patient.name}? Ele será marcado como concluído.`
-    );
-    if (!confirmed) return;
+    setShowConfirm(true);
+  };
 
+  const handleConfirmFinalize = async () => {
+    setIsFinalizingPatient(true);
     try {
-      // Atualizar patient
+      const hasContent = (patient.docsCount || 0) > 0 || (patient.audioCount || 0) > 0;
+
       await PatientService.updatePatient(patient.id, {
         status: 'done',
         finalized: true,
@@ -40,15 +46,17 @@ export const PatientCard: React.FC<Props> = ({ patient, onOpen, onDelete, onFina
         hasAttachments: hasContent,
       });
 
-      // Callback opcional para refresh
       if (onFinalize) {
         onFinalize(patient.id);
       }
 
-      alert('✅ Exame finalizado com sucesso!');
+      setShowConfirm(false);
+      showToast('Exame finalizado com sucesso!', 'success');
     } catch (error) {
       console.error('Erro ao finalizar:', error);
-      alert('❌ Erro ao finalizar exame. Tente novamente.');
+      showToast('Erro ao finalizar exame. Tente novamente.', 'error');
+    } finally {
+      setIsFinalizingPatient(false);
     }
   };
 
@@ -96,7 +104,7 @@ export const PatientCard: React.FC<Props> = ({ patient, onOpen, onDelete, onFina
             <Button
               size="sm"
               variant="primary"
-              onClick={handleFinalize}
+              onClick={handleFinalizeClick}
               title="Finalizar Exame"
             >
               <CheckCircle size={14} />
@@ -109,6 +117,21 @@ export const PatientCard: React.FC<Props> = ({ patient, onOpen, onDelete, onFina
           </Button>
         </div>
       </div>
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        isOpen={showConfirm}
+        onClose={() => setShowConfirm(false)}
+        onConfirm={handleConfirmFinalize}
+        title="Finalizar Exame"
+        message={`Deseja finalizar o exame de ${patient.name}? Ele será marcado como concluído.`}
+        confirmText="Finalizar"
+        variant="primary"
+        isLoading={isFinalizingPatient}
+      />
+
+      {/* Toast Notifications */}
+      {ToastComponent}
     </Card>
   );
 };
