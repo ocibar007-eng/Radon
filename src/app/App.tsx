@@ -2,6 +2,7 @@
 import React from 'react';
 import { AppProviders } from './AppProviders';
 import { AppRouter } from './AppRouter';
+import { ChaosPanel } from '../components/debug/ChaosPanel';
 
 /**
  * App - Clean orchestrator for the Radon application
@@ -19,6 +20,7 @@ export default function App() {
   return (
     <AppProviders>
       <AppRouter />
+      {import.meta.env.DEV && <ChaosPanel />}
     </AppProviders>
   );
 }
