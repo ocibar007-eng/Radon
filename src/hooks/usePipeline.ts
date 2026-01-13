@@ -5,6 +5,8 @@ import { groupDocsVisuals } from '../utils/grouping';
 import { ProcessingQueueItem } from '../types';
 import * as PipelineActions from '../core/pipeline-actions';
 
+const DEBUG_LOGS = true;
+
 export function usePipeline() {
   const { session, dispatch } = useSession();
 
@@ -53,15 +55,24 @@ export function usePipeline() {
   const enqueue = (id: string, type: 'header' | 'doc' | 'audio') => {
     // @ts-ignore - TS union type matching simplified
     setQueue(prev => [...prev, { type, docId: id, jobId: id }]);
+    if (DEBUG_LOGS) {
+      console.log('[Debug][Pipeline] enqueue', { type, id });
+    }
   };
 
   const enqueueGroupAnalysis = (docIds: string[], fullText: string) => {
     setQueue(prev => [...prev, { type: 'group_analysis', docIds, fullText }]);
+    if (DEBUG_LOGS) {
+      console.log('[Debug][Pipeline] enqueueGroupAnalysis', { docIds, length: fullText.length });
+    }
   };
 
   // 1. WATCHER DE GRUPOS (Lógica de "Full Transcription")
   useEffect(() => {
     const groups = groupDocsVisuals(session.docs);
+    if (DEBUG_LOGS) {
+      console.log('[Debug][Pipeline] groups:scan', { groups: groups.length, docs: session.docs.length });
+    }
 
     groups.forEach(group => {
       // Usar todos os IDs ordenados como chave única do grupo
@@ -101,6 +112,9 @@ export function usePipeline() {
       const groupKey = item.type === 'group_analysis'
         ? [...item.docIds].sort().join('|')
         : null;
+      if (DEBUG_LOGS) {
+        console.log('[Debug][Pipeline] process:start', { type: item.type, docId: item.docId, jobId: item.jobId });
+      }
 
       try {
         // --- HEADER PROCESSING ---
@@ -163,6 +177,9 @@ export function usePipeline() {
             if (groupKey) {
               analyzingGroupsRef.current.delete(groupKey);
             }
+            if (DEBUG_LOGS) {
+              console.log('[Debug][Pipeline] group:done', { docIds });
+            }
           }
         }
 
@@ -196,6 +213,9 @@ export function usePipeline() {
       } finally {
         if (isMounted.current) {
           setQueue(prev => prev.slice(1));
+          if (DEBUG_LOGS) {
+            console.log('[Debug][Pipeline] process:done', { type: item.type, docId: item.docId, jobId: item.jobId });
+          }
         }
       }
     };

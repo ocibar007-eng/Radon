@@ -1,6 +1,8 @@
 
 import { AttachmentDoc } from '../types';
 
+const DEBUG_LOGS = true;
+
 export interface ReportGroup {
   id: string;
   title: string;
@@ -20,6 +22,9 @@ export interface ReportGroup {
  */
 export function groupDocsVisuals(docs: AttachmentDoc[]): ReportGroup[] {
   const groups = new Map<string, AttachmentDoc[]>();
+  if (DEBUG_LOGS) {
+    console.log('[Debug][Grouping] input', { docs: docs.length });
+  }
   
   docs.forEach(doc => {
     // Normaliza o hint para evitar nulos e diferenças de caixa
@@ -116,6 +121,9 @@ export function groupDocsVisuals(docs: AttachmentDoc[]): ReportGroup[] {
     });
   });
 
+  if (DEBUG_LOGS) {
+    console.log('[Debug][Grouping] output', { groups: result.length });
+  }
   return result;
 }
 

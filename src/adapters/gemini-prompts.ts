@@ -8,6 +8,8 @@ import { safeJsonParse } from "../utils/json";
 import { withExponentialBackoff } from "../utils/retry";
 import { PatientRegistrationSchema, DocumentAnalysisSchema, ReportAnalysisSchema, ClinicalSummarySchema, AudioTranscriptionSchema } from "./schemas";
 
+const DEBUG_LOGS = true;
+
 // Helper para chamadas com retry
 async function generate(model: string, params: any): Promise<GenerateContentResponse> {
   const client = getGeminiClient();
@@ -221,6 +223,13 @@ export async function compileFinalReport(session: AppSession): Promise<string> {
 export async function extractBatchTable(file: File): Promise<any[]> {
   const client = getGeminiClient();
   const part = await fileToPart(file);
+  if (DEBUG_LOGS) {
+    console.log('[Debug][Batch] extractBatchTable:start', {
+      name: file.name,
+      type: file.type,
+      size: file.size
+    });
+  }
 
   const prompt = `Você está analisando uma imagem/PDF/screenshot que contém MÚLTIPLOS EXAMES médicos.
 
@@ -282,6 +291,12 @@ REGRAS:
   );
 
   const text = response.text || '[]';
+  if (DEBUG_LOGS) {
+    console.log('[Debug][Batch] extractBatchTable:response', {
+      textPreview: text.slice(0, 300),
+      textLength: text.length
+    });
+  }
   const json = safeJsonParse(text, []);
   const items = Array.isArray(json)
     ? json
@@ -291,6 +306,9 @@ REGRAS:
         ? (json as { exames: unknown[] }).exames
         : [];
 
+  if (DEBUG_LOGS) {
+    console.log('[Debug][Batch] extractBatchTable:items', { count: items.length });
+  }
   return items;
 }
 
@@ -300,6 +318,13 @@ REGRAS:
 export async function detectIfTableImage(file: File): Promise<boolean> {
   const client = getGeminiClient();
   const part = await fileToPart(file);
+  if (DEBUG_LOGS) {
+    console.log('[Debug][Batch] detectIfTableImage:start', {
+      name: file.name,
+      type: file.type,
+      size: file.size
+    });
+  }
 
   const prompt = `Analise esta imagem/documento e identifique se contém uma LISTA ou TABELA com MÚLTIPLOS EXAMES/PACIENTES.
 
@@ -327,5 +352,8 @@ RESPONDA APENAS: "sim" ou "não" (lowercase, sem pontuação)`;
   );
 
   const text = (response.text || '').toLowerCase().trim();
+  if (DEBUG_LOGS) {
+    console.log('[Debug][Batch] detectIfTableImage:response', { text });
+  }
   return text.includes('sim');
 }

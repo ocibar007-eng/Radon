@@ -27,6 +27,8 @@ import { useWorkspaceActions } from '../hooks/useWorkspaceActions';
 import { usePasteHandler } from '../hooks/usePasteHandler';
 import { Patient, PatientStatus } from '../types/patient';
 
+const DEBUG_LOGS = true;
+
 // --- APP ROOT (Router Logic) ---
 export default function App() {
   const [currentView, setCurrentView] = useState<'list' | 'workspace'>('list');
@@ -325,6 +327,14 @@ function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: Workspa
   const handlePasteDocs = useCallback((files: File[]) => {
     if (!files.length) return;
     const forcedType = activeTab === 'reports' ? 'laudo_previo' : 'assistencial';
+    if (DEBUG_LOGS) {
+      console.log('[Debug][Workspace] paste', {
+        count: files.length,
+        activeTab,
+        forcedType,
+        names: files.map(file => file.name)
+      });
+    }
     handleFilesUpload(files, false, forcedType, (type) => setActiveTab(type));
   }, [activeTab, handleFilesUpload]);
 
@@ -369,6 +379,14 @@ function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: Workspa
     if (!files.length) return;
 
     const forcedType = activeTab === 'reports' ? 'laudo_previo' : 'assistencial';
+    if (DEBUG_LOGS) {
+      console.log('[Debug][Workspace] drop', {
+        count: files.length,
+        activeTab,
+        forcedType,
+        names: files.map(file => file.name)
+      });
+    }
     handleFilesUpload(files, false, forcedType, (type) => setActiveTab(type));
   }, [activeTab, handleFilesUpload, isFileDragEvent]);
 

@@ -10,6 +10,8 @@ import * as GeminiAdapter from '../adapters/gemini-prompts';
 import { AttachmentDoc, AudioJob, DocClassification } from '../types';
 import { Patient } from '../types/patient';
 
+const DEBUG_LOGS = true;
+
 export function useWorkspaceActions(patient: Patient | null) {
   const { session, dispatch } = useSession();
   const { enqueue } = usePipeline();
@@ -22,6 +24,17 @@ export function useWorkspaceActions(patient: Patient | null) {
   const addDocToSessionAndUpload = useCallback(async (file: File, isHeader: boolean, sourceName: string, forcedType?: DocClassification) => {
     const docId = crypto.randomUUID();
     const tempUrl = URL.createObjectURL(file);
+    if (DEBUG_LOGS) {
+      console.log('[Debug][Upload] addDocToSessionAndUpload', {
+        docId,
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        sourceName,
+        isHeader,
+        forcedType
+      });
+    }
 
     const newDoc: AttachmentDoc = {
       id: docId,
@@ -43,6 +56,13 @@ export function useWorkspaceActions(patient: Patient | null) {
     if (patient) {
       StorageService.uploadFile(patient.id, file, sourceName)
         .then((result) => {
+          if (DEBUG_LOGS) {
+            console.log('[Debug][Upload] upload:success', {
+              docId,
+              sourceName,
+              url: result.downloadUrl
+            });
+          }
           if (isHeader) {
             dispatch({ type: 'SET_HEADER', payload: { ...newDoc, previewUrl: result.downloadUrl } });
           } else {
@@ -55,7 +75,12 @@ export function useWorkspaceActions(patient: Patient | null) {
             });
           }
         })
-        .catch((err) => console.error("Erro no upload de background:", err));
+        .catch((err) => {
+          console.error("Erro no upload de background:", err);
+          if (DEBUG_LOGS) {
+            console.log('[Debug][Upload] upload:error', { docId, sourceName, err });
+          }
+        });
     }
   }, [dispatch, enqueue, patient]);
 
@@ -83,6 +108,13 @@ export function useWorkspaceActions(patient: Patient | null) {
     onTypeChange?: (type: 'summary' | 'reports') => void
   ) => {
     if (!files.length) return;
+    if (DEBUG_LOGS) {
+      console.log('[Debug][Upload] handleFilesUpload:start', {
+        count: files.length,
+        isHeader,
+        forcedType
+      });
+    }
 
     if (onTypeChange) {
       if (forcedType === 'laudo_previo') onTypeChange('reports');
@@ -92,9 +124,21 @@ export function useWorkspaceActions(patient: Patient | null) {
     const allowedFiles = files.filter(file =>
       file.type === 'application/pdf' || file.type.startsWith('image/')
     );
+    if (DEBUG_LOGS) {
+      console.log('[Debug][Upload] handleFilesUpload:filtered', {
+        allowed: allowedFiles.length
+      });
+    }
 
     for (const [index, file] of allowedFiles.entries()) {
       const resolvedName = resolveFileName(file, index);
+      if (DEBUG_LOGS) {
+        console.log('[Debug][Upload] handleFilesUpload:file', {
+          name: file.name,
+          type: file.type,
+          resolvedName
+        });
+      }
 
       if (file.type === 'application/pdf') {
         const displayName = resolvedName.toLowerCase().endsWith('.pdf')
@@ -104,12 +148,24 @@ export function useWorkspaceActions(patient: Patient | null) {
 
         try {
           const images = await convertPdfToImages(file);
+          if (DEBUG_LOGS) {
+            console.log('[Debug][Upload] handleFilesUpload:pdf', {
+              displayName,
+              pages: images.length
+            });
+          }
           images.forEach((blob, idx) => {
             const pageFile = new File([blob], `${baseName}_Pg${idx + 1}.jpg`, { type: 'image/jpeg' });
             addDocToSessionAndUpload(pageFile, isHeader, `${displayName} Pg ${idx + 1}`, forcedType);
           });
         } catch (err: any) {
           const errorMsg = err instanceof PdfLoadError ? err.message : "Erro desconhecido ao ler PDF.";
+          if (DEBUG_LOGS) {
+            console.log('[Debug][Upload] handleFilesUpload:pdf:error', {
+              displayName,
+              errorMsg
+            });
+          }
           if (!isHeader) {
             dispatch({
               type: 'ADD_DOC',
@@ -141,6 +197,9 @@ export function useWorkspaceActions(patient: Patient | null) {
   ) => {
     if (!e.target.files?.length) return;
     const files = Array.from(e.target.files) as File[];
+    if (DEBUG_LOGS) {
+      console.log('[Debug][Upload] handleFileUpload:input', { count: files.length });
+    }
     e.target.value = '';
     await handleFilesUpload(files, isHeader, forcedType, onTypeChange);
   }, [handleFilesUpload]);
@@ -257,6 +316,9 @@ export function useWorkspaceActions(patient: Patient | null) {
 
   const handleAudioComplete = useCallback((blob: Blob) => {
     const newJob: AudioJob = { id: crypto.randomUUID(), blob, status: 'processing', createdAt: Date.now() };
+    if (DEBUG_LOGS) {
+      console.log('[Debug][Audio] handleAudioComplete', { id: newJob.id, size: blob.size });
+    }
     dispatch({ type: 'ADD_AUDIO_JOB', payload: newJob });
     enqueue(newJob.id, 'audio');
 
