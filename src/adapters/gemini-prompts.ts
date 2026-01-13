@@ -226,8 +226,9 @@ export async function extractBatchTable(file: File): Promise<any[]> {
 
 O documento pode estar em QUALQUER um destes formatos:
 
-FORMATO 1 - TABELA (com colunas):
-- Linhas com colunas: OS | Paciente | Exame | Data | Entrega
+FORMATO 1 - TABELA (colunas visíveis, inclusive prints em dark mode):
+- Cabeçalhos comuns: OS, Paciente, Exame, Data, Data Realiz., Entrega
+- Pode haver colunas extras (Responsável, Status, Check, Ações) -> ignore
 
 FORMATO 2 - RELATÓRIO PDF/LISTA (blocos de texto):
 Exemplo:
@@ -237,28 +238,22 @@ Exemplo:
  Entrega: 24/01/2025"
 
 FORMATO 3 - LISTA COLORIDA WEB (linhas alternadas):
-- Cada linha tem: código, nome, exame, datas, checkboxes
+- Cada linha tem: código/OS, nome, exame, datas, checkboxes
 
-TAREFA: Extraia TODOS os exames encontrados.
+TAREFA: Extraia TODOS os exames encontrados (todas as linhas visíveis).
 
 MAPEAMENTO DE CAMPOS (procure em qualquer parte do texto):
-- "os": Linha que contém "O.S.:" ou coluna "OS/Pedido/Protocolo"
-  Exemplo: "O.S.: 870-67226-13510" → extraia "870-67226-13510"
-
-- "paciente": Nome após o número da OS (separado por hífen) ou coluna "Paciente"
-  Exemplo: "870-67226-13510 - REGINA HELENA" → extraia "REGINA HELENA..."
-
-- "tipo_exame": Linha "Procedimentos:" ou coluna "Exame/Tipo"
-  Exemplo: "Procedimentos: TCSAF (HU)" → extraia "TCSAF"
+- "os": coluna "OS", "O.S.", "Pedido", "Protocolo", "Nº", "Número", "N°", "ID", "Código"
+  Se o OS estiver quebrado em duas linhas (ex: "870-67579-" + "10256"), una em "870-67579-10256"
+- "paciente": coluna "Paciente"/"Nome"
+  Se o nome estiver quebrado em linhas, una com espaço
+- "tipo_exame": coluna "Exame"/"Tipo" ou linha "Procedimentos:"
   Remova siglas de unidade: (HU), (EP), etc.
+- "data_exame": coluna "Data", "Data Exame", "Data Realiz.", "Data Realização", "Data O.S."
+- "data_entrega": coluna "Entrega", "Data Entrega", "Prazo"
 
-- "data_exame": Linha "Data O.S.:" ou coluna "Data/Realização"
-  Normalize para YYYY-MM-DD
-
-- "data_entrega": Linha "Entrega:" ou coluna "Entrega"
-  Normalize para YYYY-MM-DD
-
-FORMATO DE SAÍDA (JSON):
+FORMATO DE SAÍDA: retorne SOMENTE um array JSON (sem markdown, sem texto extra).
+Exemplo:
 [
   {
     "os": "870-67226-13510",
@@ -270,25 +265,33 @@ FORMATO DE SAÍDA (JSON):
 ]
 
 REGRAS:
-1. Extraia TODOS os exames (sem limites)
-2. Campo vazio → use ""
-3. Preserve UPPERCASE dos nomes
-4. Normalize datas: DD/MM/YYYY → YYYY-MM-DD
-5. Remova parênteses dos exames: "TCSAF (HU)" → "TCSAF"
-6. Se não encontrar dados → retorne []`;
+1. Extraia TODOS os exames (sem limites).
+2. Campo vazio -> "".
+3. Preserve UPPERCASE dos nomes se estiver assim.
+4. Normalize datas: DD/MM/YYYY -> YYYY-MM-DD.
+5. Remova parênteses dos exames: "TCSAF (HU)" -> "TCSAF".
+6. Ignore colunas extras (Responsável, Médico, Status, Check).
+7. Se não encontrar dados -> retorne []`;
 
   const response = await withExponentialBackoff<GenerateContentResponse>(() =>
     client.models.generateContent({
       model: CONFIG.MODEL_NAME,
       contents: { role: 'user', parts: [part, { text: prompt }] },
-      generationConfig: { responseMimeType: 'application/json' }
+      config: { responseMimeType: 'application/json' }
     })
   );
 
   const text = response.text || '[]';
   const json = safeJsonParse(text, []);
+  const items = Array.isArray(json)
+    ? json
+    : Array.isArray((json as { items?: unknown[] })?.items)
+      ? (json as { items: unknown[] }).items
+      : Array.isArray((json as { exames?: unknown[] })?.exames)
+        ? (json as { exames: unknown[] }).exames
+        : [];
 
-  return Array.isArray(json) ? json : [];
+  return items;
 }
 
 /**
@@ -300,33 +303,19 @@ export async function detectIfTableImage(file: File): Promise<boolean> {
 
   const prompt = `Analise esta imagem/documento e identifique se contém uma LISTA ou TABELA com MÚLTIPLOS EXAMES/PACIENTES.
 
-RESPONDA "SIM" se encontrar QUALQUER um destes formatos:
+Responda "sim" se houver 2+ linhas de dados com padrão repetido (OS + Paciente + Exame + Datas), mesmo que:
+- seja screenshot de tabela escura ("Tabela de Trabalho") ou lista verde com checkboxes
+- seja PDF renderizado, print/screenshot ou foto de tela
+- OS/nomes estejam quebrados em duas linhas
+- existam colunas extras (Responsável, Status, Check, Ações)
 
-1. TABELA ESTRUTURADA (com colunas visíveis):
-   - Linhas em grade/tabela com colunas: OS, Paciente, Exame, Data, Entrega
-   - Screenshot de planilha Excel/Google Sheets
-   - Tabela HTML exportada
+Responda "não" apenas se:
+- houver apenas 1 paciente/exame isolado
+- etiqueta individual de requisição
+- laudo médico descritivo (texto corrido sem lista)
+- documento sem padrão repetitivo
 
-2. RELATÓRIO PDF/LISTA (texto corrido mas estruturado):
-   - Título como "Relatório de O.S.", "Lista de Exames", "Pendências"
-   - Múltiplas entradas com padrão repetido tipo:
-     "Origem: ... Data O.S.: ...
-      O.S.: 870-67226-XXXX - NOME DO PACIENTE
-      Procedimentos: EXAME (HU)
-      Entrega: DD/MM/YYYY"
-   - Cada exame em bloco separado por linhas ou espaçamento
-   - PDF renderizado, print/screenshot desse PDF, foto de tela
-
-3. LISTA VERDE/COLORIDA (sistema web):
-   - Linhas alternadas com fundo colorido
-   - Cada linha com: código, nome, exame, datas, checkboxes
-   - Pode ter botões de ação no final
-
-RESPONDA "NÃO" apenas se:
-- Apenas 1 paciente/exame isolado
-- Etiqueta individual de requisição
-- Laudo médico descritivo (não é lista)
-- Documento sem padrão repetitivo
+Em caso de dúvida entre lista/tabela e outro documento, responda "sim".
 
 RESPONDA APENAS: "sim" ou "não" (lowercase, sem pontuação)`;
 

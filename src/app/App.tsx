@@ -1,12 +1,14 @@
 
-import React, { useState, useMemo, useEffect } from 'react';
-import { FileText, History, Download, RefreshCw, Loader2, CheckCircle } from 'lucide-react';
+import React, { useState, useMemo, useEffect, useCallback, useRef, useLayoutEffect } from 'react';
+import { FileText, History, Download, RefreshCw, Loader2, CheckCircle, UploadCloud, AlertTriangle } from 'lucide-react';
 import { IntakeCard } from '../features/intake/IntakeCard';
 import { Button } from '../components/ui/Button';
 import { ConfirmModal } from '../components/ui/ConfirmModal';
 import { AudioRecorder } from '../features/audio/AudioRecorder';
 import { groupDocsVisuals } from '../utils/grouping';
 import { PatientService } from '../services/patient-service';
+import { isFirebaseEnabled } from '../core/firebase';
+import { buildSessionSnapshot } from '../utils/session-persistence';
 
 // Component Imports
 import { DocumentGallery } from '../features/intake/DocumentGallery';
@@ -22,12 +24,14 @@ import { SessionProvider, useSession } from '../context/SessionContext';
 import { GalleryProvider } from '../context/GalleryContext';
 import { usePersistence } from '../hooks/usePersistence';
 import { useWorkspaceActions } from '../hooks/useWorkspaceActions';
-import { Patient } from '../types/patient';
+import { usePasteHandler } from '../hooks/usePasteHandler';
+import { Patient, PatientStatus } from '../types/patient';
 
 // --- APP ROOT (Router Logic) ---
 export default function App() {
   const [currentView, setCurrentView] = useState<'list' | 'workspace'>('list');
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+  const [exitRequest, setExitRequest] = useState(false);
 
   const handleSelectPatient = (patient: Patient) => {
     // 🔥 FIX: Limpa sessão imediatamente para evitar vazamento de dados do paciente anterior
@@ -57,8 +61,12 @@ export default function App() {
     handleSelectPatient(tempPatient);
   };
 
-  const handleExitWorkspace = () => {
-    setCurrentView('list');
+  const handleChangeView = (view: 'list' | 'workspace') => {
+    if (view === 'list' && currentView === 'workspace') {
+      setExitRequest(true);
+      return;
+    }
+    setCurrentView(view);
   };
 
   return (
@@ -67,7 +75,7 @@ export default function App() {
         <div className="app-shell">
           <Sidebar
             currentView={currentView}
-            onChangeView={setCurrentView}
+            onChangeView={handleChangeView}
             onQuickStart={handleQuickStart}
             hasActivePatient={!!selectedPatient}
           />
@@ -81,7 +89,12 @@ export default function App() {
             ) : (
               <WorkspaceLayout
                 patient={selectedPatient}
-                onExit={handleExitWorkspace}
+                exitRequest={exitRequest}
+                onExit={() => {
+                  setCurrentView('list');
+                  setExitRequest(false);
+                }}
+                onCancelExit={() => setExitRequest(false)}
               />
             )}
           </main>
@@ -96,10 +109,12 @@ export default function App() {
 // --- WORKSPACE LAYOUT ---
 interface WorkspaceProps {
   patient: Patient | null;
+  exitRequest: boolean;
   onExit: () => void;
+  onCancelExit: () => void;
 }
 
-function WorkspaceLayout({ patient, onExit }: WorkspaceProps) {
+function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: WorkspaceProps) {
   // 1. Contextos & Hooks Base
   const { session, dispatch } = useSession();
 
@@ -107,6 +122,7 @@ function WorkspaceLayout({ patient, onExit }: WorkspaceProps) {
   const {
     isGeneratingReport,
     handleFileUpload,
+    handleFilesUpload,
     removeDoc,
     removeReportGroup,
     handleManualReclassify,
@@ -121,24 +137,53 @@ function WorkspaceLayout({ patient, onExit }: WorkspaceProps) {
   const [activeTab, setActiveTab] = useState<'summary' | 'reports'>('summary');
   const [isHydrating, setIsHydrating] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [isDragOverDocs, setIsDragOverDocs] = useState(false);
+  const lastStatusRef = useRef<PatientStatus | null>(null);
+  const sessionRef = useRef(session);
+  const firebaseActive = isFirebaseEnabled();
+
+  useEffect(() => {
+    sessionRef.current = session;
+  }, [session]);
 
   // 4. Persistência & Hidratação
   // 🔥 FIX: Passamos isHydrating para impedir salvamento prematuro
   usePersistence(!isHydrating && patient?.id ? patient.id : undefined, isHydrating);
+
+  useLayoutEffect(() => {
+    if (!patient) return;
+
+    const sessionPatientId = session.patientId;
+    const isSamePatient = !!sessionPatientId && sessionPatientId === patient.id;
+    if (isSamePatient) return;
+
+    if (session.patient || sessionPatientId) {
+      dispatch({ type: 'CLEAR_SESSION' });
+    }
+    dispatch({ type: 'SET_PATIENT_ID', payload: patient.id });
+  }, [patient?.id, session.patient, session.patientId, dispatch]);
 
   useEffect(() => {
     let mounted = true;
     async function hydrate() {
       if (!patient) return;
 
-      // 🔥 FIX CRÍTICO: Se o ID do paciente mudou, limpamos TUDO imediatamente.
-      // Não esperamos o await do getPatient, pois isso causa vazamento de estado
-      // se o usePersistence rodar nesse meio tempo.
-      if (session.patient && session.patient.os.valor !== patient.os) {
+      const sessionPatientId = session.patientId;
+      const samePatientById = !!sessionPatientId && sessionPatientId === patient.id;
+      const samePatientByData = !!session.patient &&
+        session.patient.os.valor === patient.os &&
+        session.patient.paciente.valor === patient.name &&
+        session.patient.tipo_exame.valor === patient.examType;
+      const isSamePatient = samePatientById || samePatientByData;
+
+      if (!isSamePatient && (session.patient || sessionPatientId)) {
         dispatch({ type: 'CLEAR_SESSION' });
       }
 
-      if (session.patient && session.patient.os.valor === patient.os && session.docs.length > 0) return;
+      dispatch({ type: 'SET_PATIENT_ID', payload: patient.id });
+
+      if (isSamePatient && session.docs.length > 0) return;
 
       setIsHydrating(true);
       try {
@@ -149,7 +194,30 @@ function WorkspaceLayout({ patient, onExit }: WorkspaceProps) {
         if (!mounted) return;
 
         if (fullPatient && fullPatient.workspace) {
-          dispatch({ type: 'RESTORE_SESSION', payload: fullPatient.workspace as any });
+          const workspace = fullPatient.workspace as any;
+          const workspacePatientId = workspace.patientId;
+          const workspaceOs = workspace.patient?.os?.valor;
+          const shouldRestore = (workspacePatientId && workspacePatientId === patient.id) ||
+            (workspaceOs && workspaceOs === patient.os);
+
+          if (shouldRestore) {
+            dispatch({ type: 'RESTORE_SESSION', payload: workspace });
+            dispatch({ type: 'SET_PATIENT_ID', payload: patient.id });
+          } else {
+            dispatch({ type: 'CLEAR_SESSION' });
+            dispatch({
+              type: 'SET_PATIENT',
+              payload: {
+                paciente: { valor: patient.name, confianca: 'alta', evidencia: 'Cadastro', candidatos: [] },
+                os: { valor: patient.os, confianca: 'alta', evidencia: 'Cadastro', candidatos: [] },
+                tipo_exame: { valor: patient.examType, confianca: 'media', evidencia: 'Cadastro', candidatos: [] },
+                data_exame: { valor: '', confianca: 'baixa', evidencia: '', data_normalizada: null, hora: null, candidatos: [] },
+                outras_datas_encontradas: [],
+                observacoes: []
+              }
+            });
+            dispatch({ type: 'SET_PATIENT_ID', payload: patient.id });
+          }
         } else {
           // Se não existe ou é novo, iniciamos limpo (e garantimos novamente)
           dispatch({ type: 'CLEAR_SESSION' });
@@ -164,6 +232,7 @@ function WorkspaceLayout({ patient, onExit }: WorkspaceProps) {
               observacoes: []
             }
           });
+          dispatch({ type: 'SET_PATIENT_ID', payload: patient.id });
         }
       } catch (error) {
         console.error("Erro na hidratação:", error);
@@ -182,6 +251,7 @@ function WorkspaceLayout({ patient, onExit }: WorkspaceProps) {
               observacoes: []
             }
           });
+          dispatch({ type: 'SET_PATIENT_ID', payload: patient.id });
         }
       } finally {
         if (mounted) setIsHydrating(false);
@@ -190,6 +260,127 @@ function WorkspaceLayout({ patient, onExit }: WorkspaceProps) {
     hydrate();
     return () => { mounted = false; };
   }, [patient?.id, dispatch]);
+
+  useEffect(() => {
+    if (!patient || isHydrating) return;
+    if (patient.status === 'done') {
+      lastStatusRef.current = 'done';
+      return;
+    }
+
+    const hasDocs = session.docs.length > 0;
+    const hasAudio = session.audioJobs.length > 0;
+    const hasProcessingDocs = session.docs.some(doc => doc.status === 'pending' || doc.status === 'processing');
+    const hasProcessingAudio = session.audioJobs.some(job => job.status === 'processing');
+    const hasProcessing = hasProcessingDocs || hasProcessingAudio;
+
+    let nextStatus: PatientStatus = 'waiting';
+    if (hasDocs || hasAudio) {
+      nextStatus = hasAudio ? 'in_progress' : 'ready';
+    }
+    if (hasProcessing) {
+      nextStatus = 'processing';
+    }
+
+    if (lastStatusRef.current === nextStatus) return;
+    lastStatusRef.current = nextStatus;
+
+    if (patient.status === nextStatus) return;
+
+    PatientService.updatePatient(patient.id, {
+      status: nextStatus,
+      hasAttachments: hasDocs || hasAudio
+    }).catch((error) => {
+      console.error('Erro ao atualizar status:', error);
+    });
+  }, [patient, session.docs, session.audioJobs, isHydrating]);
+
+  const flushWorkspace = useCallback(async () => {
+    if (!patient?.id) return;
+    const snapshot = buildSessionSnapshot(sessionRef.current);
+    try {
+      await PatientService.saveWorkspaceState(patient.id, snapshot);
+    } catch (error) {
+      console.error('Erro ao salvar antes de sair:', error);
+    }
+  }, [patient?.id]);
+
+  const hasPendingProcessing = session.docs.some(doc => doc.status === 'pending' || doc.status === 'processing') ||
+    session.audioJobs.some(job => job.status === 'processing');
+
+  useEffect(() => {
+    if (!exitRequest) return;
+
+    if (hasPendingProcessing) {
+      setShowExitConfirm(true);
+      return;
+    }
+
+    flushWorkspace().finally(() => {
+      setShowExitConfirm(false);
+      onExit();
+    });
+  }, [exitRequest, hasPendingProcessing, flushWorkspace, onExit]);
+
+  const handlePasteDocs = useCallback((files: File[]) => {
+    if (!files.length) return;
+    const forcedType = activeTab === 'reports' ? 'laudo_previo' : 'assistencial';
+    handleFilesUpload(files, false, forcedType, (type) => setActiveTab(type));
+  }, [activeTab, handleFilesUpload]);
+
+  usePasteHandler({ onFilePaste: handlePasteDocs, enabled: true });
+
+  const isFileDragEvent = useCallback((event: React.DragEvent) => {
+    const types = event.dataTransfer?.types;
+    if (!types) return false;
+    return Array.from(types).includes('Files');
+  }, []);
+
+  const handleWorkspaceDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+    if (!isFileDragEvent(event)) return;
+    const target = event.target as HTMLElement | null;
+    if (target?.closest('.doc-drop-zones') || target?.closest('.doc-list-group') || target?.closest('.reports-grid')) {
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    event.dataTransfer.dropEffect = 'copy';
+    setIsDragOverDocs(true);
+  }, [isFileDragEvent]);
+
+  const handleWorkspaceDragLeave = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+    if (!isFileDragEvent(event)) return;
+    const related = event.relatedTarget as Node | null;
+    if (related && event.currentTarget.contains(related)) return;
+    setIsDragOverDocs(false);
+  }, [isFileDragEvent]);
+
+  const handleWorkspaceDrop = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+    if (event.defaultPrevented) {
+      setIsDragOverDocs(false);
+      return;
+    }
+    if (!isFileDragEvent(event)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    setIsDragOverDocs(false);
+
+    const files = Array.from(event.dataTransfer.files || []);
+    if (!files.length) return;
+
+    const forcedType = activeTab === 'reports' ? 'laudo_previo' : 'assistencial';
+    handleFilesUpload(files, false, forcedType, (type) => setActiveTab(type));
+  }, [activeTab, handleFilesUpload, isFileDragEvent]);
+
+  useEffect(() => {
+    const clearDragOverlay = () => setIsDragOverDocs(false);
+    window.addEventListener('drop', clearDragOverlay);
+    window.addEventListener('dragend', clearDragOverlay);
+    return () => {
+      window.removeEventListener('drop', clearDragOverlay);
+      window.removeEventListener('dragend', clearDragOverlay);
+    };
+  }, []);
 
   // 5. Dados Derivados (Views)
   const reportGroups = useMemo(() => {
@@ -222,7 +413,12 @@ function WorkspaceLayout({ patient, onExit }: WorkspaceProps) {
   }
 
   return (
-    <div className="app-container">
+    <div
+      className="app-container"
+      onDragOver={handleWorkspaceDragOver}
+      onDragLeave={handleWorkspaceDragLeave}
+      onDrop={handleWorkspaceDrop}
+    >
 
       {/* HEADER */}
       <header className="header">
@@ -257,6 +453,18 @@ function WorkspaceLayout({ patient, onExit }: WorkspaceProps) {
           </Button>
         </div>
       </header>
+
+      {!firebaseActive && (
+        <div className="mb-4 p-4 border border-yellow-500 bg-yellow-900/20 text-yellow-200 rounded flex items-center gap-2">
+          <AlertTriangle size={20} />
+          <div>
+            <strong>Modo Offline</strong>
+            <p className="text-sm opacity-80">
+              Firebase não configurado. Os dados podem não ser persistidos após recarregar.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* MAIN GRID */}
       <div className="main-grid">
@@ -318,6 +526,7 @@ function WorkspaceLayout({ patient, onExit }: WorkspaceProps) {
                     reportGroups={reportGroups}
                     // AQUI: Usamos 'undefined' (Auto) para o upload global, ou o 'type' passado pelos inputs internos
                     onUpload={(e, type) => handleFileUpload(e, false, type, (t) => setActiveTab(t))}
+                    onDropFiles={(files, target) => handleFilesUpload(files, false, target, (t) => setActiveTab(t))}
                     onRemoveDoc={removeDoc}
                     onReclassifyDoc={handleManualReclassify}
                   />
@@ -332,6 +541,7 @@ function WorkspaceLayout({ patient, onExit }: WorkspaceProps) {
                     onSplitGroup={handleSplitReportGroup}
                     // AQUI: Forçamos 'laudo_previo' pois estamos na aba de laudos
                     onUpload={(e) => handleFileUpload(e, false, 'laudo_previo')}
+                    onDropFiles={(files) => handleFilesUpload(files, false, 'laudo_previo', (t) => setActiveTab(t))}
                   />
                 </div>
               )}
@@ -357,6 +567,39 @@ function WorkspaceLayout({ patient, onExit }: WorkspaceProps) {
         }}
         onCancel={() => setShowClearConfirm(false)}
       />
+
+      <ConfirmModal
+        isOpen={showExitConfirm}
+        title="Sair com processamentos ativos?"
+        message="Ainda existem documentos ou áudios em processamento. Se sair agora, eles continuarão em background, mas o resultado pode demorar para aparecer. Deseja sair mesmo assim?"
+        confirmLabel="Sair"
+        cancelLabel="Ficar"
+        onConfirm={() => {
+          flushWorkspace().finally(() => {
+            setShowExitConfirm(false);
+            onExit();
+          });
+        }}
+        onCancel={() => {
+          setShowExitConfirm(false);
+          onCancelExit();
+        }}
+      />
+
+      {isDragOverDocs && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/80 backdrop-blur-sm animate-fade-in"
+          style={{ pointerEvents: 'none' }}
+        >
+          <div className="text-center">
+            <UploadCloud size={64} className="mx-auto text-amber-500 mb-4 animate-bounce" />
+            <p className="text-2xl font-bold text-white mb-2">Solte os arquivos aqui</p>
+            <p className="text-zinc-400">
+              Imagens ou PDFs — vai para {activeTab === 'reports' ? 'Laudos Prévios' : 'Docs de Suporte'}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

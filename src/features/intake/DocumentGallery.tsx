@@ -1,6 +1,6 @@
 
 import React, { useMemo, useState } from 'react';
-import { UploadCloud, Trash2, AlertTriangle, FileText, Image as ImageIcon, Eye, MoreHorizontal } from 'lucide-react';
+import { UploadCloud, Trash2, AlertTriangle, FileText, Image as ImageIcon, Eye, MoreHorizontal, History } from 'lucide-react';
 import { AttachmentDoc, DocClassification } from '../../types';
 import { ClassificationChip } from '../../components/ClassificationChip';
 import type { ReportGroup } from '../../utils/grouping';
@@ -10,13 +10,15 @@ interface Props {
   docs: AttachmentDoc[];
   reportGroups: ReportGroup[];
   onUpload: (e: React.ChangeEvent<HTMLInputElement>, forcedType?: DocClassification) => void;
+  onDropFiles?: (files: File[], target: DocClassification) => void;
   onRemoveDoc: (id: string) => void;
   onReclassifyDoc: (docId: string, target: DocClassification) => void;
 }
 
-export const DocumentGallery: React.FC<Props> = ({ docs, reportGroups, onUpload, onRemoveDoc, onReclassifyDoc }) => {
+export const DocumentGallery: React.FC<Props> = ({ docs, reportGroups, onUpload, onDropFiles, onRemoveDoc, onReclassifyDoc }) => {
   const { openGallery } = useGallery();
   const [dragTarget, setDragTarget] = useState<'assistencial' | 'laudo_previo' | null>(null);
+  const [fileDropTarget, setFileDropTarget] = useState<'assistencial' | 'laudo_previo' | null>(null);
 
   const assistencialDocs = useMemo(
     () => docs.filter(doc => doc.classification !== 'laudo_previo'),
@@ -28,6 +30,12 @@ export const DocumentGallery: React.FC<Props> = ({ docs, reportGroups, onUpload,
     [docs]
   );
 
+  const isFileDragEvent = (event: React.DragEvent<HTMLDivElement>) => {
+    const types = event.dataTransfer?.types;
+    if (!types) return false;
+    return Array.from(types).includes('Files');
+  };
+
   const handleDragStart = (docId: string) => (event: React.DragEvent<HTMLDivElement>) => {
     event.dataTransfer.setData('text/plain', docId);
     event.dataTransfer.effectAllowed = 'move';
@@ -35,15 +43,38 @@ export const DocumentGallery: React.FC<Props> = ({ docs, reportGroups, onUpload,
 
   const handleDrop = (target: DocClassification) => (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
+    event.stopPropagation();
+
+    if (isFileDragEvent(event)) {
+      const files = Array.from(event.dataTransfer.files || []);
+      if (files.length > 0 && onDropFiles) {
+        onDropFiles(files, target);
+      }
+      setDragTarget(null);
+      setFileDropTarget(null);
+      return;
+    }
+
     const docId = event.dataTransfer.getData('text/plain');
     if (docId) onReclassifyDoc(docId, target);
     setDragTarget(null);
+    setFileDropTarget(null);
   };
 
   const handleDragOver = (target: 'assistencial' | 'laudo_previo') => (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
-    event.dataTransfer.dropEffect = 'move';
-    if (dragTarget !== target) setDragTarget(target);
+    event.stopPropagation();
+    const isFile = isFileDragEvent(event);
+    event.dataTransfer.dropEffect = isFile ? 'copy' : 'move';
+    if (!isFile && dragTarget !== target) setDragTarget(target);
+    if (isFile && fileDropTarget !== target) setFileDropTarget(target);
+  };
+
+  const handleDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
+    if (!isFileDragEvent(event)) return;
+    const related = event.relatedTarget as Node | null;
+    if (related && event.currentTarget.contains(related)) return;
+    setFileDropTarget(null);
   };
 
   const renderDocRow = (doc: AttachmentDoc) => {
@@ -112,58 +143,93 @@ export const DocumentGallery: React.FC<Props> = ({ docs, reportGroups, onUpload,
         <span className="text-muted text-xs">Arraste para organizar</span>
       </div>
 
+      <div className="doc-drop-zones">
+        <div
+          className={`doc-drop-zone ${fileDropTarget === 'assistencial' ? 'active' : ''}`}
+          onDragOver={handleDragOver('assistencial')}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop('assistencial')}
+        >
+          <FileText size={14} />
+          Solte aqui: Doc Suporte
+        </div>
+        <div
+          className={`doc-drop-zone ${fileDropTarget === 'laudo_previo' ? 'active' : ''}`}
+          onDragOver={handleDragOver('laudo_previo')}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop('laudo_previo')}
+        >
+          <History size={14} />
+          Solte aqui: Laudo Prévio
+        </div>
+      </div>
+
       <div className="doc-list-container">
         {/* GRUPO 1: ASSISTENCIAIS */}
         <div
-          className="doc-list-group-header"
+          className="doc-list-group"
           onDragOver={handleDragOver('assistencial')}
+          onDragLeave={handleDragLeave}
           onDrop={handleDrop('assistencial')}
-          style={dragTarget === 'assistencial' ? { background: 'var(--status-info-bg)', color: 'var(--status-info-text)' } : {}}
         >
-          Documentos de Suporte ({assistencialDocs.length})
-        </div>
-
-        {assistencialDocs.length === 0 ? (
-          <div className="p-3 text-xs text-center text-muted italic border-b border-[var(--border-subtle)]">
-            Nenhum documento.
+          <div
+            className="doc-list-group-header"
+            style={dragTarget === 'assistencial' || fileDropTarget === 'assistencial'
+              ? { background: 'var(--status-info-bg)', color: 'var(--status-info-text)' }
+              : {}}
+          >
+            Documentos de Suporte ({assistencialDocs.length})
           </div>
-        ) : (
-          assistencialDocs.map(renderDocRow)
-        )}
 
-        <label className="doc-list-add" title="Adicionar Assistencial">
-          <UploadCloud size={14} /> Adicionar Doc Suporte
-          <input
-            type="file" multiple hidden accept="image/*,application/pdf"
-            onChange={(e) => onUpload(e, 'assistencial')}
-          />
-        </label>
+          {assistencialDocs.length === 0 ? (
+            <div className="p-3 text-xs text-center text-muted italic border-b border-[var(--border-subtle)]">
+              Nenhum documento.
+            </div>
+          ) : (
+            assistencialDocs.map(renderDocRow)
+          )}
+
+          <label className="doc-list-add" title="Adicionar Assistencial">
+            <UploadCloud size={14} /> Adicionar Doc Suporte
+            <input
+              type="file" multiple hidden accept="image/*,application/pdf"
+              onChange={(e) => onUpload(e, 'assistencial')}
+            />
+          </label>
+        </div>
 
         {/* GRUPO 2: LAUDOS PRÉVIOS */}
         <div
-          className="doc-list-group-header"
+          className="doc-list-group"
           onDragOver={handleDragOver('laudo_previo')}
+          onDragLeave={handleDragLeave}
           onDrop={handleDrop('laudo_previo')}
-          style={dragTarget === 'laudo_previo' ? { background: 'var(--status-warning-bg)', color: 'var(--accent-primary)' } : {}}
         >
-          Exames Anteriores ({laudoDocs.length})
-        </div>
-
-        {laudoDocs.length === 0 ? (
-          <div className="p-3 text-xs text-center text-muted italic border-b border-[var(--border-subtle)]">
-            Nenhum laudo.
+          <div
+            className="doc-list-group-header"
+            style={dragTarget === 'laudo_previo' || fileDropTarget === 'laudo_previo'
+              ? { background: 'var(--status-warning-bg)', color: 'var(--accent-primary)' }
+              : {}}
+          >
+            Exames Anteriores ({laudoDocs.length})
           </div>
-        ) : (
-          laudoDocs.map(renderDocRow)
-        )}
 
-        <label className="doc-list-add" title="Adicionar Laudo Prévio">
-          <UploadCloud size={14} /> Adicionar Exame Anterior
-          <input
-            type="file" multiple hidden accept="image/*,application/pdf"
-            onChange={(e) => onUpload(e, 'laudo_previo')}
-          />
-        </label>
+          {laudoDocs.length === 0 ? (
+            <div className="p-3 text-xs text-center text-muted italic border-b border-[var(--border-subtle)]">
+              Nenhum laudo.
+            </div>
+          ) : (
+            laudoDocs.map(renderDocRow)
+          )}
+
+          <label className="doc-list-add" title="Adicionar Laudo Prévio">
+            <UploadCloud size={14} /> Adicionar Exame Anterior
+            <input
+              type="file" multiple hidden accept="image/*,application/pdf"
+              onChange={(e) => onUpload(e, 'laudo_previo')}
+            />
+          </label>
+        </div>
       </div>
 
       {/* Botão de Upload Genérico com mais margem */}

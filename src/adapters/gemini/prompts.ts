@@ -68,9 +68,10 @@ Tarefas:
 3) Se for "laudo_previo", gere um report_group_hint DETERMINÍSTICO para agrupar páginas do mesmo laudo. Se não der, deixe vazio.
 
 REGRAS PARA report_group_hint (DETERMINÍSTICO):
-- Priorize IDs únicos: Protocolo, OS, Atendimento, Pedido. Se encontrar, retorne SOMENTE "ID:<numero>" (apenas dígitos).
+- Priorize IDs de exame/pedido: Protocolo, OS, Pedido, Guia. Se encontrar, retorne SOMENTE "ID:<numero>" (apenas dígitos).
+- NÃO use identificadores do paciente como ID (ex: Prontuário, Atend., CPF, CNS).
 - Se não houver ID, use Paciente + Data no formato "PACIENTE:<NOME>|DATA:<YYYY-MM-DD>".
-- Se houver tipo de exame claro, acrescente "|EXAME:<TIPO>" para separar laudos diferentes do mesmo PDF.
+- Se houver tipo de exame claro (ex: título "TOMOGRAFIA ... TÓRAX/ABDOME"), SEMPRE acrescente "|EXAME:<TIPO>" para separar exames distintos.
 - Normalize: MAIÚSCULAS, sem acentos, sem pontuação extra, sem palavras variáveis ("CONCLUSÃO", "PÁGINA 2").
 - Não invente: se não houver dados confiáveis, deixe vazio.
 
@@ -78,6 +79,7 @@ EXEMPLOS:
 - "Protocolo 123456" -> "ID:123456"
 - "OS 9988" -> "ID:9988"
 - "Paciente: Maria Silva | Data: 12/03/2024 | RX TORAX" -> "PACIENTE:MARIA SILVA|DATA:2024-03-12|EXAME:RX TORAX"
+- "Prontuário: 108032 | Atend.: 1726555 | Tomografia do Tórax" -> "PACIENTE:...|DATA:...|EXAME:TOMOGRAFIA TORAX"
 
 CRITÉRIOS DE CLASSIFICAÇÃO RIGOROSOS:
 

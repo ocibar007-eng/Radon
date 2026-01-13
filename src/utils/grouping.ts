@@ -23,22 +23,24 @@ export function groupDocsVisuals(docs: AttachmentDoc[]): ReportGroup[] {
   
   docs.forEach(doc => {
     // Normaliza o hint para evitar nulos e diferenças de caixa
-    const hint = (doc.reportGroupHint || 'default').trim();
+    const hint = (doc.reportGroupHint || '').trim();
+    const hasStrongHint = isStrongReportHint(hint);
     
     // Lógica 1: Agrupamento por origem de arquivo PDF
     // Ex: "MeuExame.pdf PDF Pg 1" -> Key Base: "MeuExame.pdf"
     if (doc.source.includes('PDF Pg')) {
+      const normalizedHint = hint || 'default';
       const baseName = doc.source.split(' PDF Pg ')[0]; // Remove o sufixo da página
       
       // COMBINA NOME DO ARQUIVO + HINT DA IA (pode ser MANUAL_SPLIT)
-      const key = `pdf::${baseName}::${hint}`;
+      const key = `pdf::${baseName}::${normalizedHint}`;
       
       const list = groups.get(key) || [];
       list.push(doc);
       groups.set(key, list);
     } 
     // Lógica 2: Agrupamento por Hint da IA (se disponível e não for PDF split)
-    else if (doc.reportGroupHint && doc.reportGroupHint.length > 3) { 
+    else if (hasStrongHint) { 
       const key = `hint::${hint}`; 
       const list = groups.get(key) || [];
       list.push(doc);
@@ -123,4 +125,12 @@ function formatManualHint(hint: string): string {
         return `Laudo Manual ${parts[2]}`;
     }
     return 'Laudo Manual';
+}
+
+function isStrongReportHint(hint: string): boolean {
+  if (!hint) return false;
+  const normalized = hint.trim().toUpperCase();
+  if (!normalized) return false;
+  if (normalized.startsWith('ID:')) return true;
+  return normalized.includes('|EXAME:');
 }

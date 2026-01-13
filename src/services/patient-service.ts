@@ -289,6 +289,7 @@ export const PatientService = {
         status: 'waiting',
         createdAt: now,
         updatedAt: now,
+        deletedAt: null,
         docsCount: 0,
         audioCount: 0,
         hasClinicalSummary: false,

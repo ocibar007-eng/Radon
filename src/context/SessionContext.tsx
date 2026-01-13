@@ -8,6 +8,7 @@ type SessionAction =
   | { type: 'CLEAR_SESSION' }
   | { type: 'SET_HEADER'; payload: AttachmentDoc | null }
   | { type: 'SET_PATIENT'; payload: PatientRegistrationDetails }
+  | { type: 'SET_PATIENT_ID'; payload: string | null }
   | { type: 'ADD_DOC'; payload: AttachmentDoc }
   | { type: 'UPDATE_DOC'; payload: { id: string; updates: Partial<AttachmentDoc> } }
   | { type: 'REMOVE_DOC'; payload: string }
@@ -16,6 +17,7 @@ type SessionAction =
   | { type: 'SET_CLINICAL_MARKDOWN'; payload: { markdown: string; data?: ClinicalSummary } };
 
 const initialSession: AppSession = {
+  patientId: null,
   headerImage: null,
   patient: null,
   docs: [],
@@ -36,6 +38,9 @@ function sessionReducer(state: AppSession, action: SessionAction): AppSession {
 
     case 'SET_PATIENT':
       return { ...state, patient: action.payload };
+
+    case 'SET_PATIENT_ID':
+      return { ...state, patientId: action.payload };
 
     case 'ADD_DOC':
       return { ...state, docs: [...state.docs, action.payload] };

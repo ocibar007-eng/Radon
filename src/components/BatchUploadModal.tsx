@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { X, Trash2, AlertCircle, CheckCircle } from 'lucide-react';
 import { Button } from './ui/Button';
 import { PatientBatchItem } from '../utils/batch-parsers';
@@ -14,6 +14,12 @@ interface Props {
 export const BatchUploadModal: React.FC<Props> = ({ isOpen, items: initialItems, onClose, onConfirm }) => {
   const [items, setItems] = useState<PatientBatchItem[]>(initialItems);
   const [isCreating, setIsCreating] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setItems(initialItems);
+    }
+  }, [initialItems, isOpen]);
 
   if (!isOpen) return null;
 

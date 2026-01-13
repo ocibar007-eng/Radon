@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { PatientService } from '../services/patient-service';
 import { Patient, PatientStatus } from '../types/patient';
+import { PatientBatchItem } from '../utils/batch-parsers';
 
 export function usePatients(initialFilter: PatientStatus | undefined = undefined) {
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -56,6 +57,44 @@ export function usePatients(initialFilter: PatientStatus | undefined = undefined
     return newPatient;
   };
 
+  const createPatientsBatch = async (items: PatientBatchItem[]) => {
+    const now = Date.now();
+    const patientsToCreate: Patient[] = items.map((item, index) => ({
+      id: crypto.randomUUID(),
+      name: item.paciente || 'Sem Nome',
+      os: item.os || `AUTO-${now}-${index + 1}`,
+      examType: item.tipo_exame || 'Não especificado',
+      examDate: item.data_exame || '',
+      status: 'waiting',
+      createdAt: now + index,
+      updatedAt: now + index,
+      deletedAt: null,
+      docsCount: 0,
+      audioCount: 0,
+      hasClinicalSummary: false,
+      hasAttachments: false,
+      finalized: false
+    }));
+
+    // OPTIMISTIC UI com DEDUPLICAÇÃO
+    setPatients(prev => {
+      const existingIds = new Set(prev.map(p => p.id));
+      const unique = patientsToCreate.filter(p => !existingIds.has(p.id));
+      return [...unique, ...prev];
+    });
+
+    // Persistência em background (Firebase ou memória)
+    await Promise.all(
+      patientsToCreate.map(p =>
+        PatientService.createPatient(p).catch(err => {
+          console.error("Erro ao persistir paciente (batch):", err);
+        })
+      )
+    );
+
+    return patientsToCreate.map(p => p.id);
+  };
+
   const deletePatient = async (id: string) => {
     if (!window.confirm("Tem certeza que deseja remover este paciente da lista?")) return;
     try {
@@ -77,6 +116,7 @@ export function usePatients(initialFilter: PatientStatus | undefined = undefined
     setFilter,
     refresh,
     createPatient,
+    createPatientsBatch,
     deletePatient
   };
 }

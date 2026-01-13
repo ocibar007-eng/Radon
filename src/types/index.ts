@@ -82,6 +82,7 @@ export interface AudioJob {
 }
 
 export interface AppSession {
+    patientId?: string;
     headerImage: AttachmentDoc | null;
     patient: PatientRegistrationDetails | null; // Usa o tipo inferido aqui
     docs: AttachmentDoc[];

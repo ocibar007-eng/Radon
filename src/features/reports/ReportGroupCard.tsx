@@ -56,6 +56,21 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
     return <div className="status-dot relevant" title="Alteração Relevante" />;
   };
 
+  const splitImpressionItems = (text: string) => {
+    const normalized = text
+      .replace(/\r\n/g, '\n')
+      .replace(/[•►▪●]+/g, '\n')
+      .replace(/\n{2,}/g, '\n');
+
+    const items = normalized
+      .split('\n')
+      .map(item => item.trim())
+      .filter(Boolean)
+      .map(item => item.replace(/^[-–—]\s*/, '').trim());
+
+    return items.length > 0 ? items : [text.trim()];
+  };
+
   // Renderização Estruturada (Grid de Órgãos)
   const renderStructuredFindings = (data: StructuredReportBody) => {
     return (
@@ -120,7 +135,11 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
                 <Quote size={16} style={{transform: 'scaleX(-1)'}} />
                 <span>IMPRESSÃO DIAGNÓSTICA</span>
              </div>
-             <p className="sr-text-conclusion" dangerouslySetInnerHTML={{ __html: formatBold(data.impressao_diagnostica_ou_conclusao_literal) }} />
+             <ul className="sr-conclusion-list">
+               {splitImpressionItems(data.impressao_diagnostica_ou_conclusao_literal).map((item, idx) => (
+                 <li key={idx} dangerouslySetInnerHTML={{ __html: formatBold(item) }} />
+               ))}
+             </ul>
            </div>
         )}
       </div>

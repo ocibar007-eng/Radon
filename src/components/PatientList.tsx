@@ -10,7 +10,6 @@ import { Patient } from '../types/patient';
 import { isFirebaseEnabled } from '../core/firebase';
 import { extractHeaderInfo, extractBatchTable, detectIfTableImage } from '../adapters/gemini-prompts';
 import { parseCSV, parseExcel, PatientBatchItem } from '../utils/batch-parsers';
-import { PatientService } from '../services/patient-service';
 import { usePasteHandler } from '../hooks/usePasteHandler';
 import { useToast } from './ui/Toast';
 
@@ -22,7 +21,7 @@ interface Props {
 }
 
 export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) => {
-  const { patients, loading, error, filter, setFilter, refresh, createPatient, deletePatient } = usePatients();
+  const { patients, loading, error, filter, setFilter, refresh, createPatient, createPatientsBatch, deletePatient } = usePatients();
   const { showToast, ToastComponent } = useToast();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
@@ -100,21 +99,30 @@ export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) 
     try {
       let items: PatientBatchItem[] = [];
 
-      // Detectar tipo de arquivo
-      const extension = file.name.split('.').pop()?.toLowerCase();
+      // Detectar tipo de arquivo (extensão ou MIME)
+      const fileName = file.name || '';
+      const extension = fileName.includes('.') ? fileName.split('.').pop()?.toLowerCase() : '';
+      const mimeType = (file.type || '').toLowerCase();
 
-      if (extension === 'csv') {
+      const isCsv = extension === 'csv' || mimeType === 'text/csv';
+      const isExcel = ['xls', 'xlsx'].includes(extension || '') ||
+        mimeType === 'application/vnd.ms-excel' ||
+        mimeType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+      const isImage = mimeType.startsWith('image/') || ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(extension || '');
+      const isPdf = mimeType === 'application/pdf' || extension === 'pdf';
+
+      let emptyMessage = 'Nenhum exame foi detectado no arquivo.';
+
+      if (isCsv) {
         items = await parseCSV(file);
-      } else if (extension === 'xls' || extension === 'xlsx') {
+      } else if (isExcel) {
         items = await parseExcel(file);
-      } else if (['jpg', 'jpeg', 'png', 'pdf'].includes(extension || '')) {
-        // Imagem ou PDF - verificar se é tabela
+      } else if (isImage || isPdf) {
+        // Imagem ou PDF - tentar extração mesmo se a detecção falhar
         const isTable = await detectIfTableImage(file);
-        if (isTable) {
-          items = await extractBatchTable(file);
-        } else {
-          showToast('Não foi detectada uma tabela com múltiplos exames neste arquivo.', 'warning');
-          return;
+        items = await extractBatchTable(file);
+        if (!isTable) {
+          emptyMessage = 'Não foi detectada uma tabela com múltiplos exames neste arquivo.';
         }
       } else {
         showToast('Formato não suportado. Use CSV, Excel, ou imagem/PDF com tabela.', 'warning');
@@ -122,7 +130,7 @@ export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) 
       }
 
       if (items.length === 0) {
-        showToast('Nenhum exame foi detectado no arquivo.', 'warning');
+        showToast(emptyMessage, 'warning');
         return;
       }
 
@@ -146,8 +154,8 @@ export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) 
 
   const handleBatchConfirm = async (validItems: PatientBatchItem[]) => {
     try {
-      const createdIds = await PatientService.createBatchPatients(validItems);
-      await refresh();
+      const createdIds = await createPatientsBatch(validItems);
+      refresh();
       showToast(`${createdIds.length} exame(s) criado(s) com sucesso!`, 'success');
     } catch (error) {
       console.error('Erro ao criar lote:', error);

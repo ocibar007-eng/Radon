@@ -61,28 +61,52 @@ export function useWorkspaceActions(patient: Patient | null) {
 
   // --- AÇÕES PÚBLICAS ---
 
-  const handleFileUpload = useCallback(async (
-    e: React.ChangeEvent<HTMLInputElement>,
+  const resolveFileName = useCallback((file: File, index: number) => {
+    const trimmed = (file.name || '').trim();
+    if (trimmed) return trimmed;
+
+    const timestamp = Date.now();
+    if (file.type === 'application/pdf') {
+      return `documento_colado_${timestamp}_${index + 1}.pdf`;
+    }
+    if (file.type.startsWith('image/')) {
+      const ext = file.type.split('/')[1] || 'png';
+      return `imagem_colada_${timestamp}_${index + 1}.${ext}`;
+    }
+    return `arquivo_colado_${timestamp}_${index + 1}`;
+  }, []);
+
+  const handleFilesUpload = useCallback(async (
+    files: File[],
     isHeader = false,
     forcedType?: DocClassification,
     onTypeChange?: (type: 'summary' | 'reports') => void
   ) => {
-    if (!e.target.files?.length) return;
-    const files = Array.from(e.target.files) as File[];
-    e.target.value = '';
+    if (!files.length) return;
 
     if (onTypeChange) {
       if (forcedType === 'laudo_previo') onTypeChange('reports');
       if (forcedType === 'assistencial') onTypeChange('summary');
     }
 
-    for (const file of files) {
+    const allowedFiles = files.filter(file =>
+      file.type === 'application/pdf' || file.type.startsWith('image/')
+    );
+
+    for (const [index, file] of allowedFiles.entries()) {
+      const resolvedName = resolveFileName(file, index);
+
       if (file.type === 'application/pdf') {
+        const displayName = resolvedName.toLowerCase().endsWith('.pdf')
+          ? resolvedName
+          : `${resolvedName}.pdf`;
+        const baseName = displayName.replace(/\.pdf$/i, '');
+
         try {
           const images = await convertPdfToImages(file);
           images.forEach((blob, idx) => {
-            const pageFile = new File([blob], `${file.name.replace('.pdf', '')}_Pg${idx + 1}.jpg`, { type: 'image/jpeg' });
-            addDocToSessionAndUpload(pageFile, isHeader, `${file.name} Pg ${idx + 1}`, forcedType);
+            const pageFile = new File([blob], `${baseName}_Pg${idx + 1}.jpg`, { type: 'image/jpeg' });
+            addDocToSessionAndUpload(pageFile, isHeader, `${displayName} Pg ${idx + 1}`, forcedType);
           });
         } catch (err: any) {
           const errorMsg = err instanceof PdfLoadError ? err.message : "Erro desconhecido ao ler PDF.";
@@ -91,7 +115,7 @@ export function useWorkspaceActions(patient: Patient | null) {
               type: 'ADD_DOC',
               payload: {
                 id: crypto.randomUUID(),
-                source: file.name,
+                source: displayName,
                 file: file,
                 previewUrl: '',
                 status: 'error',
@@ -104,10 +128,22 @@ export function useWorkspaceActions(patient: Patient | null) {
           }
         }
       } else {
-        addDocToSessionAndUpload(file, isHeader, file.name, forcedType);
+        addDocToSessionAndUpload(file, isHeader, resolvedName, forcedType);
       }
     }
-  }, [addDocToSessionAndUpload, dispatch]);
+  }, [addDocToSessionAndUpload, dispatch, resolveFileName]);
+
+  const handleFileUpload = useCallback(async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    isHeader = false,
+    forcedType?: DocClassification,
+    onTypeChange?: (type: 'summary' | 'reports') => void
+  ) => {
+    if (!e.target.files?.length) return;
+    const files = Array.from(e.target.files) as File[];
+    e.target.value = '';
+    await handleFilesUpload(files, isHeader, forcedType, onTypeChange);
+  }, [handleFilesUpload]);
 
   const removeDoc = useCallback((docId: string) => {
     const doc = session.docs.find(d => d.id === docId);
@@ -293,6 +329,7 @@ export function useWorkspaceActions(patient: Patient | null) {
   return {
     isGeneratingReport,
     handleFileUpload,
+    handleFilesUpload,
     removeDoc,
     removeReportGroup,
     handleManualReclassify,
