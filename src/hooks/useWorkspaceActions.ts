@@ -47,30 +47,30 @@ export function useWorkspaceActions(patient: Patient | null) {
 
     if (isHeader) {
       dispatch({ type: 'SET_HEADER', payload: newDoc });
-      enqueue(newDoc.id, 'header');
+      enqueue({ type: 'header', docId: newDoc.id });
     } else {
       dispatch({ type: 'ADD_DOC', payload: newDoc });
-      enqueue(newDoc.id, 'doc');
+      enqueue({ type: 'doc', docId: newDoc.id });
     }
 
     if (patient) {
       StorageService.uploadFile(patient.id, file, sourceName)
-        .then((result) => {
+        .then((downloadUrl) => {
           if (DEBUG_LOGS) {
             console.log('[Debug][Upload] upload:success', {
               docId,
               sourceName,
-              url: result.downloadUrl
+              url: downloadUrl
             });
           }
           if (isHeader) {
-            dispatch({ type: 'SET_HEADER', payload: { ...newDoc, previewUrl: result.downloadUrl } });
+            dispatch({ type: 'SET_HEADER', payload: { ...newDoc, previewUrl: downloadUrl } });
           } else {
             dispatch({
               type: 'UPDATE_DOC',
               payload: {
                 id: docId,
-                updates: { previewUrl: result.downloadUrl }
+                updates: { previewUrl: downloadUrl }
               }
             });
           }
@@ -265,7 +265,7 @@ export function useWorkspaceActions(patient: Patient | null) {
       dispatch({ type: 'UPDATE_DOC', payload: { id, updates } });
 
       if (canReprocess) {
-        enqueue(id, 'doc');
+        enqueue({ type: 'doc', docId: id });
       }
     });
 
@@ -320,16 +320,16 @@ export function useWorkspaceActions(patient: Patient | null) {
       console.log('[Debug][Audio] handleAudioComplete', { id: newJob.id, size: blob.size });
     }
     dispatch({ type: 'ADD_AUDIO_JOB', payload: newJob });
-    enqueue(newJob.id, 'audio');
+    enqueue({ type: 'audio', jobId: newJob.id });
 
     if (patient) {
       StorageService.uploadFile(patient.id, blob, `audio_${Date.now()}.webm`)
-        .then((result) => {
+        .then((downloadUrl) => {
           dispatch({
             type: 'UPDATE_AUDIO_JOB',
             payload: {
               id: newJob.id,
-              updates: { storageUrl: result.downloadUrl } as any
+              updates: { storageUrl: downloadUrl } as any
             }
           });
         })
