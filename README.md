@@ -1,20 +1,64 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# OCR Batch Processor & Patient Workspace 🚀
 
-# Run and deploy your AI Studio app
+Plataforma inteligente para processamento de exames, transcrição de áudio e gerenciamento de fluxo de trabalho para radiologia e medicina, integrada com Google Gemini e Firebase.
 
-This contains everything you need to run your app locally.
+[![Vercel Deployment](https://img.shields.io/badge/Vercel-Operational-success?style=for-the-badge&logo=vercel)](https://app-ocr-v6.vercel.app)
 
-View your app in AI Studio: https://ai.studio/apps/drive/1ukUHcL8b0t6Z-wg-8Z8wpmBLNN13dOx3
+## 🔗 Acesso Rápido
+- **Produção:** [https://radon-lite.vercel.app](https://radon-lite.vercel.app)
 
-## Run Locally
+---
 
-**Prerequisites:**  Node.js
+## ✨ Funcionalidades Principais
 
+### 1. Sistema de Workflow & Status
+- **Gestão de Fluxo:** 5 estados visuais (`Aguardando`, `Processando`, `Em Andamento`, `Pronto`, `Finalizado`).
+- **Status Chips:** Interface rica com micro-animações (pulsantes e spinners) para feedback em tempo real.
+- **Workflow de Finalização:** Botão inteligente que valida pré-requisitos (anexos/docs) antes de encerrar o caso.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+### 2. Upload Inteligente em Lote (Batch)
+- **Detecção Automática:** Suporte para **CSV**, **Excel**, **Imagens** (screenshots de tabelas) e **PDFs**.
+- **OCR via Gemini Vision:** Extração automática de dados de pacientes de imagens de tabelas.
+- **Preview Editável:** Revise e altere dados de múltiplos pacientes simultaneamente antes da criação no banco.
+
+### 3. Integração AI (Gemini)
+- **OCR de Alta Precisão:** Processamento de documentos médicos complexos.
+- **Transcrição de Áudio:** Gravação direta no navegador com pause, visualização de forma de onda e transcrição automática.
+
+---
+
+## 🛠 Tecnologias
+- **Frontend:** React 19, Vite, Tailwind CSS (Design Premium).
+- **Backend/DB:** Firebase (Firestore, Storage).
+- **IA:** Google Gemini API (@google/genai).
+- **Deploy:** Vercel.
+
+---
+
+## 🚀 Como Rodar Localmente
+
+1. **Instale as dependências:**
+   ```bash
+   npm install
+   ```
+
+2. **Configure o ambiente:**
+   Crie um arquivo `.env.local` na raiz com:
+   ```env
+   VITE_GEMINI_API_KEY=sua_chave_aqui
+   # Adicione as variáveis do Firebase conforme .env.example
+   ```
+
+3. **Inicie o servidor de desenvolvimento:**
+   ```bash
+   npm run dev
+   ```
+
+---
+
+## 📊 Status do Projeto
+- **Build Status:** ✅ Passing (Vercel Production)
+- **Versão:** 1.0.0 (Jan/2026)
+
+---
+*Desenvolvido para alta performance e experiência de usuário premium.*

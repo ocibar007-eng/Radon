@@ -1,13 +1,41 @@
-# Vercel Deploy Notes
+# Projeto OCR Batch - Status do Deploy Vercel (🚀 Sucesso)
 
-1. **Branches:** confirme qual branch está ligado ao projeto na Vercel (ex: `main`).
-2. **Deploy automático:** após um `git push` no branch configurado, a Vercel inicia build automaticamente (1–5 min em média).
-3. **Logs:** abra a página do deploy e confira as abas _Build_ e _Live_ para ver status e erros.
-4. **Falhas comuns:** ambiente faltando (env vars), build falhando ou cache/CDN ainda propagando.
-5. **Verificação rápida:**
-   - `git status` limpa? `git push` feito?
-   - Projeto abre em `https://vercel.com/<org>/<project>/deployments`.
-   - Se o build falhar, clique no link do deploy e copie o erro.
-6. **Cache:** força um _hard refresh_ no browser (Ctrl+Shift+R) se o site não refletir o deploy.
+O projeto foi implantado com sucesso na Vercel e está operacional.
 
-Se quiser, mando um print do log ou te guio na tela da Vercel. É só dizer.
+## 🔗 Links Oficiais
+- **Produção:** [https://radon-lite.vercel.app](https://radon-lite.vercel.app)
+- **Deployment URL:** [https://app-ocr-v6-nudle3tqi-lucasclinicacru-7253s-projects.vercel.app](https://app-ocr-v6-nudle3tqi-lucasclinicacru-7253s-projects.vercel.app)
+
+## ✅ Verificações de Sucesso
+Conforme o print enviado:
+- **Status:** `Ready` (Pronto)
+- **Built:** Concluído com sucesso.
+- **Domínios:** Vinculados e propagados.
+
+## ⚙️ Configurações Recomendadas (Pós-Deploy)
+
+### 1. Variáveis de Ambiente
+Certifique-se de que as seguintes chaves estão configuradas em `Settings > Environment Variables` no dashboard da Vercel:
+- `VITE_GEMINI_API_KEY` (ou correspondente usado no código)
+- Variáveis do Firebase (se não estiverem hardcoded ou em arquivo de config):
+  - `VITE_FIREBASE_API_KEY`
+  - `VITE_FIREBASE_AUTH_DOMAIN`
+  - `VITE_FIREBASE_PROJECT_ID`
+  - etc.
+
+### 2. Prevenção de Mismatch (Recomendação Vercel)
+A Vercel recomenda ativar o "Prevent Frontend-Backend Mismatches". No caso de uma SPA com Firebase, isso geralmente significa garantir que o build da Vercel use a versão correta das regras de segurança do Firestore/Storage.
+- Verifique se o `firebase.json` está sendo usado no build se houver deploys de functions ou regras acoplados.
+
+### 3. Ciclo de Atualização
+- **Push para `main`:** Dispara um novo build de produção automaticamente.
+- **Pull Requests:** Geram links de `Preview` para teste antes do merge.
+
+## 🛠 Suporte
+Se notar que algo não está aparecendo (ex: tela branca ou erro de API):
+1. Abra o **Inspect element** (F12) no browser.
+2. Verifique a aba **Console** por erros de `403` ou `401`.
+3. Confira os **Runtime Logs** no dashboard da Vercel.
+
+---
+*Documentação atualizada após sucesso no deploy de Janeiro/2026.*
