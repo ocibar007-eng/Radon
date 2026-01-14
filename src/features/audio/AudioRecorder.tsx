@@ -2,6 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Mic, Square, Upload, Pause, Play, Trash2, StopCircle, Music, FileAudio, ArrowUp } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
+import { ConfirmModal } from '../../components/ui/ConfirmModal';
 
 interface Props {
   onRecordingComplete: (blob: Blob) => void;
@@ -12,6 +13,7 @@ export const AudioRecorder: React.FC<Props> = ({ onRecordingComplete, isProcessi
   const [isRecording, setIsRecording] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
 
   // Refs
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -233,12 +235,15 @@ export const AudioRecorder: React.FC<Props> = ({ onRecordingComplete, isProcessi
   };
 
   const discardRecording = () => {
-    if (confirm("Descartar gravação atual?")) {
-      cleanupAudio(); // Para tudo e limpa streams
-      setIsRecording(false);
-      setIsPaused(false);
-      chunksRef.current = [];
-    }
+    setShowDiscardConfirm(true);
+  };
+
+  const confirmDiscard = () => {
+    cleanupAudio();
+    setIsRecording(false);
+    setIsPaused(false);
+    chunksRef.current = [];
+    setShowDiscardConfirm(false);
   };
 
   const formatTime = (seconds: number) => {
@@ -283,12 +288,16 @@ export const AudioRecorder: React.FC<Props> = ({ onRecordingComplete, isProcessi
             <Mic size={22} />
           </Button>
 
-          <Button onClick={handleUploadClick} variant="ghost" className="px-3 border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-zinc-400 hover:text-white h-10 group" title="Upload de áudio">
+          <button
+            onClick={handleUploadClick}
+            className="w-10 h-10 flex items-center justify-center rounded-lg bg-transparent hover:bg-zinc-700 text-zinc-400 hover:text-white transition-all"
+            title="Upload de áudio"
+          >
             <div className="relative">
-              <FileAudio size={18} className="group-hover:scale-110 transition-transform" />
-              <ArrowUp size={10} className="absolute -top-1.5 -right-1.5 text-orange-500" />
+              <FileAudio size={20} />
+              <ArrowUp size={10} className="absolute -top-1 -right-1 text-orange-500" />
             </div>
-          </Button>
+          </button>
         </div>
       ) : (
         <div className="flex items-center w-full h-10 bg-[var(--color-bg-secondary)] border border-[var(--color-border-subtle)] rounded-full px-1 shadow-sm animate-in fade-in zoom-in-95 duration-200">
@@ -338,6 +347,17 @@ export const AudioRecorder: React.FC<Props> = ({ onRecordingComplete, isProcessi
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={showDiscardConfirm}
+        title="Descartar Gravação"
+        message="Deseja descartar a gravação atual? Esta ação não pode ser desfeita."
+        confirmLabel="Descartar"
+        cancelLabel="Cancelar"
+        variant="danger"
+        onConfirm={confirmDiscard}
+        onCancel={() => setShowDiscardConfirm(false)}
+      />
     </div>
   );
 };

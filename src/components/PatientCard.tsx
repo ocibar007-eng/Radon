@@ -16,19 +16,18 @@ interface Props {
 }
 
 export const PatientCard: React.FC<Props> = ({ patient, onOpen, onDelete, onFinalize }) => {
-  const [showConfirm, setShowConfirm] = useState(false);
+  const [showFinalizeConfirm, setShowFinalizeConfirm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isFinalizingPatient, setIsFinalizingPatient] = useState(false);
 
   const handleFinalizeClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    setShowFinalizeConfirm(true);
+  };
 
-    // Validação (REMOVIDO: permitir finalizar sem anexos)
-    // const hasContent = (patient.docsCount || 0) > 0 || (patient.audioCount || 0) > 0;
-    // if (!hasContent) {
-    //   return;
-    // }
-
-    setShowConfirm(true);
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowDeleteConfirm(true);
   };
 
   const handleConfirmFinalize = async () => {
@@ -47,13 +46,20 @@ export const PatientCard: React.FC<Props> = ({ patient, onOpen, onDelete, onFina
         onFinalize(patient.id);
       }
 
-      setShowConfirm(false);
-      // Note: Removed toast - success feedback now via status chip update
+      setShowFinalizeConfirm(false);
     } catch (error) {
       console.error('Erro ao finalizar:', error);
-      // Note: Removed toast - error handling via console for now
     } finally {
       setIsFinalizingPatient(false);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      await onDelete(patient.id);
+      setShowDeleteConfirm(false);
+    } catch (error) {
+      console.error('Erro ao excluir:', error);
     }
   };
 
@@ -91,7 +97,7 @@ export const PatientCard: React.FC<Props> = ({ patient, onOpen, onDelete, onFina
         <div className="pc-actions" onClick={e => e.stopPropagation()}>
           <button
             className="btn-icon-only"
-            onClick={() => onDelete(patient.id)}
+            onClick={handleDeleteClick}
             title="Excluir Paciente"
           >
             <Trash2 size={16} />
@@ -115,16 +121,28 @@ export const PatientCard: React.FC<Props> = ({ patient, onOpen, onDelete, onFina
         </div>
       </div>
 
-      {/* Confirm Modal */}
+      {/* Confirm Finalize Modal */}
       <ConfirmModal
-        isOpen={showConfirm}
+        isOpen={showFinalizeConfirm}
         title="Finalizar Exame"
         message={`Deseja finalizar o exame de ${patient.name}? Ele será marcado como concluído.`}
         confirmLabel="Finalizar"
         cancelLabel="Cancelar"
         variant="primary"
         onConfirm={handleConfirmFinalize}
-        onCancel={() => setShowConfirm(false)}
+        onCancel={() => setShowFinalizeConfirm(false)}
+      />
+
+      {/* Confirm Delete Modal */}
+      <ConfirmModal
+        isOpen={showDeleteConfirm}
+        title="Excluir Paciente"
+        message={`Tem certeza que deseja remover "${patient.name}" da lista? Esta ação não pode ser desfeita.`}
+        confirmLabel="Excluir"
+        cancelLabel="Cancelar"
+        variant="danger"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setShowDeleteConfirm(false)}
       />
     </Card>
   );

@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo, useEffect, useCallback, useRef, useLayoutEffect } from 'react';
-import { FileText, History, Download, RefreshCw, Loader2, CheckCircle, UploadCloud, AlertTriangle, FileImage } from 'lucide-react';
+import { FileText, History, Download, Loader2, CheckCircle, UploadCloud, AlertTriangle, ScanLine, Eraser, ArrowDown, Pencil } from 'lucide-react';
 import { IntakeCard } from '../intake/IntakeCard';
 import { Button } from '../../components/ui/Button';
 import { ConfirmModal } from '../../components/ui/ConfirmModal';
@@ -73,6 +73,10 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
     const [showOcrImportModal, setShowOcrImportModal] = useState(false);
     const [importedOcrData, setImportedOcrData] = useState<HistoryItem | null>(null);
     const [isDragOverDocs, setIsDragOverDocs] = useState(false);
+    const [dragOverZone, setDragOverZone] = useState<'suporte' | 'laudo' | null>(null);
+    const [showEditPatient, setShowEditPatient] = useState(false);
+    const [editName, setEditName] = useState(patient?.name || '');
+    const [editOs, setEditOs] = useState(patient?.os || '');
     const lastStatusRef = useRef<PatientStatus | null>(null);
     const sessionRef = useRef(session);
     const firebaseActive = isFirebaseEnabled();
@@ -313,13 +317,18 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
 
     useEffect(() => {
         const clearDragOverlay = () => setIsDragOverDocs(false);
+        const handleEsc = (e: KeyboardEvent) => {
+            if (e.key === 'Escape' && isDragOverDocs) setIsDragOverDocs(false);
+        };
         window.addEventListener('drop', clearDragOverlay);
         window.addEventListener('dragend', clearDragOverlay);
+        window.addEventListener('keydown', handleEsc);
         return () => {
             window.removeEventListener('drop', clearDragOverlay);
             window.removeEventListener('dragend', clearDragOverlay);
+            window.removeEventListener('keydown', handleEsc);
         };
-    }, []);
+    }, [isDragOverDocs]);
 
     // 5. Dados Derivados (Views)
     const reportGroups = useMemo(() => {
@@ -375,36 +384,56 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
                         <AudioRecorder onRecordingComplete={handleAudioComplete} isProcessing={false} />
                     </div>
 
-                    <Button
-                        variant="secondary"
+                    <button
+                        className={`w-10 h-10 flex items-center justify-center rounded-lg bg-transparent hover:bg-zinc-700 transition-all ${importedOcrData ? 'text-green-400' : 'text-zinc-400 hover:text-white'}`}
                         onClick={() => setShowOcrImportModal(true)}
-                        title="Importar dados de OCR Batch"
-                        className={importedOcrData ? 'border-green-500/50 text-green-400' : ''}
+                        title={importedOcrData ? 'OCR Vinculado ✓' : 'Importar OCR'}
                     >
-                        <FileImage size={16} />
-                        {importedOcrData ? 'OCR Vinculado' : 'Importar OCR'}
-                    </Button>
+                        <div className="relative">
+                            <ScanLine size={20} />
+                            <ArrowDown size={10} className={`absolute -bottom-1 -right-1 ${importedOcrData ? 'text-green-500' : 'text-amber-500'}`} />
+                        </div>
+                    </button>
 
-                    <Button
-                        variant="secondary"
+                    <button
+                        className="w-10 h-10 flex items-center justify-center rounded-lg bg-transparent hover:bg-zinc-700 text-zinc-400 hover:text-white transition-all disabled:opacity-50"
                         onClick={() => downloadAll(importedOcrData ? { batchName: importedOcrData.batchName, jsonResult: importedOcrData.jsonResult } : undefined)}
                         disabled={isGeneratingReport}
-                        isLoading={isGeneratingReport}
+                        title="Baixar Laudo"
                     >
-                        {!isGeneratingReport && <Download className="w-4 h-4 mr-2" size={16} />}
-                        Download Report
-                    </Button>
+                        {isGeneratingReport ? (
+                            <Loader2 size={20} className="animate-spin" />
+                        ) : (
+                            <div className="relative">
+                                <FileText size={18} />
+                                <Download size={10} className="absolute -bottom-1 -right-1 text-amber-500" />
+                            </div>
+                        )}
+                    </button>
 
-                    {patient && patient.status !== 'done' && (
+                    {patient && patient.status !== 'done' ? (
                         <Button variant="primary" onClick={() => setShowFinalizeConfirm(true)}>
                             <CheckCircle size={16} />
                             Finalizar
                         </Button>
-                    )}
+                    ) : patient && patient.status === 'done' ? (
+                        <Button
+                            variant="secondary"
+                            className="border-green-500/50 text-green-400 bg-green-500/10 cursor-default"
+                            disabled
+                        >
+                            <CheckCircle size={16} className="text-green-400" />
+                            Finalizado
+                        </Button>
+                    ) : null}
 
-                    <Button variant="secondary" onClick={() => setShowClearConfirm(true)} title="Limpar Tela">
-                        <RefreshCw className="w-4 h-4" size={16} />
-                    </Button>
+                    <button
+                        className="w-10 h-10 flex items-center justify-center rounded-lg bg-transparent hover:bg-red-500/20 text-zinc-400 hover:text-red-400 transition-all"
+                        onClick={() => setShowClearConfirm(true)}
+                        title="Limpar Tela"
+                    >
+                        <Eraser size={20} />
+                    </button>
                 </div>
             </header>
 
@@ -428,10 +457,17 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
                     <section>
                         <div className="section-header">
                             <h2 className="section-title">Identificação</h2>
-                            <label className="upload-link">
-                                Trocar Header
-                                <input type="file" hidden accept="image/*" onChange={(e) => handleFileUpload(e, true)} />
-                            </label>
+                            <button
+                                className="w-8 h-8 flex items-center justify-center rounded-lg bg-transparent hover:bg-zinc-700 text-zinc-400 hover:text-white transition-all cursor-pointer"
+                                title="Editar dados do paciente"
+                                onClick={() => {
+                                    setEditName(session.patient?.paciente?.valor || '');
+                                    setEditOs(session.patient?.os?.valor || '');
+                                    setShowEditPatient(true);
+                                }}
+                            >
+                                <Pencil size={16} />
+                            </button>
                         </div>
                         <IntakeCard data={session.patient} headerDoc={session.headerImage} />
                     </section>
@@ -545,9 +581,13 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
                 confirmLabel="Finalizar"
                 cancelLabel="Cancelar"
                 variant="primary"
-                onConfirm={() => {
-                    handleFinalize(true);
+                onConfirm={async () => {
+                    await handleFinalize(true);
                     setShowFinalizeConfirm(false);
+                    // Pequeno delay para o usuário ver o feedback, depois volta para a lista
+                    setTimeout(() => {
+                        onExit();
+                    }, 500);
                 }}
                 onCancel={() => setShowFinalizeConfirm(false)}
             />
@@ -563,17 +603,149 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
                 onClose={() => setShowOcrImportModal(false)}
             />
 
+            {/* Modal Editar Paciente */}
+            {showEditPatient && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+                    onClick={() => setShowEditPatient(false)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Escape') setShowEditPatient(false);
+                        if (e.key === 'Enter') {
+                            dispatch({ type: 'UPDATE_PATIENT', payload: { name: editName, os: editOs } });
+                            setShowEditPatient(false);
+                        }
+                    }}
+                >
+                    <div
+                        className="bg-zinc-900 border border-zinc-700 rounded-xl p-6 w-full max-w-md shadow-2xl"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <h3 className="text-lg font-bold text-white mb-4">Editar Paciente</h3>
+
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm text-zinc-400 mb-1">Nome do Paciente</label>
+                                <input
+                                    type="text"
+                                    value={editName}
+                                    onChange={(e) => setEditName(e.target.value)}
+                                    className="w-full px-3 py-2 bg-zinc-800 border border-zinc-600 rounded-lg text-white focus:border-amber-500 focus:outline-none"
+                                    autoFocus
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm text-zinc-400 mb-1">OS / Pedido</label>
+                                <input
+                                    type="text"
+                                    value={editOs}
+                                    onChange={(e) => setEditOs(e.target.value)}
+                                    className="w-full px-3 py-2 bg-zinc-800 border border-zinc-600 rounded-lg text-white focus:border-amber-500 focus:outline-none"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex justify-end gap-3 mt-6">
+                            <button
+                                className="px-4 py-2 text-zinc-400 hover:text-white transition-colors"
+                                onClick={() => setShowEditPatient(false)}
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-black font-semibold rounded-lg transition-colors"
+                                onClick={async () => {
+                                    // Cria payload com estrutura correta
+                                    const updatedPatient = {
+                                        paciente: { ...session.patient?.paciente, valor: editName },
+                                        os: { ...session.patient?.os, valor: editOs }
+                                    };
+
+                                    // Atualiza estado local
+                                    dispatch({ type: 'UPDATE_PATIENT', payload: updatedPatient });
+
+                                    // Persiste no Firebase se paciente existir
+                                    if (patient?.id && !patient.id.startsWith('tmp_')) {
+                                        try {
+                                            await PatientService.updatePatient(patient.id, {
+                                                name: editName,
+                                                os: editOs
+                                            });
+                                        } catch (e) {
+                                            console.error('Erro ao salvar paciente:', e);
+                                        }
+                                    }
+                                    setShowEditPatient(false);
+                                }}
+                            >
+                                Salvar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {isDragOverDocs && (
                 <div
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/80 backdrop-blur-sm animate-fade-in"
-                    style={{ pointerEvents: 'none' }}
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/70 backdrop-blur-sm animate-fade-in"
                 >
-                    <div className="text-center">
-                        <UploadCloud size={64} className="mx-auto text-amber-500 mb-4 animate-bounce" />
-                        <p className="text-2xl font-bold text-white mb-2">Solte os arquivos aqui</p>
-                        <p className="text-zinc-400">
-                            Imagens ou PDFs — vai para {activeTab === 'reports' ? 'Laudos Prévios' : 'Docs de Suporte'}
-                        </p>
+                    <div className="flex flex-col items-center max-w-2xl w-full px-8">
+                        <UploadCloud size={48} className="text-amber-500 mb-4 animate-bounce" />
+                        <p className="text-xl font-bold text-white mb-6">Solte os arquivos na zona desejada</p>
+
+                        <div className="grid grid-cols-2 gap-6 w-full">
+                            {/* Zona Doc Suporte */}
+                            <div
+                                className={`flex flex-col items-center justify-center p-8 rounded-xl border-2 border-dashed transition-all cursor-pointer min-h-[150px] ${dragOverZone === 'suporte'
+                                    ? 'border-blue-400 bg-blue-500/40 scale-105 shadow-[0_0_30px_rgba(59,130,246,0.5)]'
+                                    : 'border-blue-500/50 bg-blue-500/15 hover:bg-blue-500/25'
+                                    }`}
+                                onDragEnter={(e) => { e.preventDefault(); setDragOverZone('suporte'); }}
+                                onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                                onDragLeave={(e) => {
+                                    if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOverZone(null);
+                                }}
+                                onDrop={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    const files = Array.from(e.dataTransfer.files || []);
+                                    if (files.length > 0) handleFilesUpload(files, false, 'assistencial');
+                                    setIsDragOverDocs(false);
+                                    setDragOverZone(null);
+                                }}
+                            >
+                                <FileText size={36} className={`mb-3 transition-all ${dragOverZone === 'suporte' ? 'text-blue-300 scale-110' : 'text-blue-400'}`} />
+                                <span className={`font-bold text-center text-lg ${dragOverZone === 'suporte' ? 'text-blue-200' : 'text-blue-300'}`}>DOC SUPORTE</span>
+                                <span className="text-blue-400/70 text-sm mt-1">Resumo clínico</span>
+                            </div>
+
+                            {/* Zona Laudo Prévio */}
+                            <div
+                                className={`flex flex-col items-center justify-center p-8 rounded-xl border-2 border-dashed transition-all cursor-pointer min-h-[150px] ${dragOverZone === 'laudo'
+                                    ? 'border-amber-400 bg-amber-500/40 scale-105 shadow-[0_0_30px_rgba(245,158,11,0.5)]'
+                                    : 'border-amber-500/50 bg-amber-500/15 hover:bg-amber-500/25'
+                                    }`}
+                                onDragEnter={(e) => { e.preventDefault(); setDragOverZone('laudo'); }}
+                                onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                                onDragLeave={(e) => {
+                                    if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOverZone(null);
+                                }}
+                                onDrop={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    const files = Array.from(e.dataTransfer.files || []);
+                                    if (files.length > 0) handleFilesUpload(files, false, 'laudo_previo');
+                                    setIsDragOverDocs(false);
+                                    setDragOverZone(null);
+                                }}
+                            >
+                                <History size={36} className={`mb-3 transition-all ${dragOverZone === 'laudo' ? 'text-amber-300 scale-110' : 'text-amber-400'}`} />
+                                <span className={`font-bold text-center text-lg ${dragOverZone === 'laudo' ? 'text-amber-200' : 'text-amber-300'}`}>LAUDO PRÉVIO</span>
+                                <span className="text-amber-400/70 text-sm mt-1">Exames anteriores</span>
+                            </div>
+                        </div>
+
+                        <p className="text-zinc-500 text-sm mt-4">Pressione ESC para cancelar</p>
                     </div>
                 </div>
             )}

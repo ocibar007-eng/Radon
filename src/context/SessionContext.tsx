@@ -8,6 +8,7 @@ type SessionAction =
   | { type: 'CLEAR_SESSION' }
   | { type: 'SET_HEADER'; payload: AttachmentDoc | null }
   | { type: 'SET_PATIENT'; payload: PatientRegistrationDetails }
+  | { type: 'UPDATE_PATIENT'; payload: Partial<PatientRegistrationDetails> }
   | { type: 'SET_PATIENT_ID'; payload: string | null }
   | { type: 'ADD_DOC'; payload: AttachmentDoc }
   | { type: 'UPDATE_DOC'; payload: { id: string; updates: Partial<AttachmentDoc> } }
@@ -29,7 +30,7 @@ function sessionReducer(state: AppSession, action: SessionAction): AppSession {
   switch (action.type) {
     case 'RESTORE_SESSION':
       return { ...action.payload };
-    
+
     case 'CLEAR_SESSION':
       return { ...initialSession };
 
@@ -38,6 +39,14 @@ function sessionReducer(state: AppSession, action: SessionAction): AppSession {
 
     case 'SET_PATIENT':
       return { ...state, patient: action.payload };
+
+    case 'UPDATE_PATIENT':
+      return {
+        ...state,
+        patient: state.patient
+          ? { ...state.patient, ...action.payload }
+          : action.payload as PatientRegistrationDetails
+      };
 
     case 'SET_PATIENT_ID':
       return { ...state, patientId: action.payload };
@@ -48,7 +57,7 @@ function sessionReducer(state: AppSession, action: SessionAction): AppSession {
     case 'UPDATE_DOC':
       return {
         ...state,
-        docs: state.docs.map(d => 
+        docs: state.docs.map(d =>
           d.id === action.payload.id ? { ...d, ...action.payload.updates } : d
         )
       };
@@ -62,16 +71,16 @@ function sessionReducer(state: AppSession, action: SessionAction): AppSession {
     case 'UPDATE_AUDIO_JOB':
       return {
         ...state,
-        audioJobs: state.audioJobs.map(j => 
+        audioJobs: state.audioJobs.map(j =>
           j.id === action.payload.id ? { ...j, ...action.payload.updates } : j
         )
       };
 
     case 'SET_CLINICAL_MARKDOWN':
-      return { 
-        ...state, 
+      return {
+        ...state,
         clinicalMarkdown: action.payload.markdown,
-        clinicalSummaryData: action.payload.data 
+        clinicalSummaryData: action.payload.data
       };
 
     default:

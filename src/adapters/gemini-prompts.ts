@@ -222,12 +222,21 @@ export async function compileFinalReport(session: AppSession, ocrData?: { batchN
   // Injetar dados de OCR se fornecidos e vinculados ao paciente
   if (ocrData?.jsonResult) {
     try {
-      const files = ocrData.jsonResult.files || [];
-      if (files.length > 0) {
+      // Estrutura do jsonResult: { items: [...], full_combined_text: "..." }
+      const items = ocrData.jsonResult.items || [];
+      const fullCombinedText = ocrData.jsonResult.full_combined_text;
+
+      if (fullCombinedText) {
+        // Usar o texto combinado completo se disponível
+        const ocrSection = '\n\n---\n\n## 📷 Transcrição de Imagens USG\n\n**Dados extraídos automaticamente via OCR**\n\n' + fullCombinedText;
+        generatedText += ocrSection;
+      } else if (items.length > 0) {
+        // Fallback: iterar sobre os items
         let ocrSection = '\n\n---\n\n## 📷 Transcrição de Imagens USG\n\n**Dados extraídos automaticamente via OCR**\n\n';
-        files.forEach((f: any) => {
-          if (f.ocrResult?.full_text) {
-            ocrSection += `### ${f.name}\n${f.ocrResult.full_text}\n\n`;
+        items.forEach((item: any) => {
+          const text = item.result?.full_text || '';
+          if (text) {
+            ocrSection += `### ${item.original_filename || item.normalized_filename}\n${text}\n\n`;
           }
         });
         generatedText += ocrSection;

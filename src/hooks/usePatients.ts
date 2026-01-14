@@ -95,13 +95,14 @@ export function usePatients(initialFilter: PatientStatus | undefined = undefined
     return patientsToCreate.map(p => p.id);
   };
 
+  // Função de exclusão - o componente que chama deve exibir seu próprio modal de confirmação
   const deletePatient = async (id: string) => {
-    if (!window.confirm("Tem certeza que deseja remover este paciente da lista?")) return;
     try {
       await PatientService.softDeletePatient(id);
-      // Listener atualiza UI
+      // Listener atualiza UI automaticamente
     } catch (err) {
-      alert("Erro ao excluir paciente");
+      console.error("Erro ao excluir paciente:", err);
+      throw err;
     }
   };
 

@@ -25,14 +25,18 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
 }) => {
     if (!isOpen) return null;
 
-    // Handle ESC key
+    // Handle keyboard shortcuts: ESC to cancel, Enter to confirm
     React.useEffect(() => {
-        const handleEsc = (e: KeyboardEvent) => {
+        const handleKey = (e: KeyboardEvent) => {
             if (e.key === 'Escape') onCancel();
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                onConfirm();
+            }
         };
-        window.addEventListener('keydown', handleEsc);
-        return () => window.removeEventListener('keydown', handleEsc);
-    }, [onCancel]);
+        window.addEventListener('keydown', handleKey);
+        return () => window.removeEventListener('keydown', handleKey);
+    }, [onCancel, onConfirm]);
 
     return (
         <div className="modal-overlay" onClick={onCancel}>

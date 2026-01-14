@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { LayoutGrid, FileText, Settings, Activity, Zap, ScanLine } from 'lucide-react';
+import { LayoutGrid, FileText, Settings, Zap, ScanLine } from 'lucide-react';
 
 interface SidebarProps {
   currentView: 'list' | 'workspace' | 'ocr-batch';
@@ -14,7 +14,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, onQ
     <aside className="shell-sidebar">
       {/* Brand Icon */}
       <div className="sidebar-brand">
-        <Activity size={24} className="text-accent" />
+        <img src="/logo.png?v=2" alt="Radon" className="w-full h-full object-contain" />
       </div>
 
       {/* Navigation */}
@@ -40,7 +40,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, onQ
           <span className="nav-label">Laudo</span>
         </button>
 
-        <div style={{ height: '1px', width: '60%', background: 'var(--border-subtle)', margin: '0.5rem 0' }} />
+
 
         <button
           className="nav-item"

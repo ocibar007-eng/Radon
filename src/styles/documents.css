@@ -24,31 +24,79 @@
 
 .doc-drop-zones {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.25rem;
 }
 
 .doc-drop-zone {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  border-radius: var(--radius-md);
-  border: 1px dashed var(--color-border-subtle);
+  padding: 1.25rem 1rem;
+  border-radius: var(--radius-lg);
+  border: 2px dashed var(--color-border-subtle);
   background: var(--color-bg-tertiary);
   color: var(--color-text-secondary);
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 600;
   letter-spacing: 0.02em;
   text-transform: uppercase;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  min-height: 60px;
 }
 
-.doc-drop-zone.active {
+.doc-drop-zone:hover {
+  border-color: var(--color-border-default);
+  background: var(--color-bg-elevated);
+}
+
+/* Doc Suporte Zone - Azul */
+.doc-drop-zone:first-child.active {
+  border-color: #3b82f6;
+  border-style: solid;
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.15);
+  transform: scale(1.02);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2), 0 8px 25px rgba(59, 130, 246, 0.25);
+  animation: dropZonePulse 1s ease infinite;
+}
+
+/* Laudo Prévio Zone - Laranja/Âmbar */
+.doc-drop-zone:last-child.active {
   border-color: var(--color-accent-primary);
+  border-style: solid;
   color: var(--color-accent-primary);
-  background: rgba(56, 189, 248, 0.08);
+  background: rgba(245, 158, 11, 0.15);
+  transform: scale(1.02);
+  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.2), 0 8px 25px rgba(245, 158, 11, 0.25);
+  animation: dropZonePulseAmber 1s ease infinite;
+}
+
+@keyframes dropZonePulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2), 0 8px 25px rgba(59, 130, 246, 0.25);
+  }
+
+  50% {
+    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.1), 0 12px 35px rgba(59, 130, 246, 0.3);
+  }
+}
+
+@keyframes dropZonePulseAmber {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.2), 0 8px 25px rgba(245, 158, 11, 0.25);
+  }
+
+  50% {
+    box-shadow: 0 0 0 8px rgba(245, 158, 11, 0.1), 0 12px 35px rgba(245, 158, 11, 0.3);
+  }
 }
 
 /* === DOC LIST LAYOUT === */
@@ -78,7 +126,7 @@
   border-top: 1px solid var(--color-border-default);
 }
 
-.doc-list-group + .doc-list-group .doc-list-group-header {
+.doc-list-group+.doc-list-group .doc-list-group-header {
   border-top: 1px solid var(--color-border-default);
 }
 
@@ -483,4 +531,97 @@
   white-space: pre-wrap;
   max-height: 300px;
   overflow-y: auto;
+}
+
+/* === NEW DOCUMENT GROUP CARDS === */
+.doc-group-card {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.doc-group-card.drag-active {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3), 0 4px 20px rgba(59, 130, 246, 0.15);
+}
+
+.doc-group-card.drag-active-amber {
+  border-color: var(--color-accent-primary);
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3), 0 4px 20px rgba(245, 158, 11, 0.15);
+}
+
+.doc-group-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.doc-group-header-blue {
+  background: rgba(59, 130, 246, 0.1);
+  color: #60a5fa;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.doc-group-header-amber {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--color-accent-primary);
+  border-bottom: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.doc-group-count {
+  margin-left: auto;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+}
+
+.doc-group-content {
+  min-height: 60px;
+}
+
+.doc-group-empty {
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+.doc-group-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-top: 1px solid var(--color-border-default);
+}
+
+.doc-group-add-blue {
+  color: #60a5fa;
+  background: transparent;
+}
+
+.doc-group-add-blue:hover {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.doc-group-add-amber {
+  color: var(--color-accent-primary);
+  background: transparent;
+}
+
+.doc-group-add-amber:hover {
+  background: rgba(245, 158, 11, 0.1);
 }

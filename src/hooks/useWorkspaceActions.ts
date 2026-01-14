@@ -377,8 +377,7 @@ export function useWorkspaceActions(patient: Patient | null) {
       };
 
       await PatientService.updatePatient(patient.id, updates);
-
-      alert('✅ Exame finalizado com sucesso!');
+      // Sucesso silencioso - o UI já mostra feedback visual (botão verde) e redireciona
     } catch (error) {
       console.error('Erro ao finalizar:', error);
       alert('❌ Erro ao finalizar exame. Tente novamente.');
