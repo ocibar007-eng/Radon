@@ -219,29 +219,9 @@ export async function compileFinalReport(session: AppSession): Promise<string> {
 
   const generatedText = response.text || '# Erro ao gerar relatório final.';
 
-  // INJEÇÃO OCR BATCH (Feature Solicitada)
-  try {
-    const ocrDataStr = localStorage.getItem('ocr-latest-result');
-    if (ocrDataStr) {
-      const ocrData = JSON.parse(ocrDataStr);
-      // Validade de 12h
-      if (Date.now() - ocrData.savedAt < 12 * 60 * 60 * 1000) {
-        let ocrSection = '\n\n---\n\n## 📷 Transcrição de Imagens USG\n\n**Dados extraídos automaticamente via OCR**\n\n';
-
-        if (ocrData.txtContent) {
-          ocrSection += ocrData.txtContent;
-        } else if (ocrData.fullTexts?.length > 0) {
-          ocrData.fullTexts.forEach((item: any) => {
-            ocrSection += `### ${item.name}\n${item.text}\n\n`;
-          });
-        }
-
-        return generatedText + ocrSection;
-      }
-    }
-  } catch (e) {
-    console.warn('Erro ao injetar OCR no report:', e);
-  }
+  // NOTA: A injeção automática de OCR batch foi removida porque estava contaminando
+  // todos os laudos com dados de um único teste. O OCR batch deve ser uma feature
+  // separada, com dados vinculados ao paciente específico, não globalmente.
 
   return generatedText;
 }

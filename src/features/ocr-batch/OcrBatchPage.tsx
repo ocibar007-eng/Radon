@@ -139,23 +139,8 @@ export function OcrBatchPage() {
                 const session = prev.find(s => s.id === sessionId);
                 if (session) {
                     saveBatchToHistory(session.files);
-
-                    // Salvar resultado para integração com Laudo
-                    const txtContent = generateCombinedTxt(session.files);
-                    try {
-                        localStorage.setItem('ocr-latest-result', JSON.stringify({
-                            patientName: session.files[0]?.ocrResult?.extraction?.patient_name,
-                            fullTexts: session.files.filter(f => f.ocrResult).map(f => ({
-                                name: f.name,
-                                text: f.ocrResult?.full_text || ''
-                            })),
-                            txtContent: txtContent,
-                            savedAt: Date.now()
-                        }));
-                        console.log('OCR result saved to localStorage for report injection');
-                    } catch (e) {
-                        console.error('Failed to save OCR result to localStorage', e);
-                    }
+                    // NOTA: Removido salvamento no localStorage que estava contaminando outros laudos.
+                    // O OCR batch é uma feature separada e seus dados não devem ser injetados globalmente.
                 }
                 return prev;
             });
