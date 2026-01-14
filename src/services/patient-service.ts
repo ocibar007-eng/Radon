@@ -171,10 +171,11 @@ export const PatientService = {
     // 1. Caminho Firebase
     if (isFirebaseEnabled() && db) {
       const docRef = doc(db, COLLECTION, id);
-      await updateDoc(docRef, cleanPayload({
+      // Usa setDoc com merge para criar o documento se não existir
+      await setDoc(docRef, cleanPayload({
         ...updates,
         updatedAt: Date.now()
-      }));
+      }), { merge: true });
       return;
     }
 
