@@ -184,7 +184,7 @@ export async function transcribeAudio(audioBlob: Blob): Promise<{ text: string, 
   return { rows, text };
 }
 
-export async function compileFinalReport(session: AppSession): Promise<string> {
+export async function compileFinalReport(session: AppSession, ocrData?: { batchName: string; jsonResult: any }): Promise<string> {
   const client = getGeminiClient();
 
   const previousReports = session.docs
@@ -217,11 +217,25 @@ export async function compileFinalReport(session: AppSession): Promise<string> {
     contents: { role: 'user', parts: [{ text: prompt }] }
   }));
 
-  const generatedText = response.text || '# Erro ao gerar relatório final.';
+  let generatedText = response.text || '# Erro ao gerar relatório final.';
 
-  // NOTA: A injeção automática de OCR batch foi removida porque estava contaminando
-  // todos os laudos com dados de um único teste. O OCR batch deve ser uma feature
-  // separada, com dados vinculados ao paciente específico, não globalmente.
+  // Injetar dados de OCR se fornecidos e vinculados ao paciente
+  if (ocrData?.jsonResult) {
+    try {
+      const files = ocrData.jsonResult.files || [];
+      if (files.length > 0) {
+        let ocrSection = '\n\n---\n\n## 📷 Transcrição de Imagens USG\n\n**Dados extraídos automaticamente via OCR**\n\n';
+        files.forEach((f: any) => {
+          if (f.ocrResult?.full_text) {
+            ocrSection += `### ${f.name}\n${f.ocrResult.full_text}\n\n`;
+          }
+        });
+        generatedText += ocrSection;
+      }
+    } catch (e) {
+      console.warn('Erro ao injetar OCR no report:', e);
+    }
+  }
 
   return generatedText;
 }

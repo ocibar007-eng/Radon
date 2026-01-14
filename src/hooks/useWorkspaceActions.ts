@@ -337,10 +337,10 @@ export function useWorkspaceActions(patient: Patient | null) {
     }
   }, [dispatch, enqueue, patient]);
 
-  const downloadAll = useCallback(async () => {
+  const downloadAll = useCallback(async (ocrData?: { batchName: string; jsonResult: any }) => {
     setIsGeneratingReport(true);
     try {
-      const markdown = await GeminiAdapter.compileFinalReport(session);
+      const markdown = await GeminiAdapter.compileFinalReport(session, ocrData);
       const url = URL.createObjectURL(new Blob([markdown], { type: 'text/markdown' }));
       const a = document.createElement('a');
       a.href = url;

@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo, useEffect, useCallback, useRef, useLayoutEffect } from 'react';
-import { FileText, History, Download, RefreshCw, Loader2, CheckCircle, UploadCloud, AlertTriangle } from 'lucide-react';
+import { FileText, History, Download, RefreshCw, Loader2, CheckCircle, UploadCloud, AlertTriangle, FileImage } from 'lucide-react';
 import { IntakeCard } from '../intake/IntakeCard';
 import { Button } from '../../components/ui/Button';
 import { ConfirmModal } from '../../components/ui/ConfirmModal';
@@ -16,6 +16,8 @@ import { DocumentGallery } from '../intake/DocumentGallery';
 import { ClinicalTab } from '../clinical/ClinicalTab';
 import { PreviousReportsTab } from '../reports/PreviousReportsTab';
 import { AudioJobsPanel } from '../audio/AudioJobsPanel';
+import { OcrImportModal } from './OcrImportModal';
+import { HistoryItem } from '../ocr-batch/types';
 
 // Architecture Imports
 import { useSession } from '../../context/SessionContext';
@@ -68,6 +70,8 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
     const [showClearConfirm, setShowClearConfirm] = useState(false);
     const [showExitConfirm, setShowExitConfirm] = useState(false);
     const [showFinalizeConfirm, setShowFinalizeConfirm] = useState(false);
+    const [showOcrImportModal, setShowOcrImportModal] = useState(false);
+    const [importedOcrData, setImportedOcrData] = useState<HistoryItem | null>(null);
     const [isDragOverDocs, setIsDragOverDocs] = useState(false);
     const lastStatusRef = useRef<PatientStatus | null>(null);
     const sessionRef = useRef(session);
@@ -371,7 +375,22 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
                         <AudioRecorder onRecordingComplete={handleAudioComplete} isProcessing={false} />
                     </div>
 
-                    <Button variant="secondary" onClick={downloadAll} disabled={isGeneratingReport} isLoading={isGeneratingReport}>
+                    <Button
+                        variant="secondary"
+                        onClick={() => setShowOcrImportModal(true)}
+                        title="Importar dados de OCR Batch"
+                        className={importedOcrData ? 'border-green-500/50 text-green-400' : ''}
+                    >
+                        <FileImage size={16} />
+                        {importedOcrData ? 'OCR Vinculado' : 'Importar OCR'}
+                    </Button>
+
+                    <Button
+                        variant="secondary"
+                        onClick={() => downloadAll(importedOcrData ? { batchName: importedOcrData.batchName, jsonResult: importedOcrData.jsonResult } : undefined)}
+                        disabled={isGeneratingReport}
+                        isLoading={isGeneratingReport}
+                    >
                         {!isGeneratingReport && <Download className="w-4 h-4 mr-2" size={16} />}
                         Download Report
                     </Button>
@@ -531,6 +550,17 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
                     setShowFinalizeConfirm(false);
                 }}
                 onCancel={() => setShowFinalizeConfirm(false)}
+            />
+
+            <OcrImportModal
+                isOpen={showOcrImportModal}
+                patientName={patient?.name || ''}
+                patientOs={patient?.os || ''}
+                onImport={(historyItem) => {
+                    setImportedOcrData(historyItem);
+                    console.log('[OCR Import] Vinculado ao paciente:', historyItem.batchName);
+                }}
+                onClose={() => setShowOcrImportModal(false)}
             />
 
             {isDragOverDocs && (
