@@ -33,7 +33,7 @@ export default defineConfig(({ mode }) => {
       // Combina variáveis do .env local (loadEnv) com process.env (Vercel CI)
       // Prioridade: process.env (Vercel) > loadEnv (.env local)
       'process.env': {
-        API_KEY: JSON.stringify(process.env.API_KEY || env.API_KEY || process.env.GEMINI_API_KEY || env.GEMINI_API_KEY),
+        API_KEY: JSON.stringify(process.env.API_KEY || process.env.VITE_API_KEY || env.API_KEY || env.VITE_API_KEY || process.env.GEMINI_API_KEY || env.GEMINI_API_KEY),
         FIREBASE_API_KEY: JSON.stringify(process.env.FIREBASE_API_KEY || env.FIREBASE_API_KEY),
         FIREBASE_AUTH_DOMAIN: JSON.stringify(process.env.FIREBASE_AUTH_DOMAIN || env.FIREBASE_AUTH_DOMAIN),
         FIREBASE_PROJECT_ID: JSON.stringify(process.env.FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID),
