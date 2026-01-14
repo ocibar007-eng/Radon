@@ -67,6 +67,7 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
     const [isHydrating, setIsHydrating] = useState(false);
     const [showClearConfirm, setShowClearConfirm] = useState(false);
     const [showExitConfirm, setShowExitConfirm] = useState(false);
+    const [showFinalizeConfirm, setShowFinalizeConfirm] = useState(false);
     const [isDragOverDocs, setIsDragOverDocs] = useState(false);
     const lastStatusRef = useRef<PatientStatus | null>(null);
     const sessionRef = useRef(session);
@@ -376,7 +377,7 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
                     </Button>
 
                     {patient && patient.status !== 'done' && (
-                        <Button variant="primary" onClick={handleFinalize}>
+                        <Button variant="primary" onClick={() => setShowFinalizeConfirm(true)}>
                             <CheckCircle size={16} />
                             Finalizar
                         </Button>
@@ -516,6 +517,20 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
                     setShowExitConfirm(false);
                     onCancelExit();
                 }}
+            />
+
+            <ConfirmModal
+                isOpen={showFinalizeConfirm}
+                title="Finalizar Exame?"
+                message={`Deseja finalizar o exame de ${patient?.name || 'paciente'}? Ele será marcado como concluído e não poderá ser editado.`}
+                confirmLabel="Finalizar"
+                cancelLabel="Cancelar"
+                variant="primary"
+                onConfirm={() => {
+                    handleFinalize(true);
+                    setShowFinalizeConfirm(false);
+                }}
+                onCancel={() => setShowFinalizeConfirm(false)}
             />
 
             {isDragOverDocs && (

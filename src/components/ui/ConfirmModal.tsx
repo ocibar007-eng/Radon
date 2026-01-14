@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertTriangle, X } from 'lucide-react';
+import { AlertTriangle, X, CheckCircle } from 'lucide-react';
 import { Button } from './Button';
 
 interface ConfirmModalProps {
@@ -43,9 +43,13 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
             >
                 <div className="modal-header">
                     <div className="flex items-center gap-3">
-                        {variant === 'danger' && (
+                        {variant === 'danger' ? (
                             <div className="p-2 rounded-lg bg-red-500/10">
                                 <AlertTriangle size={20} className="text-red-400" />
+                            </div>
+                        ) : (
+                            <div className="p-2 rounded-lg bg-orange-500/10 text-orange-400">
+                                <CheckCircle size={20} />
                             </div>
                         )}
                         <h3 className="modal-title">{title}</h3>
