@@ -1,10 +1,10 @@
 
 import React from 'react';
-import { LayoutGrid, FileText, Settings, Activity, Zap } from 'lucide-react';
+import { LayoutGrid, FileText, Settings, Activity, Zap, ScanLine } from 'lucide-react';
 
 interface SidebarProps {
-  currentView: 'list' | 'workspace';
-  onChangeView: (view: 'list' | 'workspace') => void;
+  currentView: 'list' | 'workspace' | 'ocr-batch';
+  onChangeView: (view: 'list' | 'workspace' | 'ocr-batch') => void;
   onQuickStart: () => void;
   hasActivePatient: boolean;
 }
@@ -50,6 +50,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, onQ
         >
           <Zap size={20} className="text-accent" />
           <span className="nav-label">Rápido</span>
+        </button>
+
+        <button
+          className={`nav-item ${currentView === 'ocr-batch' ? 'active' : ''}`}
+          onClick={() => onChangeView('ocr-batch')}
+          title="OCR Batch Processor - Processar lotes de imagens DICOM/JPEG"
+          aria-label="OCR Batch"
+        >
+          <ScanLine size={20} />
+          <span className="nav-label">OCR</span>
         </button>
       </nav>
 

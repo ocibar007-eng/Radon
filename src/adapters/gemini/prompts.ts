@@ -162,7 +162,7 @@ SAÍDA JSON ESPERADA:
         "pontos_de_comparacao": ["Destaques curtos"]
       }
     ],
-    "impressao_diagnostica_ou_conclusao_literal": "...",
+    "impressao_diagnostica_ou_conclusao_literal": "Texto direto sem prefixos como 'Conclusão:', 'Impressão:'.",
     "alertas_de_fidelidade": []
   },
   "possible_duplicate": { "is_possible_duplicate": false, "reason": null }

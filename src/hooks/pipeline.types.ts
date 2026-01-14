@@ -82,7 +82,7 @@ export function getItemId(item: ProcessingQueueItem): string {
  * Default pipeline configuration
  */
 export const DEFAULT_PIPELINE_CONFIG: PipelineConfig = {
-    maxConcurrency: 1, // Process one at a time for now (sequential)
+    maxConcurrency: 4, // ⚡️ Parallel processing restored (was 1)
     maxRetries: 3,
     retryDelayMs: 1000 // 1s, 2s, 4s backoff
 };

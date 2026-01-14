@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { PatientList } from '../components/PatientList';
 import { WorkspaceLayout } from '../features/workspace/WorkspaceLayout';
+import { OcrBatchPage } from '../features/ocr-batch';
 import { GlobalGalleryModal } from '../components/GlobalGalleryModal';
 import { Patient } from '../types/patient';
 
@@ -10,13 +11,13 @@ import { Patient } from '../types/patient';
  * AppRouter - Manages application view state and navigation
  * 
  * Responsibilities:
- * - View state management ('list' vs 'workspace')
+ * - View state management ('list' vs 'workspace' vs 'ocr-batch')
  * - Patient selection
  * - Quick start functionality
  * - Sidebar and main content routing
  */
 export function AppRouter() {
-    const [currentView, setCurrentView] = useState<'list' | 'workspace'>('list');
+    const [currentView, setCurrentView] = useState<'list' | 'workspace' | 'ocr-batch'>('list');
     const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
     const [exitRequest, setExitRequest] = useState(false);
 
@@ -41,7 +42,7 @@ export function AppRouter() {
         handleSelectPatient(tempPatient);
     };
 
-    const handleChangeView = (view: 'list' | 'workspace') => {
+    const handleChangeView = (view: 'list' | 'workspace' | 'ocr-batch') => {
         if (view === 'list' && currentView === 'workspace') {
             setExitRequest(true);
             return;
@@ -64,6 +65,8 @@ export function AppRouter() {
                         onSelectPatient={handleSelectPatient}
                         onQuickStart={handleQuickStart}
                     />
+                ) : currentView === 'ocr-batch' ? (
+                    <OcrBatchPage onBack={() => setCurrentView('list')} />
                 ) : (
                     <WorkspaceLayout
                         patient={selectedPatient}

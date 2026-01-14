@@ -457,6 +457,7 @@
   font-size: 0.6em;
   opacity: 0.8;
 }
+
 /* === STATUS CHIP === */
 .status-chip {
   display: inline-flex;
@@ -503,10 +504,13 @@
 
 /* Animação pulsante para "waiting" */
 @keyframes pulse-glow {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
     box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
   }
+
   50% {
     opacity: 0.8;
     box-shadow: 0 0 16px rgba(245, 158, 11, 0.6);
@@ -523,6 +527,7 @@
     transform: translateX(100%);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
@@ -538,6 +543,7 @@
     transform: scale(0.95);
     opacity: 0;
   }
+
   to {
     transform: scale(1);
     opacity: 1;
@@ -552,6 +558,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -636,4 +643,23 @@
 .batch-input::placeholder {
   color: var(--color-text-tertiary);
   opacity: 0.5;
+}
+
+/* Fix para Batch Upload Modal Layout */
+.batch-modal .modal-footer {
+  margin-top: auto;
+  padding-top: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-top: 1px solid var(--color-border-subtle);
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  background: var(--color-bg-secondary);
+  position: relative;
+  z-index: 20;
+}
+
+.batch-table-container {
+  margin-bottom: 1rem;
+  /* Scroll suave interno */
 }

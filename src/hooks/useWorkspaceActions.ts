@@ -357,12 +357,14 @@ export function useWorkspaceActions(patient: Patient | null) {
     if (!patient) return;
 
     // Validação - verificar se tem anexos
+    // Validação - verificar se tem anexos (REMOVIDO A PEDIDO: permitir finalizar sem anexos)
+    // const hasContent = session.docs.length > 0 || session.audioJobs.length > 0 || session.headerImage !== null;
     const hasContent = session.docs.length > 0 || session.audioJobs.length > 0 || session.headerImage !== null;
 
-    if (!hasContent) {
-      alert('⚠️ Adicione pelo menos um anexo antes de finalizar o exame.');
-      return;
-    }
+    // if (!hasContent) {
+    //   alert('⚠️ Adicione pelo menos um anexo antes de finalizar o exame.');
+    //   return;
+    // }
 
     // Confirmação
     const confirmed = window.confirm(

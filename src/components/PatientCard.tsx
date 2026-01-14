@@ -22,12 +22,11 @@ export const PatientCard: React.FC<Props> = ({ patient, onOpen, onDelete, onFina
   const handleFinalizeClick = (e: React.MouseEvent) => {
     e.stopPropagation();
 
-    // Validação
-    const hasContent = (patient.docsCount || 0) > 0 || (patient.audioCount || 0) > 0;
-    if (!hasContent) {
-      // Note: Removed toast - validation feedback now handled by modal state
-      return;
-    }
+    // Validação (REMOVIDO: permitir finalizar sem anexos)
+    // const hasContent = (patient.docsCount || 0) > 0 || (patient.audioCount || 0) > 0;
+    // if (!hasContent) {
+    //   return;
+    // }
 
     setShowConfirm(true);
   };

@@ -14,6 +14,9 @@ import './src/styles/audio.css';
 import './src/styles/markdown.css';
 import './src/styles/clinical.css';
 
+// Feature modules
+import './src/features/ocr-batch/styles/ocr-batch.css';
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <App />

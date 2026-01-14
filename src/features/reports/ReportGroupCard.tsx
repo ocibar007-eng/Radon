@@ -57,6 +57,17 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
   };
 
   const splitImpressionItems = (text: string) => {
+    // Lista de prefixos redundantes para remover
+    const redundantPrefixes = [
+      /^opinião do relatório\s*[-:]?\s*/i,
+      /^impressão diagnóstica\s*[-:]?\s*/i,
+      /^impressão\s*[-:]?\s*/i,
+      /^conclusão\s*[-:]?\s*/i,
+      /^conclusão diagnóstica\s*[-:]?\s*/i,
+      /^síntese diagnóstica\s*[-:]?\s*/i,
+      /^observaç[õo]es?\s*[-:]?\s*/i
+    ];
+
     const normalized = text
       .replace(/\r\n/g, '\n')
       .replace(/[•►▪●]+/g, '\n')
@@ -66,7 +77,19 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
       .split('\n')
       .map(item => item.trim())
       .filter(Boolean)
-      .map(item => item.replace(/^[-–—]\s*/, '').trim());
+      .map(item => {
+        let cleanItem = item.replace(/^[-–—]\s*/, '').trim();
+        // Remove prefixos redundantes
+        redundantPrefixes.forEach(regex => {
+          cleanItem = cleanItem.replace(regex, '');
+        });
+        // Capitaliza a primeira letra se necessário
+        if (cleanItem.length > 0) {
+          return cleanItem.charAt(0).toUpperCase() + cleanItem.slice(1);
+        }
+        return cleanItem;
+      })
+      .filter(item => item.length > 0);
 
     return items.length > 0 ? items : [text.trim()];
   };
@@ -92,9 +115,23 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
         </div>
 
         {(data.indicacao_clinica || data.tecnica) && (
-          <div className="text-sm text-primary mb-3 p-3 bg-surface-elevated rounded border border-subtle">
-            {data.indicacao_clinica && <p className="mb-2"><strong className="text-accent">INDICAÇÃO:</strong> <span className="text-secondary">{data.indicacao_clinica}</span></p>}
-            {data.tecnica && <p><strong className="text-accent">TÉCNICA:</strong> <span className="text-secondary">{data.tecnica}</span></p>}
+          <div className="sr-organs-grid mb-4">
+            {data.indicacao_clinica && (
+              <div className="sr-organ-card">
+                <div className="sr-organ-header">
+                  <h5 className="sr-organ-title">INDICAÇÃO CLÍNICA</h5>
+                </div>
+                <p className="text-sm text-secondary leading-relaxed px-3 pb-3">{data.indicacao_clinica}</p>
+              </div>
+            )}
+            {data.tecnica && (
+              <div className="sr-organ-card col-span-full">
+                <div className="sr-organ-header">
+                  <h5 className="sr-organ-title">TÉCNICA</h5>
+                </div>
+                <p className="text-sm text-secondary leading-relaxed px-3 pb-3">{data.tecnica}</p>
+              </div>
+            )}
           </div>
         )}
 
@@ -132,8 +169,8 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
         {data.impressao_diagnostica_ou_conclusao_literal && (
           <div className="sr-conclusion-box">
             <div className="sr-conclusion-header">
-              <Quote size={16} style={{ transform: 'scaleX(-1)' }} />
-              <span>IMPRESSÃO DIAGNÓSTICA</span>
+              <Quote size={20} style={{ transform: 'scaleX(-1)' }} />
+              <span className="text-base font-bold tracking-wide">IMPRESSÃO DIAGNÓSTICA</span>
             </div>
             <ul className="sr-conclusion-list">
               {splitImpressionItems(data.impressao_diagnostica_ou_conclusao_literal).map((item, idx) => (
@@ -280,15 +317,18 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
 
         {isExpanded && (
           <div className="rcu-full-content animate-fade-in">
-            <div className="rcu-content-header">
-              <h4 className="rcu-section-title">Texto Original (Íntegra)</h4>
-              <div className="flex gap-2">
-                <button className="btn-icon-sm" onClick={handleCopy} title="Copiar texto">
-                  {copied ? <Check size={12} className="text-success mr-1" /> : <Copy size={12} className="mr-1" />}
-                  {copied ? 'Copiado' : 'Copiar'}
+            <div className="rcu-content-header" onClick={() => setIsExpanded(false)} style={{ cursor: 'pointer' }} title="Clique para recolher">
+              <h4 className="rcu-section-title flex items-center gap-2">
+                <ChevronUp size={16} /> Texto Original (Íntegra)
+              </h4>
+              <div className="flex gap-3">
+                <button className="btn-icon-sm flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-surface-elevated transition-colors" onClick={handleCopy} title="Copiar texto">
+                  {copied ? <Check size={16} className="text-success" /> : <Copy size={16} />}
+                  <span className="text-sm">{copied ? 'Copiado' : 'Copiar'}</span>
                 </button>
-                <button className="btn-icon-sm" onClick={() => openGallery(group.docs, unifiedDoc.id)} title="Ver Imagens Originais">
-                  <FileText size={12} className="mr-1" /> Original
+                <button className="btn-icon-sm flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-surface-elevated transition-colors" onClick={() => openGallery(group.docs, unifiedDoc.id)} title="Ver Imagens Originais">
+                  <FileText size={16} />
+                  <span className="text-sm">Original</span>
                 </button>
               </div>
             </div>

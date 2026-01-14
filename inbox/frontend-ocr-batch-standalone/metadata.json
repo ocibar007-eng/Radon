@@ -1,0 +1,5 @@
+{
+  "name": "OCR Batch (DICOM/JPEG)",
+  "description": "A specialized tool for batch converting, ordering, and extracting text from DICOM and image files using Gemini.",
+  "requestFramePermissions": []
+}

@@ -4,6 +4,7 @@ import { useSession } from '../context/SessionContext';
 import { pipelineReducer, createInitialState } from './pipeline.reducer';
 import { getItemId, DEFAULT_PIPELINE_CONFIG, ProcessingQueueItem } from './pipeline.types';
 import * as PipelineActions from '../core/pipeline-actions';
+import { groupDocsVisuals } from '../utils/grouping';
 
 const DEBUG_LOGS = true;
 
@@ -110,6 +111,69 @@ export function usePipeline() {
             });
 
     }, [state.queue, state.processing, state.status, session, sessionDispatch]);
+
+    // --- AUTO GROUP ANALYSIS (Restored from Legacy) ---
+    const analyzingGroupsRef = useRef<Set<string>>(new Set());
+
+    useEffect(() => {
+        const groups = groupDocsVisuals(session.docs);
+
+        groups.forEach(group => {
+            // Usar todos os IDs ordenados como chave única do grupo
+            const groupKey = [...group.docIds].sort().join('|');
+
+            if (analyzingGroupsRef.current.has(groupKey)) return;
+
+            // Critérios para disparar Análise Unificada:
+            // 1. É um laudo prévio
+            // 2. Todos os docs do grupo estão com status 'done' (OCR finalizado) e têm texto verbatim.
+            // 3. Verifica se precisa de análise (isUnified=false)
+            const isLaudoGroup = group.docs.every(d => d.classification === 'laudo_previo');
+            const allPagesReady = group.docs.every(d => d.status === 'done' && d.verbatimText);
+            const needsUnifiedAnalysis = !group.docs[0].isUnified;
+
+            if (isLaudoGroup && allPagesReady && needsUnifiedAnalysis) {
+                analyzingGroupsRef.current.add(groupKey);
+
+                const combinedText = group.docs
+                    .map((d, i) => `--- PÁGINA ${i + 1} (${d.source}) ---\n${d.verbatimText}`)
+                    .join('\n\n');
+
+                if (DEBUG_LOGS) {
+                    console.log(`[PipelineV2] Auto-enqueuing group analysis for ${group.title} (${group.docs.length} pages)`);
+                }
+
+                enqueue({ type: 'group_analysis', docIds: group.docIds, fullText: combinedText });
+            }
+        });
+    }, [session.docs]);
+
+    // --- AUTO CLINICAL SUMMARY (Restored from Legacy) ---
+    const prevAssistencialCountRef = useRef(0);
+    const summaryTimeoutRef = useRef<number | null>(null);
+
+    useEffect(() => {
+        const readyDocs = session.docs.filter(d => d.classification === 'assistencial' && d.status === 'done' && d.verbatimText);
+
+        if (readyDocs.length > 0 && readyDocs.length !== prevAssistencialCountRef.current) {
+            if (summaryTimeoutRef.current) clearTimeout(summaryTimeoutRef.current);
+
+            summaryTimeoutRef.current = window.setTimeout(async () => {
+                prevAssistencialCountRef.current = readyDocs.length;
+                try {
+                    const result = await PipelineActions.processClinicalSummary(readyDocs);
+                    if (result && isMounted.current) {
+                        sessionDispatch({
+                            type: 'SET_CLINICAL_MARKDOWN',
+                            payload: { markdown: result.markdown_para_ui, data: result }
+                        });
+                    }
+                } catch (err) {
+                    console.error('[PipelineV2] Clinical summary failed:', err);
+                }
+            }, 2000);
+        }
+    }, [session.docs, sessionDispatch]);
 
     // Cleanup completed jobs periodically
     useEffect(() => {
