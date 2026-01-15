@@ -9,6 +9,20 @@ Plataforma inteligente para processamento de exames, transcrição de áudio e g
 
 ---
 
+## ⚠️ LEITURA OBRIGATÓRIA PARA IAs
+
+> **Se você é uma IA assumindo este projeto, LEIA ANTES DE QUALQUER COISA:**
+
+**📚 [docs/VERCEL_TROUBLESHOOTING.md](./docs/VERCEL_TROUBLESHOOTING.md)**
+
+Este guia documenta um problema **RECORRENTE** de deploys falharem na Vercel devido a variáveis de ambiente mal configuradas. Ele contém:
+- 🔍 Causa raiz do problema
+- ✅ Solução passo-a-passo
+- 🛡️ Checklist de prevenção
+- 🆘 Comandos de troubleshooting
+
+**NÃO PULE ESTA LEITURA** ou você perderá horas debugando o mesmo erro que já foi resolvido.
+
 ## ✨ Funcionalidades Principais
 
 ### 1. Sistema de Workflow & Status
