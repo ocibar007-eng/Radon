@@ -2,6 +2,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './src/app/App';
+import { initDebugBridge } from './src/utils/debug-bridge';
+
+// Initialize the debug bridge to capture logs
+initDebugBridge();
 
 // CSS Order is critical: Tokens first, then animations, then global layout, then components
 import './src/styles/design-tokens.css';

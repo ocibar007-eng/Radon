@@ -1,0 +1,1137 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - img "Radon" [ref=e6]
+    - navigation [ref=e7]:
+      - button "Lista de Trabalho" [ref=e8] [cursor=pointer]:
+        - img [ref=e9]
+        - generic [ref=e14]: Lista
+      - button "Laudo do Paciente" [disabled] [ref=e15]:
+        - img [ref=e16]
+        - generic [ref=e19]: Laudo
+      - button "Iniciar Laudo Rápido" [ref=e20] [cursor=pointer]:
+        - img [ref=e21]
+        - generic [ref=e23]: Rápido
+      - button "OCR Batch" [ref=e24] [cursor=pointer]:
+        - img [ref=e25]
+        - generic [ref=e30]: OCR
+    - button "Configurações" [ref=e32] [cursor=pointer]:
+      - img [ref=e33]
+  - main [ref=e36]:
+    - generic [ref=e37]:
+      - generic [ref=e38]:
+        - generic [ref=e39]:
+          - heading "Lista de Trabalho" [level=1] [ref=e40]
+          - paragraph [ref=e41]: Gerencie os exames e laudos em andamento.
+        - generic [ref=e42]:
+          - button "Upload em Lote" [ref=e44]:
+            - img [ref=e45]
+            - text: Upload em Lote
+          - button "Laudo Rápido" [ref=e47]:
+            - img [ref=e48]
+            - text: Laudo Rápido
+          - button "Novo Paciente" [ref=e50]:
+            - img [ref=e51]
+            - text: Novo Paciente
+      - generic [ref=e52]:
+        - button "Todos" [ref=e53] [cursor=pointer]
+        - button "Aguardando" [ref=e54] [cursor=pointer]
+        - button "Em Andamento" [ref=e55] [cursor=pointer]
+        - button "Pronto p/ Laudo" [ref=e56] [cursor=pointer]
+        - button "Finalizados" [ref=e57] [cursor=pointer]
+      - generic [ref=e58]:
+        - generic [ref=e59] [cursor=pointer]:
+          - generic [ref=e60]:
+            - generic [ref=e61]:
+              - generic [ref=e62]:
+                - heading "EDISSON JOSE DE OLIVEIRA" [level=3] [ref=e63]
+                - generic [ref=e64]: 870-67583-22606
+              - generic [ref=e65]:
+                - img [ref=e66]
+                - text: Finalizado
+            - generic [ref=e69]:
+              - img [ref=e70]
+              - generic [ref=e72]: 1/15/2026
+              - generic [ref=e73]: •
+              - generic [ref=e74]: TCTORAX
+          - generic [ref=e75]:
+            - generic [ref=e76]:
+              - generic "Documentos" [ref=e77]:
+                - img [ref=e78]
+                - text: "17"
+              - generic "Áudios" [ref=e81]:
+                - img [ref=e82]
+                - text: "1"
+            - generic [ref=e85]:
+              - button "Excluir Paciente" [ref=e86]:
+                - img [ref=e87]
+              - button "Abrir" [ref=e90]:
+                - text: Abrir
+                - img [ref=e91]
+        - generic [ref=e93] [cursor=pointer]:
+          - generic [ref=e94]:
+            - generic [ref=e95]:
+              - generic [ref=e96]:
+                - heading "ROSA MARIA DE SOUSA" [level=3] [ref=e97]
+                - generic [ref=e98]: 870-67583-6275
+              - generic [ref=e99]:
+                - img [ref=e100]
+                - text: Finalizado
+            - generic [ref=e103]:
+              - img [ref=e104]
+              - generic [ref=e106]: 1/15/2026
+              - generic [ref=e107]: •
+              - generic [ref=e108]: TCABT
+          - generic [ref=e109]:
+            - generic [ref=e110]:
+              - generic "Documentos" [ref=e111]:
+                - img [ref=e112]
+                - text: "21"
+              - generic "Áudios" [ref=e115]:
+                - img [ref=e116]
+                - text: "2"
+            - generic [ref=e119]:
+              - button "Excluir Paciente" [ref=e120]:
+                - img [ref=e121]
+              - button "Abrir" [ref=e124]:
+                - text: Abrir
+                - img [ref=e125]
+        - generic [ref=e127] [cursor=pointer]:
+          - generic [ref=e128]:
+            - generic [ref=e129]:
+              - generic [ref=e130]:
+                - heading "ROSA MARIA DE SOUSA" [level=3] [ref=e131]
+                - generic [ref=e132]: 870-67583-6275
+              - generic [ref=e133]:
+                - img [ref=e134]
+                - text: Finalizado
+            - generic [ref=e137]:
+              - img [ref=e138]
+              - generic [ref=e140]: 1/15/2026
+              - generic [ref=e141]: •
+              - generic [ref=e142]: TCTORAX
+          - generic [ref=e143]:
+            - generic [ref=e144]:
+              - generic "Documentos" [ref=e145]:
+                - img [ref=e146]
+                - text: "10"
+              - generic "Áudios" [ref=e149]:
+                - img [ref=e150]
+                - text: "0"
+            - generic [ref=e153]:
+              - button "Excluir Paciente" [ref=e154]:
+                - img [ref=e155]
+              - button "Abrir" [ref=e158]:
+                - text: Abrir
+                - img [ref=e159]
+        - generic [ref=e161] [cursor=pointer]:
+          - generic [ref=e162]:
+            - generic [ref=e163]:
+              - generic [ref=e164]:
+                - heading "MAURICIO WADIH DAOUD EL ACHKAR" [level=3] [ref=e165]
+                - generic [ref=e166]: 870-67583-21591
+              - generic [ref=e167]:
+                - img [ref=e168]
+                - text: Finalizado
+            - generic [ref=e171]:
+              - img [ref=e172]
+              - generic [ref=e174]: 1/15/2026
+              - generic [ref=e175]: •
+              - generic [ref=e176]: TCTORAX
+          - generic [ref=e177]:
+            - generic [ref=e178]:
+              - generic "Documentos" [ref=e179]:
+                - img [ref=e180]
+                - text: "12"
+              - generic "Áudios" [ref=e183]:
+                - img [ref=e184]
+                - text: "1"
+            - generic [ref=e187]:
+              - button "Excluir Paciente" [ref=e188]:
+                - img [ref=e189]
+              - button "Abrir" [ref=e192]:
+                - text: Abrir
+                - img [ref=e193]
+        - generic [ref=e195] [cursor=pointer]:
+          - generic [ref=e196]:
+            - generic [ref=e197]:
+              - generic [ref=e198]:
+                - heading "ILDA CUNHA FERREIRA" [level=3] [ref=e199]
+                - generic [ref=e200]: 870-67583-20525
+              - generic [ref=e201]:
+                - img [ref=e202]
+                - text: Finalizado
+            - generic [ref=e205]:
+              - img [ref=e206]
+              - generic [ref=e208]: 1/15/2026
+              - generic [ref=e209]: •
+              - generic [ref=e210]: TCTORAX
+          - generic [ref=e211]:
+            - generic [ref=e212]:
+              - generic "Documentos" [ref=e213]:
+                - img [ref=e214]
+                - text: "12"
+              - generic "Áudios" [ref=e217]:
+                - img [ref=e218]
+                - text: "1"
+            - generic [ref=e221]:
+              - button "Excluir Paciente" [ref=e222]:
+                - img [ref=e223]
+              - button "Abrir" [ref=e226]:
+                - text: Abrir
+                - img [ref=e227]
+        - generic [ref=e229] [cursor=pointer]:
+          - generic [ref=e230]:
+            - generic [ref=e231]:
+              - generic [ref=e232]:
+                - heading "VIVIANE CRISTINA DE ARAUJO" [level=3] [ref=e233]
+                - generic [ref=e234]: 870-67583-20271
+              - generic [ref=e235]:
+                - img [ref=e236]
+                - text: Finalizado
+            - generic [ref=e239]:
+              - img [ref=e240]
+              - generic [ref=e242]: 1/15/2026
+              - generic [ref=e243]: •
+              - generic [ref=e244]: TCABT
+          - generic [ref=e245]:
+            - generic [ref=e246]:
+              - generic "Documentos" [ref=e247]:
+                - img [ref=e248]
+                - text: "12"
+              - generic "Áudios" [ref=e251]:
+                - img [ref=e252]
+                - text: "2"
+            - generic [ref=e255]:
+              - button "Excluir Paciente" [ref=e256]:
+                - img [ref=e257]
+              - button "Abrir" [ref=e260]:
+                - text: Abrir
+                - img [ref=e261]
+        - generic [ref=e263] [cursor=pointer]:
+          - generic [ref=e264]:
+            - generic [ref=e265]:
+              - generic [ref=e266]:
+                - heading "CLAUDIA CRISTINA RODRIGUES MONTANHER" [level=3] [ref=e267]
+                - generic [ref=e268]: 870-67583-1980
+              - generic [ref=e269]:
+                - img [ref=e270]
+                - text: Finalizado
+            - generic [ref=e273]:
+              - img [ref=e274]
+              - generic [ref=e276]: 1/15/2026
+              - generic [ref=e277]: •
+              - generic [ref=e278]: TCABT
+          - generic [ref=e279]:
+            - generic [ref=e280]:
+              - generic "Documentos" [ref=e281]:
+                - img [ref=e282]
+                - text: "10"
+              - generic "Áudios" [ref=e285]:
+                - img [ref=e286]
+                - text: "1"
+            - generic [ref=e289]:
+              - button "Excluir Paciente" [ref=e290]:
+                - img [ref=e291]
+              - button "Abrir" [ref=e294]:
+                - text: Abrir
+                - img [ref=e295]
+        - generic [ref=e297] [cursor=pointer]:
+          - generic [ref=e298]:
+            - generic [ref=e299]:
+              - generic [ref=e300]:
+                - heading "CREUSA DIAS DOS SANTOS" [level=3] [ref=e301]
+                - generic [ref=e302]: 870-67583-1196
+              - generic [ref=e303]:
+                - img [ref=e304]
+                - text: Finalizado
+            - generic [ref=e307]:
+              - img [ref=e308]
+              - generic [ref=e310]: 1/15/2026
+              - generic [ref=e311]: •
+              - generic [ref=e312]: TCABT
+          - generic [ref=e313]:
+            - generic [ref=e314]:
+              - generic "Documentos" [ref=e315]:
+                - img [ref=e316]
+                - text: "10"
+              - generic "Áudios" [ref=e319]:
+                - img [ref=e320]
+                - text: "3"
+            - generic [ref=e323]:
+              - button "Excluir Paciente" [ref=e324]:
+                - img [ref=e325]
+              - button "Abrir" [ref=e328]:
+                - text: Abrir
+                - img [ref=e329]
+        - generic [ref=e331] [cursor=pointer]:
+          - generic [ref=e332]:
+            - generic [ref=e333]:
+              - generic [ref=e334]:
+                - heading "GRACIELA MENDES DE MELO CAMACHO" [level=3] [ref=e335]
+                - generic [ref=e336]: 870-67582-22683
+              - generic [ref=e337]:
+                - img [ref=e338]
+                - text: Finalizado
+            - generic [ref=e341]:
+              - img [ref=e342]
+              - generic [ref=e344]: 1/14/2026
+              - generic [ref=e345]: •
+              - generic [ref=e346]: RMABSHEP
+          - generic [ref=e347]:
+            - generic [ref=e348]:
+              - generic "Documentos" [ref=e349]:
+                - img [ref=e350]
+                - text: "23"
+              - generic "Áudios" [ref=e353]:
+                - img [ref=e354]
+                - text: "1"
+            - generic [ref=e357]:
+              - button "Excluir Paciente" [ref=e358]:
+                - img [ref=e359]
+              - button "Abrir" [ref=e362]:
+                - text: Abrir
+                - img [ref=e363]
+        - generic [ref=e365] [cursor=pointer]:
+          - generic [ref=e366]:
+            - generic [ref=e367]:
+              - generic [ref=e368]:
+                - heading "NUBIA RAFAELA DA SILVA CAMARGO" [level=3] [ref=e369]
+                - generic [ref=e370]: 870-67581-204
+              - generic [ref=e371]:
+                - img [ref=e372]
+                - text: Finalizado
+            - generic [ref=e375]:
+              - img [ref=e376]
+              - generic [ref=e378]: 1/14/2026
+              - generic [ref=e379]: •
+              - generic [ref=e380]: RMABS
+          - generic [ref=e381]:
+            - generic [ref=e382]:
+              - generic "Documentos" [ref=e383]:
+                - img [ref=e384]
+                - text: "11"
+              - generic "Áudios" [ref=e387]:
+                - img [ref=e388]
+                - text: "1"
+            - generic [ref=e391]:
+              - button "Excluir Paciente" [ref=e392]:
+                - img [ref=e393]
+              - button "Abrir" [ref=e396]:
+                - text: Abrir
+                - img [ref=e397]
+        - generic [ref=e399] [cursor=pointer]:
+          - generic [ref=e400]:
+            - generic [ref=e401]:
+              - generic [ref=e402]:
+                - heading "ROGERIO DE ARAUJO MACIEL" [level=3] [ref=e403]
+                - generic [ref=e404]: 870-67581-1544
+              - generic [ref=e405]:
+                - img [ref=e406]
+                - text: Finalizado
+            - generic [ref=e409]:
+              - img [ref=e410]
+              - generic [ref=e412]: 1/14/2026
+              - generic [ref=e413]: •
+              - generic [ref=e414]: RMPELVE
+          - generic [ref=e415]:
+            - generic [ref=e416]:
+              - generic "Documentos" [ref=e417]:
+                - img [ref=e418]
+                - text: "10"
+              - generic "Áudios" [ref=e421]:
+                - img [ref=e422]
+                - text: "1"
+            - generic [ref=e425]:
+              - button "Excluir Paciente" [ref=e426]:
+                - img [ref=e427]
+              - button "Abrir" [ref=e430]:
+                - text: Abrir
+                - img [ref=e431]
+        - generic [ref=e433] [cursor=pointer]:
+          - generic [ref=e434]:
+            - generic [ref=e435]:
+              - generic [ref=e436]:
+                - heading "LARISSA CAMPOS MENDES" [level=3] [ref=e437]
+                - generic [ref=e438]: 870-67581-1099
+              - generic [ref=e439]:
+                - img [ref=e440]
+                - text: Finalizado
+            - generic [ref=e443]:
+              - img [ref=e444]
+              - generic [ref=e446]: 1/14/2026
+              - generic [ref=e447]: •
+              - generic [ref=e448]: RMPELVE
+          - generic [ref=e449]:
+            - generic [ref=e450]:
+              - generic "Documentos" [ref=e451]:
+                - img [ref=e452]
+                - text: "13"
+              - generic "Áudios" [ref=e455]:
+                - img [ref=e456]
+                - text: "1"
+            - generic [ref=e459]:
+              - button "Excluir Paciente" [ref=e460]:
+                - img [ref=e461]
+              - button "Abrir" [ref=e464]:
+                - text: Abrir
+                - img [ref=e465]
+        - generic [ref=e467] [cursor=pointer]:
+          - generic [ref=e468]:
+            - generic [ref=e469]:
+              - generic [ref=e470]:
+                - heading "SUELLEN SIGNORELLY ASSUNCAO" [level=3] [ref=e471]
+                - generic [ref=e472]: 870-67580-8857
+              - generic [ref=e473]:
+                - img [ref=e474]
+                - text: Finalizado
+            - generic [ref=e477]:
+              - img [ref=e478]
+              - generic [ref=e480]: 1/14/2026
+              - generic [ref=e481]: •
+              - generic [ref=e482]: RMPELVE
+          - generic [ref=e483]:
+            - generic [ref=e484]:
+              - generic "Documentos" [ref=e485]:
+                - img [ref=e486]
+                - text: "16"
+              - generic "Áudios" [ref=e489]:
+                - img [ref=e490]
+                - text: "2"
+            - generic [ref=e493]:
+              - button "Excluir Paciente" [ref=e494]:
+                - img [ref=e495]
+              - button "Abrir" [ref=e498]:
+                - text: Abrir
+                - img [ref=e499]
+        - generic [ref=e501] [cursor=pointer]:
+          - generic [ref=e502]:
+            - generic [ref=e503]:
+              - generic [ref=e504]:
+                - heading "GRAZIELLE BEATRIZ PEREIRA" [level=3] [ref=e505]
+                - generic [ref=e506]: 870-67580-14815
+              - generic [ref=e507]:
+                - img [ref=e508]
+                - text: Finalizado
+            - generic [ref=e511]:
+              - img [ref=e512]
+              - generic [ref=e514]: 1/14/2026
+              - generic [ref=e515]: •
+              - generic [ref=e516]: RMPELVE
+          - generic [ref=e517]:
+            - generic [ref=e518]:
+              - generic "Documentos" [ref=e519]:
+                - img [ref=e520]
+                - text: "17"
+              - generic "Áudios" [ref=e523]:
+                - img [ref=e524]
+                - text: "1"
+            - generic [ref=e527]:
+              - button "Excluir Paciente" [ref=e528]:
+                - img [ref=e529]
+              - button "Abrir" [ref=e532]:
+                - text: Abrir
+                - img [ref=e533]
+        - generic [ref=e535] [cursor=pointer]:
+          - generic [ref=e536]:
+            - generic [ref=e537]:
+              - generic [ref=e538]:
+                - heading "ANA CLAUDIA SILVEIRA SANTOS" [level=3] [ref=e539]
+                - generic [ref=e540]: 870-67582-2040
+              - generic [ref=e541]:
+                - img [ref=e542]
+                - text: Finalizado
+            - generic [ref=e545]:
+              - img [ref=e546]
+              - generic [ref=e548]: 1/14/2026
+              - generic [ref=e549]: •
+              - generic [ref=e550]: TCTORAX
+          - generic [ref=e551]:
+            - generic [ref=e552]:
+              - generic "Documentos" [ref=e553]:
+                - img [ref=e554]
+                - text: "14"
+              - generic "Áudios" [ref=e557]:
+                - img [ref=e558]
+                - text: "1"
+            - generic [ref=e561]:
+              - button "Excluir Paciente" [ref=e562]:
+                - img [ref=e563]
+              - button "Abrir" [ref=e566]:
+                - text: Abrir
+                - img [ref=e567]
+        - generic [ref=e569] [cursor=pointer]:
+          - generic [ref=e570]:
+            - generic [ref=e571]:
+              - generic [ref=e572]:
+                - heading "EXPEDICTO IZAIAS DA COSTA" [level=3] [ref=e573]
+                - generic [ref=e574]: 870-67582-19816
+              - generic [ref=e575]:
+                - img [ref=e576]
+                - text: Finalizado
+            - generic [ref=e579]:
+              - img [ref=e580]
+              - generic [ref=e582]: 1/14/2026
+              - generic [ref=e583]: •
+              - generic [ref=e584]: TCTORAX
+          - generic [ref=e585]:
+            - generic [ref=e586]:
+              - generic "Documentos" [ref=e587]:
+                - img [ref=e588]
+                - text: "11"
+              - generic "Áudios" [ref=e591]:
+                - img [ref=e592]
+                - text: "1"
+            - generic [ref=e595]:
+              - button "Excluir Paciente" [ref=e596]:
+                - img [ref=e597]
+              - button "Abrir" [ref=e600]:
+                - text: Abrir
+                - img [ref=e601]
+        - generic [ref=e603] [cursor=pointer]:
+          - generic [ref=e604]:
+            - generic [ref=e605]:
+              - generic [ref=e606]:
+                - heading "CELIA MARIA DA SILVA FERREIRA" [level=3] [ref=e607]
+                - generic [ref=e608]: 870-67582-18872
+              - generic [ref=e609]:
+                - img [ref=e610]
+                - text: Finalizado
+            - generic [ref=e613]:
+              - img [ref=e614]
+              - generic [ref=e616]: 1/14/2026
+              - generic [ref=e617]: •
+              - generic [ref=e618]: TCABT
+          - generic [ref=e619]:
+            - generic [ref=e620]:
+              - generic "Documentos" [ref=e621]:
+                - img [ref=e622]
+                - text: "11"
+              - generic "Áudios" [ref=e625]:
+                - img [ref=e626]
+                - text: "1"
+            - generic [ref=e629]:
+              - button "Excluir Paciente" [ref=e630]:
+                - img [ref=e631]
+              - button "Abrir" [ref=e634]:
+                - text: Abrir
+                - img [ref=e635]
+        - generic [ref=e637] [cursor=pointer]:
+          - generic [ref=e638]:
+            - generic [ref=e639]:
+              - generic [ref=e640]:
+                - heading "WILLIAM ALVES BORGES" [level=3] [ref=e641]
+                - generic [ref=e642]: 870-67582-17396
+              - generic [ref=e643]:
+                - img [ref=e644]
+                - text: Finalizado
+            - generic [ref=e647]:
+              - img [ref=e648]
+              - generic [ref=e650]: 1/14/2026
+              - generic [ref=e651]: •
+              - generic [ref=e652]: TCABT
+          - generic [ref=e653]:
+            - generic [ref=e654]:
+              - generic "Documentos" [ref=e655]:
+                - img [ref=e656]
+                - text: "10"
+              - generic "Áudios" [ref=e659]:
+                - img [ref=e660]
+                - text: "1"
+            - generic [ref=e663]:
+              - button "Excluir Paciente" [ref=e664]:
+                - img [ref=e665]
+              - button "Abrir" [ref=e668]:
+                - text: Abrir
+                - img [ref=e669]
+        - generic [ref=e671] [cursor=pointer]:
+          - generic [ref=e672]:
+            - generic [ref=e673]:
+              - generic [ref=e674]:
+                - heading "BALTAZAR DOS REIS MARIANO" [level=3] [ref=e675]
+                - generic [ref=e676]: 870-67582-11811
+              - generic [ref=e677]:
+                - img [ref=e678]
+                - text: Finalizado
+            - generic [ref=e681]:
+              - img [ref=e682]
+              - generic [ref=e684]: 1/14/2026
+              - generic [ref=e685]: •
+              - generic [ref=e686]: TCABS+TCPELVE
+          - generic [ref=e687]:
+            - generic [ref=e688]:
+              - generic "Documentos" [ref=e689]:
+                - img [ref=e690]
+                - text: "15"
+              - generic "Áudios" [ref=e693]:
+                - img [ref=e694]
+                - text: "3"
+            - generic [ref=e697]:
+              - button "Excluir Paciente" [ref=e698]:
+                - img [ref=e699]
+              - button "Abrir" [ref=e702]:
+                - text: Abrir
+                - img [ref=e703]
+        - generic [ref=e705] [cursor=pointer]:
+          - generic [ref=e706]:
+            - generic [ref=e707]:
+              - generic [ref=e708]:
+                - heading "BALTAZAR DOS REIS MARIANO" [level=3] [ref=e709]
+                - generic [ref=e710]: 870-67582-11811
+              - generic [ref=e711]:
+                - img [ref=e712]
+                - text: Finalizado
+            - generic [ref=e715]:
+              - img [ref=e716]
+              - generic [ref=e718]: 1/14/2026
+              - generic [ref=e719]: •
+              - generic [ref=e720]: TCTORAX
+          - generic [ref=e721]:
+            - generic [ref=e722]:
+              - generic "Documentos" [ref=e723]:
+                - img [ref=e724]
+                - text: "15"
+              - generic "Áudios" [ref=e727]:
+                - img [ref=e728]
+                - text: "0"
+            - generic [ref=e731]:
+              - button "Excluir Paciente" [ref=e732]:
+                - img [ref=e733]
+              - button "Abrir" [ref=e736]:
+                - text: Abrir
+                - img [ref=e737]
+        - generic [ref=e739] [cursor=pointer]:
+          - generic [ref=e740]:
+            - generic [ref=e741]:
+              - generic [ref=e742]:
+                - heading "MARCOS PINTO DA SILVA" [level=3] [ref=e743]
+                - generic [ref=e744]: 870-67579-17489
+              - generic [ref=e745]:
+                - img [ref=e746]
+                - text: Finalizado
+            - generic [ref=e749]:
+              - img [ref=e750]
+              - generic [ref=e752]: 1/13/2026
+              - generic [ref=e753]: •
+              - generic [ref=e754]: RMABT
+          - generic [ref=e755]:
+            - generic [ref=e756]:
+              - generic "Documentos" [ref=e757]:
+                - img [ref=e758]
+                - text: "11"
+              - generic "Áudios" [ref=e761]:
+                - img [ref=e762]
+                - text: "1"
+            - generic [ref=e765]:
+              - button "Excluir Paciente" [ref=e766]:
+                - img [ref=e767]
+              - button "Abrir" [ref=e770]:
+                - text: Abrir
+                - img [ref=e771]
+        - generic [ref=e773] [cursor=pointer]:
+          - generic [ref=e774]:
+            - generic [ref=e775]:
+              - generic [ref=e776]:
+                - heading "MARICEA BOAVENTURA MUNHOZ FANTINI" [level=3] [ref=e777]
+                - generic [ref=e778]: 870-67579-9686
+              - generic [ref=e779]:
+                - img [ref=e780]
+                - text: Finalizado
+            - generic [ref=e783]:
+              - img [ref=e784]
+              - generic [ref=e786]: 1/13/2026
+              - generic [ref=e787]: •
+              - generic [ref=e788]: TCTORAX
+          - generic [ref=e789]:
+            - generic [ref=e790]:
+              - generic "Documentos" [ref=e791]:
+                - img [ref=e792]
+                - text: "13"
+              - generic "Áudios" [ref=e795]:
+                - img [ref=e796]
+                - text: "1"
+            - generic [ref=e799]:
+              - button "Excluir Paciente" [ref=e800]:
+                - img [ref=e801]
+              - button "Abrir" [ref=e804]:
+                - text: Abrir
+                - img [ref=e805]
+        - generic [ref=e807] [cursor=pointer]:
+          - generic [ref=e808]:
+            - generic [ref=e809]:
+              - generic [ref=e810]:
+                - heading "ALINE CORTES DE MELO OLIVEIRA" [level=3] [ref=e811]
+                - generic [ref=e812]: 870-67579-7359
+              - generic [ref=e813]:
+                - img [ref=e814]
+                - text: Finalizado
+            - generic [ref=e817]:
+              - img [ref=e818]
+              - generic [ref=e820]: 1/13/2026
+              - generic [ref=e821]: •
+              - generic [ref=e822]: TCTORAX
+          - generic [ref=e823]:
+            - generic [ref=e824]:
+              - generic "Documentos" [ref=e825]:
+                - img [ref=e826]
+                - text: "16"
+              - generic "Áudios" [ref=e829]:
+                - img [ref=e830]
+                - text: "2"
+            - generic [ref=e833]:
+              - button "Excluir Paciente" [ref=e834]:
+                - img [ref=e835]
+              - button "Abrir" [ref=e838]:
+                - text: Abrir
+                - img [ref=e839]
+        - generic [ref=e841] [cursor=pointer]:
+          - generic [ref=e842]:
+            - generic [ref=e843]:
+              - generic [ref=e844]:
+                - heading "WILZA APARECIDA MORAIS COUTO" [level=3] [ref=e845]
+                - generic [ref=e846]: 870-67579-6015
+              - generic [ref=e847]:
+                - img [ref=e848]
+                - text: Finalizado
+            - generic [ref=e851]:
+              - img [ref=e852]
+              - generic [ref=e854]: 1/13/2026
+              - generic [ref=e855]: •
+              - generic [ref=e856]: TCTORAX
+          - generic [ref=e857]:
+            - generic [ref=e858]:
+              - generic "Documentos" [ref=e859]:
+                - img [ref=e860]
+                - text: "14"
+              - generic "Áudios" [ref=e863]:
+                - img [ref=e864]
+                - text: "2"
+            - generic [ref=e867]:
+              - button "Excluir Paciente" [ref=e868]:
+                - img [ref=e869]
+              - button "Abrir" [ref=e872]:
+                - text: Abrir
+                - img [ref=e873]
+        - generic [ref=e875] [cursor=pointer]:
+          - generic [ref=e876]:
+            - generic [ref=e877]:
+              - generic [ref=e878]:
+                - heading "MARCELO ALEXANDRE CAMARGO NONATO" [level=3] [ref=e879]
+                - generic [ref=e880]: 870-67579-5373
+              - generic [ref=e881]:
+                - img [ref=e882]
+                - text: Finalizado
+            - generic [ref=e885]:
+              - img [ref=e886]
+              - generic [ref=e888]: 1/13/2026
+              - generic [ref=e889]: •
+              - generic [ref=e890]: TCABT
+          - generic [ref=e891]:
+            - generic [ref=e892]:
+              - generic "Documentos" [ref=e893]:
+                - img [ref=e894]
+                - text: "14"
+              - generic "Áudios" [ref=e897]:
+                - img [ref=e898]
+                - text: "1"
+            - generic [ref=e901]:
+              - button "Excluir Paciente" [ref=e902]:
+                - img [ref=e903]
+              - button "Abrir" [ref=e906]:
+                - text: Abrir
+                - img [ref=e907]
+        - generic [ref=e909] [cursor=pointer]:
+          - generic [ref=e910]:
+            - generic [ref=e911]:
+              - generic [ref=e912]:
+                - heading "CREILA MARIA DE FREITAS" [level=3] [ref=e913]
+                - generic [ref=e914]: 870-67579-4427
+              - generic [ref=e915]:
+                - img [ref=e916]
+                - text: Finalizado
+            - generic [ref=e919]:
+              - img [ref=e920]
+              - generic [ref=e922]: 1/13/2026
+              - generic [ref=e923]: •
+              - generic [ref=e924]: TCABT
+          - generic [ref=e925]:
+            - generic [ref=e926]:
+              - generic "Documentos" [ref=e927]:
+                - img [ref=e928]
+                - text: "15"
+              - generic "Áudios" [ref=e931]:
+                - img [ref=e932]
+                - text: "1"
+            - generic [ref=e935]:
+              - button "Excluir Paciente" [ref=e936]:
+                - img [ref=e937]
+              - button "Abrir" [ref=e940]:
+                - text: Abrir
+                - img [ref=e941]
+        - generic [ref=e943] [cursor=pointer]:
+          - generic [ref=e944]:
+            - generic [ref=e945]:
+              - generic [ref=e946]:
+                - heading "LUCIANA CUNHA CASTRO LOUREIRO BORGES" [level=3] [ref=e947]
+                - generic [ref=e948]: 870-67579-429
+              - generic [ref=e949]:
+                - img [ref=e950]
+                - text: Finalizado
+            - generic [ref=e953]:
+              - img [ref=e954]
+              - generic [ref=e956]: 1/13/2026
+              - generic [ref=e957]: •
+              - generic [ref=e958]: TCTORAX
+          - generic [ref=e959]:
+            - generic [ref=e960]:
+              - generic "Documentos" [ref=e961]:
+                - img [ref=e962]
+                - text: "11"
+              - generic "Áudios" [ref=e965]:
+                - img [ref=e966]
+                - text: "1"
+            - generic [ref=e969]:
+              - button "Excluir Paciente" [ref=e970]:
+                - img [ref=e971]
+              - button "Abrir" [ref=e974]:
+                - text: Abrir
+                - img [ref=e975]
+        - generic [ref=e977] [cursor=pointer]:
+          - generic [ref=e978]:
+            - generic [ref=e979]:
+              - generic [ref=e980]:
+                - heading "DORA MARIA DE PAIVA VON G..." [level=3] [ref=e981]
+                - generic [ref=e982]: 870-67579-10256
+              - generic [ref=e983]:
+                - img [ref=e984]
+                - text: Finalizado
+            - generic [ref=e987]:
+              - img [ref=e988]
+              - generic [ref=e990]: 1/13/2026
+              - generic [ref=e991]: •
+              - generic [ref=e992]: TOMOGRAFIA TORAX
+          - generic [ref=e993]:
+            - generic [ref=e994]:
+              - generic "Documentos" [ref=e995]:
+                - img [ref=e996]
+                - text: "12"
+              - generic "Áudios" [ref=e999]:
+                - img [ref=e1000]
+                - text: "2"
+            - generic [ref=e1003]:
+              - button "Excluir Paciente" [ref=e1004]:
+                - img [ref=e1005]
+              - button "Abrir" [ref=e1008]:
+                - text: Abrir
+                - img [ref=e1009]
+        - generic [ref=e1011] [cursor=pointer]:
+          - generic [ref=e1012]:
+            - generic [ref=e1013]:
+              - generic [ref=e1014]:
+                - heading "ARTHUR HENRIQUE ALVES DE ..." [level=3] [ref=e1015]
+                - generic [ref=e1016]: 870-67582-21368
+              - generic [ref=e1017]:
+                - img [ref=e1018]
+                - text: Finalizado
+            - generic [ref=e1021]:
+              - img [ref=e1022]
+              - generic [ref=e1024]: 1/12/2026
+              - generic [ref=e1025]: •
+              - generic [ref=e1026]: ULTRASSOM ABDOME TOTAL
+          - generic [ref=e1027]:
+            - generic [ref=e1028]:
+              - generic "Documentos" [ref=e1029]:
+                - img [ref=e1030]
+                - text: "0"
+              - generic "Áudios" [ref=e1033]:
+                - img [ref=e1034]
+                - text: "1"
+            - generic [ref=e1037]:
+              - button "Excluir Paciente" [ref=e1038]:
+                - img [ref=e1039]
+              - button "Abrir" [ref=e1042]:
+                - text: Abrir
+                - img [ref=e1043]
+        - generic [ref=e1045] [cursor=pointer]:
+          - generic [ref=e1046]:
+            - generic [ref=e1047]:
+              - generic [ref=e1048]:
+                - heading "WALKIR CARLOS PINTO" [level=3] [ref=e1049]
+                - generic [ref=e1050]: 870-67582-21594
+              - generic [ref=e1051]:
+                - img [ref=e1052]
+                - text: Finalizado
+            - generic [ref=e1055]:
+              - img [ref=e1056]
+              - generic [ref=e1058]: 1/12/2026
+              - generic [ref=e1059]: •
+              - generic [ref=e1060]: ULTRASSOM ABDOME TOTAL
+          - generic [ref=e1061]:
+            - generic [ref=e1062]:
+              - generic "Documentos" [ref=e1063]:
+                - img [ref=e1064]
+                - text: "1"
+              - generic "Áudios" [ref=e1067]:
+                - img [ref=e1068]
+                - text: "1"
+            - generic [ref=e1071]:
+              - button "Excluir Paciente" [ref=e1072]:
+                - img [ref=e1073]
+              - button "Abrir" [ref=e1076]:
+                - text: Abrir
+                - img [ref=e1077]
+        - generic [ref=e1079] [cursor=pointer]:
+          - generic [ref=e1080]:
+            - generic [ref=e1081]:
+              - generic [ref=e1082]:
+                - heading "GLEYCKCY KEYLLY FONSECA E..." [level=3] [ref=e1083]
+                - generic [ref=e1084]: 870-67582-20526
+              - generic [ref=e1085]:
+                - img [ref=e1086]
+                - text: Finalizado
+            - generic [ref=e1089]:
+              - img [ref=e1090]
+              - generic [ref=e1092]: 1/12/2026
+              - generic [ref=e1093]: •
+              - generic [ref=e1094]: DOPSISPO - ULTRASSOM SISTEMA PORTA DOPPLER
+          - generic [ref=e1095]:
+            - generic [ref=e1096]:
+              - generic "Documentos" [ref=e1097]:
+                - img [ref=e1098]
+                - text: "6"
+              - generic "Áudios" [ref=e1101]:
+                - img [ref=e1102]
+                - text: "1"
+            - generic [ref=e1105]:
+              - button "Excluir Paciente" [ref=e1106]:
+                - img [ref=e1107]
+              - button "Abrir" [ref=e1110]:
+                - text: Abrir
+                - img [ref=e1111]
+        - generic [ref=e1113] [cursor=pointer]:
+          - generic [ref=e1114]:
+            - generic [ref=e1115]:
+              - generic [ref=e1116]:
+                - heading "ARIANE PATRICIA DA SILVA M..." [level=3] [ref=e1117]
+                - generic [ref=e1118]: 870-67582-18173
+              - generic [ref=e1119]:
+                - img [ref=e1120]
+                - text: Finalizado
+            - generic [ref=e1123]:
+              - img [ref=e1124]
+              - generic [ref=e1126]: 1/12/2026
+              - generic [ref=e1127]: •
+              - generic [ref=e1128]: DOPAAREN - ULTRASSOM AORTA E ARTERIAS RENAIS COM DOPPLER
+          - generic [ref=e1129]:
+            - generic [ref=e1130]:
+              - generic "Documentos" [ref=e1131]:
+                - img [ref=e1132]
+                - text: "1"
+              - generic "Áudios" [ref=e1135]:
+                - img [ref=e1136]
+                - text: "2"
+            - generic [ref=e1139]:
+              - button "Excluir Paciente" [ref=e1140]:
+                - img [ref=e1141]
+              - button "Abrir" [ref=e1144]:
+                - text: Abrir
+                - img [ref=e1145]
+        - generic [ref=e1147] [cursor=pointer]:
+          - generic [ref=e1148]:
+            - generic [ref=e1149]:
+              - generic [ref=e1150]:
+                - heading "CAMILA GABRIELA FERREIRA ..." [level=3] [ref=e1151]
+                - generic [ref=e1152]: 870-67577-14484
+              - generic [ref=e1153]:
+                - img [ref=e1154]
+                - text: Finalizado
+            - generic [ref=e1157]:
+              - img [ref=e1158]
+              - generic [ref=e1160]: 1/12/2026
+              - generic [ref=e1161]: •
+              - generic [ref=e1162]: RMABT - RESSONANCIA MAGNETICA ABDOME TOTAL
+          - generic [ref=e1163]:
+            - generic [ref=e1164]:
+              - generic "Documentos" [ref=e1165]:
+                - img [ref=e1166]
+                - text: "0"
+              - generic "Áudios" [ref=e1169]:
+                - img [ref=e1170]
+                - text: "2"
+            - generic [ref=e1173]:
+              - button "Excluir Paciente" [ref=e1174]:
+                - img [ref=e1175]
+              - button "Abrir" [ref=e1178]:
+                - text: Abrir
+                - img [ref=e1179]
+        - generic [ref=e1181] [cursor=pointer]:
+          - generic [ref=e1182]:
+            - generic [ref=e1183]:
+              - generic [ref=e1184]:
+                - heading "MAYARA GOULART DE CAMAR..." [level=3] [ref=e1185]
+                - generic [ref=e1186]: 870-67577-21998
+              - generic [ref=e1187]:
+                - img [ref=e1188]
+                - text: Finalizado
+            - generic [ref=e1191]:
+              - img [ref=e1192]
+              - generic [ref=e1194]: 1/12/2026
+              - generic [ref=e1195]: •
+              - generic [ref=e1196]: RMABT - RESSONANCIA MAGNETICA ABDOME TOTAL
+          - generic [ref=e1197]:
+            - generic [ref=e1198]:
+              - generic "Documentos" [ref=e1199]:
+                - img [ref=e1200]
+                - text: "15"
+              - generic "Áudios" [ref=e1203]:
+                - img [ref=e1204]
+                - text: "2"
+            - generic [ref=e1207]:
+              - button "Excluir Paciente" [ref=e1208]:
+                - img [ref=e1209]
+              - button "Abrir" [ref=e1212]:
+                - text: Abrir
+                - img [ref=e1213]
+        - generic [ref=e1215] [cursor=pointer]:
+          - generic [ref=e1216]:
+            - generic [ref=e1217]:
+              - generic [ref=e1218]:
+                - heading "ROBSON LUIZ ALBINO JUNIOR" [level=3] [ref=e1219]
+                - generic [ref=e1220]: 870-67577-22424
+              - generic [ref=e1221]:
+                - img [ref=e1222]
+                - text: Finalizado
+            - generic [ref=e1225]:
+              - img [ref=e1226]
+              - generic [ref=e1228]: 1/12/2026
+              - generic [ref=e1229]: •
+              - generic [ref=e1230]: RMABS - RESSONANCIA MAGNETICA ABDOME SUPERIOR
+          - generic [ref=e1231]:
+            - generic [ref=e1232]:
+              - generic "Documentos" [ref=e1233]:
+                - img [ref=e1234]
+                - text: "18"
+              - generic "Áudios" [ref=e1237]:
+                - img [ref=e1238]
+                - text: "2"
+            - generic [ref=e1241]:
+              - button "Excluir Paciente" [ref=e1242]:
+                - img [ref=e1243]
+              - button "Abrir" [ref=e1246]:
+                - text: Abrir
+                - img [ref=e1247]
+        - generic [ref=e1249] [cursor=pointer]:
+          - generic [ref=e1250]:
+            - generic [ref=e1251]:
+              - generic [ref=e1252]:
+                - heading "GERALDINO DA SILVA LONDE" [level=3] [ref=e1253]
+                - generic [ref=e1254]: 870-67577-18386
+              - generic [ref=e1255]:
+                - img [ref=e1256]
+                - text: Finalizado
+            - generic [ref=e1259]:
+              - img [ref=e1260]
+              - generic [ref=e1262]: 1/12/2026
+              - generic [ref=e1263]: •
+              - generic [ref=e1264]: TCTORAX - TOMOGRAFIA TORAX
+          - generic [ref=e1265]:
+            - generic [ref=e1266]:
+              - generic "Documentos" [ref=e1267]:
+                - img [ref=e1268]
+                - text: "13"
+              - generic "Áudios" [ref=e1271]:
+                - img [ref=e1272]
+                - text: "1"
+            - generic [ref=e1275]:
+              - button "Excluir Paciente" [ref=e1276]:
+                - img [ref=e1277]
+              - button "Abrir" [ref=e1280]:
+                - text: Abrir
+                - img [ref=e1281]
+        - generic [ref=e1283] [cursor=pointer]:
+          - generic [ref=e1284]:
+            - generic [ref=e1285]:
+              - generic [ref=e1286]:
+                - heading "SIMONI RODRIGUES GARCIA" [level=3] [ref=e1287]
+                - generic [ref=e1288]: 870-67577-5349
+              - generic [ref=e1289]:
+                - img [ref=e1290]
+                - text: Finalizado
+            - generic [ref=e1293]:
+              - img [ref=e1294]
+              - generic [ref=e1296]: 1/12/2026
+              - generic [ref=e1297]: •
+              - generic [ref=e1298]: TOMOGRAFIA TORAX
+          - generic [ref=e1299]:
+            - generic [ref=e1300]:
+              - generic "Documentos" [ref=e1301]:
+                - img [ref=e1302]
+                - text: "12"
+              - generic "Áudios" [ref=e1305]:
+                - img [ref=e1306]
+                - text: "1"
+            - generic [ref=e1309]:
+              - button "Excluir Paciente" [ref=e1310]:
+                - img [ref=e1311]
+              - button "Abrir" [ref=e1314]:
+                - text: Abrir
+                - img [ref=e1315]
+        - generic [ref=e1317] [cursor=pointer]:
+          - generic [ref=e1318]:
+            - generic [ref=e1319]:
+              - generic [ref=e1320]:
+                - heading "MARCELO LUIZ RIBEIRO DE M..." [level=3] [ref=e1321]
+                - generic [ref=e1322]: 870-67577-1813
+              - generic [ref=e1323]:
+                - img [ref=e1324]
+                - text: Finalizado
+            - generic [ref=e1327]:
+              - img [ref=e1328]
+              - generic [ref=e1330]: 1/12/2026
+              - generic [ref=e1331]: •
+              - generic [ref=e1332]: TCPELVE - TOMOGRAFIA PELVE / TCTORAX - TOMOGRAFIA TO...
+          - generic [ref=e1333]:
+            - generic [ref=e1334]:
+              - generic "Documentos" [ref=e1335]:
+                - img [ref=e1336]
+                - text: "17"
+              - generic "Áudios" [ref=e1339]:
+                - img [ref=e1340]
+                - text: "3"
+            - generic [ref=e1343]:
+              - button "Excluir Paciente" [ref=e1344]:
+                - img [ref=e1345]
+              - button "Abrir" [ref=e1348]:
+                - text: Abrir
+                - img [ref=e1349]
+        - generic [ref=e1351] [cursor=pointer]:
+          - generic [ref=e1352]:
+            - generic [ref=e1353]:
+              - generic [ref=e1354]:
+                - heading "ELZA BATISTA VIEIRA" [level=3] [ref=e1355]
+                - generic [ref=e1356]: 870-67577-17525
+              - generic [ref=e1357]:
+                - img [ref=e1358]
+                - text: Finalizado
+            - generic [ref=e1361]:
+              - img [ref=e1362]
+              - generic [ref=e1364]: 1/12/2026
+              - generic [ref=e1365]: •
+              - generic [ref=e1366]: TCABT - TOMOGRAFIA ABDOME TOTAL
+          - generic [ref=e1367]:
+            - generic [ref=e1368]:
+              - generic "Documentos" [ref=e1369]:
+                - img [ref=e1370]
+                - text: "15"
+              - generic "Áudios" [ref=e1373]:
+                - img [ref=e1374]
+                - text: "3"
+            - generic [ref=e1377]:
+              - button "Excluir Paciente" [ref=e1378]:
+                - img [ref=e1379]
+              - button "Abrir" [ref=e1382]:
+                - text: Abrir
+                - img [ref=e1383]
+```

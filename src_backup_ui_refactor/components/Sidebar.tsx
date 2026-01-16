@@ -1,0 +1,74 @@
+
+import React from 'react';
+import { LayoutGrid, FileText, Settings, Zap, ScanLine } from 'lucide-react';
+
+interface SidebarProps {
+  currentView: 'list' | 'workspace' | 'ocr-batch';
+  onChangeView: (view: 'list' | 'workspace' | 'ocr-batch') => void;
+  onQuickStart: () => void;
+  hasActivePatient: boolean;
+}
+
+export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, onQuickStart, hasActivePatient }) => {
+  return (
+    <aside className="shell-sidebar">
+      {/* Brand Icon */}
+      <div className="sidebar-brand">
+        <img src="/logo.png?v=2" alt="Radon" className="w-full h-full object-contain" />
+      </div>
+
+      {/* Navigation */}
+      <nav className="sidebar-nav">
+        <button
+          className={`nav-item ${currentView === 'list' ? 'active' : ''}`}
+          onClick={() => onChangeView('list')}
+          title="Lista de Trabalho"
+          aria-label="Lista de Trabalho"
+        >
+          <LayoutGrid size={20} />
+          <span className="nav-label">Lista</span>
+        </button>
+
+        <button
+          className={`nav-item ${currentView === 'workspace' && hasActivePatient ? 'active' : ''}`}
+          onClick={() => hasActivePatient && onChangeView('workspace')}
+          disabled={!hasActivePatient}
+          title={hasActivePatient ? "Voltar ao Paciente" : "Selecione um paciente na lista"}
+          aria-label="Laudo do Paciente"
+        >
+          <FileText size={20} />
+          <span className="nav-label">Laudo</span>
+        </button>
+
+
+
+        <button
+          className="nav-item"
+          onClick={onQuickStart}
+          title="Iniciar Laudo Avulso (Sem cadastro)"
+          aria-label="Iniciar Laudo Rápido"
+        >
+          <Zap size={20} className="text-accent" />
+          <span className="nav-label">Rápido</span>
+        </button>
+
+        <button
+          className={`nav-item ${currentView === 'ocr-batch' ? 'active' : ''}`}
+          onClick={() => onChangeView('ocr-batch')}
+          title="OCR Batch Processor - Processar lotes de imagens DICOM/JPEG"
+          aria-label="OCR Batch"
+        >
+          <ScanLine size={20} />
+          <span className="nav-label">OCR</span>
+        </button>
+      </nav>
+
+      {/* Footer / Settings */}
+      <div className="sidebar-footer">
+        <button className="nav-item" title="Configurações (Em breve)" aria-label="Configurações">
+          <Settings size={20} />
+        </button>
+      </div>
+    </aside>
+  );
+};

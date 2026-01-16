@@ -1,0 +1,173 @@
+/* Audio Jobs Panel Container */
+.audio-jobs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.audio-empty-state {
+  text-align: left;
+  margin-top: 0;
+  padding: 1rem;
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--color-border-subtle);
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+/* Audio Jobs List Item */
+.job-item {
+  padding: 0.75rem;
+}
+
+.job-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.job-time {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.job-status {
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  padding: 0.125rem 0.375rem;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+}
+
+.status-done {
+  background: var(--status-success-bg);
+  color: var(--status-success-text);
+}
+
+.status-processing {
+  background: var(--status-warning-bg);
+  color: var(--status-warning-text);
+  animation: pulseGlow 2s infinite;
+}
+
+.status-error {
+  background: var(--status-error-bg);
+  color: var(--status-error-text);
+}
+
+.job-transcript {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 0;
+}
+
+.transcript-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-height: 200px;
+  overflow-y: auto;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.transcript-row {
+  display: grid;
+  grid-template-columns: 3rem 1fr;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid var(--color-border-default);
+}
+
+.t-time {
+  color: var(--color-accent-primary);
+  opacity: 0.8;
+}
+
+.t-text {
+  color: var(--color-text-secondary);
+}
+
+/* Recorder specific */
+.recorder-wrapper {
+  width: 200px;
+}
+
+/* Estado de Gravação Ativa */
+.btn-recording {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1rem;
+  height: 32px;
+  /* Standard MD button height */
+  border-radius: var(--radius-md);
+  /* Standard button radius */
+  font-weight: 500;
+  transition: transform 0.1s, box-shadow 0.2s;
+  width: 100%;
+}
+
+.btn-recording:active {
+  transform: scale(0.98);
+}
+
+.btn-recording.is-recording {
+  border-color: var(--status-error-text);
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2);
+}
+
+.audio-visualizer-canvas {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  height: 100%;
+  width: 70%;
+  z-index: 10;
+  pointer-events: none;
+  mask-image: linear-gradient(to right, transparent, black 30%);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 30%);
+}
+
+.recording-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 20;
+  position: relative;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.recording-bg-pulse {
+  position: absolute;
+  inset: 0;
+  background: rgba(220, 38, 38, 0.2);
+  animation: pulseBg 2s infinite;
+  z-index: 0;
+}
+
+@keyframes pulseBg {
+  0% {
+    opacity: 0.1;
+  }
+
+  50% {
+    opacity: 0.3;
+  }
+
+  100% {
+    opacity: 0.1;
+  }
+}

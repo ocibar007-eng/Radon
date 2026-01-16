@@ -1,0 +1,7 @@
+
+/* 
+  Styles are now imported directly in index.tsx to ensure 
+  bundler loading order (Design Tokens -> Global -> Components).
+  
+  This file is kept for legacy reference or single-entry builds if configured.
+*/

@@ -1,0 +1,337 @@
+/* Container da Lista */
+.patient-list-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+  animation: fadeIn var(--duration-normal) var(--ease-snappy);
+}
+
+.pl-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border-default);
+}
+
+.pl-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: -0.03em;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.pl-title span {
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.pl-subtitle {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  margin-top: 0.5rem;
+}
+
+/* Filtros: Estilo "Segmented Control" (iOS/macOS style) */
+.pl-filters {
+  display: inline-flex;
+  background: var(--color-bg-tertiary);
+  /* Fundo cinza escuro */
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border-default);
+  margin-bottom: 2rem;
+}
+
+.filter-chip {
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-snappy);
+  white-space: nowrap;
+}
+
+.filter-chip:hover {
+  color: var(--color-text-primary);
+}
+
+.filter-chip.active {
+  background: var(--color-bg-secondary);
+  /* Card destaca sobre o fundo elevated */
+  color: var(--color-text-primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  font-weight: 600;
+}
+
+/* Grid de Cards */
+.pl-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Patient Card - Clean & Professional */
+.patient-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  min-height: 160px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-default);
+  /* Sem borda lateral colorida grossa, design mais flat */
+}
+
+/* Hover suave */
+.patient-card:hover {
+  transform: translateY(-2px) scale(1.01);
+  border-color: var(--color-border-subtle);
+  box-shadow: var(--shadow-md);
+}
+
+.pc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.pc-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.pc-name {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.pc-os {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  background: var(--color-bg-primary);
+  padding: 2px 6px;
+  border-radius: 4px;
+  align-self: flex-start;
+  border: 1px solid var(--color-border-default);
+}
+
+.pc-meta {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Status Badge - Pill Style */
+.pc-status-badge {
+  font-size: 0.7rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 99px;
+  /* Pill */
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pc-status-badge::before {
+  content: '';
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+/* Status Colors (Refinados) */
+.status-waiting {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border-default);
+}
+
+.status-waiting::before {
+  background: var(--color-text-muted);
+}
+
+.status-processing {
+  background: rgba(168, 85, 247, 0.1);
+  color: #d8b4fe;
+  border: 1px solid rgba(168, 85, 247, 0.2);
+}
+
+.status-processing::before {
+  background: #d8b4fe;
+  animation: pulseGlow 1.5s infinite;
+}
+
+.status-ready {
+  background: rgba(59, 130, 246, 0.1);
+  color: #93c5fd;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.status-ready::before {
+  background: #60a5fa;
+}
+
+.status-done {
+  background: rgba(16, 185, 129, 0.1);
+  color: #6ee7b7;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.status-done::before {
+  background: #34d399;
+}
+
+.pc-footer {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border-default);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pc-stats {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.pc-stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.pc-actions {
+  display: flex;
+  gap: 0.5rem;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.patient-card:hover .pc-actions {
+  opacity: 1;
+}
+
+.btn-icon-only {
+  padding: 0.4rem;
+  color: var(--color-text-muted);
+  border-radius: var(--radius-sm);
+  transition: all 0.2s;
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.btn-icon-only:hover {
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-default);
+}
+
+.btn-icon-only:hover.text-error {
+  color: var(--status-error-text);
+}
+
+/* Form Styles */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.form-input {
+  width: 100%;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border-subtle);
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus {
+  border-color: var(--color-accent-primary);
+  box-shadow: 0 0 0 1px var(--color-accent-primary);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border-default);
+}
+
+/* OCR Upload Area no Modal */
+.modal-ocr-upload {
+  border: 1px dashed var(--color-border-subtle);
+  background: var(--color-bg-primary);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.modal-ocr-upload:hover {
+  border-color: var(--color-accent-primary);
+  background: rgba(245, 158, 11, 0.05);
+}
+
+.modal-ocr-upload.modal-ocr-drag-over {
+  border-color: var(--color-accent-primary);
+  background: rgba(245, 158, 11, 0.15);
+  border-style: solid;
+  border-width: 2px;
+  transform: scale(1.02);
+}
+
+.modal-ocr-text {
+  color: var(--color-text-primary);
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.modal-ocr-subtext {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
