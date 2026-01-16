@@ -87,6 +87,9 @@ export interface AttachmentDoc {
     reportGroupHint?: string;
     reportGroupHintSource?: 'auto' | 'manual'; // Rastreia divisão manual
 
+    // Campo para armazenar dados extraídos de templates adaptativos (P0)
+    extractedData?: any; // PedidoMedicoData | TermoConsentimentoData | QuestionarioData | GuiaAutorizacaoData
+
     // Campos para Análise Global de Agrupamento (NOVO)
     globalGroupId?: number; // ID do grupo definido pela análise global
     globalGroupType?: string; // Tipo de exame detectado pela análise global
