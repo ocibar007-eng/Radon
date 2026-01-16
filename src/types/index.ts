@@ -1,24 +1,24 @@
 
 import { z } from 'zod';
 import {
-  OCRFieldSchema,
-  DateCandidateSchema,
-  DateOCRFieldSchema,
-  PatientRegistrationSchema,
-  StructuredFindingSchema,
-  StructuredReportBodySchema,
-  ReportMetadataSchema,
-  ReportPreviewSchema,
-  ReportAnalysisSchema,
-  ClinicalSummarySchema,
-  AudioTranscriptRowSchema,
-  FindingSeveritySchema,
-  LaudadorSchema,
-  ServicoOrigemSchema,
-  PdfGlobalGroupingSchema,
-  ImagesGlobalGroupingSchema,
-  PdfGroupSchema,
-  ImageGroupSchema
+    OCRFieldSchema,
+    DateCandidateSchema,
+    DateOCRFieldSchema,
+    PatientRegistrationSchema,
+    StructuredFindingSchema,
+    StructuredReportBodySchema,
+    ReportMetadataSchema,
+    ReportPreviewSchema,
+    ReportAnalysisSchema,
+    ClinicalSummarySchema,
+    AudioTranscriptRowSchema,
+    FindingSeveritySchema,
+    LaudadorSchema,
+    ServicoOrigemSchema,
+    PdfGlobalGroupingSchema,
+    ImagesGlobalGroupingSchema,
+    PdfGroupSchema,
+    ImageGroupSchema
 } from '../adapters/schemas';
 
 // --- TIPOS INFERIDOS DO ZOD (CORE DATA) ---
@@ -55,7 +55,19 @@ export type ImageGroup = z.infer<typeof ImageGroupSchema>;
 // --- TIPOS DE APLICAÇÃO / UI (MANUAIS) ---
 // Estes tipos não vêm diretamente da IA, mas controlam o estado da interface
 
-export type DocClassification = 'assistencial' | 'laudo_previo' | 'indeterminado';
+/**
+ * Classificação de documentos médicos e administrativos
+ * Expandida para suportar templates adaptativos
+ */
+export type DocClassification =
+    | 'laudo_previo'           // Laudo médico com achados diagnósticos
+    | 'pedido_medico'          // Solicitação de exame (ordem de serviço)
+    | 'termo_consentimento'    // Termo de autorização/esclarecimento
+    | 'questionario'           // Formulário de triagem/anamnese
+    | 'guia_autorizacao'       // Documento de convênio/plano de saúde
+    | 'assistencial'           // Outros documentos assistenciais
+    | 'administrativo'         // Documentos administrativos gerais
+    | 'indeterminado';         // Não identificado/classificado
 
 export interface AttachmentDoc {
     id: string;
@@ -113,8 +125,8 @@ export interface AppSession {
     clinicalSummaryData?: ClinicalSummary; // Usa o tipo inferido aqui
 }
 
-export type ProcessingQueueItem = 
-  | { type: 'header'; docId: string; jobId?: string }
-  | { type: 'doc'; docId: string; jobId?: string }
-  | { type: 'audio'; docId?: string; jobId: string }
-  | { type: 'group_analysis'; docIds: string[]; fullText: string };
+export type ProcessingQueueItem =
+    | { type: 'header'; docId: string; jobId?: string }
+    | { type: 'doc'; docId: string; jobId?: string }
+    | { type: 'audio'; docId?: string; jobId: string }
+    | { type: 'group_analysis'; docIds: string[]; fullText: string };

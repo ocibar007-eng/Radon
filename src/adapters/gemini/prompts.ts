@@ -61,48 +61,71 @@ SAÍDA JSON ESPERADA:
 `,
 
   doc_classify_extract: `
-Você é um processador de documentos médicos inteligente.
+Você é um processador de documentos médicos e administrativos inteligente.
 Tarefas:
 1) Extraia o TEXTO VERBATIM completo (sem reescrever, sem corrigir).
-2) Classifique como: "assistencial" | "laudo_previo" | "indeterminado".
-3) Se for "laudo_previo", gere um report_group_hint DETERMINÍSTICO para agrupar páginas do mesmo laudo. Se não der, deixe vazio.
+2) Classifique o documento em uma das 8 categorias abaixo.
+3) Se for "laudo_previo", gere um report_group_hint DETERMINÍSTICO para agrupar páginas do mesmo laudo.
 
-REGRAS PARA report_group_hint (DETERMINÍSTICO):
-- Priorize IDs de exame/pedido: Protocolo, OS, Pedido, Guia. Se encontrar, retorne SOMENTE "ID:<numero>" (apenas dígitos).
-- NÃO use identificadores do paciente como ID (ex: Prontuário, Atend., CPF, CNS).
-- Se não houver ID, use Paciente + Data no formato "PACIENTE:<NOME>|DATA:<YYYY-MM-DD>".
-- Se houver tipo de exame claro (ex: título "TOMOGRAFIA ... TÓRAX/ABDOME"), SEMPRE acrescente "|EXAME:<TIPO>" para separar exames distintos.
-- Normalize: MAIÚSCULAS, sem acentos, sem pontuação extra, sem palavras variáveis ("CONCLUSÃO", "PÁGINA 2").
-- Não invente: se não houver dados confiáveis, deixe vazio.
+TIPOS DE DOCUMENTO (escolha 1):
 
-EXEMPLOS:
-- "Protocolo 123456" -> "ID:123456"
-- "OS 9988" -> "ID:9988"
-- "Paciente: Maria Silva | Data: 12/03/2024 | RX TORAX" -> "PACIENTE:MARIA SILVA|DATA:2024-03-12|EXAME:RX TORAX"
-- "Prontuário: 108032 | Atend.: 1726555 | Tomografia do Tórax" -> "PACIENTE:...|DATA:...|EXAME:TOMOGRAFIA TORAX"
+>>> "laudo_previo" <<<
+Laudo médico com ACHADOS DIAGNÓSTICOS e CONCLUSÃO.
+Palavras-chave: "IMPRESSÃO DIAGNÓSTICA", "CONCLUSÃO", "OPINIÃO", "ACHADOS", "TÉCNICA"
+Características: Assinatura médica, seções estruturadas, lista de órgãos, CRM
+Exemplos: TC, RM, RX, USG, Endoscopia, Anatomopatológico
 
-CRITÉRIOS DE CLASSIFICAÇÃO RIGOROSOS:
+>>> "pedido_medico" <<<
+Solicitação de exame (guia, ordem de serviço).
+Palavras-chave: "PEDIDO", "SOLICITAÇÃO", "ORDEM DE SERVIÇO", "GUIA MÉDICA"
+Características: Médico solicitante, justificativa clínica, CID, sem resultados
+NÃO TEM: achados, conclusão (é ANTES do exame, não depois!)
 
->>> "laudo_previo" (PRIORIDADE MÁXIMA) <<<
-Deve ser classificado como "laudo_previo" se contiver QUALQUER um dos seguintes, mesmo que seja apenas meia página:
-- Seções como "IMPRESSÃO DIAGNÓSTICA", "CONCLUSÃO", "OPINIÃO", "ACHADOS".
-- Assinatura médica (ex: "Dr.", "CRM", "Assinado digitalmente").
-- Cabeçalhos de clínicas radiológicas (ex: "Imagem Diagnóstica", "Clínica X").
-- Lista de órgãos (ex: "Fígado:", "Rins:", "Pulmões:").
-- Frases soltas que parecem continuação (ex: "...do lobo inferior direito.").
+>>> "termo_consentimento" <<<
+Termo de autorização/esclarecimento para procedimento.
+Palavras-chave: "TERMO", "CONSENTIMENTO", "AUTORIZO", "DECLARO", "ESCLARECIMENTO"
+Características: Declarações do paciente, riscos, benefícios, assinatura do paciente
+Comum: "Termo de uso de contraste", "Termo para sedação"
+
+>>> "questionario" <<<
+Formulário de triagem/anamnese pré-exame.
+Palavras-chave: "QUESTIONÁRIO", "QUESTÕES", "PERGUNTAS", "TRIAGEM"
+Características: Lista de perguntas/respostas, checkboxes, sintomas atuais
+Exemplos: "Questionário pré-RM", "Anamnese pré-procedimento"
+
+>>> "guia_autorizacao" <<<
+Documento de convênio/plano de saúde.
+Palavras-chave: "GUIA", "AUTORIZAÇÃO", "CONVÊNIO", "PLANO DE SAÚDE", "TUSS"
+Características: Número de guia, carteirinha, código de procedimento, validade
+NÃO CONFUNDIR com pedido médico!
 
 >>> "assistencial" <<<
-- Pedidos médicos (guias), receitas, resumo de alta hospitalar, exames de sangue (hemograma, etc).
+Outros documentos assistenciais gerais.
+Exemplos: Receita, resumo de alta, exames laboratoriais, prontuário
+
+>>> "administrativo" <<<
+Documentos administrativos NÃO médicos.
+Exemplos: Comprovante de agendamento, recibo, protocolo de entrega
 
 >>> "indeterminado" <<<
-- APENAS se o documento for ilegível, imagem preta/branca vazia, ou documento não médico (ex: RG, boleto).
-- SE TIVER DÚVIDA ENTRE "laudo_previo" E "indeterminado", ESCOLHA "laudo_previo".
+APENAS se ilegível, imagem vazia/preta, ou documento completamente não médico (RG, boleto).
+SE TIVER DÚVIDA entre tipos médicos, ESCOLHA o mais específico.
 
-Regras:
-- NÃO inventar.
-- NÃO resumir o verbatim.
-- NÃO fundir páginas diferentes aqui.
-Saída: JSON com {classification, texto_verbatim, report_group_hint}.
+REGRAS PARA report_group_hint (se for laudo_previo):
+- Priorize IDs de exame/pedido: Protocolo, OS, Pedido, Guia. Formato: "ID:<numero>"
+- NÃO use  identificadores do paciente como ID (Prontuário, Atend., CPF, CNS).
+- Se não houver ID, use: "PACIENTE:<NOME>|DATA:<YYYY-MM-DD>|EXAME:<TIPO>"
+- Normalize: MAIÚSCULAS, sem acentos, sem pontuação extra.
+- Se não houver dados confiáveis, deixe vazio.
+
+EXEMPLOS de classificação:
+- Página com "IMPRESSÃO DIAGNÓSTICA: Normal" + assinatura → "laudo_previo"
+- "PEDIDO DE TOMOGRAFIA / Justificativa: dor torácica" → "pedido_medico"
+- "TERMO DE CONSENTIMENTO PARA USO DE CONTRASTE / Declaro que..." → "termo_consentimento"
+- "QUESTIONÁRIO PRÉ-EXAME / Sintomas atuais: [ ] Dor" → "questionario"
+- "GUIA DE AUTORIZAÇÃO / Nº 12345 / Válido até 30/01" → "guia_autorizacao"
+
+Saída: JSON com { "classification": "...", "texto_verbatim": "...", "report_group_hint": "..." }
 `,
 
   doc_grouping: `
