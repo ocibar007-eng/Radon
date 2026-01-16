@@ -1,18 +1,24 @@
 
 import { z } from 'zod';
-import { 
-  OCRFieldSchema, 
-  DateCandidateSchema, 
-  DateOCRFieldSchema, 
-  PatientRegistrationSchema, 
-  StructuredFindingSchema, 
-  StructuredReportBodySchema, 
-  ReportMetadataSchema, 
-  ReportPreviewSchema, 
-  ReportAnalysisSchema, 
-  ClinicalSummarySchema, 
+import {
+  OCRFieldSchema,
+  DateCandidateSchema,
+  DateOCRFieldSchema,
+  PatientRegistrationSchema,
+  StructuredFindingSchema,
+  StructuredReportBodySchema,
+  ReportMetadataSchema,
+  ReportPreviewSchema,
+  ReportAnalysisSchema,
+  ClinicalSummarySchema,
   AudioTranscriptRowSchema,
-  FindingSeveritySchema
+  FindingSeveritySchema,
+  LaudadorSchema,
+  ServicoOrigemSchema,
+  PdfGlobalGroupingSchema,
+  ImagesGlobalGroupingSchema,
+  PdfGroupSchema,
+  ImageGroupSchema
 } from '../adapters/schemas';
 
 // --- TIPOS INFERIDOS DO ZOD (CORE DATA) ---
@@ -38,6 +44,14 @@ export type ClinicalDocSummary = ClinicalSummary;
 
 export type AudioTranscriptRow = z.infer<typeof AudioTranscriptRowSchema>;
 
+// Tipos para Análise Global de Agrupamento
+export type Laudador = z.infer<typeof LaudadorSchema>;
+export type ServicoOrigem = z.infer<typeof ServicoOrigemSchema>;
+export type PdfGlobalGroupingResult = z.infer<typeof PdfGlobalGroupingSchema>;
+export type ImagesGlobalGroupingResult = z.infer<typeof ImagesGlobalGroupingSchema>;
+export type PdfGroup = z.infer<typeof PdfGroupSchema>;
+export type ImageGroup = z.infer<typeof ImageGroupSchema>;
+
 // --- TIPOS DE APLICAÇÃO / UI (MANUAIS) ---
 // Estes tipos não vêm diretamente da IA, mas controlam o estado da interface
 
@@ -50,17 +64,25 @@ export interface AttachmentDoc {
     previewUrl: string;
     status: 'pending' | 'processing' | 'done' | 'error';
     errorMessage?: string;
-    
+
     classification: DocClassification;
     classificationSource?: 'auto' | 'manual'; // Rastreia se foi IA ou Usuário
-    
+
     isRecoveredBySystem?: boolean; // Indica heurística de fallback
-    
+
     verbatimText?: string;
-    
+
     reportGroupHint?: string;
     reportGroupHintSource?: 'auto' | 'manual'; // Rastreia divisão manual
-    
+
+    // Campos para Análise Global de Agrupamento (NOVO)
+    globalGroupId?: number; // ID do grupo definido pela análise global
+    globalGroupType?: string; // Tipo de exame detectado pela análise global
+    globalGroupSource?: string; // Nome do arquivo PDF de origem para agrupamento
+    isProvisorio?: boolean; // Laudo provisório (sem valor legal)
+    isAdendo?: boolean; // É errata/adendo de outro laudo
+    tipoPagina?: 'laudo_previo' | 'pedido_medico' | 'assistencial' | 'administrativo' | 'pagina_vazia' | 'outro';
+
     summary?: string;
     detailedAnalysis?: ReportAnalysis; // Usa o tipo inferido aqui
     isUnified?: boolean;

@@ -6,7 +6,7 @@ import { PROMPTS } from "./gemini/prompts";
 import { ReportAnalysis, ClinicalSummary, AttachmentDoc, AudioTranscriptRow, AppSession, PatientRegistrationDetails, DocClassification } from "../types";
 import { safeJsonParse } from "../utils/json";
 import { withExponentialBackoff } from "../utils/retry";
-import { PatientRegistrationSchema, DocumentAnalysisSchema, ReportAnalysisSchema, ClinicalSummarySchema, AudioTranscriptionSchema } from "./schemas";
+import { PatientRegistrationSchema, DocumentAnalysisSchema, ReportAnalysisSchema, ClinicalSummarySchema, AudioTranscriptionSchema, PdfGlobalGroupingSchema, ImagesGlobalGroupingSchema, PdfGlobalGroupingResult, ImagesGlobalGroupingResult } from "./schemas";
 
 const DEBUG_LOGS = true;
 
@@ -105,6 +105,191 @@ export async function groupPagesWithAI(docsMetadata: Array<{ id: string, source:
   });
 
   return safeJsonParse(response.text || '{ "groups": [] }', { groups: [] });
+}
+
+/**
+ * Análise Global de PDF - Identifica quantos laudos existem e quais páginas pertencem a cada um.
+ * Esta função envia TODAS as páginas do PDF de uma vez para o modelo tomar uma decisão com contexto completo.
+ */
+export async function analyzePdfGlobalGrouping(pageBlobs: Blob[]): Promise<PdfGlobalGroupingResult> {
+  if (pageBlobs.length === 0) {
+    return {
+      analise: 'PDF vazio',
+      total_laudos: 0,
+      total_paginas: 0,
+      grupos: [],
+      paginas_nao_agrupadas: [],
+      alertas: ['PDF não contém páginas']
+    };
+  }
+
+  if (DEBUG_LOGS) {
+    console.log('[Debug][GlobalGrouping] analyzePdfGlobalGrouping:start', {
+      totalPages: pageBlobs.length
+    });
+  }
+
+  try {
+    // Converter todas as páginas para parts do Gemini
+    const pageParts = await Promise.all(
+      pageBlobs.map(async (blob) => {
+        return await fileToPart(blob);
+      })
+    );
+
+    // Criar mensagem com todas as páginas + prompt
+    const response = await generate(CONFIG.MODEL_NAME, {
+      contents: {
+        role: 'user',
+        parts: [
+          ...pageParts,
+          { text: `As ${pageBlobs.length} imagens acima são as páginas de um PDF médico, na ordem em que aparecem no documento.\n\n${PROMPTS.pdf_global_grouping}` }
+        ]
+      },
+      config: {
+        responseMimeType: 'application/json',
+        // Usar thinking budget maior para decisão complexa de agrupamento
+        thinkingConfig: { thinkingBudget: 2048 }
+      }
+    });
+
+    const fallback: PdfGlobalGroupingResult = {
+      analise: 'Fallback: assumindo documento único',
+      total_laudos: 1,
+      total_paginas: pageBlobs.length,
+      grupos: [{
+        laudo_id: 1,
+        paginas: pageBlobs.map((_, i) => i + 1),
+        tipo_detectado: 'Documento não classificado',
+        tipo_paginas: pageBlobs.map(() => 'laudo_previo'),
+        is_provisorio: false,
+        is_adendo: false,
+        confianca: 'baixa'
+      }],
+      paginas_nao_agrupadas: [],
+      alertas: ['Análise global usou fallback - verificar manualmente']
+    };
+
+    const result = safeJsonParse(response.text || '{}', fallback, PdfGlobalGroupingSchema);
+
+    if (DEBUG_LOGS) {
+      console.log('[Debug][GlobalGrouping] analyzePdfGlobalGrouping:result', {
+        totalLaudos: result.total_laudos,
+        grupos: result.grupos.length,
+        alertas: result.alertas
+      });
+    }
+
+    return result;
+  } catch (error) {
+    console.error('[GlobalGrouping] Erro na análise global de PDF:', error);
+
+    // Retornar fallback em caso de erro
+    return {
+      analise: 'Erro na análise - fallback aplicado',
+      total_laudos: 1,
+      total_paginas: pageBlobs.length,
+      grupos: [{
+        laudo_id: 1,
+        paginas: pageBlobs.map((_, i) => i + 1),
+        tipo_detectado: 'Erro de processamento',
+        tipo_paginas: [],
+        is_provisorio: false,
+        is_adendo: false,
+        confianca: 'baixa'
+      }],
+      paginas_nao_agrupadas: [],
+      alertas: [`Erro: ${error instanceof Error ? error.message : 'Erro desconhecido'}`]
+    };
+  }
+}
+
+/**
+ * Análise Global de Imagens Soltas - Quando múltiplas imagens são enviadas juntas.
+ * Identifica se são partes do mesmo laudo ou de laudos diferentes.
+ */
+export async function analyzeImagesGlobalGrouping(imageBlobs: Blob[]): Promise<ImagesGlobalGroupingResult> {
+  if (imageBlobs.length <= 1) {
+    return {
+      analise: imageBlobs.length === 0 ? 'Nenhuma imagem' : 'Imagem única',
+      total_laudos: imageBlobs.length,
+      grupos: imageBlobs.length === 1 ? [{
+        laudo_id: 1,
+        indices: [0],
+        tipo_detectado: 'Imagem única',
+        confianca: 'alta'
+      }] : [],
+      alertas: []
+    };
+  }
+
+  if (DEBUG_LOGS) {
+    console.log('[Debug][GlobalGrouping] analyzeImagesGlobalGrouping:start', {
+      totalImages: imageBlobs.length
+    });
+  }
+
+  try {
+    // Converter todas as imagens para parts do Gemini
+    const imageParts = await Promise.all(
+      imageBlobs.map(async (blob) => {
+        return await fileToPart(blob);
+      })
+    );
+
+    // Criar mensagem com todas as imagens + prompt
+    const response = await generate(CONFIG.MODEL_NAME, {
+      contents: {
+        role: 'user',
+        parts: [
+          ...imageParts,
+          { text: `As ${imageBlobs.length} imagens acima foram enviadas juntas pelo usuário.\n\n${PROMPTS.images_global_grouping}` }
+        ]
+      },
+      config: {
+        responseMimeType: 'application/json',
+        thinkingConfig: { thinkingBudget: 1024 }
+      }
+    });
+
+    const fallback: ImagesGlobalGroupingResult = {
+      analise: 'Fallback: assumindo mesmo laudo',
+      total_laudos: 1,
+      grupos: [{
+        laudo_id: 1,
+        indices: imageBlobs.map((_, i) => i),
+        tipo_detectado: 'Documento não classificado',
+        confianca: 'baixa'
+      }],
+      alertas: ['Análise global de imagens usou fallback - verificar manualmente']
+    };
+
+    const result = safeJsonParse(response.text || '{}', fallback, ImagesGlobalGroupingSchema);
+
+    if (DEBUG_LOGS) {
+      console.log('[Debug][GlobalGrouping] analyzeImagesGlobalGrouping:result', {
+        totalLaudos: result.total_laudos,
+        grupos: result.grupos.length,
+        alertas: result.alertas
+      });
+    }
+
+    return result;
+  } catch (error) {
+    console.error('[GlobalGrouping] Erro na análise global de imagens:', error);
+
+    return {
+      analise: 'Erro na análise - fallback aplicado',
+      total_laudos: 1,
+      grupos: [{
+        laudo_id: 1,
+        indices: imageBlobs.map((_, i) => i),
+        tipo_detectado: 'Erro de processamento',
+        confianca: 'baixa'
+      }],
+      alertas: [`Erro: ${error instanceof Error ? error.message : 'Erro desconhecido'}`]
+    };
+  }
 }
 
 export async function extractReportDetailedMetadata(fullText: string): Promise<ReportAnalysis> {

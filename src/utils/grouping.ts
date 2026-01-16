@@ -17,10 +17,13 @@ export interface ReportGroup {
 
 /**
  * Agrupa documentos visualmente.
- * 1. Se veio de PDF (source contém "PDF Pg"), agrupa pelo nome do arquivo base + Dica da IA.
- *    - Isso permite que um único PDF contendo 2 exames (ex: Abdome e Tórax) seja dividido em 2 grupos se os hints forem diferentes.
- * 2. Se tem hint da IA, usa o hint.
- * 3. Se for upload avulso, fica sozinho.
+ *
+ * Ordem de prioridade para agrupamento:
+ * 1. globalGroupId (análise global de PDF) - MAIS CONFIÁVEL
+ * 2. MANUAL_SPLIT (divisão manual pelo usuário)
+ * 3. PDF source + hint da IA
+ * 4. Hint forte da IA para imagens soltas
+ * 5. Documento avulso (sem agrupamento)
  */
 export function groupDocsVisuals(docs: AttachmentDoc[]): ReportGroup[] {
   const groups = new Map<string, AttachmentDoc[]>();
@@ -32,32 +35,53 @@ export function groupDocsVisuals(docs: AttachmentDoc[]): ReportGroup[] {
     // Normaliza o hint para evitar nulos e diferenças de caixa
     const hint = (doc.reportGroupHint || '').trim();
     const hasStrongHint = isStrongReportHint(hint);
+    const isManualSplit = hint.startsWith('MANUAL_SPLIT:');
 
-    // Lógica 1: Agrupamento por origem de arquivo PDF
-    // Ex: "MeuExame.pdf PDF Pg 1" -> Key Base: "MeuExame.pdf"
-    if (doc.source.includes('PDF Pg')) {
-      const normalizedHint = hint || 'default';
-      const baseName = doc.source.split(' PDF Pg ')[0]; // Remove o sufixo da página
-
-      // COMBINA NOME DO ARQUIVO + HINT DA IA (pode ser MANUAL_SPLIT)
-      const key = `pdf::${baseName}::${normalizedHint}`;
-
+    // PRIORIDADE 1: Agrupamento Global (análise global de PDF)
+    // Este é o método mais confiável pois a IA viu todas as páginas juntas
+    if (doc.globalGroupId !== undefined && doc.globalGroupSource && !isManualSplit) {
+      const key = `global::${doc.globalGroupSource}::${doc.globalGroupId}`;
       const list = groups.get(key) || [];
       list.push(doc);
       groups.set(key, list);
+      return;
     }
-    // Lógica 2: Agrupamento por Hint da IA (se disponível e não for PDF split)
-    else if (hasStrongHint) {
+
+    // PRIORIDADE 2: Divisão manual pelo usuário (MANUAL_SPLIT)
+    // Respeita sempre a decisão do usuário
+    if (isManualSplit && doc.source.includes('PDF Pg')) {
+      const baseName = doc.source.split(' PDF Pg ')[0];
+      const key = `pdf::${baseName}::${hint}`;
+      const list = groups.get(key) || [];
+      list.push(doc);
+      groups.set(key, list);
+      return;
+    }
+
+    // PRIORIDADE 3: Agrupamento por origem de arquivo PDF + hint da IA
+    // Fallback para quando não há análise global
+    if (doc.source.includes('PDF Pg')) {
+      const normalizedHint = hint || 'default';
+      const baseName = doc.source.split(' PDF Pg ')[0];
+      const key = `pdf::${baseName}::${normalizedHint}`;
+      const list = groups.get(key) || [];
+      list.push(doc);
+      groups.set(key, list);
+      return;
+    }
+
+    // PRIORIDADE 4: Agrupamento por Hint da IA (imagens soltas)
+    if (hasStrongHint) {
       const key = `hint::${hint}`;
       const list = groups.get(key) || [];
       list.push(doc);
       groups.set(key, list);
+      return;
     }
-    // Lógica 3: Documento avulso (imagem solta sem hint forte)
-    else {
-      const key = `single::${doc.id}`;
-      groups.set(key, [doc]);
-    }
+
+    // PRIORIDADE 5: Documento avulso (imagem solta sem hint forte)
+    const key = `single::${doc.id}`;
+    groups.set(key, [doc]);
   });
 
   const result: ReportGroup[] = [];
@@ -65,7 +89,8 @@ export function groupDocsVisuals(docs: AttachmentDoc[]): ReportGroup[] {
   // Contagem para saber se um PDF foi quebrado em múltiplos grupos
   const pdfBaseNameCounts = new Map<string, number>();
   groups.forEach((_, key) => {
-    if (key.startsWith('pdf::')) {
+    // Conta tanto grupos globais quanto PDF tradicionais
+    if (key.startsWith('global::') || key.startsWith('pdf::')) {
       const baseName = key.split('::')[1];
       pdfBaseNameCounts.set(baseName, (pdfBaseNameCounts.get(baseName) || 0) + 1);
     }
@@ -90,7 +115,40 @@ export function groupDocsVisuals(docs: AttachmentDoc[]): ReportGroup[] {
     // Título Amigável
     let title = representative.source;
 
-    if (key.startsWith('pdf::')) {
+    // PRIORIDADE 1: Agrupamento Global - usar tipo detectado
+    if (key.startsWith('global::')) {
+      const parts = key.split('::');
+      const baseName = parts[1];
+      const globalGroupId = parts[2];
+
+      // Verificar se há múltiplos grupos do mesmo PDF
+      const sameBasePdfGroups = Array.from(groups.keys()).filter(k =>
+        k.startsWith(`global::${baseName}::`)
+      ).length;
+
+      // Usar o tipo detectado pela análise global
+      const globalType = representative.globalGroupType;
+
+      if (sameBasePdfGroups > 1 && globalType) {
+        // Múltiplos laudos no mesmo PDF - mostrar tipo
+        title = `${baseName} - ${globalType}`;
+      } else if (globalType && globalType !== 'Documento não classificado' && globalType !== 'Indefinido') {
+        // PDF com único laudo mas tipo identificado
+        title = `${baseName} (${globalType})`;
+      } else {
+        title = baseName;
+      }
+
+      // Indicar se é provisório ou adendo
+      if (representative.isProvisorio) {
+        title += ' [Provisório]';
+      }
+      if (representative.isAdendo) {
+        title += ' [Adendo]';
+      }
+    }
+    // PRIORIDADE 2-3: PDF tradicional
+    else if (key.startsWith('pdf::')) {
       const parts = key.split('::');
       const baseName = parts[1];
       const rawHint = parts[2];
@@ -101,14 +159,16 @@ export function groupDocsVisuals(docs: AttachmentDoc[]): ReportGroup[] {
 
       const displayHint = hintLabel.startsWith('MANUAL_SPLIT:')
         ? formatManualHint(hintLabel)
-        : hintLabel;
+        : formatGlobalHint(hintLabel);
 
       if (hasMultipleGroups && displayHint) {
         title = `${baseName} - ${displayHint}`;
       } else {
         title = baseName;
       }
-    } else if (key.startsWith('hint::')) {
+    }
+    // PRIORIDADE 4: Hint da IA
+    else if (key.startsWith('hint::')) {
       title = representative.reportGroupHint || 'Grupo Identificado';
     }
 
@@ -145,6 +205,36 @@ function formatManualHint(hint: string): string {
     return `Laudo Manual ${parts[2]}`;
   }
   return 'Laudo Manual';
+}
+
+/**
+ * Formata hint global para exibição amigável.
+ * Ex: "GLOBAL:1|PDF:arquivo.pdf|TIPO:TOMOGRAFIA DE TORAX" -> "TOMOGRAFIA DE TORAX"
+ */
+function formatGlobalHint(hint: string): string {
+  if (!hint) return '';
+
+  // Extrair o tipo do hint global
+  const tipoMatch = hint.match(/\|TIPO:([^|]+)/i);
+  if (tipoMatch && tipoMatch[1]) {
+    const tipo = tipoMatch[1].trim();
+    if (tipo !== 'Documento não classificado' && tipo !== 'Indefinido') {
+      return tipo;
+    }
+  }
+
+  // Extrair o exame do hint tradicional
+  const exameMatch = hint.match(/\|EXAME:([^|]+)/i);
+  if (exameMatch && exameMatch[1]) {
+    return exameMatch[1].trim();
+  }
+
+  // Se for ID, mostrar ID
+  if (hint.startsWith('ID:')) {
+    return hint;
+  }
+
+  return '';
 }
 
 /**
@@ -188,5 +278,9 @@ function isStrongReportHint(hint: string): boolean {
   const normalized = hint.trim().toUpperCase();
   if (!normalized) return false;
   if (normalized.startsWith('ID:')) return true;
-  return normalized.includes('|EXAME:');
+  if (normalized.startsWith('GLOBAL:')) return true;
+  if (normalized.startsWith('MANUAL_GROUP:')) return true; // Agrupamento manual de imagens simultâneas
+  if (normalized.includes('|EXAME:')) return true;
+  if (normalized.includes('|TIPO:')) return true; // Tipo detectado pela análise global
+  return false;
 }

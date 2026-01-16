@@ -29,7 +29,13 @@ function cleanMarkdownJson(text: string): string {
 export function safeJsonParse<T>(text: string, fallback: T, schema?: ZodType<T, any, any>): T {
   try {
     const cleaned = cleanMarkdownJson(text);
-    const parsed = JSON.parse(cleaned);
+    let parsed = JSON.parse(cleaned);
+
+    // CORREÇÃO: Se a IA retornou um array quando esperávamos um objeto, pega o primeiro item
+    if (Array.isArray(parsed) && parsed.length > 0 && schema) {
+      console.warn('[JSON] IA retornou array ao invés de object, pegando primeiro elemento');
+      parsed = parsed[0];
+    }
 
     if (schema) {
       const result = schema.safeParse(parsed);

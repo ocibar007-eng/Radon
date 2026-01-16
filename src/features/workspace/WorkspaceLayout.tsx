@@ -18,6 +18,8 @@ import { PreviousReportsTab } from '../reports/PreviousReportsTab';
 import { AudioJobsPanel } from '../audio/AudioJobsPanel';
 import { OcrImportModal } from './OcrImportModal';
 import { HistoryItem } from '../ocr-batch/types';
+import { GroupingConfirmDialog } from '../../components/GroupingConfirmDialog';
+import { MultipleImagesDialog } from '../../components/MultipleImagesDialog';
 
 // Architecture Imports
 import { useSession } from '../../context/SessionContext';
@@ -52,6 +54,9 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
     // 2. Lógica de Ações (Refatorada)
     const {
         isGeneratingReport,
+        pendingImages,
+        handleMultipleImagesConfirm,
+        cancelMultipleImagesDialog,
         handleFileUpload,
         handleFilesUpload,
         removeDoc,
@@ -748,6 +753,15 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
                         <p className="text-zinc-500 text-sm mt-4">Pressione ESC para cancelar</p>
                     </div>
                 </div>
+            )}
+
+            {/* Diálogo de Múltiplas Imagens */}
+            {pendingImages && (
+                <MultipleImagesDialog
+                    images={pendingImages.images}
+                    onConfirm={handleMultipleImagesConfirm}
+                    onCancel={cancelMultipleImagesDialog}
+                />
             )}
         </div>
     );

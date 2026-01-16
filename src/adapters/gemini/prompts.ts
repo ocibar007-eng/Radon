@@ -127,28 +127,71 @@ Saída: JSON estrito no formato:
 `,
 
   report_structured_analysis: `
-Você é um especialista em leitura de laudos radiológicos e precisa gerar uma VISUALIZAÇÃO ESTRUTURADA (para UI) a partir do TEXTO VERBATIM de um documento.
+Você é um especialista em leitura de laudos médicos. Extraia informações COMPLETAS e FIÉIS ao documento original.
 
 OBJETIVO:
-Gerar um "resumo estruturado por órgãos/estruturas" que fique bonito e comparável, sem perder achados importantes.
+1. Transcrever o laudo de forma VERBATIM (texto exato, sem editar)
+2. Extrair metadados estruturados
+3. Identificar corretamente o LAUDADOR (quem assinou)
+
+CAMPOS CRÍTICOS A EXTRAIR:
+
+>>> LAUDADOR (QUEM ASSINOU) <<<
+- Procure por assinatura MANUSCRITA ou DIGITAL no FINAL do documento
+- Formato comum: "Dr(a). [Nome] - CRM [número]"
+- NÃO CONFUNDA com "Responsável Técnico" ou "RT" do CABEÇALHO - isso NÃO é o laudador!
+- Se houver assinatura mas nome ilegível: { "nome": "Ilegível", "crm": "..." }
+- Se não houver assinatura identificável: { "nome": "Não identificado", "crm": null }
+- Laudos provisórios ("sem valor legal") têm apenas código alfanumérico digital, não assinatura manuscrita
+
+>>> SERVIÇO DE ORIGEM <<<
+- Procure no LOGO/CABEÇALHO ou RODAPÉ
+- Exemplos: "Clínica Diagnóstica X", "Hospital Y", "Laboratório Z"
+- Se não encontrar nome específico: "Serviço externo não identificado"
+
+>>> TIPO DE EXAME (CATEGORIA) <<<
+Classifique em UMA das categorias:
+- "imagem_radiologia" (RX, TC, RM, USG, PET-TC, Mamografia, etc)
+- "biopsia_anatomopatologico" (Biópsia, AP, Citopatológico)
+- "endoscopia" (EDA, Colonoscopia, Broncoscopia)
+- "outros" (quando não se encaixar nas anteriores)
+
+>>> DATA DE REALIZAÇÃO <<<
+- Procure por: "Data do exame", "Realizado em", "Data de atendimento"
+- CUIDADO: Não confundir com "Data de nascimento" do paciente
+- Se houver múltiplas datas, priorize a que estiver próxima ao contexto de realização
+
+>>> IMPRESSÃO DIAGNÓSTICA <<<
+- Transcreva INTEGRALMENTE (não resuma)
+- Inclua todo o texto após "IMPRESSÃO:", "CONCLUSÃO:", "OPINIÃO:"
+- Preserve formatação (bullets, numeração, etc)
 
 REGRAS CRÍTICAS:
-- Se o texto parecer cortado ou incompleto (ex: termina subitamente), EXTRAIA TUDO O QUE ESTIVER DISPONÍVEL. Não retorne erro, não retorne JSON vazio.
+- Se o texto parecer cortado ou incompleto: EXTRAIA TUDO O QUE ESTIVER DISPONÍVEL e marque documento_incompleto: true
 - NÃO inventar achados. Se não estiver no texto, não inclua.
 - Preservar medidas em ***negrito*** (ex: ***2.5 cm***).
-- Se houver apenas conclusão, preencha apenas o campo de conclusão.
-- Se houver apenas achados (sem conclusão), preencha apenas os achados.
 
 SAÍDA JSON ESPERADA:
 {
   "report_metadata": {
-    "tipo_exame": "...",
-    "os": "Número da OS/Pedido encontrado NESTA página",
-    "paciente": "Nome do paciente encontrado NESTA página",
+    "tipo_exame": "Ex: TOMOGRAFIA DE TÓRAX E ABDOME",
+    "categoria_exame": "imagem_radiologia" | "biopsia_anatomopatologico" | "endoscopia" | "outros",
+    "os": "Número da OS/Pedido encontrado",
+    "paciente": "Nome do paciente",
+    "servico_origem": {
+      "nome": "Clínica/Hospital X",
+      "identificado_em": "cabecalho" | "rodape" | "nao_identificado"
+    },
     "origem": "interno_sabin" | "externo",
-    "datas_encontradas": [{ "rotulo": "...", "data_literal": "..." }],
-    "data_realizacao": "...",
-    "criterio_data_realizacao": "..."
+    "datas_encontradas": [{ "rotulo": "...", "data_literal": "...", "data_normalizada": "YYYY-MM-DD" }],
+    "data_realizacao": "YYYY-MM-DD",
+    "criterio_data_realizacao": "Explicação de qual campo foi usado"
+  },
+  "laudador": {
+    "nome": "Dr(a). Nome Completo",
+    "crm": "CRM 12345/UF",
+    "identificado_em": "assinatura_manuscrita" | "assinatura_digital" | "nao_identificado",
+    "observacao": "Qualquer nota relevante (ex: assinatura parcialmente legível)"
   },
   "preview": { "titulo": "...", "descricao": "..." },
   "structured": {
@@ -162,9 +205,10 @@ SAÍDA JSON ESPERADA:
         "pontos_de_comparacao": ["Destaques curtos"]
       }
     ],
-    "impressao_diagnostica_ou_conclusao_literal": "Texto direto sem prefixos como 'Conclusão:', 'Impressão:'.",
+    "impressao_diagnostica_ou_conclusao_literal": "TEXTO INTEGRAL da impressão/conclusão, sem editar",
     "alertas_de_fidelidade": []
   },
+  "documento_incompleto": false,
   "possible_duplicate": { "is_possible_duplicate": false, "reason": null }
 }
 
@@ -214,6 +258,154 @@ Transcreva o áudio de forma BRUTA e LITERAL.
 [ruído], [barulho], [tosse], [risos], [pausa], [sobreposição de vozes], [ininteligível], [incerto: ...]
 - Se houver timestamps, preserve; se não, use "—".
 Saída: JSON {rows:[{tempo, orador, texto}]} sem texto extra.
+`,
+
+  // Prompt para análise global de PDF - identifica quantos laudos existem e quais páginas pertencem a cada um
+  pdf_global_grouping: `
+Você está analisando TODAS as páginas de um PDF médico.
+Sua tarefa é identificar QUANTOS LAUDOS DISTINTOS existem e quais páginas pertencem a cada um.
+
+CONCEITO FUNDAMENTAL:
+- Um PDF pode conter MÚLTIPLOS LAUDOS sequenciais do MESMO paciente
+- Exemplo: TC Tórax (páginas 1-2) + TC Abdome (páginas 3-4) = 2 LAUDOS DISTINTOS
+- Mesmo paciente, mesma data, mesmo serviço = ainda assim são laudos SEPARADOS se tiverem títulos diferentes
+
+COMO IDENTIFICAR ONDE UM LAUDO TERMINA E OUTRO COMEÇA:
+
+>>> INÍCIO DE UM LAUDO <<<
+- Página com TÍTULO do exame (ex: "TOMOGRAFIA COMPUTADORIZADA DE TÓRAX")
+- Pode ter cabeçalho com dados do paciente/OS
+- Alguns têm paginação "1 de X" (mas não é obrigatório)
+
+>>> FIM DE UM LAUDO <<<
+- Assinatura manuscrita (nome + CRM caligrafado) OU
+- Assinatura digital com código alfanumérico (laudos provisórios) OU
+- Próxima página já é título de outro exame
+
+>>> LAUDOS PROVISÓRIOS (sem valor legal) <<<
+- Marcação "Pré-visualização. Laudo sem valor legal." no cabeçalho
+- NÃO tem assinatura manuscrita, apenas código digital
+- São laudos válidos para análise, apenas não oficializados
+
+>>> TIPOS DE DOCUMENTO <<<
+Para cada página, classifique como:
+- "laudo_previo": Laudo médico com achados/conclusão
+- "pedido_medico": Guia de solicitação de exame
+- "assistencial": Receita, resumo de alta, etc
+- "administrativo": Termo de consentimento, autorização
+- "pagina_vazia": Página em branco (scan errado)
+- "outro": Documento não identificado
+
+CRITÉRIOS DE SEPARAÇÃO DE LAUDOS:
+1. Novo TÍTULO de exame = novo laudo (mesmo que paciente/data sejam iguais!)
+2. Assinatura seguida de novo título = fim de um laudo, início de outro
+3. TC Tórax ≠ TC Abdome (são 2 laudos, não 1!)
+
+REGRAS ADICIONAIS:
+
+>>> FOLLOW-UP (MESMO EXAME, DATAS DIFERENTES) <<<
+- Se houver 2+ laudos do MESMO tipo de exame mas de DATAS DIFERENTES:
+- Cada um é um laudo SEPARADO (não agrupar!)
+- Exemplo: TC Tórax de 01/01/2025 + TC Tórax de 15/01/2025 = 2 laudos
+
+>>> ERRATA/ADENDO <<<
+- Páginas com "ERRATA", "ADENDO", "COMPLEMENTO" no título:
+- Vincular ao laudo que referenciam (mesmo OS/data)
+- Marcar como 'is_adendo: true'
+
+>>> PÁGINAS EM BRANCO (SCAN ERRADO) <<<
+- Páginas praticamente vazias (fundo branco, sem texto significativo):
+- Marcar tipo_pagina como 'pagina_vazia'
+- NÃO incluir em nenhum grupo de laudo
+
+>>> VALIDAÇÃO DE SEGURANÇA CRÍTICA - PACIENTES TROCADOS <<<
+**ATENÇÃO: Este é um alerta de SEGURANÇA CLÍNICA.**
+- Para CADA grupo/laudo, extraia o NOME DO PACIENTE
+- Se o PDF contém laudos de PACIENTES DIFERENTES:
+  - ADICIONE alerta CRÍTICO nos alertas[]
+  - Formato: "⚠️ SEGURANÇA: PDF contém laudos de múltiplos pacientes: [Nome1] vs [Nome2]"
+  - AINDA ASSIM agrupe normalmente por laudo (não misture), mas sinalize o problema
+- O sistema vai bloquear a apresentação desses grupos para evitar erros clínicos
+
+>>> PÁGINAS FORA DE ORDEM <<<
+- Se páginas parecerem fora de sequência lógica:
+- Tentar reordenar pelo conteúdo (continuidade de texto, paginação "X de Y")
+- Se não for possível determinar ordem, manter ordem original
+- Adicionar alerta
+
+EXEMPLO DE PDF COM 2 LAUDOS:
+- Páginas 1-2: "TOMOGRAFIA DE TÓRAX" → achados → conclusão → assinatura
+- Páginas 3-4: "TOMOGRAFIA DE ABDOME TOTAL" → achados → conclusão → assinatura
+→ São 2 laudos distintos!
+
+SAÍDA JSON:
+{
+  "analise": "Descrição do que foi identificado no PDF",
+  "total_laudos": 2,
+  "total_paginas": 4,
+  "grupos": [
+    {
+      "laudo_id": 1,
+      "paginas": [1, 2],
+      "tipo_detectado": "TOMOGRAFIA DE TORAX",
+      "nome_paciente": "Nome do Paciente Laudo 1",
+      "tipo_paginas": ["laudo_previo", "laudo_previo"],
+      "is_provisorio": false,
+      "is_adendo": false,
+      "confianca": "alta"
+    },
+    {
+      "laudo_id": 2,
+      "paginas": [3, 4],
+      "tipo_detectado": "TOMOGRAFIA DE ABDOME TOTAL",
+      "nome_paciente": "Nome do Paciente Laudo 2",
+      "tipo_paginas": ["laudo_previo", "laudo_previo"],
+      "is_provisorio": false,
+      "is_adendo": false,
+      "confianca": "alta"
+    }
+  ],
+  "paginas_nao_agrupadas": [],
+  "alertas": []
+}
+`,
+
+  // Prompt para análise global de imagens soltas (quando múltiplas imagens são enviadas juntas)
+  images_global_grouping: `
+Você está analisando múltiplas IMAGENS que foram enviadas juntas.
+Sua tarefa é identificar se são partes do MESMO laudo ou de laudos DIFERENTES.
+
+COMO IDENTIFICAR MESMO LAUDO:
+1. Mesmo cabeçalho (paciente, OS, data)
+2. Mesmo layout/logo do serviço
+3. Uma é continuação da outra (ex: parte 1 tem achados, parte 2 tem conclusão)
+4. Mesmo tipo de exame
+
+COMO IDENTIFICAR LAUDOS DIFERENTES:
+1. Cabeçalhos com pacientes diferentes
+2. Tipos de exame diferentes (ex: TC Tórax vs TC Abdome = 2 laudos!)
+3. Datas de realização diferentes (mesmo que mesmo tipo de exame)
+4. Serviços/clínicas diferentes
+
+SE NÃO FOR POSSÍVEL DETERMINAR COM CERTEZA:
+- Se metadados coincidem (paciente, OS, data, tipo): agrupar com confiança "media"
+- Se faltam metadados mas layout é similar: agrupar com confiança "baixa"
+- Adicionar alerta para revisão manual
+
+SAÍDA JSON:
+{
+  "analise": "Descrição do que foi identificado",
+  "total_laudos": 1,
+  "grupos": [
+    {
+      "laudo_id": 1,
+      "indices": [0, 1],
+      "tipo_detectado": "...",
+      "confianca": "alta" | "media" | "baixa"
+    }
+  ],
+  "alertas": ["Lista de alertas se houver"]
+}
 `,
 
   compile_markdown: `

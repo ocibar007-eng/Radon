@@ -137,15 +137,77 @@ export const StructuredReportBodySchema = z.object({
   texto_parece_completo: z.boolean().default(true)
 });
 
-// 3. Metadados Detalhados de Laudo
+// Helper para Categoria de Exame
+export const CategoriaExameSchema = z.preprocess(
+  (val) => {
+    if (typeof val !== 'string') return 'outros';
+    const v = val.toLowerCase();
+    if (v.includes('imagem') || v.includes('radiologia')) return 'imagem_radiologia';
+    if (v.includes('biopsia') || v.includes('anatomopatologico') || v.includes('citopato')) return 'biopsia_anatomopatologico';
+    if (v.includes('endoscopia') || v.includes('eda') || v.includes('colonoscopia')) return 'endoscopia';
+    return 'outros';
+  },
+  z.enum(['imagem_radiologia', 'biopsia_anatomopatologico', 'endoscopia', 'outros'])
+);
+
+// Helper para Identificação de Laudador
+export const IdentificacaoLaudadorSchema = z.preprocess(
+  (val) => {
+    if (typeof val !== 'string') return 'nao_identificado';
+    const v = val.toLowerCase();
+    if (v.includes('manuscrita') || v.includes('caligrafia')) return 'assinatura_manuscrita';
+    if (v.includes('digital')) return 'assinatura_digital';
+    return 'nao_identificado';
+  },
+  z.enum(['assinatura_manuscrita', 'assinatura_digital', 'nao_identificado'])
+);
+
+// Helper para Identificação de Serviço de Origem
+export const IdentificacaoServicoSchema = z.preprocess(
+  (val) => {
+    if (typeof val !== 'string') return 'nao_identificado';
+    const v = val.toLowerCase();
+    if (v.includes('cabecalho') || v.includes('header')) return 'cabecalho';
+    if (v.includes('rodape') || v.includes('footer')) return 'rodape';
+    return 'nao_identificado';
+  },
+  z.enum(['cabecalho', 'rodape', 'nao_identificado'])
+);
+
+// Schema para Serviço de Origem
+export const ServicoOrigemSchema = z.object({
+  nome: ResilientString,
+  identificado_em: IdentificacaoServicoSchema
+}).catch({
+  nome: 'Serviço externo não identificado',
+  identificado_em: 'nao_identificado'
+});
+
+// Schema para Laudador (quem assinou o laudo)
+export const LaudadorSchema = z.object({
+  nome: ResilientString,
+  crm: z.string().nullable().default(null),
+  identificado_em: IdentificacaoLaudadorSchema,
+  observacao: ResilientString
+}).catch({
+  nome: 'Não identificado',
+  crm: null,
+  identificado_em: 'nao_identificado',
+  observacao: ''
+});
+
+// 3. Metadados Detalhados de Laudo (ATUALIZADO)
 export const ReportMetadataSchema = z.object({
   tipo_exame: ResilientString,
-  os: ResilientString, // NOVO: Para validação cruzada
-  paciente: ResilientString, // NOVO: Para validação cruzada
+  categoria_exame: CategoriaExameSchema.optional(),
+  os: ResilientString,
+  paciente: ResilientString,
+  servico_origem: ServicoOrigemSchema.optional(),
   origem: OrigemSchema,
   datas_encontradas: z.array(z.object({
     rotulo: ResilientString,
-    data_literal: ResilientString
+    data_literal: ResilientString,
+    data_normalizada: z.string().optional()
   })).default([]),
   data_realizacao: ResilientString,
   criterio_data_realizacao: ResilientString
@@ -158,8 +220,10 @@ export const ReportPreviewSchema = z.object({
 
 export const ReportAnalysisSchema = z.object({
   report_metadata: ReportMetadataSchema,
+  laudador: LaudadorSchema.optional(),
   preview: ReportPreviewSchema,
   structured: StructuredReportBodySchema.optional(),
+  documento_incompleto: z.boolean().optional().default(false),
   possible_duplicate: z.object({
     is_possible_duplicate: z.boolean().default(false),
     reason: z.string().nullable().default(null)
@@ -198,3 +262,73 @@ export const AudioTranscriptRowSchema = z.object({
 export const AudioTranscriptionSchema = z.object({
   rows: z.array(AudioTranscriptRowSchema).default([])
 });
+
+// 6. Análise Global de PDF - Agrupamento de Laudos
+export const TipoPaginaSchema = z.preprocess(
+  (val) => {
+    if (typeof val !== 'string') return 'outro';
+    const v = val.toLowerCase();
+    if (v.includes('laudo')) return 'laudo_previo';
+    if (v.includes('pedido')) return 'pedido_medico';
+    if (v.includes('assistencial')) return 'assistencial';
+    if (v.includes('administrativo')) return 'administrativo';
+    if (v.includes('vazia') || v.includes('branco')) return 'pagina_vazia';
+    return 'outro';
+  },
+  z.enum(['laudo_previo', 'pedido_medico', 'assistencial', 'administrativo', 'pagina_vazia', 'outro'])
+);
+
+export const PdfGroupSchema = z.object({
+  laudo_id: z.number(),
+  paginas: z.array(z.number()),
+  tipo_detectado: ResilientString,
+  nome_paciente: ResilientString.optional(), // Nome do paciente detectado neste grupo
+  tipo_paginas: z.array(TipoPaginaSchema).optional().default([]),
+  is_provisorio: z.boolean().optional().default(false),
+  is_adendo: z.boolean().optional().default(false),
+  confianca: ConfiancaSchema
+});
+
+export const PdfGlobalGroupingSchema = z.object({
+  analise: ResilientString,
+  total_laudos: z.number().default(1),
+  total_paginas: z.number().default(0),
+  grupos: z.array(PdfGroupSchema).default([]),
+  paginas_nao_agrupadas: z.array(z.number()).optional().default([]),
+  alertas: z.array(z.string()).optional().default([])
+}).catch({
+  analise: 'Falha na análise global',
+  total_laudos: 1,
+  total_paginas: 0,
+  grupos: [],
+  paginas_nao_agrupadas: [],
+  alertas: ['Análise global falhou, usando fallback']
+});
+
+// 7. Análise Global de Imagens Soltas
+export const ImageGroupSchema = z.object({
+  laudo_id: z.number(),
+  indices: z.array(z.number()),
+  tipo_detectado: ResilientString,
+  confianca: ConfiancaSchema
+});
+
+export const ImagesGlobalGroupingSchema = z.object({
+  analise: ResilientString,
+  total_laudos: z.number().default(1),
+  grupos: z.array(ImageGroupSchema).default([]),
+  alertas: z.array(z.string()).optional().default([])
+}).catch({
+  analise: 'Falha na análise global de imagens',
+  total_laudos: 1,
+  grupos: [],
+  alertas: ['Análise global de imagens falhou, usando fallback']
+});
+
+// Type exports para uso no TypeScript
+export type PdfGlobalGroupingResult = z.infer<typeof PdfGlobalGroupingSchema>;
+export type ImagesGlobalGroupingResult = z.infer<typeof ImagesGlobalGroupingSchema>;
+export type PdfGroup = z.infer<typeof PdfGroupSchema>;
+export type ImageGroup = z.infer<typeof ImageGroupSchema>;
+export type Laudador = z.infer<typeof LaudadorSchema>;
+export type ServicoOrigem = z.infer<typeof ServicoOrigemSchema>;

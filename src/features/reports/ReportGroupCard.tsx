@@ -232,6 +232,31 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
         </div>
       </div>
 
+      {/* METADADOS ADICIONAIS (Laudador e Serviço de Origem) */}
+      {(meta.laudador || meta.servicoOrigem) && (
+        <div className="px-4 py-3 bg-surface-elevated/50 border-b border-subtle">
+          <div className="flex flex-col gap-2 text-xs">
+            {meta.servicoOrigem && meta.servicoOrigem.nome && meta.servicoOrigem.nome !== 'Serviço externo não identificado' && (
+              <div className="flex items-center gap-2">
+                <MapPin size={12} className="text-accent shrink-0" />
+                <span className="text-secondary">
+                  <span className="text-tertiary">Serviço:</span> {meta.servicoOrigem.nome}
+                </span>
+              </div>
+            )}
+            {meta.laudador && meta.laudador.nome && meta.laudador.nome !== 'Não identificado' && (
+              <div className="flex items-center gap-2">
+                <FileText size={12} className="text-accent shrink-0" />
+                <span className="text-secondary">
+                  <span className="text-tertiary">Laudador:</span> {meta.laudador.nome}
+                  {meta.laudador.crm && <span className="text-tertiary ml-1">({meta.laudador.crm})</span>}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* BARREIRA DE SEGURANÇA (CLINICAL SAFETY) */}
       {group.isBlocked && (
         <div className="bg-red-900/40 border-y border-red-500/30 p-4 animate-pulse-subtle">

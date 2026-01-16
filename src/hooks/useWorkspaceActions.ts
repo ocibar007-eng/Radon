@@ -7,8 +7,9 @@ import { PatientService } from '../services/patient-service';
 import { convertPdfToImages, PdfLoadError } from '../utils/pdf';
 import { groupDocsVisuals } from '../utils/grouping';
 import * as GeminiAdapter from '../adapters/gemini-prompts';
-import { AttachmentDoc, AudioJob, DocClassification } from '../types';
+import { AttachmentDoc, AudioJob, DocClassification, PdfGlobalGroupingResult } from '../types';
 import { Patient } from '../types/patient';
+import { SimilarityResult } from '../utils/similarity';
 
 const DEBUG_LOGS = true;
 
@@ -17,8 +18,12 @@ export function useWorkspaceActions(patient: Patient | null) {
   const { enqueue } = usePipeline();
 
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
-  // Estado local para controlar aba ativa pode ficar na UI, mas se quisermos controlar via ação, podemos por aqui.
-  // Por enquanto, vamos manter o activeTab na UI e focar nas ações de dados.
+
+  // Estado para múltiplas imagens enviadas simultaneamente
+  const [pendingImages, setPendingImages] = useState<{
+    images: File[];
+    forcedType?: DocClassification;
+  } | null>(null);
 
   // --- HELPER INTERNO ---
   const addDocToSessionAndUpload = useCallback(async (file: File, isHeader: boolean, sourceName: string, forcedType?: DocClassification) => {
@@ -130,6 +135,19 @@ export function useWorkspaceActions(patient: Patient | null) {
       });
     }
 
+    // Detectar múltiplas imagens (não PDFs) enviadas juntas
+    const imageFiles = allowedFiles.filter(f => f.type.startsWith('image/') && f.type !== 'application/pdf');
+    if (imageFiles.length >= 2 && !isHeader) {
+      if (DEBUG_LOGS) {
+        console.log('[Debug][Upload] Múltiplas imagens detectadas, mostrando diálogo', {
+          count: imageFiles.length
+        });
+      }
+      // Armazenar imagens e mostrar diálogo
+      setPendingImages({ images: imageFiles, forcedType });
+      return; // Retorna aqui, processamento continua após resposta do usuário
+    }
+
     for (const [index, file] of allowedFiles.entries()) {
       const resolvedName = resolveFileName(file, index);
       if (DEBUG_LOGS) {
@@ -154,9 +172,103 @@ export function useWorkspaceActions(patient: Patient | null) {
               pages: images.length
             });
           }
+
+          // ANÁLISE GLOBAL: Enviar todas as páginas para identificar quantos laudos existem
+          let globalGrouping: PdfGlobalGroupingResult | null = null;
+
+          // Só faz análise global se tiver mais de 1 página e não for header
+          if (images.length > 1 && !isHeader) {
+            try {
+              if (DEBUG_LOGS) {
+                console.log('[Debug][Upload] Iniciando análise global de PDF...', {
+                  displayName,
+                  pages: images.length
+                });
+              }
+              globalGrouping = await GeminiAdapter.analyzePdfGlobalGrouping(images);
+              if (DEBUG_LOGS) {
+                console.log('[Debug][Upload] Análise global concluída', {
+                  displayName,
+                  totalLaudos: globalGrouping.total_laudos,
+                  grupos: globalGrouping.grupos.map(g => ({
+                    id: g.laudo_id,
+                    paginas: g.paginas,
+                    tipo: g.tipo_detectado,
+                    paciente: g.nome_paciente
+                  })),
+                  alertas: globalGrouping.alertas
+                });
+              }
+
+              // VALIDAÇÃO DE SEGURANÇA: Detectar pacientes trocados
+              const uniquePatients = new Set(
+                globalGrouping.grupos
+                  .map(g => g.nome_paciente)
+                  .filter(nome => nome && nome.length > 3)
+                  .map(nome => nome.trim().toUpperCase())
+              );
+
+              if (uniquePatients.size > 1) {
+                const pacientesList = Array.from(uniquePatients).join(' vs ');
+                console.warn(
+                  `⚠️ SEGURANÇA CLÍNICA: PDF "${displayName}" contém laudos de ${uniquePatients.size} pacientes diferentes: ${pacientesList}`
+                );
+                globalGrouping.alertas.push(
+                  `⚠️ SEGURANÇA: PDF contém laudos de múltiplos pacientes: ${pacientesList}`
+                );
+              }
+            } catch (globalErr) {
+              console.error('[Debug][Upload] Erro na análise global, usando fallback', globalErr);
+              // Continua sem análise global - cada página será analisada individualmente
+            }
+          }
+
           images.forEach((blob, idx) => {
-            const pageFile = new File([blob], `${baseName}_Pg${idx + 1}.jpg`, { type: 'image/jpeg' });
-            addDocToSessionAndUpload(pageFile, isHeader, `${displayName} Pg ${idx + 1}`, forcedType);
+            const pageNum = idx + 1;
+            const pageFile = new File([blob], `${baseName}_Pg${pageNum}.jpg`, { type: 'image/jpeg' });
+            const sourceName = `${displayName} Pg ${pageNum}`;
+
+            // Encontrar o grupo desta página na análise global
+            const grupo = globalGrouping?.grupos.find(g => g.paginas.includes(pageNum));
+
+            // Se tem análise global, criar doc com metadados corretos
+            if (grupo) {
+              const docId = crypto.randomUUID();
+              const tempUrl = URL.createObjectURL(pageFile);
+
+              const newDoc: AttachmentDoc = {
+                id: docId,
+                file: pageFile,
+                source: sourceName,
+                previewUrl: tempUrl,
+                status: 'pending',
+                classification: forcedType || 'laudo_previo',
+                globalGroupId: grupo.laudo_id,
+                globalGroupType: grupo.tipo_detectado,
+                globalGroupSource: displayName,
+                isProvisorio: grupo.is_provisorio,
+                isAdendo: grupo.is_adendo,
+                reportGroupHint: `GLOBAL:${grupo.laudo_id}|PDF:${displayName}|TIPO:${grupo.tipo_detectado}`,
+                reportGroupHintSource: 'auto'
+              };
+
+              dispatch({ type: 'ADD_DOC', payload: newDoc });
+              enqueue({ type: 'doc', docId: newDoc.id });
+
+              if (patient) {
+                StorageService.uploadFile(patient.id, pageFile, sourceName)
+                  .then((downloadUrl) => {
+                    dispatch({
+                      type: 'UPDATE_DOC',
+                      payload: { id: docId, updates: { previewUrl: downloadUrl } }
+                    });
+                  })
+                  .catch(console.error);
+              }
+            } else {
+              // Sem análise global, usa fluxo normal
+              addDocToSessionAndUpload(pageFile, isHeader, sourceName, forcedType);
+            }
           });
         } catch (err: any) {
           const errorMsg = err instanceof PdfLoadError ? err.message : "Erro desconhecido ao ler PDF.";
@@ -384,8 +496,68 @@ export function useWorkspaceActions(patient: Patient | null) {
     }
   }, [patient, session]);
 
+  // Callback para confirmar ou rejeitar agrupamento de múltiplas imagens
+  const handleMultipleImagesConfirm = useCallback((shouldGroup: boolean) => {
+    if (!pendingImages) return;
+
+    const { images, forcedType } = pendingImages;
+    const sharedHint = shouldGroup ? `MANUAL_GROUP:${crypto.randomUUID().slice(0, 8)}` : null;
+
+    if (DEBUG_LOGS) {
+      console.log('[Debug][MultiImage] Processando resposta do usuário', {
+        shouldGroup,
+        count: images.length,
+        sharedHint
+      });
+    }
+
+    // Processar todas as imagens
+    images.forEach((file, index) => {
+      const resolvedName = resolveFileName(file, index);
+      const docId = crypto.randomUUID();
+      const tempUrl = URL.createObjectURL(file);
+
+      const newDoc: AttachmentDoc = {
+        id: docId,
+        file: file,
+        source: resolvedName,
+        previewUrl: tempUrl,
+        status: 'pending',
+        classification: forcedType || 'laudo_previo',
+        reportGroupHint: sharedHint || '',
+        reportGroupHintSource: sharedHint ? 'manual' : undefined
+      };
+
+      dispatch({ type: 'ADD_DOC', payload: newDoc });
+      enqueue({ type: 'doc', docId: newDoc.id });
+
+      if (patient) {
+        StorageService.uploadFile(patient.id, file, resolvedName)
+          .then((downloadUrl) => {
+            dispatch({
+              type: 'UPDATE_DOC',
+              payload: {
+                id: docId,
+                updates: { previewUrl: downloadUrl }
+              }
+            });
+          })
+          .catch(console.error);
+      }
+    });
+
+    setPendingImages(null);
+  }, [pendingImages, resolveFileName, dispatch, enqueue, patient]);
+
+  const cancelMultipleImagesDialog = useCallback(() => {
+    setPendingImages(null);
+  }, []);
+
   return {
     isGeneratingReport,
+    pendingImages,
+    handleMultipleImagesConfirm,
+    cancelMultipleImagesDialog,
     handleFileUpload,
     handleFilesUpload,
     removeDoc,
