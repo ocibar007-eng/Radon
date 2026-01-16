@@ -314,23 +314,57 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
         </div>
       )}
 
+
       {/* CORPO DO CARD */}
       <div className="rcu-body">
-        {isStructured && structuredData ? (
-          renderStructuredFindings(structuredData)
-        ) : (
-          meta.summary && (
-            <div className="mb-4">
-              <h4 className="rcu-section-title mb-2">Resumo (Análise Simples)</h4>
-              <p className="text-sm text-secondary leading-relaxed">{meta.summary}</p>
-              {!meta.isUnifiedSuccess && group.docs.length > 1 && (
-                <p className="text-xs text-accent mt-2 italic flex items-center gap-1">
-                  <Layers size={12} /> Aguardando unificação das {group.docs.length} páginas...
-                </p>
-              )}
-            </div>
-          )
-        )}
+        {/* Renderização Adaptativa por Tipo de Documento */}
+        {(() => {
+          // Para documentos que não são laudo_previo, usar templates específicos
+          const docType = group.docs[0]?.classification;
+
+          // Importar templates dinamicamente (lazy loading seria ideal mas vou importar direto)
+          if (docType === 'pedido_medico') {
+            const { PedidoMedicoTemplate } = require('../../components/templates');
+            // Tentar extrair dados do detailedAnalysis ou criar estrutura mínima
+            const pedidoData = unifiedDoc?.detailedAnalysis?.pedido_data || {};
+            return <PedidoMedicoTemplate data={pedidoData} />;
+          }
+
+          if (docType === 'termo_consentimento') {
+            const { TermoConsentimentoTemplate } = require('../../components/templates');
+            const termoData = unifiedDoc?.detailedAnalysis?.termo_data || {};
+            return <TermoConsentimentoTemplate data={termoData} />;
+          }
+
+          if (docType === 'questionario') {
+            const { QuestionarioTemplate } = require('../../components/templates');
+            const questionarioData = unifiedDoc?.detailedAnalysis?.questionario_data || {};
+            return <QuestionarioTemplate data={questionarioData} />;
+          }
+
+          if (docType === 'guia_autorizacao') {
+            const { GuiaAutorizacaoTemplate } = require('../../components/templates');
+            const guiaData = unifiedDoc?.detailedAnalysis?.guia_data || {};
+            return <GuiaAutorizacaoTemplate data={guiaData} />;
+          }
+
+          // Para laudo_previo ou outros tipos, usar renderização estruturada existente
+          return isStructured && structuredData ? (
+            renderStructuredFindings(structuredData)
+          ) : (
+            meta.summary && (
+              <div className="mb-4">
+                <h4 className="rcu-section-title mb-2">Resumo (Análise Simples)</h4>
+                <p className="text-sm text-secondary leading-relaxed">{meta.summary}</p>
+                {!meta.isUnifiedSuccess && group.docs.length > 1 && (
+                  <p className="text-xs text-accent mt-2 italic flex items-center gap-1">
+                    <Layers size={12} /> Aguardando unificação das {group.docs.length} páginas...
+                  </p>
+                )}
+              </div>
+            )
+          );
+        })()}
 
         {!isExpanded && isStructured && (
           <div className="flex justify-center mt-4 pt-4 border-t border-dashed border-subtle">
