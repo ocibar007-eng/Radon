@@ -460,5 +460,76 @@ Saída: apenas o Markdown, sem texto extra.
 
 DADOS DE ENTRADA:
 {{INPUT_DATA}}
+`,
+
+  // ==============================================================
+  // PROMPTS DE EXTRAÇÃO ESPECÍFICOS POR TIPO (P0)
+  // ==============================================================
+
+  pedido_medico_extract: `
+Extraia dados do PEDIDO MÉDICO em JSON:
+{
+  "tipo_documento": "pedido_medico",
+  "paciente": { "nome": "", "idade": "", "sexo": "" },
+  "medico_solicitante": { "nome": "", "crm": "", "especialidade": "" },
+  "exame_solicitado": "",
+  "justificativa_clinica": "",
+  "cid": "",
+  "numero_pedido": "",
+  "data_solicitacao": "",
+  "observacoes": []
+}
+`,
+
+  termo_consentimento_extract: `
+Extraia dados do TERMO DE CONSENTIMENTO em JSON:
+{
+  "tipo_documento": "termo_consentimento",
+  "titulo": "",
+  "tipo_termo": "contraste_iodado"|"sedacao"|"procedimento_invasivo"|"uso_imagem"|"outro",
+  "paciente": { "nome": "", "declaracoes": [] },
+  "informacoes_relevantes": {
+    "medicacoes_em_uso": [],
+    "alergias": [],
+    "comorbidades": []
+  },
+  "data_aceite": "",
+  "assinatura_presente": false
+}
+`,
+
+  questionario_extract: `
+Extraia dados do QUESTIONÁRIO em JSON:
+{
+  "tipo_documento": "questionario",
+  "tipo_exame_relacionado": "",
+  "sintomas_atuais": [],
+  "historico_cirurgico": [],
+  "historico_patologico": [],
+  "secoes": [
+    {
+      "titulo": "",
+      "perguntas_respostas": [
+        { "pergunta": "", "resposta": "", "tipo_resposta": "sim_nao"|"texto_livre" }
+      ]
+    }
+  ]
+}
+`,
+
+  guia_autorizacao_extract: `
+Extraia dados da GUIA DE AUTORIZAÇÃO em JSON:
+{
+  "tipo_documento": "guia_autorizacao",
+  "convenio": "",
+  "numero_guia": "",
+  "numero_carteirinha": "",
+  "beneficiario": "",
+  "procedimento_autorizado": "",
+  "codigo_procedimento": "",
+  "quantidade_autorizada": 1,
+  "validade": "",
+  "observacoes": []
+}
 `
 };
