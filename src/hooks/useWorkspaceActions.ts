@@ -332,57 +332,61 @@ export function useWorkspaceActions(patient: Patient | null) {
   }, [removeDoc]);
 
   const handleManualReclassify = useCallback((docId: string, target: DocClassification) => {
-    const allGroups = groupDocsVisuals(session.docs);
-    const group = allGroups.find(g => g.docIds.includes(docId));
-    const targetDocIds = group ? group.docIds : [docId];
-    let hasMissingFile = false;
+    // 🔥 FIX: Reclassificar APENAS o documento específico, não todos do grupo
+    const doc = session.docs.find(d => d.id === docId);
+    if (!doc) return;
 
-    targetDocIds.forEach(id => {
-      const doc = session.docs.find(d => d.id === id);
-      if (!doc) return;
+    const classificationChanged = doc.classification !== target;
 
-      const classificationChanged = doc.classification !== target;
-      // Permite reprocessar se mudar de classe OU se estiver em erro
-      const canReprocess = (classificationChanged && !!doc.file) || (doc.status === 'error');
+    // 🔥 FIX: Só permite reprocessar se tiver arquivo disponível
+    const hasFile = !!doc.file;
+    const canReprocess = classificationChanged && hasFile;
 
-      const updates: Partial<AttachmentDoc> = {
-        classification: target,
-        classificationSource: 'manual',
-        isRecoveredBySystem: false
-      };
+    if (DEBUG_LOGS) {
+      console.log('[Debug][Reclassify]', {
+        docId,
+        from: doc.classification,
+        to: target,
+        hasFile,
+        canReprocess
+      });
+    }
 
-      if (classificationChanged) {
-        updates.isUnified = false;
-        updates.detailedAnalysis = undefined;
-        updates.metadata = undefined;
-        updates.summary = undefined;
+    const updates: Partial<AttachmentDoc> = {
+      classification: target,
+      classificationSource: 'manual',
+      isRecoveredBySystem: false
+    };
 
-        if (canReprocess) {
-          // Se vai reprocessar, limpa hints para que a IA (ou pipeline) re-agrupe
-          updates.reportGroupHint = '';
-          updates.reportGroupHintSource = 'auto';
-          updates.status = 'pending';
-          updates.verbatimText = '';
-          updates.errorMessage = undefined;
-        } else {
-          // Se não pode reprocessar, mantém metadados
-          updates.reportGroupHint = doc.reportGroupHint;
-          updates.reportGroupHintSource = doc.reportGroupHintSource;
-          if (!doc.file) {
-            hasMissingFile = true;
-          }
-        }
-      }
-
-      dispatch({ type: 'UPDATE_DOC', payload: { id, updates } });
+    if (classificationChanged) {
+      updates.isUnified = false;
+      updates.detailedAnalysis = undefined;
+      updates.metadata = undefined;
+      updates.summary = undefined;
 
       if (canReprocess) {
-        enqueue({ type: 'doc', docId: id });
+        // Se vai reprocessar, limpa hints para que a IA (ou pipeline) re-agrupe
+        updates.reportGroupHint = '';
+        updates.reportGroupHintSource = 'auto';
+        updates.status = 'pending';
+        updates.verbatimText = '';
+        updates.errorMessage = undefined;
+      } else {
+        // 🔥 FIX: Sem arquivo, apenas muda classificação e mantém done
+        updates.reportGroupHint = doc.reportGroupHint;
+        updates.reportGroupHintSource = doc.reportGroupHintSource;
+        updates.status = 'done'; // Mantém done, não pending!
       }
-    });
+    }
 
-    if (hasMissingFile) {
-      alert('Arquivo original não disponível. Não foi possível reprocessar este documento.');
+    dispatch({ type: 'UPDATE_DOC', payload: { id: docId, updates } });
+
+    if (canReprocess) {
+      enqueue({ type: 'doc', docId });
+    }
+
+    if (!hasFile && classificationChanged) {
+      console.warn('[Reclassify] Arquivo original não disponível. Classificação alterada sem reprocessamento.');
     }
   }, [session.docs, dispatch, enqueue]);
 

@@ -245,39 +245,114 @@ ENTRADA:
 `,
 
   clinical_summary_structured: `
-Você receberá documentos assistenciais médicos.
-Objetivo: Gerar um Resumo Clínico estruturado em Markdown para radiologistas.
+Você é um especialista em informática médica radiológica. Analise TODOS os documentos de suporte (pedidos, questionários, guias, termos, anotações) e gere um RESUMO CLÍNICO ESTRUTURADO completo para auxiliar na interpretação do exame de imagem.
 
-Regras de Formatação (IMPORTANTE):
-- Use headers Markdown nível 3 (###) para as seções.
-- Use listas com hífen (-) para os tópicos.
-- NÃO use parágrafos longos, prefira bullets.
-- Use negrito (**texto**) para destacar dados críticos (datas, valores, alertas).
-
-Seções Obrigatórias (se houver dados):
-### Indicação Clínica e HD
-- Motivo do exame, sintomas principais e hipóteses diagnósticas. Se encontrar em pedido médico ou manuscrito, destaque com prioridade.
-
-### História Clínica
-- Antecedentes oncológicos, cirurgias prévias, comorbidades relevantes.
-
-### Exame Físico e Laboratoriais
-- Dados de exame físico, creatinina, ureia ou outros labs pertinentes.
-
-### Segurança e Contraste
-- Alergias, função renal, acesso venoso, DUM (se aplicável).
-
-Entrada:
+DOCUMENTOS A ANALISAR:
 {{DOCS_JSON}}
 
-Saída: JSON estrito:
+OBJETIVO:
+Extrair e consolidar TODAS as informações clínicas relevantes que impactam a interpretação radiológica.
+NÃO INVENTE DADOS. Se não encontrar, escreva "Não informado" ou omita o campo.
+
+ESTRUTURA OBRIGATÓRIA DO RESUMO (9 SEÇÕES):
+
+1. IDENTIFICAÇÃO E CONTEXTO
+   - Nome completo do paciente
+   - Idade e sexo
+   - Peso e altura (se disponível)
+   - Data do exame
+   - Médico solicitante (nome e CRM se disponível)
+
+2. PERGUNTA CLÍNICA (MAIS IMPORTANTE)
+   - Indicação LITERAL do pedido/guia (copiar exatamente como está escrito)
+   - Interpretação da IA: qual dúvida o exame deve responder?
+   - Sintoma principal + tempo de evolução
+
+3. HISTÓRIA DA DOENÇA ATUAL
+   - Início, evolução, intensidade
+   - Sinais/sintomas-chave (febre, perda ponderal, icterícia, vômitos, hemoptise, déficit neurológico)
+   - Exame físico relevante se documentado
+   - Hipóteses diagnósticas sendo consideradas
+
+4. ANTECEDENTES E COMORBIDADES
+   - Oncologia: tipo histológico, estadiamento, data diagnóstico, tratamentos
+   - Cirurgias prévias: o quê, quando, complicações
+   - Doenças crônicas: IRC, cirrose, ICC, DPOC, imunossupressão
+   - Patologias pregressas relevantes
+
+5. MEDICAÇÕES E ALERGIAS
+   - Medicamentos em uso (lista completa)
+   - Anticoagulantes/antiagregantes
+   - Quimioterapia/imunoterapia/radioterapia recentes
+   - Alergias medicamentosas (especificar reação e gravidade)
+   - Alergia a contraste iodado (tipo de reação prévia)
+
+6. DADOS DE SEGURANÇA (TC/RM)
+   - Função renal: creatinina/TFG e data
+   - Gestação (se aplicável)
+   - Para RM: marca-passo, implantes, clipes, neuroestimuladores
+   - Corpos metálicos (fragmentos, próteses)
+
+7. EXAMES LABORATORIAIS RELEVANTES
+   - Hemograma/leucócitos/PCR (infecção)
+   - Bilirrubinas/enzimas hepáticas (colestase)
+   - Marcadores tumorais se oncológico
+   - Outros labs citados nos documentos
+
+8. EXAMES PRÉVIOS E COMPARATIVOS
+   - Exame anterior: qual tipo, data, onde foi realizado
+   - Achados prévios relevantes (resumo conciso)
+   - Biópsias/anatomopatológico com datas
+   - Estadiamentos prévios (LI-RADS, BI-RADS, PI-RADS)
+
+9. INFORMAÇÕES DO PROCEDIMENTO
+   - Tipo de contraste autorizado (iodado, gadolínio)
+   - Quantidade de contraste (se especificada)
+   - Preparos especiais: gel vaginal, manitol, buscopan, etc.
+   - Jejum/preparo realizado
+   - Intercorrências documentadas
+   - Capacidade de apneia/dispneia, claustrofobia, sedação
+
+FORMATO DE SAÍDA JSON:
 {
-  "assistencial_docs": [{ "doc_id": "...", "source": "...", "titulo_sugerido": "...", "datas_encontradas": ["..."], "mini_resumo": "..." }],
-  "resumo_clinico_consolidado": { "texto_em_topicos": [{ "secao": "História/Queixa", "itens": ["..."] }] },
-  "markdown_para_ui: "markdown string (formatado conforme regras acima)",
-  "cobertura": { "doc_ids_assistenciais": ["..."], "total_assistencial_detectados": 0 }
+  "assistencial_docs": [
+    {
+      "doc_id": "<id>",
+      "source": "<arquivo>",
+      "titulo_sugerido": "<ex: Pedido Médico - TC Abdome>",
+      "datas_encontradas": ["YYYY-MM-DD"],
+      "mini_resumo": "<1-2 linhas>"
+    }
+  ],
+  "resumo_clinico_consolidado": {
+    "texto_em_topicos": [
+      { "secao": "Identificação", "itens": ["Nome: ...", "Idade: ...", "Sexo: ...", "Médico: ..."] },
+      { "secao": "Pergunta Clínica", "itens": ["Indicação literal: ...", "Interpretação IA: ...", "Sintoma principal: ..."] },
+      { "secao": "História Atual", "itens": ["..."] },
+      { "secao": "Antecedentes", "itens": ["Cirurgias: ...", "Comorbidades: ..."] },
+      { "secao": "Medicações e Alergias", "itens": ["Medicamentos: ...", "Alergias: ..."] },
+      { "secao": "Segurança", "itens": ["Função renal: ...", "Contraindicações RM: ..."] },
+      { "secao": "Laboratório", "itens": ["..."] },
+      { "secao": "Exames Prévios", "itens": ["Tipo: ...", "Data: ...", "Achados: ..."] },
+      { "secao": "Procedimento", "itens": ["Contraste: ...", "Preparos: ...", "Intercorrências: ..."] }
+    ]
+  },
+  "markdown_para_ui": "Resumo Clínico Estruturado\\n\\nPaciente: Nome Completo\\nIdade/Sexo: XX anos, M/F\\nExame: Tipo do Exame\\nMédico Solicitante: Dr. Nome (CRM)\\n\\n1. INDICAÇÃO E QUEIXAS\\n• Indicação literal: texto exato do pedido\\n• Interpretação: o que o exame deve esclarecer\\n• Queixa atual: sintoma principal e evolução\\n\\n2. HISTÓRICO CLÍNICO\\n• Cirurgias: lista\\n• Patologias: lista\\n• Ginecológico: DUM, gestação\\n\\n3. MEDICAÇÕES E ALERGIAS\\n• Medicamentos: lista completa\\n• Alergias: descrição ou Nenhuma relatada\\n\\n4. INFORMAÇÕES DO EXAME\\n• Contraste: tipo e quantidade se disponível\\n• Preparos: gel vaginal, manitol, buscopan, etc.\\n• Função renal: creatinina X (data)\\n\\n5. EXAMES PRÉVIOS\\n• Tipo: qual exame\\n• Data: quando\\n• Resumo: achados relevantes\\n\\n6. INTERCORRÊNCIAS\\n• Descrição ou Nenhuma documentada",
+  "cobertura": {
+    "doc_ids_assistenciais": ["<lista>"],
+    "total_assistencial_detectados": <número>
+  }
 }
+
+REGRAS IMPORTANTES:
+- NÃO use asteriscos (**) para negrito no markdown, use apenas texto limpo
+- Use bullet points (•) em vez de hífens ou asteriscos
+- Seja CONCISO mas COMPLETO
+- Prefira texto direto sem formatação excessiva
+- Se indicação literal não for legível, escreva "Indicação ilegível no documento"
 `,
+
+
 
   audio_transcribe_raw: `
 Transcreva o áudio de forma BRUTA e LITERAL.

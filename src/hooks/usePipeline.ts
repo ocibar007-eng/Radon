@@ -153,7 +153,14 @@ export function usePipeline() {
     const summaryTimeoutRef = useRef<number | null>(null);
 
     useEffect(() => {
-        const readyDocs = session.docs.filter(d => d.classification === 'assistencial' && d.status === 'done' && d.verbatimText);
+        // Tipos de documentos que alimentam o resumo clínico (todos exceto laudo_previo)
+        const CLINICAL_CONTEXT_TYPES = ['assistencial', 'pedido_medico', 'guia_autorizacao', 'termo_consentimento', 'questionario'];
+
+        const readyDocs = session.docs.filter(d =>
+            CLINICAL_CONTEXT_TYPES.includes(d.classification) &&
+            d.status === 'done' &&
+            (d.verbatimText || d.extractedData)
+        );
 
         if (readyDocs.length > 0 && readyDocs.length !== prevAssistencialCountRef.current) {
             if (summaryTimeoutRef.current) clearTimeout(summaryTimeoutRef.current);

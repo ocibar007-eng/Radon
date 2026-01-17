@@ -3,3 +3,4 @@ export { PedidoMedicoTemplate } from './PedidoMedicoTemplate';
 export { TermoConsentimentoTemplate } from './TermoConsentimentoTemplate';
 export { QuestionarioTemplate } from './QuestionarioTemplate';
 export { GuiaAutorizacaoTemplate } from './GuiaAutorizacaoTemplate';
+export { AnotacaoClinicaTemplate } from './AnotacaoClinicaTemplate';

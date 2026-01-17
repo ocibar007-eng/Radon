@@ -67,6 +67,8 @@ export type DocClassification =
     | 'guia_autorizacao'       // Documento de convênio/plano de saúde
     | 'assistencial'           // Outros documentos assistenciais
     | 'administrativo'         // Documentos administrativos gerais
+    | 'pagina_vazia'           // Página em branco/sem conteúdo
+    | 'outro'                  // Outros documentos não classificados
     | 'indeterminado';         // Não identificado/classificado
 
 export interface AttachmentDoc {

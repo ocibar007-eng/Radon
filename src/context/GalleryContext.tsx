@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
-import { AttachmentDoc } from '../types';
+import { AttachmentDoc, DocClassification } from '../types';
 
 interface GalleryContextType {
   isOpen: boolean;
@@ -9,11 +9,12 @@ interface GalleryContextType {
   hasNext: boolean;
   currentIndex: number;
   totalDocs: number;
-  
-  openGallery: (docs: AttachmentDoc[], initialDocId?: string) => void;
+
+  openGallery: (docs: AttachmentDoc[], initialDocId?: string, onReclassify?: (docId: string, newType: DocClassification) => void) => void;
   closeGallery: () => void;
   nextImage: () => void;
   prevImage: () => void;
+  reclassifyCurrentDoc: (newType: DocClassification) => void;
 }
 
 const GalleryContext = createContext<GalleryContextType | null>(null);
@@ -22,11 +23,13 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({ children })
   const [isOpen, setIsOpen] = useState(false);
   const [docs, setDocs] = useState<AttachmentDoc[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [reclassifyCallback, setReclassifyCallback] = useState<((docId: string, newType: DocClassification) => void) | null>(null);
 
-  const openGallery = useCallback((items: AttachmentDoc[], initialDocId?: string) => {
+  const openGallery = useCallback((items: AttachmentDoc[], initialDocId?: string, onReclassify?: (docId: string, newType: DocClassification) => void) => {
     if (!items.length) return;
     setDocs(items);
-    
+    setReclassifyCallback(() => onReclassify || null);
+
     const index = initialDocId ? items.findIndex(d => d.id === initialDocId) : 0;
     setCurrentIndex(index >= 0 ? index : 0);
     setIsOpen(true);
@@ -35,8 +38,8 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({ children })
   const closeGallery = useCallback(() => {
     setIsOpen(false);
     setTimeout(() => {
-        setDocs([]);
-        setCurrentIndex(0);
+      setDocs([]);
+      setCurrentIndex(0);
     }, 200); // Limpa após animação de saída (opcional)
   }, []);
 
@@ -48,6 +51,13 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({ children })
     setCurrentIndex(prev => (prev > 0 ? prev - 1 : prev));
   }, []);
 
+  const reclassifyCurrentDoc = useCallback((newType: DocClassification) => {
+    const currentDoc = docs[currentIndex];
+    if (currentDoc && reclassifyCallback) {
+      reclassifyCallback(currentDoc.id, newType);
+    }
+  }, [docs, currentIndex, reclassifyCallback]);
+
   const value: GalleryContextType = {
     isOpen,
     currentDoc: docs[currentIndex] || null,
@@ -58,7 +68,8 @@ export const GalleryProvider: React.FC<{ children: ReactNode }> = ({ children })
     openGallery,
     closeGallery,
     nextImage,
-    prevImage
+    prevImage,
+    reclassifyCurrentDoc
   };
 
   return (

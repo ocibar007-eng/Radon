@@ -2,8 +2,10 @@
 import React, { useState, useMemo } from 'react';
 import { Search, UploadCloud } from 'lucide-react';
 import { ReportGroupCard } from './ReportGroupCard';
-import { ReportGroup } from '../../utils/grouping';
+import { PdfDocumentBundle } from './PdfDocumentBundle';
+import { ReportGroup, groupReportsByPdf } from '../../utils/grouping';
 import { Button } from '../../components/ui/Button';
+import { DocClassification } from '../../types';
 
 interface Props {
   groups: ReportGroup[];
@@ -11,9 +13,10 @@ interface Props {
   onSplitGroup?: (groupId: string, splitStartPage: number) => void;
   onUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onDropFiles?: (files: File[]) => void;
+  onReclassifyDoc?: (docId: string, newType: DocClassification) => void;
 }
 
-export const PreviousReportsTab: React.FC<Props> = ({ groups, onRemoveGroup, onSplitGroup, onUpload, onDropFiles }) => {
+export const PreviousReportsTab: React.FC<Props> = ({ groups, onRemoveGroup, onSplitGroup, onUpload, onDropFiles, onReclassifyDoc }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isDragOver, setIsDragOver] = useState(false);
 
@@ -51,15 +54,15 @@ export const PreviousReportsTab: React.FC<Props> = ({ groups, onRemoveGroup, onS
 
   const filteredGroups = useMemo(() => {
     if (!searchTerm.trim()) return groups;
-    
+
     const term = searchTerm.toLowerCase();
-    
+
     return groups.filter(group => {
       if (group.title.toLowerCase().includes(term)) return true;
       if (group.type?.toLowerCase().includes(term)) return true;
       if (group.date?.toLowerCase().includes(term)) return true;
-      
-      return group.docs.some(doc => 
+
+      return group.docs.some(doc =>
         doc.verbatimText?.toLowerCase().includes(term) ||
         doc.source.toLowerCase().includes(term)
       );
@@ -77,28 +80,28 @@ export const PreviousReportsTab: React.FC<Props> = ({ groups, onRemoveGroup, onS
       {/* Search & Actions Bar */}
       <div className="flex gap-2 mb-4">
         <div className="search-container flex-1 mb-0">
-            <Search className="search-icon" size={16} />
-            <input 
-            type="text" 
+          <Search className="search-icon" size={16} />
+          <input
+            type="text"
             className="search-input"
             placeholder="Buscar em laudos prévios (tipo, data, conteúdo)..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            />
+          />
         </div>
-        
+
         <label>
-            <Button as="span" variant="secondary" className="cursor-pointer h-full">
-                <UploadCloud size={16} className="mr-2" />
-                Adicionar Laudo
-            </Button>
-            <input 
-                type="file" 
-                multiple 
-                hidden 
-                accept="image/*,application/pdf" 
-                onChange={onUpload} 
-            />
+          <Button as="span" variant="secondary" className="cursor-pointer h-full">
+            <UploadCloud size={16} className="mr-2" />
+            Adicionar Laudo
+          </Button>
+          <input
+            type="file"
+            multiple
+            hidden
+            accept="image/*,application/pdf"
+            onChange={onUpload}
+          />
         </label>
       </div>
 
@@ -108,14 +111,27 @@ export const PreviousReportsTab: React.FC<Props> = ({ groups, onRemoveGroup, onS
             {searchTerm ? 'Nenhum laudo encontrado para sua busca.' : 'Nenhum laudo prévio identificado.'}
           </div>
         ) : (
-          filteredGroups.map(group => (
-            <ReportGroupCard 
-              key={group.id} 
-              group={group} 
-              onRemove={() => onRemoveGroup(group.id)}
-              onSplitGroup={onSplitGroup}
-            />
-          ))
+          // Agrupa ReportGroups do mesmo PDF para exibir com abas
+          groupReportsByPdf(filteredGroups).map(bundle =>
+            bundle.groups.length > 1 ? (
+              // Bundle com múltiplos tipos → Renderiza com abas
+              <PdfDocumentBundle
+                key={bundle.pdfBaseName || bundle.groups[0].id}
+                groups={bundle.groups}
+                onRemoveGroup={onRemoveGroup}
+                onSplitGroup={onSplitGroup}
+                onReclassifyDoc={onReclassifyDoc}
+              />
+            ) : (
+              // Grupo solo → Renderiza card normal (preserva comportamento existente)
+              <ReportGroupCard
+                key={bundle.groups[0].id}
+                group={bundle.groups[0]}
+                onRemove={() => onRemoveGroup(bundle.groups[0].id)}
+                onSplitGroup={onSplitGroup}
+              />
+            )
+          )
         )}
       </div>
     </div>

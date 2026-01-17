@@ -17,42 +17,36 @@ interface Props {
 
 export const DocumentGallery: React.FC<Props> = ({ docs, reportGroups, onUpload, onDropFiles, onRemoveDoc, onReclassifyDoc }) => {
   const { openGallery } = useGallery();
-  const [dragTarget, setDragTarget] = useState<'assistencial' | 'laudo_previo' | null>(null);
-
-  // Tipos que vão para "Exames Anteriores" (Laudos e documentos adaptativos)
-  const laudoTypes = ['laudo_previo', 'pedido_medico', 'termo_consentimento', 'questionario', 'guia_autorizacao'];
-
-  const assistencialDocs = useMemo(
-    () => docs.filter(doc => !laudoTypes.includes(doc.classification)),
-    [docs]
-  );
-
-  const laudoDocs = useMemo(
-    () => docs.filter(doc => laudoTypes.includes(doc.classification)),
-    [docs]
-  );
+  const [isDragOver, setIsDragOver] = useState(false);
 
   const handleDragStart = (docId: string) => (event: React.DragEvent<HTMLDivElement>) => {
     event.dataTransfer.setData('text/plain', docId);
     event.dataTransfer.effectAllowed = 'move';
   };
 
-  const handleDrop = (target: DocClassification) => (event: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.stopPropagation();
-    const docId = event.dataTransfer.getData('text/plain');
-    if (docId) onReclassifyDoc(docId, target);
-    setDragTarget(null);
+    setIsDragOver(false);
+
+    // Check if it's a file drop
+    if (event.dataTransfer.files && event.dataTransfer.files.length > 0) {
+      // Files are handled by the input onChange usually, but we need to pass them up
+      // If onDropFiles is provided, use it
+      if (onDropFiles) {
+        onDropFiles(Array.from(event.dataTransfer.files), 'indeterminado'); // Default to AI classification
+      }
+    }
   };
 
-  const handleDragOver = (target: 'assistencial' | 'laudo_previo') => (event: React.DragEvent<HTMLDivElement>) => {
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.stopPropagation();
-    event.dataTransfer.dropEffect = 'move';
-    if (dragTarget !== target) setDragTarget(target);
+    event.dataTransfer.dropEffect = 'copy';
+    setIsDragOver(true);
   };
 
-  const handleDragLeave = () => setDragTarget(null);
+  const handleDragLeave = () => setIsDragOver(false);
 
   const renderDocRow = (doc: AttachmentDoc) => {
     const isError = doc.status === 'error';
@@ -64,7 +58,7 @@ export const DocumentGallery: React.FC<Props> = ({ docs, reportGroups, onUpload,
         className={`doc-row-item ${isError ? 'error' : ''} ${doc.status === 'processing' ? 'processing' : ''}`}
         draggable={!isError}
         onDragStart={handleDragStart(doc.id)}
-        onClick={() => !isError && openGallery(docs, doc.id)}
+        onClick={() => !isError && openGallery(docs, doc.id, onReclassifyDoc)}
       >
         {doc.status === 'processing' && (
           <div className="absolute bottom-0 left-0 h-[2px] bg-accent w-full animate-progress-indeterminate z-10" />
@@ -87,13 +81,20 @@ export const DocumentGallery: React.FC<Props> = ({ docs, reportGroups, onUpload,
             )}
             {isError && <span className="text-error ml-2">{doc.errorMessage || 'Falha'}</span>}
             {!isError && doc.status === 'done' && (
-              <ClassificationChip classification={doc.classification} size="xs" isRecoveredBySystem={doc.isRecoveredBySystem} />
+              <div onClick={(e) => e.stopPropagation()}>
+                <ClassificationChip
+                  classification={doc.classification}
+                  size="xs"
+                  isRecoveredBySystem={doc.isRecoveredBySystem}
+                  onChange={(newType) => onReclassifyDoc(doc.id, newType)}
+                />
+              </div>
             )}
           </div>
         </div>
 
         <div className="doc-row-actions">
-          <button className="action-btn-mini" title="Visualizar" onClick={(e) => { e.stopPropagation(); openGallery(docs, doc.id); }}>
+          <button className="action-btn-mini" title="Visualizar" onClick={(e) => { e.stopPropagation(); openGallery(docs, doc.id, onReclassifyDoc); }}>
             <Eye size={14} />
           </button>
           <button className="action-btn-mini" title="Remover" onClick={(e) => { e.stopPropagation(); onRemoveDoc(doc.id); }}>
@@ -107,77 +108,40 @@ export const DocumentGallery: React.FC<Props> = ({ docs, reportGroups, onUpload,
   return (
     <div className="gallery-section">
       <div className="gallery-section-header">
-        <h4 className="gallery-section-title">Inventário de Arquivos</h4>
+        <h4 className="gallery-section-title">Documentos do Paciente</h4>
         <span className="text-muted text-xs">Arraste arquivos para adicionar</span>
       </div>
 
-      {/* Layout em duas colunas para os grupos */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* GRUPO 1: DOC SUPORTE */}
-        <div
-          className={`doc-group-card ${dragTarget === 'assistencial' ? 'drag-active' : ''}`}
-          onDragOver={handleDragOver('assistencial')}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop('assistencial')}
-        >
-          <div className="doc-group-header doc-group-header-blue">
-            <FileText size={16} />
-            <span>Doc Suporte</span>
-            <span className="doc-group-count">{assistencialDocs.length}</span>
-          </div>
-
-          <div className="doc-group-content">
-            {assistencialDocs.length === 0 ? (
-              <div className="doc-group-empty">
-                Nenhum documento
-              </div>
-            ) : (
-              assistencialDocs.map(renderDocRow)
-            )}
-          </div>
-
-          <label className="doc-group-add doc-group-add-blue">
-            <Plus size={16} />
-            <span>Adicionar</span>
-            <input
-              type="file" multiple hidden accept="image/*,application/pdf"
-              onChange={(e) => onUpload(e, 'assistencial')}
-            />
-          </label>
+      <div
+        className={`doc-group-card ${isDragOver ? 'drag-active-amber' : ''}`}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
+        <div className="doc-group-header doc-group-header-amber">
+          <FileText size={16} />
+          <span>Todos os Arquivos</span>
+          <span className="doc-group-count">{docs.length}</span>
         </div>
 
-        {/* GRUPO 2: LAUDOS PRÉVIOS */}
-        <div
-          className={`doc-group-card ${dragTarget === 'laudo_previo' ? 'drag-active-amber' : ''}`}
-          onDragOver={handleDragOver('laudo_previo')}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop('laudo_previo')}
-        >
-          <div className="doc-group-header doc-group-header-amber">
-            <History size={16} />
-            <span>Exames Anteriores</span>
-            <span className="doc-group-count">{laudoDocs.length}</span>
-          </div>
-
-          <div className="doc-group-content">
-            {laudoDocs.length === 0 ? (
-              <div className="doc-group-empty">
-                Nenhum laudo
-              </div>
-            ) : (
-              laudoDocs.map(renderDocRow)
-            )}
-          </div>
-
-          <label className="doc-group-add doc-group-add-amber">
-            <Plus size={16} />
-            <span>Adicionar Laudo</span>
-            <input
-              type="file" multiple hidden accept="image/*,application/pdf"
-              onChange={(e) => onUpload(e, undefined)}
-            />
-          </label>
+        <div className="doc-group-content">
+          {docs.length === 0 ? (
+            <div className="doc-group-empty">
+              Nenhum documento
+            </div>
+          ) : (
+            docs.map(renderDocRow)
+          )}
         </div>
+
+        <label className="doc-group-add doc-group-add-amber">
+          <Plus size={16} />
+          <span>Adicionar Arquivos</span>
+          <input
+            type="file" multiple hidden accept="image/*,application/pdf"
+            onChange={(e) => onUpload(e, undefined)}
+          />
+        </label>
       </div>
     </div>
   );

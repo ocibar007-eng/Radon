@@ -337,7 +337,7 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
     // 5. Dados Derivados (Views)
     const reportGroups = useMemo(() => {
         // Agora incluímos os novos tipos para que apareçam na aba de Laudos/Exames
-        const reportsTypes = ['laudo_previo', 'pedido_medico', 'termo_consentimento', 'questionario', 'guia_autorizacao'];
+        const reportsTypes = ['laudo_previo', 'pedido_medico', 'termo_consentimento', 'questionario', 'guia_autorizacao', 'assistencial'];
         const previousReports = session.docs.filter(d => reportsTypes.includes(d.classification));
         return groupDocsVisuals(previousReports);
     }, [session.docs]);
@@ -541,6 +541,7 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
                                         onSplitGroup={handleSplitReportGroup}
                                         onUpload={(e) => handleFileUpload(e, false, undefined)}
                                         onDropFiles={(files) => handleFilesUpload(files, false, undefined, (t) => setActiveTab(t))}
+                                        onReclassifyDoc={handleManualReclassify}
                                     />
                                 </div>
                             )}
@@ -700,60 +701,27 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
                 <div
                     className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/70 backdrop-blur-sm animate-fade-in"
                 >
-                    <div className="flex flex-col items-center max-w-2xl w-full px-8">
+                    <div className="flex flex-col items-center max-w-xl w-full px-8">
                         <UploadCloud size={48} className="text-amber-500 mb-4 animate-bounce" />
-                        <p className="text-xl font-bold text-white mb-6">Solte os arquivos na zona desejada</p>
+                        <p className="text-xl font-bold text-white mb-6">Solte os arquivos aqui</p>
 
-                        <div className="grid grid-cols-2 gap-6 w-full">
-                            {/* Zona Doc Suporte */}
-                            <div
-                                className={`flex flex-col items-center justify-center p-8 rounded-xl border-2 border-dashed transition-all cursor-pointer min-h-[150px] ${dragOverZone === 'suporte'
-                                    ? 'border-blue-400 bg-blue-500/40 scale-105 shadow-[0_0_30px_rgba(59,130,246,0.5)]'
-                                    : 'border-blue-500/50 bg-blue-500/15 hover:bg-blue-500/25'
-                                    }`}
-                                onDragEnter={(e) => { e.preventDefault(); setDragOverZone('suporte'); }}
-                                onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                                onDragLeave={(e) => {
-                                    if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOverZone(null);
-                                }}
-                                onDrop={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    const files = Array.from(e.dataTransfer.files || []);
-                                    if (files.length > 0) handleFilesUpload(files, false, 'assistencial');
-                                    setIsDragOverDocs(false);
-                                    setDragOverZone(null);
-                                }}
-                            >
-                                <FileText size={36} className={`mb-3 transition-all ${dragOverZone === 'suporte' ? 'text-blue-300 scale-110' : 'text-blue-400'}`} />
-                                <span className={`font-bold text-center text-lg ${dragOverZone === 'suporte' ? 'text-blue-200' : 'text-blue-300'}`}>DOC SUPORTE</span>
-                                <span className="text-blue-400/70 text-sm mt-1">Resumo clínico</span>
-                            </div>
-
-                            {/* Zona Laudo Prévio */}
-                            <div
-                                className={`flex flex-col items-center justify-center p-8 rounded-xl border-2 border-dashed transition-all cursor-pointer min-h-[150px] ${dragOverZone === 'laudo'
-                                    ? 'border-amber-400 bg-amber-500/40 scale-105 shadow-[0_0_30px_rgba(245,158,11,0.5)]'
-                                    : 'border-amber-500/50 bg-amber-500/15 hover:bg-amber-500/25'
-                                    }`}
-                                onDragEnter={(e) => { e.preventDefault(); setDragOverZone('laudo'); }}
-                                onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                                onDragLeave={(e) => {
-                                    if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOverZone(null);
-                                }}
-                                onDrop={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    const files = Array.from(e.dataTransfer.files || []);
-                                    if (files.length > 0) handleFilesUpload(files, false, undefined); // IA vai classificar
-                                    setIsDragOverDocs(false);
-                                    setDragOverZone(null);
-                                }}
-                            >
-                                <History size={36} className={`mb-3 transition-all ${dragOverZone === 'laudo' ? 'text-amber-300 scale-110' : 'text-amber-400'}`} />
-                                <span className={`font-bold text-center text-lg ${dragOverZone === 'laudo' ? 'text-amber-200' : 'text-amber-300'}`}>LAUDO PRÉVIO</span>
-                                <span className="text-amber-400/70 text-sm mt-1">Exames anteriores</span>
-                            </div>
+                        {/* Zona Única de Upload */}
+                        <div
+                            className="flex flex-col items-center justify-center p-8 rounded-xl border-2 border-dashed w-full transition-all cursor-pointer min-h-[150px] border-amber-500/50 bg-amber-500/15 hover:bg-amber-500/25"
+                            onDragEnter={(e) => { e.preventDefault(); }}
+                            onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                            onDrop={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                const files = Array.from(e.dataTransfer.files || []);
+                                if (files.length > 0) handleFilesUpload(files, false, undefined); // IA classifica tudo
+                                setIsDragOverDocs(false);
+                                setDragOverZone(null);
+                            }}
+                        >
+                            <FileText size={36} className="mb-3 text-amber-400" />
+                            <span className="font-bold text-center text-lg text-amber-300">DOCUMENTOS DO PACIENTE</span>
+                            <span className="text-amber-400/70 text-sm mt-1">A IA irá classificar automaticamente</span>
                         </div>
 
                         <p className="text-zinc-500 text-sm mt-4">Pressione ESC para cancelar</p>

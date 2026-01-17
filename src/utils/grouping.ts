@@ -60,9 +60,10 @@ export function groupDocsVisuals(docs: AttachmentDoc[]): ReportGroup[] {
 
     // PRIORIDADE 3: Agrupamento por origem de arquivo PDF + hint da IA
     // Fallback para quando não há análise global
-    if (doc.source.includes('PDF Pg')) {
+    if (doc.source.includes('PDF Pg') || doc.source.includes('.pdf Pg') || doc.source.includes('Pg ')) {
       const normalizedHint = hint || 'default';
-      const baseName = doc.source.split(' PDF Pg ')[0];
+      // Extrai nome base do PDF corretamente
+      const baseName = doc.source.split(' Pg ')[0];
       const key = `pdf::${baseName}::${normalizedHint}`;
       const list = groups.get(key) || [];
       list.push(doc);
@@ -284,3 +285,116 @@ function isStrongReportHint(hint: string): boolean {
   if (normalized.includes('|TIPO:')) return true; // Tipo detectado pela análise global
   return false;
 }
+
+// ============================================================================
+// BUNDLE DE PDF - Agrupa ReportGroups que vêm do mesmo arquivo PDF
+// ============================================================================
+
+/**
+ * Interface para bundles de PDF.
+ * Um bundle agrupa múltiplos ReportGroup que vieram do mesmo PDF.
+ */
+export interface PdfBundle {
+  pdfBaseName: string;
+  groups: ReportGroup[];
+}
+
+/**
+ * Extrai o nome base do PDF a partir do ID do grupo.
+ * Ex: "pdf::arquivo.pdf::tipo" → "arquivo.pdf"
+ * Ex: "global::arquivo.pdf::1" → "arquivo.pdf"
+ */
+function extractPdfBaseName(groupId: string): string | null {
+  if (groupId.startsWith('pdf::') || groupId.startsWith('global::')) {
+    const parts = groupId.split('::');
+    return parts[1] || null;
+  }
+  return null;
+}
+
+/**
+ * Agrupa ReportGroups que vêm do mesmo PDF para exibir como abas.
+ * 
+ * IMPORTANTE: Esta função cria GRUPOS VIRTUAIS por classificação.
+ * Extrai todos os docs dos grupos originais e reagrupa por tipo de documento.
+ * 
+ * @param groups - Lista de ReportGroups gerados por groupDocsVisuals
+ * @returns Lista de PdfBundles, onde cada bundle contém grupos separados por classificação
+ */
+export function groupReportsByPdf(groups: ReportGroup[]): PdfBundle[] {
+  const pdfMap = new Map<string, AttachmentDoc[]>();
+  const nonPdfGroups: ReportGroup[] = [];
+
+  // Primeiro, agrupa todos os docs pelo baseName do PDF
+  groups.forEach(group => {
+    const baseName = extractPdfBaseName(group.id);
+    if (baseName) {
+      const list = pdfMap.get(baseName) || [];
+      // Adiciona todos os docs do grupo à lista do PDF
+      list.push(...group.docs);
+      pdfMap.set(baseName, list);
+    } else {
+      // Grupos que não são de PDF (imagens soltas, etc)
+      nonPdfGroups.push(group);
+    }
+  });
+
+  const bundles: PdfBundle[] = [];
+
+  // Para cada PDF, cria grupos virtuais por classificação
+  pdfMap.forEach((allDocs, baseName) => {
+    // Agrupa docs por classificação
+    const docsByClassification = new Map<string, AttachmentDoc[]>();
+
+    allDocs.forEach(doc => {
+      const classification = doc.classification || 'indeterminado';
+      const list = docsByClassification.get(classification) || [];
+      list.push(doc);
+      docsByClassification.set(classification, list);
+    });
+
+    // Cria grupos virtuais para cada classificação
+    const virtualGroups: ReportGroup[] = [];
+
+    docsByClassification.forEach((docs, classification) => {
+      // Ordena docs por source (página)
+      docs.sort((a, b) => a.source.localeCompare(b.source, undefined, { numeric: true }));
+
+      // Determina status do grupo
+      let groupStatus: ReportGroup['status'] = 'done';
+      if (docs.some(d => d.status === 'error')) groupStatus = 'error';
+      else if (docs.some(d => d.status === 'processing')) groupStatus = 'processing';
+      else if (docs.some(d => d.status === 'pending')) groupStatus = 'pending';
+
+      const representative = docs[0];
+
+      virtualGroups.push({
+        id: `virtual::${baseName}::${classification}`,
+        title: `${baseName} - ${classification}`,
+        docIds: docs.map(d => d.id),
+        docs: docs,
+        date: representative?.metadata?.reportDate,
+        type: representative?.metadata?.reportType || classification,
+        status: groupStatus
+      });
+    });
+
+    bundles.push({ pdfBaseName: baseName, groups: virtualGroups });
+  });
+
+  // Grupos solo (imagens, etc) - cada um é seu próprio bundle
+  nonPdfGroups.forEach(g => {
+    bundles.push({ pdfBaseName: '', groups: [g] });
+  });
+
+  if (DEBUG_LOGS) {
+    console.log('[Debug][Grouping] groupReportsByPdf output', {
+      totalBundles: bundles.length,
+      multiBundles: bundles.filter(b => b.groups.length > 1).length,
+      classifications: bundles.map(b => b.groups.map(g => g.id.split('::')[2]).filter(Boolean))
+    });
+  }
+
+  return bundles;
+}
+

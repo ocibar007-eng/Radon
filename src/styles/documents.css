@@ -625,3 +625,58 @@
 .doc-group-add-amber:hover {
   background: rgba(245, 158, 11, 0.1);
 }
+
+/* === PDF DOCUMENT BUNDLE (TABS) === */
+.pdf-bundle-card {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.pdf-bundle-card:hover {
+  border-color: var(--color-border-subtle);
+}
+
+/* Barra de Abas Premium */
+.pdf-bundle-card .tabs-bar {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.2) 100%);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+.pdf-bundle-card .tabs-bar::-webkit-scrollbar {
+  height: 4px;
+}
+
+.pdf-bundle-card .tabs-bar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.pdf-bundle-card .tabs-bar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+/* Botão de Aba */
+.pdf-bundle-card .tab-button {
+  min-width: 70px;
+  justify-content: center;
+}
+
+.pdf-bundle-card .tab-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3);
+}
+
+/* Remove border-radius do card interno quando dentro do bundle */
+.pdf-bundle-card .bundle-content .report-card-unified {
+  border-radius: 0;
+  border: none;
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.pdf-bundle-card .bundle-content .report-card-unified .rcu-header {
+  border-radius: 0;
+}

@@ -15,8 +15,10 @@ import {
   PedidoMedicoTemplate,
   TermoConsentimentoTemplate,
   QuestionarioTemplate,
-  GuiaAutorizacaoTemplate
+  GuiaAutorizacaoTemplate,
+  AnotacaoClinicaTemplate
 } from '../../components/templates';
+import { MultiDocumentTabs } from '../../components/MultiDocumentTabs';
 
 
 interface Props {
@@ -324,85 +326,64 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
       )}
 
 
-      {/* CORPO DO CARD */}
+      {/* CORPO DO CARD - COM ABAS SE TIVER MÚLTIPLOS TIPOS */}
       <div className="rcu-body">
-        {/* Renderização Adaptativa por Tipo de Documento */}
         {(() => {
-          // Para documentos que não são laudo_previo, usar templates específicos
-          const docType = group.docs[0]?.classification;
+          // Verifica se temos documentos adaptativos misturados (Cenário Multi-Doc PDF)
+          const docTypes = group.docs.map(d => d.classification);
+          const hasAdaptive = docTypes.some(t => ['pedido_medico', 'guia_autorizacao', 'termo_consentimento', 'questionario', 'assistencial'].includes(t));
+          const hasLaudo = docTypes.includes('laudo_previo');
 
-          // 🔍 DEBUG: Log para investigar por que templates não aparecem
-          console.log('[ReportGroupCard] Rendering:', {
-            docType,
-            groupId: group.id,
-            hasExtractedData: !!unifiedDoc?.extractedData,
-            extractedDataKeys: unifiedDoc?.extractedData ? Object.keys(unifiedDoc.extractedData) : [],
-            hasDetailedAnalysis: !!unifiedDoc?.detailedAnalysis,
-            isStructured: !!structuredData
-          });
-
-          // ⚠️ IMPORTANTE: Verificar tipo ANTES de qualquer fallback
-          const isAdaptiveType = ['pedido_medico', 'termo_consentimento', 'questionario', 'guia_autorizacao'].includes(docType || '');
-
-          if (isAdaptiveType) {
-            console.log('[ReportGroupCard] 🎭 Documento adaptativo detectado:', docType);
-          }
-
-          // Renderizar o template correspondente
-          if (docType === 'pedido_medico') {
-            const pedidoData = unifiedDoc?.extractedData || {};
-            console.log('[ReportGroupCard] 📄 Renderizando PedidoMedicoTemplate:', pedidoData);
-            return <PedidoMedicoTemplate data={pedidoData} />;
-          }
-
-          if (docType === 'termo_consentimento') {
-            const termoData = unifiedDoc?.extractedData || {};
-            console.log('[ReportGroupCard] 📜 Renderizando TermoConsentimentoTemplate:', termoData);
-            return <TermoConsentimentoTemplate data={termoData} />;
-          }
-
-          if (docType === 'questionario') {
-            const questionarioData = unifiedDoc?.extractedData || {};
-            console.log('[ReportGroupCard] 📋 Renderizando QuestionarioTemplate:', questionarioData);
-            return <QuestionarioTemplate data={questionarioData} />;
-          }
-
-          if (docType === 'guia_autorizacao') {
-            const guiaData = unifiedDoc?.extractedData || {};
-            console.log('[ReportGroupCard] 💳 Renderizando GuiaAutorizacaoTemplate:', guiaData);
-            return <GuiaAutorizacaoTemplate data={guiaData} />;
-          }
-
-          // ⚠️ IMPORTANTE: Para documentos adaptativos, NÃO usar fallback de laudo
-          if (isAdaptiveType) {
-            // Se extractedData está vazio, mostrar estado de aguardando
-            const hasExtractedData = unifiedDoc?.extractedData && Object.keys(unifiedDoc.extractedData).length > 1;
-
-            if (!hasExtractedData) {
-              return (
-                <div className="mb-4 p-4 bg-amber-500/10 border border-amber-500/30 rounded">
-                  <p className="text-sm text-amber-400 flex items-center gap-2">
-                    <Layers size={16} className="animate-pulse" />
-                    Aguardando extração de dados estruturados...
-                  </p>
-                  <p className="text-xs text-tertiary mt-2">
-                    Se o documento foi processado antes da atualização do sistema, delete e faça upload novamente para usar a nova máscara.
-                  </p>
-                </div>
-              );
-            }
-
-            // Se tiver dados mas template não renderizou nada, mostrar fallback genérico
+          // Se tiver Laudo + Outros, usa o sistema de Abas
+          if (hasAdaptive && hasLaudo) {
             return (
-              <div className="mb-4">
-                <p className="text-sm text-secondary">
-                  Documento classificado como <span className="font-semibold">{docType}</span> mas com dados parciais.
-                </p>
+              <div className="h-[500px] border-t border-white/5">
+                <MultiDocumentTabs
+                  docs={group.docs}
+                  renderLaudoContent={(doc) => (
+                    <div className="p-4">
+                      {/* Renderiza o Laudo Unificado */}
+                      {isStructured && structuredData ? (
+                        renderStructuredFindings(structuredData)
+                      ) : (
+                        meta.summary && (
+                          <div className="mb-4">
+                            <h4 className="rcu-section-title mb-2">Resumo (Análise Simples)</h4>
+                            <p className="text-sm text-secondary leading-relaxed">{meta.summary}</p>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  )}
+                />
               </div>
             );
           }
 
-          // Para laudo_previo ou outros tipos, usar renderização estruturada existente
+          // FALLBACK: Comportamento antigo para grupos homogêneos ou sem laudo misturado
+          // Para documentos que não são laudo_previo, usar templates específicos (se for grupo só de adaptativos)
+          const docType = group.docs[0]?.classification;
+
+          // ... (Rest of the previous logic for homogeneous groups)
+          const isAdaptiveType = ['pedido_medico', 'termo_consentimento', 'questionario', 'guia_autorizacao', 'assistencial'].includes(docType || '');
+
+          if (isAdaptiveType) {
+            // ... (Keep existing adaptive logic for single-type groups)
+            if (docType === 'pedido_medico') return <PedidoMedicoTemplate data={unifiedDoc?.extractedData || {}} />;
+            if (docType === 'termo_consentimento') return <TermoConsentimentoTemplate data={unifiedDoc?.extractedData || {}} />;
+            if (docType === 'questionario') return <QuestionarioTemplate data={unifiedDoc?.extractedData || {}} />;
+            if (docType === 'guia_autorizacao') return <GuiaAutorizacaoTemplate data={unifiedDoc?.extractedData || {}} />;
+            if (docType === 'assistencial') return <AnotacaoClinicaTemplate data={unifiedDoc?.extractedData || {}} verbatimText={plainText} />;
+
+            // Fallback genérico para adaptativo
+            return (
+              <div className="p-4">
+                <p className="text-sm text-secondary">Documento: <span className="font-semibold">{docType}</span></p>
+              </div>
+            );
+          }
+
+          // Renderização Padrão de Laudo (Unificado)
           return isStructured && structuredData ? (
             renderStructuredFindings(structuredData)
           ) : (
@@ -420,7 +401,8 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
           );
         })()}
 
-        {!isExpanded && isStructured && (
+        {/* Footer actions (View Original) - Only show if not identifying tabs (tabs have their own internal structure) */}
+        {!isExpanded && isStructured && !group.docs.some(d => ['pedido_medico'].includes(d.classification)) && (
           <div className="flex justify-center mt-4 pt-4 border-t border-dashed border-subtle">
             <button className="text-xs text-tertiary hover:text-accent flex items-center gap-1 transition-colors" onClick={() => setIsExpanded(true)}>
               <FileText size={12} /> Ver Texto Original Completo
@@ -430,6 +412,7 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
 
         {isExpanded && (
           <div className="rcu-full-content animate-fade-in">
+            {/* ... (Existing expanded content logic) ... */}
             <div className="rcu-content-header" onClick={() => setIsExpanded(false)} style={{ cursor: 'pointer' }} title="Clique para recolher">
               <h4 className="rcu-section-title flex items-center gap-2">
                 <ChevronUp size={16} /> Texto Original (Íntegra)

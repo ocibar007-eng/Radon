@@ -368,9 +368,16 @@ export async function extractReportDetailedMetadata(fullText: string): Promise<R
 export async function generateClinicalSummary(docs: AttachmentDoc[]): Promise<ClinicalSummary | null> {
   if (docs.length === 0) return null;
 
-  const docsInput = docs.map(d => ({
+  // IMPORTANTE: Filtrar laudos prévios para não contaminar o resumo clínico com achados de exames anteriores.
+  // O resumo deve ser baseado apenas em pedido médico, questionários, guias e documentos de suporte.
+  const contextDocs = docs.filter(d => d.classification !== 'laudo_previo');
+
+  if (contextDocs.length === 0) return null;
+
+  const docsInput = contextDocs.map(d => ({
     doc_id: d.id,
     source: d.source,
+    classification: d.classification, // Adicionar classificação para ajudar o modelo
     verbatim: d.verbatimText || ''
   }));
 
