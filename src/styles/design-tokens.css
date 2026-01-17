@@ -5,18 +5,18 @@
 /* MIGRATION: OCR Batch Design System - Zinc Palette */
 
 :root {
-  /* === NEW DESIGN SYSTEM: Colors (Zinc Base) === */
-  --color-bg-primary: #1e1e22;
-  --color-bg-secondary: #252529;
-  --color-bg-tertiary: #2f2f33;
-  --color-bg-elevated: #3f3f46;
+  /* Core surfaces (Zinc) */
+  --color-bg-primary: #18181b;
+  --color-bg-secondary: #1f1f24;
+  --color-bg-tertiary: #27272a;
+  --color-bg-elevated: #2f2f36;
 
-  --color-text-primary: #fafafa;
+  --color-text-primary: #f4f4f5;
   --color-text-secondary: #a1a1aa;
   --color-text-muted: #71717a;
 
   --color-border-default: #27272a;
-  --color-border-subtle: #3f3f46;
+  --color-border-subtle: #3a3a44;
 
   --color-accent-primary: #f59e0b;
   --color-accent-rgb: 245, 158, 11;
@@ -24,17 +24,17 @@
   --color-accent-danger: #ef4444;
 
   /* Gradients */
-  --gradient-header: linear-gradient(135deg, #18181b 0%, #27272a 100%);
+  --gradient-header: linear-gradient(135deg, #16161a 0%, #222227 100%);
   --gradient-button: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
   --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  --gradient-shimmer: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.08) 50%, transparent 100%);
+  --gradient-shimmer: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.07) 50%, transparent 100%);
 
   /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-  --shadow-glow: 0 0 20px rgba(245, 158, 11, 0.3);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 6px 10px -6px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 12px 20px -12px rgba(0, 0, 0, 0.45);
+  --shadow-xl: 0 20px 32px -18px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 24px rgba(245, 158, 11, 0.25);
 
   /* Spacing Scale */
   --space-1: 0.25rem;
@@ -50,14 +50,14 @@
   /* Border Radius */
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
-  --radius-2xl: 1.5rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.5rem;
+  --radius-2xl: 0.5rem;
   --radius-full: 9999px;
 
   /* Typography */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+  --font-sans: 'Geist Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono', 'JetBrains Mono', 'Fira Code', Consolas, monospace;
 
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
@@ -79,12 +79,12 @@
   --z-toast: 150;
   --z-tooltip: 200;
 
-  /* === COMPATIBILITY ALIASES === */
+  /* Compatibility aliases */
   --bg-app: var(--color-bg-primary);
   --bg-surface: var(--color-bg-secondary);
   --bg-surface-elevated: var(--color-bg-tertiary);
   --bg-surface-active: var(--color-bg-elevated);
-  --bg-translucent: rgba(24, 24, 27, 0.85);
+  --bg-translucent: rgba(18, 18, 20, 0.88);
   --border-subtle: var(--color-border-default);
   --border-strong: var(--color-border-subtle);
   --border-focus: var(--color-text-muted);
@@ -94,7 +94,7 @@
   --text-on-accent: #ffffff;
   --accent-primary: var(--color-accent-primary);
   --accent-hover: #d97706;
-  --accent-subtle: rgba(245, 158, 11, 0.10);
+  --accent-subtle: rgba(245, 158, 11, 0.1);
 
   /* Old Slate primitives */
   --c-slate-950: var(--color-bg-primary);
@@ -109,7 +109,7 @@
   --c-slate-50: var(--color-text-primary);
   --c-amber-500: var(--color-accent-primary);
   --c-amber-600: #d97706;
-  --c-amber-glow: rgba(245, 158, 11, 0.10);
+  --c-amber-glow: rgba(245, 158, 11, 0.1);
 
   /* Status Colors */
   --status-success-bg: rgba(16, 185, 129, 0.15);
@@ -124,13 +124,13 @@
   --status-auto-text: #c084fc;
 
   --effect-inner-glow: none;
-  --effect-ring-focus: 0 0 0 2px var(--color-bg-primary), 0 0 0 4px var(--color-text-muted);
+  --effect-ring-focus: 0 0 0 2px var(--color-bg-primary), 0 0 0 4px rgba(245, 158, 11, 0.35);
   --ease-snappy: cubic-bezier(0.2, 0, 0.2, 1);
   --duration-fast: 150ms;
   --duration-normal: 200ms;
 }
 
-/* GLOBAL RESET & BASE */
+/* Global reset & base */
 *,
 *::before,
 *::after {
@@ -158,17 +158,17 @@ body {
 
 /* Glassmorphism Utilities */
 .glass {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .glass-light {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 .glass-panel {

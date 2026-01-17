@@ -254,64 +254,80 @@ OBJETIVO:
 Extrair e consolidar TODAS as informações clínicas relevantes que impactam a interpretação radiológica.
 NÃO INVENTE DADOS. Se não encontrar, escreva "Não informado" ou omita o campo.
 
-ESTRUTURA OBRIGATÓRIA DO RESUMO (9 SEÇÕES):
+ESTRUTURA OBRIGATÓRIA DO RESUMO (12 SEÇÕES):
 
 1. IDENTIFICAÇÃO E CONTEXTO
    - Nome completo do paciente
+   - ID/Prontuário
    - Idade e sexo
-   - Peso e altura (se disponível)
-   - Data do exame
+   - Convênio
+   - Tipo de exame (modalidade)
+   - Protocolo (se disponível)
+   - Data/Hora do exame
+   - Local/Serviço
    - Médico solicitante (nome e CRM se disponível)
 
-2. PERGUNTA CLÍNICA (MAIS IMPORTANTE)
+2. RESUMO EXECUTIVO
+   - 1-2 linhas com o essencial do caso e por que o exame foi pedido
+
+3. PERGUNTA CLÍNICA (MAIS IMPORTANTE)
    - Indicação LITERAL do pedido/guia (copiar exatamente como está escrito)
-   - Interpretação da IA: qual dúvida o exame deve responder?
+   - Dúvida principal: qual pergunta o exame precisa responder
    - Sintoma principal + tempo de evolução
 
-3. HISTÓRIA DA DOENÇA ATUAL
+4. HISTÓRIA DA DOENÇA ATUAL
    - Início, evolução, intensidade
    - Sinais/sintomas-chave (febre, perda ponderal, icterícia, vômitos, hemoptise, déficit neurológico)
    - Exame físico relevante se documentado
-   - Hipóteses diagnósticas sendo consideradas
+   - Hipóteses diagnósticas (máx 3)
 
-4. ANTECEDENTES E COMORBIDADES
+5. CIRURGIAS E PROCEDIMENTOS PRÉVIOS
+   - O quê, quando, complicações
+
+6. ANTECEDENTES E COMORBIDADES
    - Oncologia: tipo histológico, estadiamento, data diagnóstico, tratamentos
-   - Cirurgias prévias: o quê, quando, complicações
-   - Doenças crônicas: IRC, cirrose, ICC, DPOC, imunossupressão
-   - Patologias pregressas relevantes
+   - Doenças crônicas relevantes: IRC, cirrose, ICC, DPOC, imunossupressão
+   - Infecções recentes quando pertinente
+   - Histórico familiar / gineco-obstétrico quando disponível
 
-5. MEDICAÇÕES E ALERGIAS
-   - Medicamentos em uso (lista completa)
+7. MEDICAÇÕES E CONDIÇÕES QUE MUDAM CONDUTA
+   - Medicamentos em uso relevantes
    - Anticoagulantes/antiagregantes
    - Quimioterapia/imunoterapia/radioterapia recentes
-   - Alergias medicamentosas (especificar reação e gravidade)
-   - Alergia a contraste iodado (tipo de reação prévia)
+   - Corticoide/imunossupressores
+   - Antibiótico já iniciado
 
-6. DADOS DE SEGURANÇA (TC/RM)
-   - Função renal: creatinina/TFG e data
+8. ALERGIAS E SEGURANÇA
+   - Alergia a contraste iodado (tipo de reação e gravidade)
+   - Função renal: creatinina/eTFG e data
    - Gestação (se aplicável)
    - Para RM: marca-passo, implantes, clipes, neuroestimuladores
    - Corpos metálicos (fragmentos, próteses)
 
-7. EXAMES LABORATORIAIS RELEVANTES
+9. EXAMES LABORATORIAIS RELEVANTES
    - Hemograma/leucócitos/PCR (infecção)
    - Bilirrubinas/enzimas hepáticas (colestase)
    - Marcadores tumorais se oncológico
    - Outros labs citados nos documentos
 
-8. EXAMES PRÉVIOS E COMPARATIVOS
-   - Exame anterior: qual tipo, data, onde foi realizado
-   - Achados prévios relevantes (resumo conciso)
-   - Biópsias/anatomopatológico com datas
-   - Estadiamentos prévios (LI-RADS, BI-RADS, PI-RADS)
+10. EXAMES PRÉVIOS E COMPARATIVOS
+    - Exame anterior: qual tipo, data, onde foi realizado
+    - Achados prévios relevantes (resumo conciso)
+    - Biópsias/anatomopatológico com datas
+    - Estadiamentos prévios (LI-RADS, BI-RADS, PI-RADS)
 
-9. INFORMAÇÕES DO PROCEDIMENTO
-   - Tipo de contraste autorizado (iodado, gadolínio)
-   - Quantidade de contraste (se especificada)
-   - Preparos especiais: gel vaginal, manitol, buscopan, etc.
-   - Jejum/preparo realizado
-   - Intercorrências documentadas
-   - Capacidade de apneia/dispneia, claustrofobia, sedação
+11. STATUS OPERACIONAL
+    - Contraste: tipo, via e quantidade
+    - Pré-medicações: Buscopan, manitol, gel vaginal, etc.
+    - Jejum/preparo realizado
+    - Contraste oral/retal
+    - Intercorrências documentadas
+    - Capacidade de apneia/dispneia, claustrofobia, sedação
+    - Peso/IMC (se relevante)
+
+12. TEXTO DO PEDIDO (LEGÍVEL)
+    - Transcrever apenas o que for legível
+    - Use [ilegível] para trechos não decifráveis
 
 FORMATO DE SAÍDA JSON:
 {
@@ -326,18 +342,21 @@ FORMATO DE SAÍDA JSON:
   ],
   "resumo_clinico_consolidado": {
     "texto_em_topicos": [
-      { "secao": "Identificação", "itens": ["Nome: ...", "Idade: ...", "Sexo: ...", "Médico: ..."] },
-      { "secao": "Pergunta Clínica", "itens": ["Indicação literal: ...", "Interpretação IA: ...", "Sintoma principal: ..."] },
-      { "secao": "História Atual", "itens": ["..."] },
-      { "secao": "Antecedentes", "itens": ["Cirurgias: ...", "Comorbidades: ..."] },
-      { "secao": "Medicações e Alergias", "itens": ["Medicamentos: ...", "Alergias: ..."] },
-      { "secao": "Segurança", "itens": ["Função renal: ...", "Contraindicações RM: ..."] },
-      { "secao": "Laboratório", "itens": ["..."] },
-      { "secao": "Exames Prévios", "itens": ["Tipo: ...", "Data: ...", "Achados: ..."] },
-      { "secao": "Procedimento", "itens": ["Contraste: ...", "Preparos: ...", "Intercorrências: ..."] }
+      { "secao": "Identificação e contexto", "itens": ["Nome: ...", "ID/Prontuário: ...", "Idade/Sexo: ...", "Convênio: ...", "Tipo de exame: ...", "Protocolo: ...", "Data/Hora: ...", "Local/Serviço: ...", "Médico solicitante (nome/CRM): ..."] },
+      { "secao": "Resumo executivo", "itens": ["..."] },
+      { "secao": "Pergunta clínica", "itens": ["Dúvida principal: ...", "Indicação literal: ...", "Sintoma principal + tempo: ..."] },
+      { "secao": "História da doença atual", "itens": ["Início/evolução/intensidade: ...", "Sinais/sintomas-chave: ...", "Exame físico relevante: ...", "Hipóteses consideradas (máx 3): ..."] },
+      { "secao": "Cirurgias e procedimentos prévios", "itens": ["..."] },
+      { "secao": "Antecedentes e comorbidades", "itens": ["Oncologia: ...", "Doenças crônicas relevantes: ...", "Infecções recentes: ...", "Histórico familiar/gineco-obstétrico: ..."] },
+      { "secao": "Medicações e condições que mudam conduta", "itens": ["Anticoagulantes/antiagregantes: ...", "Quimioterapia/imunoterapia/radioterapia: ...", "Corticoide/imunossupressores: ...", "Antibiótico já iniciado: ..."] },
+      { "secao": "Alergias e segurança", "itens": ["Alergia a contraste iodado: ...", "Função renal (creatinina/eTFG + data): ...", "RM: implantes/clip/neuroestimulador/bomba: ...", "Corpos metálicos: ...", "Gestação: ..."] },
+      { "secao": "Laboratório relevante", "itens": ["Hemograma/Leuco/PCR: ...", "Bilirrubinas/enzimas hepáticas: ...", "Marcadores tumorais: ...", "Outros labs: ..."] },
+      { "secao": "Exames prévios e comparativos", "itens": ["Exames anteriores (data/local/serviço): ...", "Achados prévios-chave: ...", "Biópsias/anatomopatológico (datas): ...", "Estadiamentos/score: ..."] },
+      { "secao": "Status operacional", "itens": ["Contraste (tipo/via/quantidade): ...", "Pré-medicações (Buscopan/manitol/gel vaginal): ...", "Jejum/preparo: ...", "Contraste oral/retal: ...", "Apneia/dispneia: ...", "Claustrofobia/sedação: ...", "Peso/IMC: ...", "Intercorrências: ..."] },
+      { "secao": "Texto do pedido (legível)", "itens": ["..."] }
     ]
   },
-  "markdown_para_ui": "Resumo Clínico Estruturado\\n\\nPaciente: Nome Completo\\nIdade/Sexo: XX anos, M/F\\nExame: Tipo do Exame\\nMédico Solicitante: Dr. Nome (CRM)\\n\\n1. INDICAÇÃO E QUEIXAS\\n• Indicação literal: texto exato do pedido\\n• Interpretação: o que o exame deve esclarecer\\n• Queixa atual: sintoma principal e evolução\\n\\n2. HISTÓRICO CLÍNICO\\n• Cirurgias: lista\\n• Patologias: lista\\n• Ginecológico: DUM, gestação\\n\\n3. MEDICAÇÕES E ALERGIAS\\n• Medicamentos: lista completa\\n• Alergias: descrição ou Nenhuma relatada\\n\\n4. INFORMAÇÕES DO EXAME\\n• Contraste: tipo e quantidade se disponível\\n• Preparos: gel vaginal, manitol, buscopan, etc.\\n• Função renal: creatinina X (data)\\n\\n5. EXAMES PRÉVIOS\\n• Tipo: qual exame\\n• Data: quando\\n• Resumo: achados relevantes\\n\\n6. INTERCORRÊNCIAS\\n• Descrição ou Nenhuma documentada",
+  "markdown_para_ui": "Resumo Clínico Estruturado\\n\\nPaciente: Nome Completo\\nID/Prontuário: ...\\nIdade/Sexo: XX anos, M/F\\nConvênio: ...\\nTipo de exame: ...\\nProtocolo: ...\\nData/Hora: ...\\nLocal/Serviço: ...\\nMédico solicitante: Dr. Nome (CRM)\\n\\n1. RESUMO EXECUTIVO\\n• ...\\n\\n2. PERGUNTA CLÍNICA\\n• Dúvida principal: ...\\n• Indicação literal: texto exato do pedido\\n• Sintoma principal + tempo: ...\\n\\n3. HISTÓRIA DA DOENÇA ATUAL\\n• Início/evolução/intensidade: ...\\n• Sinais/sintomas-chave: ...\\n• Exame físico relevante: ...\\n• Hipóteses consideradas (máx 3): ...\\n\\n4. CIRURGIAS E PROCEDIMENTOS PRÉVIOS\\n• ...\\n\\n5. ANTECEDENTES E COMORBIDADES\\n• Oncologia: ...\\n• Doenças crônicas relevantes: ...\\n• Infecções recentes: ...\\n• Histórico familiar/gineco-obstétrico: ...\\n\\n6. MEDICAÇÕES E CONDIÇÕES QUE MUDAM CONDUTA\\n• Anticoagulantes/antiagregantes: ...\\n• Quimioterapia/imunoterapia/radioterapia: ...\\n• Corticoide/imunossupressores: ...\\n• Antibiótico já iniciado: ...\\n\\n7. ALERGIAS E SEGURANÇA\\n• Alergia a contraste iodado: ...\\n• Função renal (creatinina/eTFG + data): ...\\n• RM: implantes/clip/neuroestimulador/bomba: ...\\n• Corpos metálicos: ...\\n• Gestação: ...\\n\\n8. LABORATÓRIO RELEVANTE\\n• Hemograma/Leuco/PCR: ...\\n• Bilirrubinas/enzimas hepáticas: ...\\n• Marcadores tumorais: ...\\n• Outros labs: ...\\n\\n9. EXAMES PRÉVIOS E COMPARATIVOS\\n• Exames anteriores (data/local/serviço): ...\\n• Achados prévios-chave: ...\\n• Biópsias/anatomopatológico (datas): ...\\n• Estadiamentos/score: ...\\n\\n10. STATUS OPERACIONAL\\n• Contraste (tipo/via/quantidade): ...\\n• Pré-medicações (Buscopan/manitol/gel vaginal): ...\\n• Jejum/preparo: ...\\n• Contraste oral/retal: ...\\n• Apneia/dispneia: ...\\n• Claustrofobia/sedação: ...\\n• Peso/IMC: ...\\n• Intercorrências: ...\\n\\n11. TEXTO DO PEDIDO (LEGÍVEL)\\n• Transcreva apenas o que for legível; use [ilegível] para trechos não decifráveis.",
   "cobertura": {
     "doc_ids_assistenciais": ["<lista>"],
     "total_assistencial_detectados": <número>
@@ -350,6 +369,8 @@ REGRAS IMPORTANTES:
 - Seja CONCISO mas COMPLETO
 - Prefira texto direto sem formatação excessiva
 - Se indicação literal não for legível, escreva "Indicação ilegível no documento"
+- Se houver conflito entre documentos, prefixe o item com "[DIVERGENTE]" e liste as versões
+- No texto do pedido, use "[ilegível]" para trechos não decifráveis
 `,
 
 

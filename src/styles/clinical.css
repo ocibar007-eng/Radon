@@ -6,6 +6,231 @@
   padding-top: 0.5rem;
 }
 
+/* Resumo Clínico Estruturado */
+.clinical-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.clinical-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.clinical-card {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.clinical-card--full {
+  grid-column: 1 / -1;
+}
+
+.clinical-card--highlight {
+  border-color: rgba(245, 158, 11, 0.4);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(24, 24, 27, 0.3));
+}
+
+.clinical-card--summary {
+  background: linear-gradient(120deg, rgba(59, 130, 246, 0.08), rgba(24, 24, 27, 0.25));
+}
+
+.clinical-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-border-default);
+}
+
+.clinical-card-title {
+  margin: 0;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  font-weight: 700;
+}
+
+.clinical-hero {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(24, 24, 27, 0.2));
+}
+
+.clinical-hero-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.clinical-patient-name {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+}
+
+.clinical-patient-demographics {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.clinical-hero-sub {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.clinical-hero-sub b {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.clinical-kv {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.clinical-kv-row {
+  display: grid;
+  grid-template-columns: minmax(140px, 1fr) 2fr auto;
+  gap: 0.75rem;
+  align-items: start;
+}
+
+.clinical-kv-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}
+
+.clinical-kv-value {
+  font-size: 0.85rem;
+  color: var(--color-text-primary);
+  line-height: 1.4;
+}
+
+.clinical-text-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.clinical-line {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.clinical-line-text {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.clinical-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.clinical-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+
+.clinical-badge b {
+  font-weight: 600;
+  text-transform: none;
+}
+
+.clinical-badge--danger {
+  background: var(--status-error-bg);
+  color: var(--status-error-text);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.clinical-badge--success {
+  background: var(--status-success-bg);
+  color: var(--status-success-text);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.clinical-badge--info {
+  background: var(--status-info-bg);
+  color: var(--status-info-text);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.clinical-divergence-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  background: var(--status-warning-bg);
+  color: var(--status-warning-text);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.clinical-summary-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.clinical-summary-line {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.clinical-request-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.clinical-request-line {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 720px) {
+  .clinical-kv-row {
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+  }
+}
+
 /* Seção de Fontes (Evidence) */
 .sources-section {
   border-top: 1px solid var(--color-border-default);
