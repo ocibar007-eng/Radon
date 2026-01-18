@@ -69,22 +69,56 @@ export const PreviousReportsTab: React.FC<Props> = ({ groups, onRemoveGroup, onS
     });
   }, [groups, searchTerm]);
 
+  const groupedBundles = useMemo(() => groupReportsByPdf(filteredGroups), [filteredGroups]);
+
+  const stats = useMemo(() => {
+    const documents = filteredGroups.reduce((acc, group) => acc + group.docs.length, 0);
+    return {
+      groups: filteredGroups.length,
+      documents,
+      sources: groupedBundles.length
+    };
+  }, [filteredGroups, groupedBundles]);
+
   return (
     <div
-      className="animate-fade-in"
+      className={`reports-shell animate-fade-in ${isDragOver ? 'is-drag-over' : ''}`}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      style={isDragOver ? { outline: '2px dashed var(--color-accent-primary)', outlineOffset: '6px' } : undefined}
     >
+      <div className="reports-hero">
+        <div className="reports-hero-main">
+          <span className="reports-hero-eyebrow">Histórico do paciente</span>
+          <h3 className="reports-hero-title">Documentos Clínicos</h3>
+          <p className="reports-hero-subtitle">
+            Laudos, pedidos e formulários agrupados por exame para revisão rápida.
+          </p>
+        </div>
+        <div className="reports-hero-stats">
+          <div className="reports-stat">
+            <span>Grupos</span>
+            <strong>{stats.groups}</strong>
+          </div>
+          <div className="reports-stat">
+            <span>Documentos</span>
+            <strong>{stats.documents}</strong>
+          </div>
+          <div className="reports-stat">
+            <span>Arquivos</span>
+            <strong>{stats.sources}</strong>
+          </div>
+        </div>
+      </div>
+
       {/* Search & Actions Bar */}
-      <div className="flex gap-2 mb-4">
+      <div className="reports-toolbar">
         <div className="search-container flex-1 mb-0">
           <Search className="search-icon" size={16} />
           <input
             type="text"
             className="search-input"
-            placeholder="Buscar em laudos prévios (tipo, data, conteúdo)..."
+            placeholder="Buscar em documentos clínicos (tipo, data, conteúdo)..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -93,7 +127,7 @@ export const PreviousReportsTab: React.FC<Props> = ({ groups, onRemoveGroup, onS
         <label>
           <Button as="span" variant="secondary" className="cursor-pointer h-full">
             <UploadCloud size={16} className="mr-2" />
-            Adicionar Laudo
+            Adicionar Documento
           </Button>
           <input
             type="file"
@@ -108,11 +142,11 @@ export const PreviousReportsTab: React.FC<Props> = ({ groups, onRemoveGroup, onS
       <div className="reports-grid">
         {filteredGroups.length === 0 ? (
           <div className="empty-state">
-            {searchTerm ? 'Nenhum laudo encontrado para sua busca.' : 'Nenhum laudo prévio identificado.'}
+            {searchTerm ? 'Nenhum documento encontrado para sua busca.' : 'Nenhum documento clínico identificado.'}
           </div>
         ) : (
           // Agrupa ReportGroups do mesmo PDF para exibir com abas
-          groupReportsByPdf(filteredGroups).map(bundle =>
+          groupedBundles.map(bundle =>
             bundle.groups.length > 1 ? (
               // Bundle com múltiplos tipos → Renderiza com abas
               <PdfDocumentBundle

@@ -467,7 +467,7 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
                     {/* INTAKE / ID */}
                     <section>
                         <div className="section-header">
-                            <h2 className="section-title">Identificação</h2>
+                            <h2 className="section-title">Contexto do Paciente</h2>
                             <button
                                 className="w-8 h-8 flex items-center justify-center rounded-lg bg-transparent hover:bg-zinc-700 text-zinc-400 hover:text-white transition-all cursor-pointer"
                                 title="Editar dados do paciente"
@@ -500,7 +500,7 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
                                 onClick={() => setActiveTab('reports')}
                                 className={`tab-btn ${activeTab === 'reports' ? 'active' : ''}`}
                             >
-                                <History size={16} /> Laudos Prévios
+                                <History size={16} /> Documentos Clínicos
                             </button>
                         </div>
 
@@ -510,7 +510,7 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
                             </span>
                             <span className="divider">·</span>
                             <span className="count-item text-accent">
-                                {counts.laudoGroups} exames detectados <span style={{ opacity: 0.6, fontWeight: 400 }}>({counts.laudoPages} págs)</span>
+                                {counts.laudoGroups} documentos clínicos detectados <span style={{ opacity: 0.6, fontWeight: 400 }}>({counts.laudoPages} págs)</span>
                             </span>
                         </div>
 

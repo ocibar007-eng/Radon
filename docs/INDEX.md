@@ -17,6 +17,7 @@ Bem-vindo à documentação centralizada do Assistente de Laudos Radon.
 
 ## 🎯 Especificações de Funcionalidades
 - [OCR Batch UI Specification](file:///Users/lucasdonizetecamargos/Downloads/app%20(6)/docs/specs/OCR_BATCH_UI_SPECIFICATION.md)
+- [Documentos Clinicos UI Plan](file:///Users/lucasdonizetecamargos/Downloads/app%20(6)/docs/specs/PREVIOUS_DOCUMENTS_UI_IMPLEMENTATION_PLAN.md)
 
 ## 📜 Histórico e Changelog
 - [Resumo da Implementação](file:///Users/lucasdonizetecamargos/Downloads/app%20(6)/docs/changelog/IMPLEMENTATION_SUMMARY.md)

@@ -23,10 +23,7 @@ export const IntakeCard: React.FC<Props> = ({ data, headerDoc }) => {
   return (
     <Card className="intake-card p-0 flex flex-row h-auto min-h-[8rem] border-subtle bg-surface">
       {/* Coluna 1: Imagem (Thumbnail) - Agora com fundo Slate e não Preto */}
-      <div
-        className="w-32 h-full relative border-r border-subtle group cursor-pointer"
-        style={{ backgroundColor: 'var(--color-bg-secondary)' }}
-      >
+      <div className="intake-header-image group cursor-pointer">
         {headerDoc ? (
           <img
             src={headerDoc.previewUrl}
@@ -43,46 +40,53 @@ export const IntakeCard: React.FC<Props> = ({ data, headerDoc }) => {
       </div>
 
       {/* Coluna 2: Dados (Grid) */}
-      <div className="flex-1 p-5 grid grid-cols-2 gap-x-8 gap-y-3 content-center">
+      <div className="intake-body">
         {data ? (
           <>
-            {/* Paciente (Full width visual) */}
-            <div className="col-span-2">
-              <span className="text-[10px] uppercase tracking-wider text-tertiary font-bold mb-1 flex items-center gap-1.5">
+            <div className="intake-header">
+              <span className="intake-label">
                 <User size={10} /> Paciente
               </span>
-              <span className="text-xl text-primary font-bold tracking-tight block break-words" title={data.paciente?.valor}>
+              <span className="intake-name" title={data.paciente?.valor}>
                 {data.paciente?.valor || 'Paciente não identificado'}
               </span>
             </div>
 
-            {/* Realização - Coluna da Esquerda (Sem borda) */}
-            <div className="flex flex-col justify-center min-w-0">
-              <span className="text-[10px] uppercase tracking-wider text-tertiary font-bold mb-0.5 flex items-center gap-1.5 whitespace-nowrap">
-                <Calendar size={10} /> Realização
-              </span>
-              <span className="text-sm font-mono text-accent truncate" title={data.data_exame?.valor}>
-                {data.data_exame?.valor || 'N/A'}
-              </span>
-            </div>
-
-            {/* OS / Pedido - Coluna da Direita (Com borda) */}
-            <div className="flex flex-col justify-center min-w-0 border-l border-subtle pl-4">
-              <span className="text-[10px] uppercase tracking-wider text-tertiary font-bold mb-0.5 flex items-center gap-1.5 whitespace-nowrap">
-                <Hash size={10} /> OS / Pedido
-              </span>
-              <span className="text-base font-mono text-secondary truncate" title={data.os?.valor}>
-                {data.os?.valor || 'N/A'}
-              </span>
+            <div className="intake-meta">
+              <div className="intake-meta-item">
+                <span className="intake-meta-label">
+                  <Calendar size={10} /> Realização
+                </span>
+                <span className="intake-meta-value intake-meta-value--accent" title={data.data_exame?.valor}>
+                  {data.data_exame?.valor || 'N/A'}
+                </span>
+              </div>
+              <div className="intake-meta-item">
+                <span className="intake-meta-label">
+                  <Activity size={10} /> Exame
+                </span>
+                <span className="intake-meta-value" title={data.tipo_exame?.valor}>
+                  {data.tipo_exame?.valor || 'N/A'}
+                </span>
+              </div>
+              <div className="intake-meta-item">
+                <span className="intake-meta-label">
+                  <Hash size={10} /> OS / Pedido
+                </span>
+                <span className="intake-meta-value" title={data.os?.valor}>
+                  {data.os?.valor || 'N/A'}
+                </span>
+              </div>
             </div>
           </>
         ) : (
           /* Loading State (Skeleton) */
-          <div className="col-span-2 flex flex-col gap-3 w-full justify-center">
-            <div className="h-5 bg-surface-elevated rounded w-1/2 animate-pulse" />
-            <div className="flex gap-4">
-              <div className="h-4 bg-surface-elevated rounded w-1/4 animate-pulse" />
-              <div className="h-4 bg-surface-elevated rounded w-1/4 animate-pulse" />
+          <div className="intake-skeleton">
+            <div className="intake-skeleton-line" />
+            <div className="intake-skeleton-row">
+              <div className="intake-skeleton-chip" />
+              <div className="intake-skeleton-chip" />
+              <div className="intake-skeleton-chip" />
             </div>
           </div>
         )}

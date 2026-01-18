@@ -10,6 +10,8 @@
   --color-bg-secondary: #1f1f24;
   --color-bg-tertiary: #27272a;
   --color-bg-elevated: #2f2f36;
+  --color-bg-panel: #202027;
+  --color-bg-panel-strong: #26262e;
 
   --color-text-primary: #f4f4f5;
   --color-text-secondary: #a1a1aa;
@@ -17,6 +19,7 @@
 
   --color-border-default: #27272a;
   --color-border-subtle: #3a3a44;
+  --color-border-strong: #434351;
 
   --color-accent-primary: #f59e0b;
   --color-accent-rgb: 245, 158, 11;
@@ -28,6 +31,7 @@
   --gradient-button: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
   --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
   --gradient-shimmer: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.07) 50%, transparent 100%);
+  --gradient-panel: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(24, 24, 27, 0.3));
 
   /* Shadows */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
@@ -35,6 +39,7 @@
   --shadow-lg: 0 12px 20px -12px rgba(0, 0, 0, 0.45);
   --shadow-xl: 0 20px 32px -18px rgba(0, 0, 0, 0.5);
   --shadow-glow: 0 0 24px rgba(245, 158, 11, 0.25);
+  --shadow-card: 0 16px 28px -18px rgba(0, 0, 0, 0.6);
 
   /* Spacing Scale */
   --space-1: 0.25rem;
@@ -86,7 +91,7 @@
   --bg-surface-active: var(--color-bg-elevated);
   --bg-translucent: rgba(18, 18, 20, 0.88);
   --border-subtle: var(--color-border-default);
-  --border-strong: var(--color-border-subtle);
+  --border-strong: var(--color-border-strong);
   --border-focus: var(--color-text-muted);
   --text-primary: var(--color-text-primary);
   --text-secondary: var(--color-text-secondary);
@@ -122,6 +127,8 @@
   --status-info-text: #60a5fa;
   --status-auto-bg: rgba(168, 85, 247, 0.15);
   --status-auto-text: #c084fc;
+  --status-neutral-bg: rgba(148, 163, 184, 0.12);
+  --status-neutral-text: #cbd5e1;
 
   --effect-inner-glow: none;
   --effect-ring-focus: 0 0 0 2px var(--color-bg-primary), 0 0 0 4px rgba(245, 158, 11, 0.35);

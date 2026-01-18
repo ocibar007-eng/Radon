@@ -109,26 +109,26 @@ export const PdfDocumentBundle: React.FC<Props> = ({ groups, onRemoveGroup, onSp
     return (
         <div className="pdf-bundle-card">
             {/* Header Compacto */}
-            <div className="px-4 py-3 border-b border-white/5 flex items-center justify-between">
-                <div className="flex items-center gap-3">
+            <div className="pdf-bundle-header">
+                <div className="pdf-bundle-header-main">
                     <FileText size={16} className="text-accent shrink-0" />
-                    <div>
-                        <h3 className="text-sm font-medium text-primary truncate max-w-[300px]" title={bundleTitle}>
+                    <div className="pdf-bundle-header-text">
+                        <h3 className="pdf-bundle-title" title={bundleTitle}>
                             {bundleTitle}
                         </h3>
-                        <span className="text-[11px] text-tertiary">
+                        <span className="pdf-bundle-subtitle">
                             {groups.length} tipo{groups.length > 1 ? 's' : ''} de documento
                         </span>
                     </div>
                 </div>
-                <div className="flex items-center gap-1.5 text-tertiary text-xs">
+                <div className="pdf-bundle-pages">
                     <Layers size={12} />
                     <span>{totalDocs} pg{totalDocs > 1 ? 's' : ''}</span>
                 </div>
             </div>
 
             {/* Barra de Abas - Design Premium */}
-            <div className="tabs-bar flex items-center gap-1 px-3 py-2 bg-black/30 border-b border-white/5 overflow-x-auto">
+            <div className="tabs-bar flex items-center gap-1 px-3 py-2 border-b border-white/5 overflow-x-auto">
                 {sortedGroups.map(group => {
                     const isActive = group.id === activeGroup?.id;
                     const docType = group.docs[0]?.classification || 'outro';
