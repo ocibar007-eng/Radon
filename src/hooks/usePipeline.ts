@@ -241,7 +241,7 @@ async function processItem(
         }
 
         case 'doc': {
-            const doc = session.docs.find((d: any) => d.id === item.docId);
+            const doc = latestDocs.find((d: any) => d.id === item.docId) || session.docs.find((d: any) => d.id === item.docId);
             if (!doc) {
                 throw new Error(`Doc ${item.docId} not ready`);
             }

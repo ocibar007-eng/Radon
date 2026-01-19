@@ -14,9 +14,10 @@ export async function processHeader(file: File): Promise<PatientRegistrationDeta
  * Encapsula a lógica de decisão entre "Classificação Manual vs Automática".
  */
 export async function processDocument(file: File, currentDoc: AttachmentDoc): Promise<Partial<AttachmentDoc>> {
+  const shouldForceClassification = currentDoc.classificationSource === 'manual' && currentDoc.classification;
   // Passamos a classificação existente (se houver) para o adapter
   // Se o usuário forçou 'laudo_previo', o adapter não vai tentar adivinhar, só extrair texto.
-  const analysis = await GeminiAdapter.analyzeDocument(file, currentDoc.classification);
+  const analysis = await GeminiAdapter.analyzeDocument(file, shouldForceClassification ? currentDoc.classification : undefined);
 
   const isManualClassification = currentDoc.classificationSource === 'manual';
   const isManualHint = currentDoc.reportGroupHintSource === 'manual';
@@ -30,20 +31,31 @@ export async function processDocument(file: File, currentDoc: AttachmentDoc): Pr
     : analysis.reportGroupHint;
 
   // EXTRAÇÃO ESPECÍFICA DE DADOS (Templates Adaptativos - P0)
+  const normalizeVerbatimText = (text: string) =>
+    text
+      .replace(/\r/g, '')
+      .replace(/[ \t]+/g, ' ')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+
   let extractedData: any = null;
-  if (finalClassification !== 'laudo_previo' &&
-    finalClassification !== 'assistencial' &&
-    finalClassification !== 'indeterminado' &&
-    analysis.verbatimText) {
-    try {
-      const { extractDocumentTypeSpecificData } = await import('../adapters/gemini-extract');
-      extractedData = await extractDocumentTypeSpecificData(
-        finalClassification,
-        analysis.verbatimText
-      );
-      console.log(`[Pipeline] ✅ Dados extraídos para ${finalClassification}`);
-    } catch (extractError) {
-      console.error('[Pipeline] ❌ Erro na extração:', extractError);
+  if (analysis.verbatimText) {
+    if (finalClassification === 'assistencial') {
+      extractedData = {
+        transcricao_corrigida: normalizeVerbatimText(analysis.verbatimText)
+      };
+    } else if (finalClassification !== 'laudo_previo' &&
+      finalClassification !== 'indeterminado') {
+      try {
+        const { extractDocumentTypeSpecificData } = await import('../adapters/gemini-extract');
+        extractedData = await extractDocumentTypeSpecificData(
+          finalClassification,
+          analysis.verbatimText
+        );
+        console.log(`[Pipeline] ✅ Dados extraídos para ${finalClassification}`);
+      } catch (extractError) {
+        console.error('[Pipeline] ❌ Erro na extração:', extractError);
+      }
     }
   }
 

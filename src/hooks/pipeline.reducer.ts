@@ -14,7 +14,10 @@ export function pipelineReducer(state: PipelineState, action: PipelineAction): P
             const newItems = action.items.filter(item => {
                 const id = getItemId(item);
                 const inQueue = state.queue.some(q => getItemId(q) === id);
-                const inProcessing = state.processing.has(id);
+                const existing = state.processing.get(id);
+                const inProcessing = existing
+                    ? (existing.status === 'processing' || existing.status === 'retrying')
+                    : false;
                 return !inQueue && !inProcessing;
             });
 

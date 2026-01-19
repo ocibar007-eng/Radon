@@ -60,6 +60,25 @@ export const MultiDocumentTabs: React.FC<Props> = ({ docs, renderLaudoContent })
         });
     }, [docs]);
 
+    const typeCounts = useMemo(() => {
+        const counts: Record<string, number> = {};
+        sortedDocs.forEach(doc => {
+            counts[doc.classification] = (counts[doc.classification] || 0) + 1;
+        });
+        return counts;
+    }, [sortedDocs]);
+
+    const typeIndexes = useMemo(() => {
+        const counters: Record<string, number> = {};
+        const indexes = new Map<string, number>();
+        sortedDocs.forEach(doc => {
+            const count = (counters[doc.classification] || 0) + 1;
+            counters[doc.classification] = count;
+            indexes.set(doc.id, count);
+        });
+        return indexes;
+    }, [sortedDocs]);
+
     // Ensure active tab is valid
     const activeDoc = useMemo(() =>
         sortedDocs.find(d => d.id === activeTabId) || sortedDocs[0],
@@ -113,7 +132,12 @@ export const MultiDocumentTabs: React.FC<Props> = ({ docs, renderLaudoContent })
             <div className="flex items-center gap-1 p-1 bg-black/20 border-b border-white/5 overflow-x-auto scroller-thin">
                 {sortedDocs.map(doc => {
                     const isActive = doc.id === activeDoc.id;
-                    const label = TAB_LABELS[doc.classification] || doc.classification;
+                    const baseLabel = TAB_LABELS[doc.classification] || doc.classification;
+                    const totalOfType = typeCounts[doc.classification] || 0;
+                    const typeIndex = typeIndexes.get(doc.id);
+                    const label = totalOfType > 1 && typeIndex
+                        ? `${baseLabel} ${typeIndex}`
+                        : baseLabel;
 
                     return (
                         <button

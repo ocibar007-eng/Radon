@@ -60,7 +60,7 @@ export function useWorkspaceActions(patient: Patient | null) {
       source: sourceName,
       previewUrl: tempUrl,
       status: 'pending',
-      classification: forcedType
+      classification: forcedType ?? 'indeterminado'
     };
 
     if (isHeader) {
@@ -261,7 +261,7 @@ export function useWorkspaceActions(patient: Patient | null) {
                 source: sourceName,
                 previewUrl: tempUrl,
                 status: 'pending',
-                classification: forcedType || 'pending' as any, // IA vai classificar corretamente
+                classification: forcedType ?? 'indeterminado',
                 globalGroupId: grupo.laudo_id,
                 globalGroupType: grupo.tipo_detectado,
                 globalGroupSource: displayName,
@@ -557,7 +557,7 @@ export function useWorkspaceActions(patient: Patient | null) {
         source: resolvedName,
         previewUrl: tempUrl,
         status: 'pending',
-        classification: forcedType || 'pending' as any, // IA vai classificar corretamente
+        classification: forcedType ?? 'indeterminado',
         reportGroupHint: sharedHint || '',
         reportGroupHintSource: sharedHint ? 'manual' : undefined
       };
