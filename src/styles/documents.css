@@ -564,6 +564,36 @@
   background: var(--color-bg-secondary);
 }
 
+.rcu-embedded-meta {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-border-default);
+  background: var(--color-bg-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.rcu-embedded-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.rcu-embedded-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.rcu-embedded-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
 .rcu-split-preview {
   margin-top: 0.75rem;
   padding-top: 0.75rem;

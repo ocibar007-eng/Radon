@@ -348,6 +348,30 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
         </div>
       )}
 
+      {isEmbedded && (
+        <div className="rcu-embedded-meta">
+          <div className="rcu-embedded-title">{meta.type}</div>
+          <div className="rcu-embedded-row">
+            <span className="rcu-embedded-item">
+              <Calendar size={12} className="text-accent" /> {meta.date}
+            </span>
+            <span className="rcu-meta-divider">•</span>
+            <span className={`rcu-embedded-item ${meta.isSabin ? 'text-info' : ''}`}>
+              <MapPin size={12} /> {meta.originLabel}
+            </span>
+            {meta.servicoOrigem?.nome &&
+              meta.servicoOrigem.nome !== 'Serviço externo não identificado' && (
+                <>
+                  <span className="rcu-meta-divider">•</span>
+                  <span className="rcu-embedded-item">
+                    <FileText size={12} /> {meta.servicoOrigem.nome}
+                  </span>
+                </>
+              )}
+          </div>
+        </div>
+      )}
+
       {/* METADADOS ADICIONAIS (Laudador e Serviço de Origem) */}
       {!isEmbedded && (meta.laudador || meta.servicoOrigem) && (
         <div className="px-4 py-3 bg-surface-elevated/50 border-b border-subtle">
