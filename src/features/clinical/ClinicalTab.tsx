@@ -149,17 +149,11 @@ const KeyValueRow: React.FC<{
 const TextList: React.FC<{ items: ParsedItem[] }> = ({ items }) => (
   <div className="clinical-text-list">
     {items.map((item, idx) => (
-      <div key={`${item.raw}-${idx}`} className="clinical-line">
-        <span className="clinical-line-marker" aria-hidden>
-          •
-        </span>
-        {item.label ? (
-          <span className="clinical-line-label">{item.label}:</span>
-        ) : (
-          <span className="clinical-line-label clinical-line-label--empty" aria-hidden>
-            —
-          </span>
-        )}
+      <div
+        key={`${item.raw}-${idx}`}
+        className={`clinical-line ${item.label ? '' : 'clinical-line--plain'}`}
+      >
+        {item.label ? <span className="clinical-line-label">{item.label}:</span> : null}
         <span className={`clinical-line-text ${isNotInformed(item.value || item.raw) ? 'clinical-line-muted' : ''}`}>
           {highlightText(item.value || item.raw)}
         </span>
