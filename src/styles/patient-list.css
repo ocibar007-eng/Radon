@@ -9,7 +9,9 @@
 .pl-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
   margin-bottom: 2.5rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid var(--color-border-default);
@@ -33,6 +35,67 @@
   font-size: 0.9rem;
   color: var(--color-text-secondary);
   margin-top: 0.5rem;
+}
+
+.pl-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.pl-primary-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.pl-view-toggle {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+}
+
+.pl-view-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.pl-view-button:hover {
+  color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
+}
+
+.pl-view-button:active {
+  transform: translateY(1px);
+}
+
+.pl-view-button.active {
+  color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border-subtle);
+  box-shadow: var(--shadow-sm);
+}
+
+.pl-view-button:focus-visible {
+  outline: 2px solid var(--color-accent-primary);
+  outline-offset: 2px;
 }
 
 /* Filtros: Estilo "Segmented Control" (iOS/macOS style) */
@@ -71,11 +134,227 @@
   font-weight: 600;
 }
 
+.pl-bulk-bar {
+  margin-bottom: 1.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--gradient-panel);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  backdrop-filter: blur(12px);
+}
+
+.pl-bulk-info {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+}
+
+.pl-bulk-count {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.pl-bulk-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.pl-archive-button {
+  border-color: rgba(245, 158, 11, 0.35);
+  background: rgba(245, 158, 11, 0.08);
+}
+
+.pl-archive-button:hover {
+  border-color: rgba(245, 158, 11, 0.6);
+  background: rgba(245, 158, 11, 0.16);
+}
+
+.pl-checkbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-bg-primary);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  appearance: none;
+  transition: all var(--transition-fast);
+}
+
+.pl-checkbox::after {
+  content: '';
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  background: var(--color-accent-primary);
+  transform: scale(0);
+  transition: transform var(--transition-fast);
+}
+
+.pl-checkbox:checked {
+  border-color: rgba(245, 158, 11, 0.6);
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.15);
+}
+
+.pl-checkbox:checked::after {
+  transform: scale(1);
+}
+
+.pl-checkbox:indeterminate::after {
+  width: 11px;
+  height: 2px;
+  border-radius: 2px;
+  transform: scale(1);
+}
+
+.pl-checkbox:focus-visible {
+  outline: 2px solid var(--color-accent-primary);
+  outline-offset: 2px;
+}
+
 /* Grid de Cards */
 .pl-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1.5rem;
+}
+
+.pl-table {
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border-default);
+  background: var(--gradient-panel);
+  overflow-x: auto;
+  overflow-y: hidden;
+  backdrop-filter: blur(12px);
+}
+
+.pl-table-header {
+  border-bottom: 1px solid var(--color-border-default);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.pl-table-row {
+  display: grid;
+  grid-template-columns: 36px minmax(200px, 1.4fr) minmax(160px, 1.1fr) 130px 130px 130px minmax(200px, 1.2fr);
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.85rem 1rem;
+  min-width: 1000px;
+  transition: background var(--transition-fast);
+  cursor: pointer;
+}
+
+.pl-table-row-head {
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  font-weight: 600;
+  cursor: default;
+}
+
+.pl-table-body .pl-table-row {
+  border-top: 1px solid var(--color-border-default);
+}
+
+.pl-table-body .pl-table-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.pl-table-row.is-selected {
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.pl-table-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+}
+
+.pl-table-select,
+.pl-table-actions {
+  cursor: default;
+}
+
+.pl-table-actions-title {
+  justify-content: flex-end;
+}
+
+.pl-table-select-placeholder {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  border: 1px dashed var(--color-border-subtle);
+  opacity: 0.35;
+}
+
+.pl-table-patient {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+}
+
+.pl-table-name {
+  color: var(--color-text-primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.pl-table-os {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+
+.pl-table-exam {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+
+.pl-table-exam-type {
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+
+.pl-table-exam-date {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+
+.pl-table-counts {
+  gap: 0.75rem;
+}
+
+.pl-table-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+}
+
+.pl-table-date {
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+}
+
+.pl-table-actions {
+  justify-content: flex-end;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 /* Patient Card - Clean & Professional */
@@ -88,6 +367,11 @@
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border-default);
   /* Sem borda lateral colorida grossa, design mais flat */
+}
+
+.patient-card.is-selected {
+  border-color: rgba(245, 158, 11, 0.55);
+  box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.2), var(--shadow-md);
 }
 
 /* Hover suave */
@@ -108,6 +392,17 @@
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+}
+
+.pc-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pc-select {
+  display: inline-flex;
+  align-items: center;
 }
 
 .pc-name {
@@ -245,10 +540,23 @@
   cursor: pointer;
 }
 
+.btn-icon-only.text-error {
+  color: var(--status-error-text);
+}
+
 .btn-icon-only:hover {
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
   border-color: var(--color-border-default);
+}
+
+.btn-icon-only:active {
+  transform: translateY(1px);
+}
+
+.btn-icon-only:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .btn-icon-only:hover.text-error {

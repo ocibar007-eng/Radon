@@ -7,7 +7,7 @@ export interface Patient {
   id: string;
   createdAt: number;
   updatedAt: number;
-  deletedAt?: number | null; // Soft delete support (null = ativo, number = timestamp)
+  deletedAt?: number | null; // Arquivado (soft delete): null = ativo, number = timestamp
 
   // Dados de Identificação (Desnormalizados para listagem rápida)
   name: string;

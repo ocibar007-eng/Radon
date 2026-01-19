@@ -1,12 +1,10 @@
-
 import React, { useState } from 'react';
-import { Calendar, FileText, Mic, Archive, ArrowRight, CheckCircle, Trash2 } from 'lucide-react';
-import { Card } from './ui/Card';
+import { Archive, ArrowRight, Calendar, CheckCircle, FileText, Mic, Trash2 } from 'lucide-react';
 import { Patient } from '../types/patient';
-import { Button } from './ui/Button';
 import { StatusChip } from './StatusChip';
-import { PatientService } from '../services/patient-service';
+import { Button } from './ui/Button';
 import { ConfirmModal } from './ui/ConfirmModal';
+import { PatientService } from '../services/patient-service';
 
 interface Props {
   patient: Patient;
@@ -18,7 +16,11 @@ interface Props {
   onToggleSelect?: () => void;
 }
 
-export const PatientCard: React.FC<Props> = ({
+const formatDisplayDate = (patient: Patient) => (
+  new Date(patient.deletedAt ?? patient.createdAt).toLocaleDateString()
+);
+
+export const PatientTableRow: React.FC<Props> = ({
   patient,
   onOpen,
   onArchive,
@@ -32,19 +34,9 @@ export const PatientCard: React.FC<Props> = ({
   const [showPurgeConfirm, setShowPurgeConfirm] = useState(false);
   const [isFinalizingPatient, setIsFinalizingPatient] = useState(false);
 
-  const handleCardClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (!onToggleSelect) {
-      onOpen(patient);
-      return;
-    }
-
-    if (event.detail > 1) return;
-    onToggleSelect();
-  };
-
-  const handleCardDoubleClick = () => {
-    onOpen(patient);
-  };
+  const canFinalize = patient.status !== 'done' && patient.status !== 'processing';
+  const isArchived = Boolean(patient.deletedAt);
+  const canPurge = isArchived && Boolean(onPurge);
 
   const handleFinalizeClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -59,6 +51,20 @@ export const PatientCard: React.FC<Props> = ({
   const handlePurgeClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     setShowPurgeConfirm(true);
+  };
+
+  const handleRowClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!onToggleSelect) {
+      onOpen(patient);
+      return;
+    }
+
+    if (event.detail > 1) return;
+    onToggleSelect();
+  };
+
+  const handleRowDoubleClick = () => {
+    onOpen(patient);
   };
 
   const handleConfirmFinalize = async () => {
@@ -104,59 +110,59 @@ export const PatientCard: React.FC<Props> = ({
     }
   };
 
-  const canFinalize = patient.status !== 'done' && patient.status !== 'processing';
-  const isArchived = Boolean(patient.deletedAt);
-  const canPurge = isArchived && Boolean(onPurge);
-
   return (
-    <Card
-      className={`patient-card ${isSelected ? 'is-selected' : ''}`}
-      isInteractive
-      onClick={handleCardClick}
-      onDoubleClick={handleCardDoubleClick}
-    >
-      <div>
-        <div className="pc-header">
-          <div className="pc-info">
-            <div className="pc-title">
-              {onToggleSelect && (
-                <label className="pc-select" onClick={e => e.stopPropagation()}>
-                  <input
-                    type="checkbox"
-                    className="pl-checkbox"
-                    checked={isSelected}
-                    onChange={onToggleSelect}
-                    aria-label={`Selecionar ${patient.name}`}
-                  />
-                </label>
-              )}
-              <h3 className="pc-name">{patient.name}</h3>
-            </div>
-            <span className="pc-os">{patient.os || 'Sem OS'}</span>
-          </div>
+    <>
+      <div
+        className={`pl-table-row ${isSelected ? 'is-selected' : ''}`}
+        onClick={handleRowClick}
+        onDoubleClick={handleRowDoubleClick}
+      >
+        <div className="pl-table-cell pl-table-select" onClick={e => e.stopPropagation()}>
+          {onToggleSelect ? (
+            <input
+              type="checkbox"
+              className="pl-checkbox"
+              checked={isSelected}
+              onChange={onToggleSelect}
+              aria-label={`Selecionar ${patient.name}`}
+            />
+          ) : (
+            <span className="pl-table-select-placeholder" aria-hidden="true" />
+          )}
+        </div>
+
+        <div className="pl-table-cell pl-table-patient">
+          <div className="pl-table-name">{patient.name}</div>
+          <div className="pl-table-os">{patient.os || 'Sem OS'}</div>
+        </div>
+
+        <div className="pl-table-cell pl-table-exam">
+          <div className="pl-table-exam-type">{patient.examType || 'Exame Geral'}</div>
+          {patient.examDate && patient.examDate.trim().length > 0 && (
+            <div className="pl-table-exam-date">Exame: {patient.examDate}</div>
+          )}
+        </div>
+
+        <div className="pl-table-cell pl-table-status">
           <StatusChip status={patient.status} />
         </div>
 
-        <div className="pc-meta">
-          <Calendar size={12} />
-          <span>{new Date(patient.createdAt).toLocaleDateString()}</span>
-          <span>•</span>
-          <span>{patient.examType || 'Exame Geral'}</span>
-        </div>
-      </div>
-
-      <div className="pc-footer">
-        <div className="pc-stats">
-          <span className="pc-stat-item" title="Documentos">
+        <div className="pl-table-cell pl-table-counts">
+          <span className="pl-table-count">
             <FileText size={14} /> {patient.docsCount}
           </span>
-          <span className="pc-stat-item" title="Áudios">
+          <span className="pl-table-count">
             <Mic size={14} /> {patient.audioCount}
           </span>
         </div>
 
+        <div className="pl-table-cell pl-table-date">
+          <Calendar size={12} />
+          <span>{formatDisplayDate(patient)}</span>
+        </div>
+
         <div
-          className="pc-actions"
+          className="pl-table-cell pl-table-actions"
           onClick={e => e.stopPropagation()}
           onDoubleClick={e => e.stopPropagation()}
         >
@@ -174,8 +180,9 @@ export const PatientCard: React.FC<Props> = ({
           {canFinalize && !isArchived && (
             <Button
               size="sm"
-              variant="primary"
+              variant="secondary"
               onClick={handleFinalizeClick}
+              isLoading={isFinalizingPatient}
               title="Finalizar Exame"
             >
               <CheckCircle size={14} />
@@ -184,23 +191,23 @@ export const PatientCard: React.FC<Props> = ({
           )}
 
           {canPurge && (
-            <button
-              className="btn-icon-only text-error"
+            <Button
+              size="sm"
+              variant="danger"
               onClick={handlePurgeClick}
               title="Excluir definitivamente"
-              aria-label={`Excluir definitivamente ${patient.name}`}
             >
-              <Trash2 size={16} />
-            </button>
+              <Trash2 size={14} />
+              Excluir
+            </Button>
           )}
 
-          <Button size="sm" variant="secondary" onClick={() => onOpen(patient)}>
+          <Button size="sm" variant="ghost" onClick={() => onOpen(patient)}>
             Abrir <ArrowRight size={14} />
           </Button>
         </div>
       </div>
 
-      {/* Confirm Finalize Modal */}
       <ConfirmModal
         isOpen={showFinalizeConfirm}
         title="Finalizar Exame"
@@ -212,7 +219,6 @@ export const PatientCard: React.FC<Props> = ({
         onCancel={() => setShowFinalizeConfirm(false)}
       />
 
-      {/* Confirm Delete Modal */}
       <ConfirmModal
         isOpen={showArchiveConfirm}
         title="Arquivar Paciente"
@@ -234,6 +240,8 @@ export const PatientCard: React.FC<Props> = ({
         onConfirm={handleConfirmPurge}
         onCancel={() => setShowPurgeConfirm(false)}
       />
-    </Card>
+    </>
   );
 };
+
+export default PatientTableRow;

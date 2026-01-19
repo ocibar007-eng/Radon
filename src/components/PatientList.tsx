@@ -1,9 +1,11 @@
 
-import React, { useState, useCallback } from 'react';
-import { Plus, Search, RefreshCw, AlertTriangle, ScanLine, UploadCloud, Loader2, Zap, Table } from 'lucide-react';
+import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
+import { Plus, AlertTriangle, ScanLine, UploadCloud, Loader2, Zap, Table, LayoutGrid, List, Archive } from 'lucide-react';
 import { usePatients } from '../hooks/usePatients';
 import { PatientCard } from './PatientCard';
+import { PatientTableRow } from './PatientTableRow';
 import { Button } from './ui/Button';
+import { ConfirmModal } from './ui/ConfirmModal';
 import { Modal } from './ui/Modal';
 import { BatchUploadModal } from './BatchUploadModal';
 import { Patient } from '../types/patient';
@@ -21,9 +23,13 @@ interface Props {
 }
 
 export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) => {
-  const { patients, loading, error, filter, setFilter, refresh, createPatient, createPatientsBatch, deletePatient } = usePatients();
+  const { patients, loading, error, filter, setFilter, refresh, createPatient, createPatientsBatch, archivePatient, purgePatient } = usePatients();
   const { showToast, ToastComponent } = useToast();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [showArchiveSelectedConfirm, setShowArchiveSelectedConfirm] = useState(false);
+  const selectAllRef = useRef<HTMLInputElement | null>(null);
 
   // Form State
   const [newName, setNewName] = useState('');
@@ -237,6 +243,92 @@ export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) 
     }
   }, [processHeaderImage, isReadingOCR, showToast]);
 
+  const isArchivedView = filter === 'archived';
+  const enableSelection = !isArchivedView;
+  const visibleIds = useMemo(() => patients.map(patient => patient.id), [patients]);
+  const hasSelection = enableSelection && selectedIds.size > 0;
+  const allSelected = enableSelection && visibleIds.length > 0 && selectedIds.size === visibleIds.length;
+  const isIndeterminate = enableSelection && selectedIds.size > 0 && selectedIds.size < visibleIds.length;
+
+  useEffect(() => {
+    if (!selectAllRef.current) return;
+    selectAllRef.current.indeterminate = isIndeterminate;
+  }, [isIndeterminate]);
+
+  useEffect(() => {
+    if (!selectedIds.size) return;
+    const visibleSet = new Set(visibleIds);
+    setSelectedIds(prev => {
+      const next = new Set(Array.from(prev).filter(id => visibleSet.has(id)));
+      return next.size === prev.size ? prev : next;
+    });
+  }, [visibleIds, selectedIds.size]);
+
+  useEffect(() => {
+    if (isArchivedView) {
+      setSelectedIds(new Set());
+    }
+  }, [isArchivedView]);
+
+  const handleToggleSelect = useCallback((id: string) => {
+    if (!enableSelection) return;
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }, [enableSelection]);
+
+  const handleSelectAll = useCallback(() => {
+    if (!enableSelection) return;
+    setSelectedIds(prev => {
+      if (allSelected) return new Set();
+      return new Set(visibleIds);
+    });
+  }, [allSelected, enableSelection, visibleIds]);
+
+  const handleClearSelection = useCallback(() => {
+    setSelectedIds(new Set());
+  }, []);
+
+  const handleArchiveSelected = useCallback(async () => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+
+    try {
+      const results = await Promise.allSettled(ids.map(id => archivePatient(id)));
+      const successCount = results.filter(result => result.status === 'fulfilled').length;
+      const failedCount = results.length - successCount;
+
+      if (successCount > 0) {
+        showToast(`${successCount} exame(s) arquivado(s) com sucesso.`, 'success');
+      }
+      if (failedCount > 0) {
+        showToast(`${failedCount} exame(s) não puderam ser arquivados.`, 'warning');
+      }
+
+      setSelectedIds(new Set());
+    } catch (error) {
+      console.error('Erro ao arquivar seleção:', error);
+      showToast('Erro ao arquivar seleção. Tente novamente.', 'error');
+    }
+  }, [archivePatient, selectedIds, showToast]);
+
+  const handlePurgePatient = useCallback(async (id: string) => {
+    try {
+      await purgePatient(id);
+      showToast('Exame removido definitivamente.', 'success');
+    } catch (error) {
+      console.error('Erro ao excluir definitivamente:', error);
+      showToast('Não foi possível remover o exame.', 'error');
+      throw error;
+    }
+  }, [purgePatient, showToast]);
+
   const firebaseActive = isFirebaseEnabled();
 
   return (
@@ -263,33 +355,56 @@ export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) 
           <h1 className="pl-title">Lista de <span>Trabalho</span></h1>
           <p className="pl-subtitle">Gerencie os exames e laudos em andamento.</p>
         </div>
-        <div className="flex gap-2">
-          <div style={{ position: 'relative', display: 'inline-block' }}>
-            <Button
-              variant="secondary"
-              disabled={isProcessingBatch}
-              isLoading={isProcessingBatch}
-              onClick={() => document.getElementById('batch-upload-input')?.click()}
+        <div className="pl-header-actions">
+          <div className="pl-view-toggle" role="tablist" aria-label="Visualização da lista">
+            <button
+              type="button"
+              className={`pl-view-button ${viewMode === 'cards' ? 'active' : ''}`}
+              onClick={() => setViewMode('cards')}
+              aria-pressed={viewMode === 'cards'}
             >
-              {!isProcessingBatch && <Table size={16} />}
-              Upload em Lote
-            </Button>
-            <input
-              id="batch-upload-input"
-              type="file"
-              style={{ display: 'none' }}
-              accept=".csv,.xls,.xlsx,image/*,application/pdf"
-              onChange={handleBatchUpload}
-              disabled={isProcessingBatch}
-            />
+              <LayoutGrid size={16} />
+              Cards
+            </button>
+            <button
+              type="button"
+              className={`pl-view-button ${viewMode === 'table' ? 'active' : ''}`}
+              onClick={() => setViewMode('table')}
+              aria-pressed={viewMode === 'table'}
+            >
+              <List size={16} />
+              Tabela
+            </button>
           </div>
 
-          <Button variant="secondary" onClick={onQuickStart} title="Laudo sem cadastro">
-            <Zap size={16} /> Laudo Rápido
-          </Button>
-          <Button onClick={() => setIsCreateModalOpen(true)}>
-            <Plus size={16} /> Novo Paciente
-          </Button>
+          <div className="pl-primary-actions">
+            <div style={{ position: 'relative', display: 'inline-block' }}>
+              <Button
+                variant="secondary"
+                disabled={isProcessingBatch}
+                isLoading={isProcessingBatch}
+                onClick={() => document.getElementById('batch-upload-input')?.click()}
+              >
+                {!isProcessingBatch && <Table size={16} />}
+                Upload em Lote
+              </Button>
+              <input
+                id="batch-upload-input"
+                type="file"
+                style={{ display: 'none' }}
+                accept=".csv,.xls,.xlsx,image/*,application/pdf"
+                onChange={handleBatchUpload}
+                disabled={isProcessingBatch}
+              />
+            </div>
+
+            <Button variant="secondary" onClick={onQuickStart} title="Laudo sem cadastro">
+              <Zap size={16} /> Laudo Rápido
+            </Button>
+            <Button onClick={() => setIsCreateModalOpen(true)}>
+              <Plus size={16} /> Novo Paciente
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -324,7 +439,41 @@ export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) 
         >
           Finalizados
         </button>
+        <button
+          className={`filter-chip ${filter === 'archived' ? 'active' : ''}`}
+          onClick={() => setFilter('archived')}
+        >
+          Arquivados
+        </button>
       </div>
+
+      {hasSelection && !isArchivedView && (
+        <div className="pl-bulk-bar">
+          <div className="pl-bulk-info">
+            <span className="pl-bulk-count">{selectedIds.size}</span>
+            selecionado(s)
+          </div>
+          <div className="pl-bulk-actions">
+            {!allSelected && (
+              <Button size="sm" variant="secondary" onClick={handleSelectAll}>
+                Selecionar todos
+              </Button>
+            )}
+            <Button size="sm" variant="ghost" onClick={handleClearSelection}>
+              Limpar seleção
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => setShowArchiveSelectedConfirm(true)}
+              className="pl-archive-button"
+            >
+              <Archive size={14} />
+              Arquivar selecionados
+            </Button>
+          </div>
+        </div>
+      )}
 
       {loading && patients.length === 0 ? (
         <div className="text-center py-10 text-muted">Carregando pacientes...</div>
@@ -332,21 +481,69 @@ export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) 
         <div className="text-center py-10 text-error">{error}</div>
       ) : patients.length === 0 ? (
         <div className="empty-state">
-          Nenhum paciente encontrado neste filtro.
-          <br />
-          Clique em "Novo Paciente" ou "Laudo Rápido" para começar.
+          {isArchivedView ? 'Nenhum exame arquivado ainda.' : 'Nenhum paciente encontrado neste filtro.'}
+          {!isArchivedView && (
+            <>
+              <br />
+              Clique em "Novo Paciente" ou "Laudo Rápido" para começar.
+            </>
+          )}
         </div>
-      ) : (
+      ) : viewMode === 'cards' ? (
         <div className="pl-grid">
           {patients.map(p => (
             <PatientCard
               key={p.id}
               patient={p}
               onOpen={onSelectPatient}
-              onDelete={deletePatient}
+              onArchive={archivePatient}
+              onPurge={isArchivedView ? handlePurgePatient : undefined}
               onFinalize={() => refresh()}
+              isSelected={enableSelection ? selectedIds.has(p.id) : false}
+              onToggleSelect={enableSelection ? () => handleToggleSelect(p.id) : undefined}
             />
           ))}
+        </div>
+      ) : (
+        <div className="pl-table">
+          <div className="pl-table-header">
+            <div className="pl-table-row pl-table-row-head">
+              <div className="pl-table-cell pl-table-select">
+                {enableSelection ? (
+                  <input
+                    ref={selectAllRef}
+                    type="checkbox"
+                    className="pl-checkbox"
+                    checked={allSelected}
+                    onChange={handleSelectAll}
+                    aria-label="Selecionar todos"
+                  />
+                ) : (
+                  <span className="pl-table-select-placeholder" aria-hidden="true" />
+                )}
+              </div>
+              <div className="pl-table-cell">Paciente</div>
+              <div className="pl-table-cell">Exame</div>
+              <div className="pl-table-cell">Status</div>
+              <div className="pl-table-cell">Docs / Áudio</div>
+              <div className="pl-table-cell">{isArchivedView ? 'Arquivado em' : 'Data'}</div>
+              <div className="pl-table-cell pl-table-actions-title">Ações</div>
+            </div>
+          </div>
+          <div className="pl-table-body">
+            {patients.map(p => (
+              <PatientTableRow
+                key={p.id}
+                patient={p}
+                onOpen={onSelectPatient}
+                onArchive={archivePatient}
+                onPurge={isArchivedView ? handlePurgePatient : undefined}
+                onFinalize={() => refresh()}
+                isSelected={enableSelection ? selectedIds.has(p.id) : false}
+                onToggleSelect={enableSelection ? () => handleToggleSelect(p.id) : undefined}
+              />
+            ))}
+          </div>
         </div>
       )}
 
@@ -439,6 +636,20 @@ export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) 
         items={batchItems}
         onClose={() => setIsBatchModalOpen(false)}
         onConfirm={handleBatchConfirm}
+      />
+
+      <ConfirmModal
+        isOpen={showArchiveSelectedConfirm}
+        title="Arquivar Selecionados"
+        message={`Deseja arquivar ${selectedIds.size} exame(s)? Eles sairão da lista ativa, mas continuarão salvos.`}
+        confirmLabel="Arquivar"
+        cancelLabel="Cancelar"
+        variant="default"
+        onConfirm={() => {
+          setShowArchiveSelectedConfirm(false);
+          handleArchiveSelected();
+        }}
+        onCancel={() => setShowArchiveSelectedConfirm(false)}
       />
 
       {/* Drag & Drop Overlay */}

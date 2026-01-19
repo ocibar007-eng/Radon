@@ -6,7 +6,8 @@ interface CardProps {
   padding?: 'none' | 'sm' | 'md' | 'lg';
   isDarkMode?: boolean;
   className?: string;
-  onClick?: () => void;
+  onClick?: React.MouseEventHandler<HTMLDivElement>;
+  onDoubleClick?: React.MouseEventHandler<HTMLDivElement>;
   isInteractive?: boolean;
 }
 
@@ -24,6 +25,7 @@ export const Card: React.FC<CardProps> = ({
   isDarkMode = true,
   className = '',
   onClick,
+  onDoubleClick,
   isInteractive = false
 }) => {
   const baseClasses = 'rounded-xl transition-all duration-200';
@@ -54,6 +56,7 @@ export const Card: React.FC<CardProps> = ({
         ${className}
       `}
       onClick={onClick}
+      onDoubleClick={onDoubleClick}
     >
       {children}
     </div>

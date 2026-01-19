@@ -1,11 +1,12 @@
 
 import {
-  collection, doc, getDocs, getDoc, setDoc, updateDoc,
+  collection, doc, getDocs, getDoc, setDoc, updateDoc, deleteDoc,
   query, where, orderBy, limit, Timestamp, onSnapshot
 } from 'firebase/firestore';
 import { db, isFirebaseEnabled } from '../core/firebase';
 import { Patient, PatientStatus } from '../types/patient';
 import { AppSession } from '../types';
+import { StorageService } from './storage-service';
 
 const COLLECTION = 'patients';
 
@@ -15,10 +16,44 @@ let memoryStore: Patient[] = [];
 let memoryWorkspaceStore: Record<string, any> = {};
 
 // Helper para notificar listeners de memória (simulação de realtime offline)
-const memoryListeners: Set<(patients: Patient[]) => void> = new Set();
+type PatientListOptions = {
+  status?: PatientStatus;
+  archivedOnly?: boolean;
+};
+
+type MemoryListener = {
+  callback: (patients: Patient[]) => void;
+  statusFilter?: PatientStatus;
+  archivedOnly?: boolean;
+};
+
+const memoryListeners: Set<MemoryListener> = new Set();
+
+const filterMemoryPatients = (options: PatientListOptions = {}) => {
+  const { status: statusFilter, archivedOnly } = options;
+
+  let filtered = memoryStore;
+  if (archivedOnly) {
+    filtered = filtered.filter(p => p.deletedAt);
+  } else {
+    filtered = filtered.filter(p => !p.deletedAt);
+  }
+
+  if (statusFilter) {
+    filtered = filtered.filter(p => p.status === statusFilter);
+  }
+
+  return filtered.sort((a, b) => (
+    archivedOnly
+      ? (b.deletedAt || 0) - (a.deletedAt || 0)
+      : b.createdAt - a.createdAt
+  ));
+};
+
 function notifyMemoryListeners() {
-  const activePatients = memoryStore.filter(p => !p.deletedAt).sort((a, b) => b.createdAt - a.createdAt);
-  memoryListeners.forEach(cb => cb(activePatients));
+  memoryListeners.forEach(({ callback, statusFilter, archivedOnly }) => {
+    callback(filterMemoryPatients({ status: statusFilter, archivedOnly }));
+  });
 }
 
 // Helper para limpar campos undefined (que o Firestore rejeita)
@@ -76,14 +111,21 @@ export const PatientService = {
    * Inscreve-se para atualizações em tempo real da lista de pacientes.
    * Retorna uma função de unsubscribe.
    */
-  subscribeToPatients(callback: (patients: Patient[]) => void, statusFilter?: PatientStatus): () => void {
+  subscribeToPatients(callback: (patients: Patient[]) => void, options: PatientListOptions = {}): () => void {
+    const { status: statusFilter, archivedOnly } = options;
     // 1. Caminho Firebase (Realtime)
     if (isFirebaseEnabled() && db) {
-      const constraints = [
-        where('deletedAt', '==', null),
-        orderBy('createdAt', 'desc'),
-        limit(50)
-      ];
+      const constraints = archivedOnly
+        ? [
+          where('deletedAt', '!=', null),
+          orderBy('deletedAt', 'desc'),
+          limit(50)
+        ]
+        : [
+          where('deletedAt', '==', null),
+          orderBy('createdAt', 'desc'),
+          limit(50)
+        ];
 
       if (statusFilter) {
         constraints.unshift(where('status', '==', statusFilter));
@@ -107,9 +149,15 @@ export const PatientService = {
           onSnapshot(fallbackQ, (snap) => {
             const all = snap.docs.map(d => d.data() as Patient);
             // Filtra e ordena no cliente
-            const filtered = all
-              .filter(p => !p.deletedAt)
-              .sort((a, b) => b.createdAt - a.createdAt);
+            let filtered = archivedOnly ? all.filter(p => p.deletedAt) : all.filter(p => !p.deletedAt);
+            if (statusFilter) {
+              filtered = filtered.filter(p => p.status === statusFilter);
+            }
+            filtered.sort((a, b) => (
+              archivedOnly
+                ? (b.deletedAt || 0) - (a.deletedAt || 0)
+                : b.createdAt - a.createdAt
+            ));
             callback(filtered);
           });
         }
@@ -120,18 +168,12 @@ export const PatientService = {
 
     // 2. Caminho Offline (Memória - Simulação)
     // Envia o estado atual imediatamente
-    const filterAndSend = (allPatients: Patient[]) => {
-      let filtered = allPatients;
-      if (statusFilter) filtered = filtered.filter(p => p.status === statusFilter);
-      callback(filtered);
-    };
-
     // Registra listener
-    const listener = (all: Patient[]) => filterAndSend(all);
+    const listener: MemoryListener = { callback, statusFilter, archivedOnly };
     memoryListeners.add(listener);
 
     // Trigger inicial
-    filterAndSend(memoryStore.filter(p => !p.deletedAt).sort((a, b) => b.createdAt - a.createdAt));
+    callback(filterMemoryPatients({ status: statusFilter, archivedOnly }));
 
     return () => {
       memoryListeners.delete(listener);
@@ -141,14 +183,21 @@ export const PatientService = {
   /**
    * Lista pacientes (Método One-shot mantido para compatibilidade ou uso server-side)
    */
-  async listPatients(statusFilter?: PatientStatus): Promise<Patient[]> {
+  async listPatients(options: PatientListOptions = {}): Promise<Patient[]> {
+    const { status: statusFilter, archivedOnly } = options;
     if (isFirebaseEnabled() && db) {
       try {
-        const constraints = [
-          where('deletedAt', '==', null),
-          orderBy('createdAt', 'desc'),
-          limit(50)
-        ];
+        const constraints = archivedOnly
+          ? [
+            where('deletedAt', '!=', null),
+            orderBy('deletedAt', 'desc'),
+            limit(50)
+          ]
+          : [
+            where('deletedAt', '==', null),
+            orderBy('createdAt', 'desc'),
+            limit(50)
+          ];
         if (statusFilter) constraints.unshift(where('status', '==', statusFilter));
 
         const q = query(collection(db, COLLECTION), ...constraints);
@@ -159,9 +208,7 @@ export const PatientService = {
         throw error;
       }
     }
-    let list = memoryStore.filter(p => !p.deletedAt);
-    if (statusFilter) list = list.filter(p => p.status === statusFilter);
-    return list.sort((a, b) => b.createdAt - a.createdAt);
+    return filterMemoryPatients({ status: statusFilter, archivedOnly });
   },
 
   /**
@@ -229,9 +276,9 @@ export const PatientService = {
   },
 
   /**
-   * Implementa Soft Delete.
+   * Arquiva paciente (soft delete).
    */
-  async softDeletePatient(id: string): Promise<void> {
+  async archivePatient(id: string): Promise<void> {
     // 1. Caminho Firebase
     if (isFirebaseEnabled() && db) {
       const docRef = doc(db, COLLECTION, id);
@@ -249,6 +296,31 @@ export const PatientService = {
       memoryStore[index].status = 'done';
       notifyMemoryListeners();
     }
+  },
+
+  /**
+   * Compatibilidade: soft delete agora aponta para o arquivamento.
+   */
+  async softDeletePatient(id: string): Promise<void> {
+    return this.archivePatient(id);
+  },
+
+  /**
+   * Remove paciente e anexos de forma definitiva (irreversível).
+   */
+  async purgePatient(id: string): Promise<void> {
+    await StorageService.deleteSession(id);
+
+    if (isFirebaseEnabled() && db) {
+      await StorageService.deletePatientFiles(id);
+      const docRef = doc(db, COLLECTION, id);
+      await deleteDoc(docRef);
+      return;
+    }
+
+    memoryStore = memoryStore.filter(p => p.id !== id);
+    delete memoryWorkspaceStore[id];
+    notifyMemoryListeners();
   },
 
   /**

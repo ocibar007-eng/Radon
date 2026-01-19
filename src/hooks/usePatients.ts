@@ -4,24 +4,27 @@ import { PatientService } from '../services/patient-service';
 import { Patient, PatientStatus } from '../types/patient';
 import { PatientBatchItem } from '../utils/batch-parsers';
 
+type PatientListFilter = PatientStatus | 'all' | 'archived';
+
 export function usePatients(initialFilter: PatientStatus | undefined = undefined) {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<PatientStatus | 'all'>(initialFilter || 'all');
+  const [filter, setFilter] = useState<PatientListFilter>(initialFilter || 'all');
 
   // Efeito de Subscrição (Real-time)
   useEffect(() => {
     setLoading(true);
 
-    const statusToSend = filter === 'all' ? undefined : filter;
+    const isArchivedView = filter === 'archived';
+    const statusToSend = filter === 'all' || isArchivedView ? undefined : filter;
 
     // Inscreve no Firestore (ou memória) e recebe atualizações automaticamente
     const unsubscribe = PatientService.subscribeToPatients((data) => {
       setPatients(data);
       setLoading(false);
       setError(null);
-    }, statusToSend);
+    }, { status: statusToSend, archivedOnly: isArchivedView });
 
     // Cleanup ao desmontar ou mudar filtro
     return () => unsubscribe();
@@ -95,13 +98,23 @@ export function usePatients(initialFilter: PatientStatus | undefined = undefined
     return patientsToCreate.map(p => p.id);
   };
 
-  // Função de exclusão - o componente que chama deve exibir seu próprio modal de confirmação
-  const deletePatient = async (id: string) => {
+  // Função de arquivamento - o componente que chama deve exibir seu próprio modal de confirmação
+  const archivePatient = async (id: string) => {
     try {
-      await PatientService.softDeletePatient(id);
+      await PatientService.archivePatient(id);
       // Listener atualiza UI automaticamente
     } catch (err) {
-      console.error("Erro ao excluir paciente:", err);
+      console.error("Erro ao arquivar paciente:", err);
+      throw err;
+    }
+  };
+
+  // Exclusão definitiva (irreversível)
+  const purgePatient = async (id: string) => {
+    try {
+      await PatientService.purgePatient(id);
+    } catch (err) {
+      console.error("Erro ao excluir paciente definitivamente:", err);
       throw err;
     }
   };
@@ -118,6 +131,7 @@ export function usePatients(initialFilter: PatientStatus | undefined = undefined
     refresh,
     createPatient,
     createPatientsBatch,
-    deletePatient
+    archivePatient,
+    purgePatient
   };
 }

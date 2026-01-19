@@ -13,6 +13,7 @@ vi.mock('../core/firebase', () => ({
 const mockSetDoc = vi.fn();
 const mockGetDocs = vi.fn();
 const mockUpdateDoc = vi.fn();
+const mockDeleteDoc = vi.fn();
 
 vi.mock('firebase/firestore', () => ({
   collection: vi.fn(),
@@ -24,6 +25,7 @@ vi.mock('firebase/firestore', () => ({
   setDoc: (...args: any[]) => mockSetDoc(...args),
   getDocs: (...args: any[]) => mockGetDocs(...args),
   updateDoc: (...args: any[]) => mockUpdateDoc(...args),
+  deleteDoc: (...args: any[]) => mockDeleteDoc(...args),
   getDoc: vi.fn(),
   Timestamp: { now: () => 1234567890 }
 }));

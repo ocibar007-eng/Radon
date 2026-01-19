@@ -1,7 +1,7 @@
 import Dexie, { Table } from 'dexie';
 import { AppSession } from '../types';
 import { storage } from '../core/firebase';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL, deleteObject, listAll, StorageReference } from 'firebase/storage';
 
 export interface PersistentSession extends AppSession {
   id: string;
@@ -55,6 +55,29 @@ export const StorageService = {
 
   async deleteSession(id: string) {
     await db.sessions.delete(id);
+  },
+
+  async deletePatientFiles(patientId: string) {
+    if (!storage) return;
+
+    const baseRef = ref(storage, `patients/${patientId}/attachments`);
+
+    const removeFolder = async (folderRef: StorageReference) => {
+      const listing = await listAll(folderRef);
+      await Promise.all(listing.items.map(item => deleteObject(item)));
+      await Promise.all(listing.prefixes.map(prefix => removeFolder(prefix)));
+    };
+
+    try {
+      await removeFolder(baseRef);
+    } catch (error: any) {
+      const code = error?.code;
+      const isNotFound = code === 'storage/object-not-found' || code === 'storage/path-not-found';
+      if (!isNotFound) {
+        console.error('[StorageService] Error deleting patient files:', error);
+        throw error;
+      }
+    }
   },
 
   /**
