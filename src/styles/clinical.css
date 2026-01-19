@@ -115,11 +115,13 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--color-text-muted);
+  opacity: 0.8;
 }
 
 .clinical-kv-value {
   font-size: 0.85rem;
   color: var(--color-text-primary);
+  font-weight: 600;
   line-height: 1.4;
   min-width: 0;
   overflow-wrap: anywhere;
@@ -134,9 +136,17 @@
 
 .clinical-line {
   display: grid;
-  grid-template-columns: minmax(140px, 0.7fr) minmax(0, 1.3fr) auto;
+  grid-template-columns: auto minmax(140px, 0.7fr) minmax(0, 1.3fr) auto;
   gap: 0.5rem;
   align-items: start;
+}
+
+.clinical-line-marker {
+  color: var(--color-accent-primary);
+  font-size: 0.65rem;
+  line-height: 1;
+  margin-top: 0.35rem;
+  opacity: 0.8;
 }
 
 .clinical-line-label {
@@ -150,9 +160,14 @@
   word-break: break-word;
 }
 
+.clinical-line-label--empty {
+  opacity: 0;
+}
+
 .clinical-line-text {
   font-size: 0.9rem;
-  color: var(--color-text-secondary);
+  color: var(--color-text-primary);
+  font-weight: 500;
   line-height: 1.5;
   min-width: 0;
   overflow-wrap: anywhere;
@@ -162,6 +177,7 @@
 .clinical-line-muted {
   color: var(--color-text-muted);
   opacity: 0.8;
+  font-weight: 400;
 }
 
 .clinical-inline-highlight {
@@ -267,7 +283,7 @@
   }
 
   .clinical-line {
-    grid-template-columns: 1fr;
+    grid-template-columns: auto 1fr;
   }
 }
 
