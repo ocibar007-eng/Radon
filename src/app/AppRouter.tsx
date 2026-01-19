@@ -35,13 +35,14 @@ export function AppRouter() {
 
     const handleQuickStart = () => {
         const tempPatient: Patient = {
-            id: crypto.randomUUID(),
+            id: `tmp_${crypto.randomUUID()}`,
             name: 'Paciente Avulso',
             os: `TMP-${new Date().getHours()}${new Date().getMinutes()}`,
             examType: 'Não especificado',
             status: 'processing',
             createdAt: Date.now(),
             updatedAt: Date.now(),
+            deletedAt: null,
             docsCount: 0,
             audioCount: 0,
             hasClinicalSummary: false

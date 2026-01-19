@@ -171,7 +171,7 @@ export function useWorkspaceActions(patient: Patient | null) {
     files: File[],
     isHeader = false,
     forcedType?: DocClassification,
-    onTypeChange?: (type: 'summary' | 'reports') => void
+    onTypeChange?: (type: 'summary' | 'reports' | 'checklist') => void
   ) => {
     if (!files.length) return;
     if (DEBUG_LOGS) {
@@ -422,7 +422,7 @@ export function useWorkspaceActions(patient: Patient | null) {
     e: React.ChangeEvent<HTMLInputElement>,
     isHeader = false,
     forcedType?: DocClassification,
-    onTypeChange?: (type: 'summary' | 'reports') => void
+    onTypeChange?: (type: 'summary' | 'reports' | 'checklist') => void
   ) => {
     if (!e.target.files?.length) return;
     const files = Array.from(e.target.files) as File[];
@@ -601,6 +601,14 @@ export function useWorkspaceActions(patient: Patient | null) {
 
     // Validação - verificar se tem anexos
     const hasContent = session.docs.length > 0 || session.audioJobs.length > 0 || session.headerImage !== null;
+    // Quick start patients don't exist in Firestore yet.
+    const isTempPatient = patient.id.startsWith('tmp_') || patient.os.startsWith('TMP-');
+    const now = Date.now();
+    const resolvedName = session.patient?.paciente?.valor?.trim() || patient.name || 'Paciente Avulso';
+    const resolvedOs = session.patient?.os?.valor?.trim() || patient.os;
+    const resolvedExamType = session.patient?.tipo_exame?.valor?.trim() || patient.examType || 'Não especificado';
+    const resolvedExamDate = session.patient?.data_exame?.valor || patient.examDate || '';
+    const hasClinicalSummary = !!session.clinicalMarkdown && session.clinicalMarkdown.length > 20;
 
     // Confirmação (pula se skipConfirm for true)
     if (!skipConfirm) {
@@ -615,9 +623,32 @@ export function useWorkspaceActions(patient: Patient | null) {
       const updates = {
         status: 'done' as const,
         finalized: true,
-        finalizedAt: Date.now(),
-        hasAttachments: hasContent,
+        finalizedAt: now,
+        hasAttachments: hasContent
       };
+
+      if (isTempPatient) {
+        const newPatient: Patient = {
+          id: patient.id,
+          name: resolvedName,
+          os: resolvedOs,
+          examType: resolvedExamType,
+          examDate: resolvedExamDate || undefined,
+          status: updates.status,
+          createdAt: patient.createdAt || now,
+          updatedAt: now,
+          deletedAt: null,
+          docsCount: session.docs.length,
+          audioCount: session.audioJobs.length,
+          hasClinicalSummary,
+          hasAttachments: updates.hasAttachments,
+          finalized: updates.finalized,
+          finalizedAt: updates.finalizedAt
+        };
+
+        await PatientService.createPatient(newPatient);
+        return;
+      }
 
       await PatientService.updatePatient(patient.id, updates);
       // Sucesso silencioso - o UI já mostra feedback visual (botão verde) e redireciona
