@@ -3,6 +3,108 @@ import { AttachmentDoc } from '../types';
 
 const DEBUG_LOGS = true;
 
+type PdfGroupingOverride = 'os' | 'atendimento';
+type PageMarkers = {
+  os?: string;
+  atendimento?: string;
+};
+
+const OS_REGEX = /C[oó]digo\s+da\s+OS\s*[:\-]?\s*([0-9][0-9.\-\/]+)/i;
+const ATENDIMENTO_DATE_REGEX = /Atendimento\s*[:\-]?\s*(\d{2}\/\d{2}\/\d{4})/i;
+
+function extractOsFromText(text: string): string | null {
+  if (!text) return null;
+  const match = text.match(OS_REGEX);
+  return match?.[1]?.trim() || null;
+}
+
+function extractAtendimentoDate(text: string): string | null {
+  if (!text) return null;
+  const match = text.match(ATENDIMENTO_DATE_REGEX);
+  return match?.[1]?.trim() || null;
+}
+
+function normalizeGroupToken(value: string): string {
+  return value
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^A-Z0-9\-]/g, '-');
+}
+
+function getPdfBaseName(doc: AttachmentDoc): string | null {
+  if (doc.globalGroupSource) return doc.globalGroupSource;
+  if (doc.source.includes(' Pg ')) return doc.source.split(' Pg ')[0];
+  return null;
+}
+
+function computePdfGroupingOverrides(docs: AttachmentDoc[]) {
+  const statsByBase = new Map<string, {
+    total: number;
+    ready: number;
+    osValues: Set<string>;
+    osCount: number;
+    dateValues: Set<string>;
+    dateCount: number;
+  }>();
+
+  const pageMarkers = new Map<string, PageMarkers>();
+
+  docs.forEach(doc => {
+    if (doc.classification !== 'laudo_previo') return;
+    const baseName = getPdfBaseName(doc);
+    if (!baseName) return;
+
+    const stats = statsByBase.get(baseName) || {
+      total: 0,
+      ready: 0,
+      osValues: new Set<string>(),
+      osCount: 0,
+      dateValues: new Set<string>(),
+      dateCount: 0
+    };
+
+    stats.total += 1;
+
+    if (doc.status === 'done' && doc.verbatimText) {
+      stats.ready += 1;
+      const os = extractOsFromText(doc.verbatimText);
+      const atendimento = extractAtendimentoDate(doc.verbatimText);
+
+      if (os) {
+        stats.osValues.add(os);
+        stats.osCount += 1;
+      }
+
+      if (atendimento) {
+        stats.dateValues.add(atendimento);
+        stats.dateCount += 1;
+      }
+
+      if (os || atendimento) {
+        pageMarkers.set(doc.id, { os, atendimento });
+      }
+    }
+
+    statsByBase.set(baseName, stats);
+  });
+
+  const overrides = new Map<string, PdfGroupingOverride>();
+
+  statsByBase.forEach((stats, baseName) => {
+    if (stats.total < 2 || stats.ready !== stats.total) return;
+    if (stats.osValues.size > 1 && stats.osCount === stats.total) {
+      overrides.set(baseName, 'os');
+      return;
+    }
+    if (stats.dateValues.size > 1 && stats.dateCount === stats.total) {
+      overrides.set(baseName, 'atendimento');
+    }
+  });
+
+  return { overrides, pageMarkers };
+}
+
 export interface ReportGroup {
   id: string;
   title: string;
@@ -27,6 +129,7 @@ export interface ReportGroup {
  */
 export function groupDocsVisuals(docs: AttachmentDoc[]): ReportGroup[] {
   const groups = new Map<string, AttachmentDoc[]>();
+  const { overrides: pdfOverrides, pageMarkers } = computePdfGroupingOverrides(docs);
   if (DEBUG_LOGS) {
     console.log('[Debug][Grouping] input', { docs: docs.length });
   }
@@ -36,9 +139,25 @@ export function groupDocsVisuals(docs: AttachmentDoc[]): ReportGroup[] {
     const hint = (doc.reportGroupHint || '').trim();
     const hasStrongHint = isStrongReportHint(hint);
     const isManualSplit = hint.startsWith('MANUAL_SPLIT:');
+    const baseName = getPdfBaseName(doc);
+    const override = baseName ? pdfOverrides.get(baseName) : undefined;
+    const marker = pageMarkers.get(doc.id);
 
     // PRIORIDADE 1: Agrupamento Global (análise global de PDF)
     // Este é o método mais confiável pois a IA viu todas as páginas juntas
+    if (!isManualSplit && override && marker && baseName) {
+      const token = override === 'os' ? marker.os : marker.atendimento;
+      if (token) {
+        const normalizedToken = normalizeGroupToken(token);
+        const keyPrefix = doc.globalGroupSource ? 'global' : 'pdf';
+        const key = `${keyPrefix}::${baseName}::${override}:${normalizedToken}`;
+        const list = groups.get(key) || [];
+        list.push(doc);
+        groups.set(key, list);
+        return;
+      }
+    }
+
     if (doc.globalGroupId !== undefined && doc.globalGroupSource && !isManualSplit) {
       const key = `global::${doc.globalGroupSource}::${doc.globalGroupId}`;
       const list = groups.get(key) || [];

@@ -406,6 +406,11 @@ COMO IDENTIFICAR ONDE UM LAUDO TERMINA E OUTRO COMEÇA:
 - Assinatura digital com código alfanumérico (laudos provisórios) OU
 - Próxima página já é título de outro exame
 
+>>> PAGINAÇÃO É REI (CRÍTICO) <<<
+- Se houver "Página 1/2", "Página 2/2", "Página 1/3" etc, ESSAS páginas pertencem ao MESMO laudo
+- NÃO separe páginas só porque há assinatura digital no rodapé (alguns serviços repetem assinatura em toda página)
+- Use a paginação + OS/Atendimento para confirmar continuidade do mesmo laudo
+
 >>> LAUDOS PROVISÓRIOS (sem valor legal) <<<
 - Marcação "Pré-visualização. Laudo sem valor legal." no cabeçalho
 - NÃO tem assinatura manuscrita, apenas código digital
