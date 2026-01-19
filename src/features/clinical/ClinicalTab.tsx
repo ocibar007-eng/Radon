@@ -1,12 +1,13 @@
 
 import React from 'react';
 import { MarkdownRenderer } from '../../components/MarkdownRenderer';
-import { ClinicalSummary } from '../../types';
+import { ClinicalSummary, PatientRegistrationDetails } from '../../types';
 import { Link2, FileText } from 'lucide-react';
 
 interface Props {
   markdown: string;
   data?: ClinicalSummary;
+  patient?: PatientRegistrationDetails | null;
   isProcessing: boolean;
 }
 
@@ -47,6 +48,9 @@ const normalize = (value: string) =>
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '');
+
+const normalizeValue = (value: string) =>
+  normalize(value).replace(/\s+/g, ' ').trim();
 
 const parseItem = (item: string): ParsedItem => {
   const isDivergent = /\[DIVERGENTE\]/i.test(item);
@@ -163,7 +167,7 @@ const TextList: React.FC<{ items: ParsedItem[] }> = ({ items }) => (
   </div>
 );
 
-const ClinicalSummaryStructured: React.FC<{ data: ClinicalSummary }> = ({ data }) => {
+const ClinicalSummaryStructured: React.FC<{ data: ClinicalSummary; patient?: PatientRegistrationDetails | null }> = ({ data, patient }) => {
   const sections = data.resumo_clinico_consolidado?.texto_em_topicos ?? [];
   const identificationSection = findSection(sections, ['identificação e contexto', 'identificacao e contexto', 'identificacao']);
   const executiveSection = findSection(sections, ['resumo executivo']);
@@ -292,6 +296,23 @@ const ClinicalSummaryStructured: React.FC<{ data: ClinicalSummary }> = ({ data }
   const renalInfo = findItemValue(safetyItems, ['função renal', 'funcao renal', 'creatinina', 'etfg', 'tfg']);
   const allergyInfo = findItemValue(safetyItems, ['alergia']);
 
+  const headerPatientName = patient?.paciente?.valor?.trim() || '';
+  const headerPatientId = patient?.os?.valor?.trim() || '';
+  const displayPatientName = headerPatientName || formatValue(patientName.value);
+  const displayPatientId = headerPatientId || formatValue(patientId.value);
+
+  const nameIsDivergent = patientName.isDivergent || (
+    headerPatientName &&
+    patientName.value &&
+    normalizeValue(headerPatientName) !== normalizeValue(patientName.value)
+  );
+
+  const idIsDivergent = patientId.isDivergent || (
+    headerPatientId &&
+    patientId.value &&
+    normalizeValue(headerPatientId) !== normalizeValue(patientId.value)
+  );
+
   const safetyNotes = safetyItems.filter((item) => {
     const haystack = normalize(item.label || item.raw);
     return !['alergia', 'função renal', 'funcao renal', 'creatinina', 'etfg', 'tfg', 'contraste'].some((key) =>
@@ -303,15 +324,15 @@ const ClinicalSummaryStructured: React.FC<{ data: ClinicalSummary }> = ({ data }
     <div className="clinical-summary">
       <div className="sr-organ-card clinical-card clinical-card--full clinical-hero">
         <div className="clinical-hero-title">
-          <span className="clinical-patient-name">{formatValue(patientName.value)}</span>
+          <span className="clinical-patient-name">{displayPatientName}</span>
           <span className="clinical-patient-demographics">{formatValue(ageSex.value)}</span>
-          {patientName.isDivergent ? <DivergenceChip /> : null}
+          {nameIsDivergent ? <DivergenceChip /> : null}
         </div>
         <div className="clinical-hero-sub">
           <span>
-            ID/Prontuário: <b>{formatValue(patientId.value)}</b>
+            ID/Prontuário: <b>{displayPatientId}</b>
           </span>
-          {patientId.isDivergent ? <DivergenceChip /> : null}
+          {idIsDivergent ? <DivergenceChip /> : null}
           <span>
             Convênio: <b>{formatValue(insurance.value)}</b>
           </span>

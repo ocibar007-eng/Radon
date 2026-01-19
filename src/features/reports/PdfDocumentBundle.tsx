@@ -76,6 +76,27 @@ export const PdfDocumentBundle: React.FC<Props> = ({ groups, onRemoveGroup, onSp
         });
     }, [groups]);
 
+    const typeCounts = useMemo(() => {
+        const counts: Partial<Record<DocClassification, number>> = {};
+        sortedGroups.forEach(group => {
+            const type = group.docs[0]?.classification || 'indeterminado';
+            counts[type] = (counts[type] || 0) + 1;
+        });
+        return counts;
+    }, [sortedGroups]);
+
+    const typeIndexes = useMemo(() => {
+        const counters: Partial<Record<DocClassification, number>> = {};
+        const indexes = new Map<string, number>();
+        sortedGroups.forEach(group => {
+            const type = group.docs[0]?.classification || 'indeterminado';
+            const count = (counters[type] || 0) + 1;
+            counters[type] = count;
+            indexes.set(group.id, count);
+        });
+        return indexes;
+    }, [sortedGroups]);
+
     // Garante que a aba ativa é válida
     const activeGroup = useMemo(() =>
         sortedGroups.find(g => g.id === activeGroupId) || sortedGroups[0],
@@ -134,6 +155,11 @@ export const PdfDocumentBundle: React.FC<Props> = ({ groups, onRemoveGroup, onSp
                     const docType = group.docs[0]?.classification || 'outro';
                     const label = TAB_LABELS[docType] || docType;
                     const pageCount = group.docs.length;
+                    const totalOfType = typeCounts[docType] || 0;
+                    const typeIndex = typeIndexes.get(group.id);
+                    const displayLabel = totalOfType > 1 && typeIndex
+                        ? `${label} ${typeIndex}`
+                        : label;
                     const colors = TAB_COLORS[docType] || TAB_COLORS.outro!;
 
                     return (
@@ -149,7 +175,7 @@ export const PdfDocumentBundle: React.FC<Props> = ({ groups, onRemoveGroup, onSp
                                 }
                             `}
                         >
-                            <span>{label}</span>
+                            <span>{displayLabel}</span>
                             {pageCount > 1 && (
                                 <span className={`
                                     text-[10px] px-1.5 py-0.5 rounded-full

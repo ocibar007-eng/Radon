@@ -520,6 +520,7 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
                                     <ClinicalTab
                                         markdown={session.clinicalMarkdown}
                                         data={session.clinicalSummaryData}
+                                        patient={session.patient}
                                         isProcessing={isDocsProcessing}
                                     />
                                     <DocumentGallery
