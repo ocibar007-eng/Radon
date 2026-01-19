@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { AlertTriangle, X, CheckCircle } from 'lucide-react';
 import { Button } from './Button';
 
@@ -25,20 +26,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
 }) => {
     if (!isOpen) return null;
 
-    // Handle keyboard shortcuts: ESC to cancel, Enter to confirm
-    React.useEffect(() => {
-        const handleKey = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') onCancel();
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                onConfirm();
-            }
-        };
-        window.addEventListener('keydown', handleKey);
-        return () => window.removeEventListener('keydown', handleKey);
-    }, [onCancel, onConfirm]);
-
-    return (
+    const modalContent = (
         <div className="modal-overlay" onClick={onCancel}>
             <div
                 className="modal-content"
@@ -81,6 +69,25 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
             </div>
         </div>
     );
+
+    // Handle keyboard shortcuts: ESC to cancel, Enter to confirm
+    React.useEffect(() => {
+        const handleKey = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') onCancel();
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                onConfirm();
+            }
+        };
+        window.addEventListener('keydown', handleKey);
+        return () => window.removeEventListener('keydown', handleKey);
+    }, [onCancel, onConfirm]);
+
+    if (typeof document === 'undefined') {
+        return modalContent;
+    }
+
+    return createPortal(modalContent, document.body);
 };
 
 export default ConfirmModal;
