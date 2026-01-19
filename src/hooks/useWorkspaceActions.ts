@@ -34,6 +34,8 @@ export function useWorkspaceActions(patient: Patient | null) {
   const [pendingImages, setPendingImages] = useState<{
     images: File[];
     forcedType?: DocClassification;
+    remainingFiles?: File[];
+    isHeader?: boolean;
   } | null>(null);
 
   // --- HELPER INTERNO ---
@@ -151,11 +153,17 @@ export function useWorkspaceActions(patient: Patient | null) {
     if (imageFiles.length >= 2 && !isHeader) {
       if (DEBUG_LOGS) {
         console.log('[Debug][Upload] Múltiplas imagens detectadas, mostrando diálogo', {
-          count: imageFiles.length
+          count: imageFiles.length,
+          remaining: allowedFiles.length - imageFiles.length
         });
       }
       // Armazenar imagens e mostrar diálogo
-      setPendingImages({ images: imageFiles, forcedType });
+      setPendingImages({
+        images: imageFiles,
+        forcedType,
+        remainingFiles: allowedFiles.filter(f => !imageFiles.includes(f)),
+        isHeader
+      });
       return; // Retorna aqui, processamento continua após resposta do usuário
     }
 
@@ -522,16 +530,17 @@ export function useWorkspaceActions(patient: Patient | null) {
   }, [patient, session]);
 
   // Callback para confirmar ou rejeitar agrupamento de múltiplas imagens
-  const handleMultipleImagesConfirm = useCallback((shouldGroup: boolean) => {
+  const handleMultipleImagesConfirm = useCallback(async (shouldGroup: boolean) => {
     if (!pendingImages) return;
 
-    const { images, forcedType } = pendingImages;
+    const { images, forcedType, remainingFiles, isHeader } = pendingImages;
     const sharedHint = shouldGroup ? `MANUAL_GROUP:${crypto.randomUUID().slice(0, 8)}` : null;
 
     if (DEBUG_LOGS) {
       console.log('[Debug][MultiImage] Processando resposta do usuário', {
         shouldGroup,
         count: images.length,
+        remaining: remainingFiles?.length || 0,
         sharedHint
       });
     }
@@ -572,7 +581,10 @@ export function useWorkspaceActions(patient: Patient | null) {
     });
 
     setPendingImages(null);
-  }, [pendingImages, resolveFileName, dispatch, enqueue, patient]);
+    if (remainingFiles && remainingFiles.length > 0) {
+      await handleFilesUpload(remainingFiles, isHeader, forcedType);
+    }
+  }, [pendingImages, resolveFileName, dispatch, enqueue, patient, handleFilesUpload]);
 
   const cancelMultipleImagesDialog = useCallback(() => {
     setPendingImages(null);
