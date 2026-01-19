@@ -90,8 +90,10 @@ const SimpleMarkdownParser: React.FC<{ content: string }> = ({ content }) => {
     if (trimmed.startsWith('###')) {
       flushList();
       elements.push(<h3 key={idx}>{trimmed.replace(/^###\s*/, '')}</h3>);
-    } else if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
-      const text = trimmed.substring(2);
+    } else if (trimmed.startsWith('- ') || trimmed.startsWith('* ') || trimmed.startsWith('•')) {
+      const text = trimmed.startsWith('•')
+        ? trimmed.replace(/^•\s*/, '')
+        : trimmed.substring(2);
       listBuffer.push(<li key={idx}>{highlightTerms(text)}</li>);
     } else {
       flushList();

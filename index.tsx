@@ -17,6 +17,7 @@ import './src/styles/documents.css';
 import './src/styles/audio.css';
 import './src/styles/markdown.css';
 import './src/styles/clinical.css';
+import './src/styles/checklist.css';
 
 // Feature modules
 import './src/features/ocr-batch/styles/ocr-batch.css';

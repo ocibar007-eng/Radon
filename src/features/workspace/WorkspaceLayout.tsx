@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo, useEffect, useCallback, useRef, useLayoutEffect } from 'react';
-import { FileText, History, Download, Loader2, CheckCircle, UploadCloud, AlertTriangle, ScanLine, Eraser, ArrowDown, Pencil } from 'lucide-react';
+import { FileText, History, ListChecks, Download, Loader2, CheckCircle, UploadCloud, AlertTriangle, ScanLine, Eraser, ArrowDown, Pencil } from 'lucide-react';
 import { IntakeCard } from '../intake/IntakeCard';
 import { Button } from '../../components/ui/Button';
 import { ConfirmModal } from '../../components/ui/ConfirmModal';
@@ -15,6 +15,7 @@ import { StorageService } from '../../services/storage-service';
 import { DocumentGallery } from '../intake/DocumentGallery';
 import { ClinicalTab } from '../clinical/ClinicalTab';
 import { PreviousReportsTab } from '../reports/PreviousReportsTab';
+import { ChecklistTab } from '../checklist/ChecklistTab';
 import { AudioJobsPanel } from '../audio/AudioJobsPanel';
 import { OcrImportModal } from './OcrImportModal';
 import { HistoryItem } from '../ocr-batch/types';
@@ -43,7 +44,7 @@ interface WorkspaceLayoutProps {
  * Handles:
  * - Session hydration from IndexedDB/Firestore
  * - Document and audio processing
- * - Tab management (Clinical Summary vs Previous Reports)
+ * - Tab management (Clinical Summary vs Previous Reports vs Checklist)
  * - Drag & drop file handling
  * - Auto-save and exit confirmation
  */
@@ -70,7 +71,7 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
     } = useWorkspaceActions(patient);
 
     // 3. Estado Local de UI
-    const [activeTab, setActiveTab] = useState<'summary' | 'reports'>('summary');
+    const [activeTab, setActiveTab] = useState<'summary' | 'reports' | 'checklist'>('summary');
     const [isHydrating, setIsHydrating] = useState(false);
     const [showClearConfirm, setShowClearConfirm] = useState(false);
     const [showExitConfirm, setShowExitConfirm] = useState(false);
@@ -361,6 +362,17 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
         laudoPages: session.docs.filter(d => ['laudo_previo', 'pedido_medico', 'termo_consentimento', 'questionario', 'guia_autorizacao'].includes(d.classification)).length
     }), [session.docs, reportGroups, assistencialDocs]);
 
+    const checklistStats = useMemo(() => {
+        const sections = session.checklistData?.checklist || [];
+        const totalItems = sections.reduce((acc, section) => acc + section.itens.length, 0);
+        const p0Items = sections.reduce((acc, section) => acc + section.itens.filter(item => item.prioridade === 'P0').length, 0);
+        return {
+            totalItems,
+            p0Items,
+            condition: session.checklistData?.condicao_alvo?.nome || 'Condição não informada'
+        };
+    }, [session.checklistData]);
+
     // --- RENDER ---
     if (isHydrating) {
         return (
@@ -502,16 +514,38 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
                             >
                                 <History size={16} /> Documentos Clínicos
                             </button>
+                            <button
+                                role="tab"
+                                aria-selected={activeTab === 'checklist'}
+                                onClick={() => setActiveTab('checklist')}
+                                className={`tab-btn ${activeTab === 'checklist' ? 'active' : ''}`}
+                            >
+                                <ListChecks size={16} /> Checklist Radiológico
+                            </button>
                         </div>
 
                         <div className="tabs-subbar">
-                            <span className="count-item text-info">
-                                {counts.assistencialCount} docs de suporte
-                            </span>
-                            <span className="divider">·</span>
-                            <span className="count-item text-accent">
-                                {counts.laudoGroups} documentos clínicos detectados <span style={{ opacity: 0.6, fontWeight: 400 }}>({counts.laudoPages} págs)</span>
-                            </span>
+                            {activeTab === 'checklist' ? (
+                                <>
+                                    <span className="count-item text-info">
+                                        {checklistStats.condition}
+                                    </span>
+                                    <span className="divider">·</span>
+                                    <span className="count-item text-accent">
+                                        {checklistStats.totalItems} itens (P0: {checklistStats.p0Items})
+                                    </span>
+                                </>
+                            ) : (
+                                <>
+                                    <span className="count-item text-info">
+                                        {counts.assistencialCount} docs de suporte
+                                    </span>
+                                    <span className="divider">·</span>
+                                    <span className="count-item text-accent">
+                                        {counts.laudoGroups} documentos clínicos detectados <span style={{ opacity: 0.6, fontWeight: 400 }}>({counts.laudoPages} págs)</span>
+                                    </span>
+                                </>
+                            )}
                         </div>
 
                         <div className="tab-content">
@@ -544,6 +578,16 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
                                         onUpload={(e) => handleFileUpload(e, false, undefined)}
                                         onDropFiles={(files) => handleFilesUpload(files, false, undefined, (t) => setActiveTab(t))}
                                         onReclassifyDoc={handleManualReclassify}
+                                    />
+                                </div>
+                            )}
+
+                            {activeTab === 'checklist' && (
+                                <div role="tabpanel">
+                                    <ChecklistTab
+                                        data={session.checklistData}
+                                        markdown={session.checklistMarkdown}
+                                        isProcessing={isDocsProcessing}
                                     />
                                 </div>
                             )}

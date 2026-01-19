@@ -4,10 +4,10 @@ import { getGeminiClient, fileToPart } from "../core/gemini";
 import { CONFIG } from "../core/config";
 import { Type, GenerateContentResponse } from "@google/genai";
 import { PROMPTS } from "./gemini/prompts";
-import { ReportAnalysis, ClinicalSummary, AttachmentDoc, AudioTranscriptRow, AppSession, PatientRegistrationDetails, DocClassification } from "../types";
+import { ReportAnalysis, ClinicalSummary, RadiologyChecklist, AttachmentDoc, AudioTranscriptRow, AppSession, PatientRegistrationDetails, DocClassification } from "../types";
 import { safeJsonParse } from "../utils/json";
 import { withExponentialBackoff } from "../utils/retry";
-import { PatientRegistrationSchema, DocumentAnalysisSchema, ReportAnalysisSchema, ClinicalSummarySchema, AudioTranscriptionSchema, PdfGlobalGroupingSchema, ImagesGlobalGroupingSchema, PdfGlobalGroupingResult, ImagesGlobalGroupingResult } from "./schemas";
+import { PatientRegistrationSchema, DocumentAnalysisSchema, ReportAnalysisSchema, ClinicalSummarySchema, RadiologyChecklistSchema, AudioTranscriptionSchema, PdfGlobalGroupingSchema, ImagesGlobalGroupingSchema, PdfGlobalGroupingResult, ImagesGlobalGroupingResult } from "./schemas";
 
 // Re-export utilities for gemini-extract.ts
 export { CONFIG, PROMPTS, safeJsonParse };
@@ -389,6 +389,45 @@ export async function generateClinicalSummary(docs: AttachmentDoc[]): Promise<Cl
   });
 
   return safeJsonParse(response.text || '{}', null, ClinicalSummarySchema);
+}
+
+export async function generateRadiologyChecklist(input: Record<string, any>): Promise<RadiologyChecklist | null> {
+  const prompt = PROMPTS.checklist_generator.replace('{{INPUT_JSON}}', JSON.stringify(input, null, 2));
+
+  const response = await generate(CONFIG.MODEL_NAME, {
+    contents: { role: 'user', parts: [{ text: prompt }] },
+    config: { responseMimeType: 'application/json' }
+  });
+
+  const fallback: RadiologyChecklist = {
+    condicao_alvo: {
+      nome: '',
+      confianca: 'baixa',
+      racional_em_1_linha: '',
+      diferenciais_considerados: []
+    },
+    intencao: 'diagnostico',
+    frameworks_referenciados: [],
+    checklist: [],
+    pitfalls_rapidos: [],
+    resumo_final_struct: {
+      diagnostico_principal: 'não informado',
+      classificacao_ou_estadio: 'não informado',
+      marcadores_chave: ['não informado'],
+      margens_criticas: ['não informado'],
+      linfonodos: ['não informado'],
+      doenca_a_distancia: ['não informado'],
+      complicacoes: ['não informado'],
+      limitacoes: ['não informado']
+    },
+    lacunas_de_informacao: [],
+    perguntas_que_o_radiologista_pode_fazer: [],
+    referencias: [],
+    markdown_para_ui: '',
+    versao: 'v5'
+  };
+
+  return safeJsonParse(response.text || '{}', fallback, RadiologyChecklistSchema);
 }
 
 export async function transcribeAudio(audioBlob: Blob): Promise<{ text: string, rows: AudioTranscriptRow[] }> {

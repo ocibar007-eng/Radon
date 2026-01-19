@@ -38,6 +38,12 @@ Este guia documenta um problema **RECORRENTE** de deploys falharem na Vercel dev
 ### 3. Integração AI (Gemini)
 - **OCR de Alta Precisão:** Processamento de documentos médicos complexos.
 - **Transcrição de Áudio:** Gravação direta no navegador com pause, visualização de forma de onda e transcrição automática.
+- **Checklist Radiológico:** Geração automática a partir de pedido médico + resumo clínico, com frameworks, pitfalls e conclusão estruturada.
+
+### 4. Checklist Radiológico (Nova Aba)
+- **Checklist de Leitura:** Itens críticos (P0/P1/P2) com como avaliar, thresholds e onde reportar no laudo.
+- **Resumo Estruturado:** Campos obrigatórios prontos para conclusão e rastreio de lacunas clínicas.
+- **Foco em Segurança:** Pitfalls específicos por condição e modalidade.
 
 ---
 

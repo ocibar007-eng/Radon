@@ -11,6 +11,7 @@ import {
     ReportPreviewSchema,
     ReportAnalysisSchema,
     ClinicalSummarySchema,
+    RadiologyChecklistSchema,
     AudioTranscriptRowSchema,
     FindingSeveritySchema,
     LaudadorSchema,
@@ -39,6 +40,7 @@ export type ReportPreview = z.infer<typeof ReportPreviewSchema>;
 export type ReportAnalysis = z.infer<typeof ReportAnalysisSchema>;
 
 export type ClinicalSummary = z.infer<typeof ClinicalSummarySchema>;
+export type RadiologyChecklist = z.infer<typeof RadiologyChecklistSchema>;
 // Alias para compatibilidade
 export type ClinicalDocSummary = ClinicalSummary;
 
@@ -128,6 +130,8 @@ export interface AppSession {
     audioJobs: AudioJob[];
     clinicalMarkdown: string;
     clinicalSummaryData?: ClinicalSummary; // Usa o tipo inferido aqui
+    checklistMarkdown: string;
+    checklistData?: RadiologyChecklist;
 }
 
 export type ProcessingQueueItem =

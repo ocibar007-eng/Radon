@@ -5,6 +5,7 @@ import { pipelineReducer, createInitialState } from './pipeline.reducer';
 import { getItemId, DEFAULT_PIPELINE_CONFIG, ProcessingQueueItem } from './pipeline.types';
 import * as PipelineActions from '../core/pipeline-actions';
 import { groupDocsVisuals } from '../utils/grouping';
+import { buildChecklistInput } from '../utils/checklist';
 
 const DEBUG_LOGS = true;
 
@@ -197,6 +198,59 @@ export function usePipeline() {
             }, 2000);
         }
     }, [session.docs, sessionDispatch]);
+
+    // --- AUTO RADIOLOGY CHECKLIST ---
+    const prevChecklistKeyRef = useRef<string>('');
+    const checklistTimeoutRef = useRef<number | null>(null);
+
+    useEffect(() => {
+        const checklistDocs = session.docs.filter(d =>
+            d.status === 'done' && (d.verbatimText || d.extractedData)
+        );
+
+        const summaryFingerprint = session.clinicalMarkdown || '';
+        const examFingerprint = session.patient?.tipo_exame?.valor || '';
+
+        const checklistKey = [
+            checklistDocs.map(doc => `${doc.id}:${doc.classification}:${doc.verbatimText?.length || 0}:${doc.extractedData ? 1 : 0}`).join('|'),
+            `summary:${summaryFingerprint}`,
+            `exam:${examFingerprint}`
+        ].join('|');
+
+        const hasInput = checklistDocs.length > 0 || summaryFingerprint.length > 0 || !!examFingerprint;
+
+        if (!hasInput) {
+            if (checklistTimeoutRef.current) clearTimeout(checklistTimeoutRef.current);
+            if (prevChecklistKeyRef.current !== '') {
+                prevChecklistKeyRef.current = '';
+                sessionDispatch({
+                    type: 'SET_CHECKLIST',
+                    payload: { markdown: '', data: undefined }
+                });
+            }
+            return;
+        }
+
+        if (checklistKey !== prevChecklistKeyRef.current) {
+            if (checklistTimeoutRef.current) clearTimeout(checklistTimeoutRef.current);
+
+            checklistTimeoutRef.current = window.setTimeout(async () => {
+                prevChecklistKeyRef.current = checklistKey;
+                try {
+                    const input = buildChecklistInput(session);
+                    const result = await PipelineActions.processRadiologyChecklist(input);
+                    if (result && isMounted.current) {
+                        sessionDispatch({
+                            type: 'SET_CHECKLIST',
+                            payload: { markdown: result.markdown_para_ui, data: result }
+                        });
+                    }
+                } catch (err) {
+                    console.error('[PipelineV2] Checklist generation failed:', err);
+                }
+            }, 2500);
+        }
+    }, [session.docs, session.patient, session.clinicalMarkdown, session.clinicalSummaryData, sessionDispatch]);
 
     // Cleanup completed jobs periodically
     useEffect(() => {

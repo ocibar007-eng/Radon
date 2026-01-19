@@ -1,6 +1,6 @@
 
 import * as GeminiAdapter from '../adapters/gemini-prompts';
-import { AttachmentDoc, PatientRegistrationDetails, AudioTranscriptRow, ReportAnalysis, ClinicalSummary } from '../types';
+import { AttachmentDoc, PatientRegistrationDetails, AudioTranscriptRow, ReportAnalysis, ClinicalSummary, RadiologyChecklist } from '../types';
 
 /**
  * Processa o Header (Intake)
@@ -108,4 +108,11 @@ export async function processAudio(blob: Blob): Promise<{ transcriptRaw: string,
  */
 export async function processClinicalSummary(docs: AttachmentDoc[]): Promise<ClinicalSummary | null> {
   return await GeminiAdapter.generateClinicalSummary(docs);
+}
+
+/**
+ * Gera Checklist Radiológico
+ */
+export async function processRadiologyChecklist(input: Record<string, any>): Promise<RadiologyChecklist | null> {
+  return await GeminiAdapter.generateRadiologyChecklist(input);
 }

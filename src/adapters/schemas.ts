@@ -252,6 +252,205 @@ export const ClinicalSummarySchema = z.object({
   })
 });
 
+// 4.1 Checklist Radiológico
+const PrioridadeSchema = z.preprocess(
+  (val) => {
+    if (typeof val !== 'string') return 'P1';
+    const v = val.toUpperCase().trim();
+    if (v === 'P0' || v === 'P1' || v === 'P2') return v;
+    return 'P1';
+  },
+  z.enum(['P0', 'P1', 'P2'])
+);
+
+const TipoCampoSchema = z.preprocess(
+  (val) => {
+    if (typeof val !== 'string') return 'text';
+    const v = val.toLowerCase().trim();
+    if (v === 'boolean' || v === 'number' || v === 'text' || v === 'select' || v === 'multi_select') return v;
+    return 'text';
+  },
+  z.enum(['boolean', 'number', 'text', 'select', 'multi_select'])
+);
+
+const UnidadeSchema = z.preprocess(
+  (val) => {
+    if (typeof val !== 'string') return '';
+    const v = val.toLowerCase().trim();
+    if (v === 'mm') return 'mm';
+    if (v === 'cm') return 'cm';
+    if (v === 'ml') return 'mL';
+    if (v === 'mL') return 'mL';
+    return '';
+  },
+  z.enum(['mm', 'cm', 'mL', ''])
+);
+
+const IntencaoSchema = z.preprocess(
+  (val) => {
+    if (typeof val !== 'string') return 'diagnostico';
+    const v = val.toLowerCase().trim();
+    if (v.includes('reestadi')) return 'reestadiamento';
+    if (v.includes('estadi')) return 'estadiamento';
+    if (v.includes('seguim') || v.includes('follow')) return 'seguimento';
+    return 'diagnostico';
+  },
+  z.enum(['diagnostico', 'estadiamento', 'reestadiamento', 'seguimento'])
+);
+
+const BoolSchema = z.preprocess(
+  (val) => {
+    if (typeof val === 'boolean') return val;
+    if (typeof val === 'string') return val.toLowerCase().trim() === 'true';
+    return false;
+  },
+  z.boolean()
+);
+
+const ChecklistItemSchema = z.object({
+  id: ResilientString,
+  rotulo: ResilientString,
+  prioridade: PrioridadeSchema,
+  evidencia_minima: ResilientString,
+  tipo_campo: TipoCampoSchema,
+  opcoes: z.array(ResilientString).optional().default([]),
+  unidade: UnidadeSchema,
+  obrigatorio: BoolSchema,
+  quando_aplicar: ResilientString,
+  como_avaliar: ResilientString,
+  como_reportar_no_laudo: ResilientString,
+  thresholds_ou_definicoes: z.array(ResilientString).optional().default([]),
+  armadilhas: z.array(ResilientString).optional().default([])
+}).catch({
+  id: '',
+  rotulo: '',
+  prioridade: 'P1',
+  evidencia_minima: '',
+  tipo_campo: 'text',
+  opcoes: [],
+  unidade: '',
+  obrigatorio: false,
+  quando_aplicar: '',
+  como_avaliar: '',
+  como_reportar_no_laudo: '',
+  thresholds_ou_definicoes: [],
+  armadilhas: []
+});
+
+const ChecklistSectionSchema = z.object({
+  secao: ResilientString,
+  itens: z.array(ChecklistItemSchema).default([])
+}).catch({
+  secao: '',
+  itens: []
+});
+
+const ChecklistFrameworkSchema = z.object({
+  nome: ResilientString,
+  quando_usar: ResilientString,
+  observacao: ResilientString
+}).catch({
+  nome: '',
+  quando_usar: '',
+  observacao: ''
+});
+
+const ChecklistDiferencialSchema = z.object({
+  nome: ResilientString,
+  por_que_entrou: ResilientString
+}).catch({
+  nome: '',
+  por_que_entrou: ''
+});
+
+const ResumoFinalStructSchema = z.object({
+  diagnostico_principal: ResilientString,
+  classificacao_ou_estadio: ResilientString,
+  marcadores_chave: z.array(ResilientString).default(['não informado']),
+  margens_criticas: z.array(ResilientString).default(['não informado']),
+  linfonodos: z.array(ResilientString).default(['não informado']),
+  doenca_a_distancia: z.array(ResilientString).default(['não informado']),
+  complicacoes: z.array(ResilientString).default(['não informado']),
+  limitacoes: z.array(ResilientString).default(['não informado'])
+}).catch({
+  diagnostico_principal: 'não informado',
+  classificacao_ou_estadio: 'não informado',
+  marcadores_chave: ['não informado'],
+  margens_criticas: ['não informado'],
+  linfonodos: ['não informado'],
+  doenca_a_distancia: ['não informado'],
+  complicacoes: ['não informado'],
+  limitacoes: ['não informado']
+});
+
+const ChecklistLacunaSchema = z.object({
+  item: ResilientString,
+  por_que_importa: ResilientString
+}).catch({
+  item: '',
+  por_que_importa: ''
+});
+
+const ChecklistReferenciaSchema = z.object({
+  fonte: ResilientString,
+  ano: ResilientString,
+  nota: ResilientString
+}).catch({
+  fonte: '',
+  ano: '',
+  nota: ''
+});
+
+export const RadiologyChecklistSchema = z.object({
+  condicao_alvo: z.object({
+    nome: ResilientString,
+    confianca: ConfiancaSchema,
+    racional_em_1_linha: ResilientString,
+    diferenciais_considerados: z.array(ChecklistDiferencialSchema).default([])
+  }).catch({
+    nome: '',
+    confianca: 'baixa',
+    racional_em_1_linha: '',
+    diferenciais_considerados: []
+  }),
+  intencao: IntencaoSchema,
+  frameworks_referenciados: z.array(ChecklistFrameworkSchema).default([]),
+  checklist: z.array(ChecklistSectionSchema).default([]),
+  pitfalls_rapidos: z.array(ResilientString).default([]),
+  resumo_final_struct: ResumoFinalStructSchema,
+  lacunas_de_informacao: z.array(ChecklistLacunaSchema).default([]),
+  perguntas_que_o_radiologista_pode_fazer: z.array(ResilientString).default([]),
+  referencias: z.array(ChecklistReferenciaSchema).default([]),
+  markdown_para_ui: ResilientString,
+  versao: ResilientString
+}).catch({
+  condicao_alvo: {
+    nome: '',
+    confianca: 'baixa',
+    racional_em_1_linha: '',
+    diferenciais_considerados: []
+  },
+  intencao: 'diagnostico',
+  frameworks_referenciados: [],
+  checklist: [],
+  pitfalls_rapidos: [],
+  resumo_final_struct: {
+    diagnostico_principal: 'não informado',
+    classificacao_ou_estadio: 'não informado',
+    marcadores_chave: ['não informado'],
+    margens_criticas: ['não informado'],
+    linfonodos: ['não informado'],
+    doenca_a_distancia: ['não informado'],
+    complicacoes: ['não informado'],
+    limitacoes: ['não informado']
+  },
+  lacunas_de_informacao: [],
+  perguntas_que_o_radiologista_pode_fazer: [],
+  referencias: [],
+  markdown_para_ui: '',
+  versao: 'v5'
+});
+
 // 5. Transcrição de Áudio
 export const AudioTranscriptRowSchema = z.object({
   tempo: z.string(),

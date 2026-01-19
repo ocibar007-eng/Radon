@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
-import { AppSession, AttachmentDoc, AudioJob, PatientRegistrationDetails, ClinicalSummary } from '../types';
+import { AppSession, AttachmentDoc, AudioJob, PatientRegistrationDetails, ClinicalSummary, RadiologyChecklist } from '../types';
 
 // Actions definition
 type SessionAction =
@@ -15,7 +15,8 @@ type SessionAction =
   | { type: 'REMOVE_DOC'; payload: string }
   | { type: 'ADD_AUDIO_JOB'; payload: AudioJob }
   | { type: 'UPDATE_AUDIO_JOB'; payload: { id: string; updates: Partial<AudioJob> } }
-  | { type: 'SET_CLINICAL_MARKDOWN'; payload: { markdown: string; data?: ClinicalSummary } };
+  | { type: 'SET_CLINICAL_MARKDOWN'; payload: { markdown: string; data?: ClinicalSummary } }
+  | { type: 'SET_CHECKLIST'; payload: { markdown: string; data?: RadiologyChecklist } };
 
 const initialSession: AppSession = {
   patientId: null,
@@ -23,13 +24,19 @@ const initialSession: AppSession = {
   patient: null,
   docs: [],
   audioJobs: [],
-  clinicalMarkdown: ''
+  clinicalMarkdown: '',
+  checklistMarkdown: ''
 };
 
 function sessionReducer(state: AppSession, action: SessionAction): AppSession {
   switch (action.type) {
     case 'RESTORE_SESSION':
-      return { ...action.payload };
+      return {
+        ...initialSession,
+        ...action.payload,
+        checklistMarkdown: action.payload.checklistMarkdown ?? '',
+        clinicalMarkdown: action.payload.clinicalMarkdown ?? ''
+      };
 
     case 'CLEAR_SESSION':
       return { ...initialSession };
@@ -81,6 +88,12 @@ function sessionReducer(state: AppSession, action: SessionAction): AppSession {
         ...state,
         clinicalMarkdown: action.payload.markdown,
         clinicalSummaryData: action.payload.data
+      };
+    case 'SET_CHECKLIST':
+      return {
+        ...state,
+        checklistMarkdown: action.payload.markdown,
+        checklistData: action.payload.data
       };
 
     default:

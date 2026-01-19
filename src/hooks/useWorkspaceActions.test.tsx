@@ -14,7 +14,9 @@ const mockDispatch = vi.fn();
 const mockSession = {
   docs: [],
   patient: { id: 'patient-123', os: { valor: 'OS-TEST' } },
-  audioJobs: []
+  audioJobs: [],
+  clinicalMarkdown: '',
+  checklistMarkdown: ''
 };
 
 vi.mock('../context/SessionContext', () => ({
