@@ -43,6 +43,16 @@ export const StorageService = {
     }
   },
 
+  // Returns all cached sessions (IndexedDB) for background recovery workflows.
+  async listSessions(): Promise<PersistentSession[]> {
+    try {
+      return await db.sessions.toArray();
+    } catch (error) {
+      console.error('[StorageService] Error listing sessions from IndexedDB:', error);
+      return [];
+    }
+  },
+
   async deleteSession(id: string) {
     await db.sessions.delete(id);
   },

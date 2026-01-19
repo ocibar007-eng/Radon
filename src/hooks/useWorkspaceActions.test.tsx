@@ -35,7 +35,8 @@ vi.mock('./usePipeline', () => ({
 // 3. Mock do Storage Service
 vi.mock('../services/storage-service', () => ({
   StorageService: {
-    uploadFile: vi.fn().mockResolvedValue({ downloadUrl: 'https://fake-storage/file.jpg' })
+    uploadFile: vi.fn().mockResolvedValue('https://fake-storage/file.jpg'),
+    saveSession: vi.fn().mockResolvedValue(undefined)
   }
 }));
 
@@ -80,7 +81,7 @@ describe('Simulação de Fluxo: Workspace Actions', () => {
       }));
 
       // 2. Deve enviar para a Fila de IA (Enqueue)
-      expect(mockEnqueue).toHaveBeenCalledWith('uuid-1234', 'doc');
+      expect(mockEnqueue).toHaveBeenCalledWith({ type: 'doc', docId: 'uuid-1234' });
 
       // 3. Deve iniciar upload em background (Storage)
       expect(StorageService.uploadFile).toHaveBeenCalledWith('patient-123', file, 'exame.jpg');
@@ -160,7 +161,7 @@ describe('Simulação de Fluxo: Workspace Actions', () => {
       });
 
       // Deve reenfileirar para a IA reprocessar com o novo contexto
-      expect(mockEnqueue).toHaveBeenCalledWith(docId, 'doc');
+      expect(mockEnqueue).toHaveBeenCalledWith({ type: 'doc', docId });
     });
 
     it('deve remover documento e revogar URL', async () => {
@@ -195,7 +196,7 @@ describe('Simulação de Fluxo: Workspace Actions', () => {
         })
       }));
 
-      expect(mockEnqueue).toHaveBeenCalledWith('uuid-1234', 'audio');
+      expect(mockEnqueue).toHaveBeenCalledWith({ type: 'audio', jobId: 'uuid-1234' });
     });
 
     it('deve gerar relatório final para download', async () => {

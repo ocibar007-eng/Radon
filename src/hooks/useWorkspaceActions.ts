@@ -1,5 +1,5 @@
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useSession } from '../context/SessionContext';
 import { usePipeline } from './usePipeline';
 import { StorageService } from '../services/storage-service';
@@ -18,6 +18,17 @@ export function useWorkspaceActions(patient: Patient | null) {
   const { enqueue } = usePipeline();
 
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+
+  // Resume audio jobs after navigation or hydration clears the pipeline queue.
+  useEffect(() => {
+    const pendingAudio = session.audioJobs.filter(job => job.status === 'processing');
+    if (pendingAudio.length === 0) return;
+
+    pendingAudio.forEach(job => {
+      if (!job.blob) return;
+      enqueue({ type: 'audio', jobId: job.id });
+    });
+  }, [enqueue, session.audioJobs]);
 
   // Estado para múltiplas imagens enviadas simultaneamente
   const [pendingImages, setPendingImages] = useState<{
@@ -437,6 +448,16 @@ export function useWorkspaceActions(patient: Patient | null) {
     }
     dispatch({ type: 'ADD_AUDIO_JOB', payload: newJob });
     enqueue({ type: 'audio', jobId: newJob.id });
+    const sessionId = patient?.id || session.patientId || 'local-draft';
+    const nextSession = {
+      ...session,
+      patientId: session.patientId ?? patient?.id ?? null,
+      audioJobs: [newJob, ...session.audioJobs]
+    };
+    // Persist immediately to avoid losing the audio blob on navigation.
+    StorageService.saveSession(sessionId, nextSession).catch((error) => {
+      console.warn('[StorageService] Audio draft save failed', error);
+    });
 
     if (patient) {
       StorageService.uploadFile(patient.id, blob, `audio_${Date.now()}.webm`)
@@ -451,7 +472,7 @@ export function useWorkspaceActions(patient: Patient | null) {
         })
         .catch(console.error);
     }
-  }, [dispatch, enqueue, patient]);
+  }, [dispatch, enqueue, patient, session]);
 
   const downloadAll = useCallback(async (ocrData?: { batchName: string; jsonResult: any }) => {
     setIsGeneratingReport(true);

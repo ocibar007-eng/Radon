@@ -6,6 +6,7 @@ import { WorkspaceLayout } from '../features/workspace/WorkspaceLayout';
 import { OcrBatchPage } from '../features/ocr-batch';
 import { GlobalGalleryModal } from '../components/GlobalGalleryModal';
 import { Patient } from '../types/patient';
+import { useBackgroundAudioTranscription } from '../hooks/useBackgroundAudioTranscription';
 
 /**
  * AppRouter - Manages application view state and navigation
@@ -20,6 +21,12 @@ export function AppRouter() {
     const [currentView, setCurrentView] = useState<'list' | 'workspace' | 'ocr-batch'>('list');
     const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
     const [exitRequest, setExitRequest] = useState(false);
+
+    // Keep audio transcriptions progressing even outside the workspace view.
+    useBackgroundAudioTranscription({
+        activePatientId: selectedPatient?.id ?? null,
+        allowActivePatient: currentView !== 'workspace'
+    });
 
     const handleSelectPatient = (patient: Patient) => {
         setSelectedPatient(patient);
