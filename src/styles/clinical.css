@@ -120,6 +120,9 @@
   font-size: 0.85rem;
   color: var(--color-text-primary);
   line-height: 1.4;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .clinical-text-list {
@@ -129,9 +132,10 @@
 }
 
 .clinical-line {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(140px, 0.7fr) minmax(0, 1.3fr) auto;
   gap: 0.5rem;
-  align-items: flex-start;
+  align-items: start;
 }
 
 .clinical-line-label {
@@ -140,13 +144,18 @@
   letter-spacing: 0.06em;
   color: var(--color-text-muted);
   font-weight: 600;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .clinical-line-text {
   font-size: 0.85rem;
   color: var(--color-text-secondary);
   line-height: 1.5;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .clinical-line-muted {
@@ -230,6 +239,8 @@
   font-size: 0.9rem;
   color: var(--color-text-secondary);
   line-height: 1.5;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .clinical-request-text {
@@ -244,12 +255,18 @@
   color: var(--color-text-secondary);
   line-height: 1.5;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 @media (max-width: 720px) {
   .clinical-kv-row {
     grid-template-columns: 1fr;
     gap: 0.35rem;
+  }
+
+  .clinical-line {
+    grid-template-columns: 1fr;
   }
 }
 
