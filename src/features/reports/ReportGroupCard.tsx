@@ -10,14 +10,6 @@ import { StructuredReportBody, FindingSeverity } from '../../types';
 import { useReportDisplay } from './useReportDisplay';
 import { useGallery } from '../../context/GalleryContext';
 
-// Importação das Máscaras Adaptativas
-import {
-  PedidoMedicoTemplate,
-  TermoConsentimentoTemplate,
-  QuestionarioTemplate,
-  GuiaAutorizacaoTemplate,
-  AnotacaoClinicaTemplate
-} from '../../components/templates';
 import { MultiDocumentTabs } from '../../components/MultiDocumentTabs';
 
 
@@ -368,17 +360,16 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
           const isAdaptiveType = ['pedido_medico', 'termo_consentimento', 'questionario', 'guia_autorizacao', 'assistencial'].includes(docType || '');
 
           if (isAdaptiveType) {
-            // ... (Keep existing adaptive logic for single-type groups)
-            if (docType === 'pedido_medico') return <PedidoMedicoTemplate data={unifiedDoc?.extractedData || {}} />;
-            if (docType === 'termo_consentimento') return <TermoConsentimentoTemplate data={unifiedDoc?.extractedData || {}} />;
-            if (docType === 'questionario') return <QuestionarioTemplate data={unifiedDoc?.extractedData || {}} />;
-            if (docType === 'guia_autorizacao') return <GuiaAutorizacaoTemplate data={unifiedDoc?.extractedData || {}} />;
-            if (docType === 'assistencial') return <AnotacaoClinicaTemplate data={unifiedDoc?.extractedData || {}} verbatimText={plainText} />;
-
-            // Fallback genérico para adaptativo
             return (
-              <div className="p-4">
-                <p className="text-sm text-secondary">Documento: <span className="font-semibold">{docType}</span></p>
+              <div className="h-[500px] border-t border-white/5">
+                <MultiDocumentTabs
+                  docs={group.docs}
+                  renderLaudoContent={() => (
+                    <div className="p-4 text-sm text-secondary">
+                      Documento de laudo não esperado neste grupo.
+                    </div>
+                  )}
+                />
               </div>
             );
           }

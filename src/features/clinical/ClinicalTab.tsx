@@ -19,6 +19,34 @@ type ParsedItem = {
   isDivergent: boolean;
 };
 
+const HIGHLIGHT_TERMS = [
+  'alerg',
+  'contraste',
+  'creatinina',
+  'tfg',
+  'etfg',
+  'buscopan',
+  'manitol',
+  'hipotese',
+  'hipótese',
+  'cancer',
+  'câncer',
+  'tumor',
+  'neoplas',
+  'avc',
+  'hemorrag',
+  'tromb',
+  'infec',
+  'febre',
+  'icter',
+  'dispne',
+  'recidiva',
+  'fibrose'
+];
+
+const highlightRegex = new RegExp(`(${HIGHLIGHT_TERMS.join('|')})`, 'gi');
+const highlightTestRegex = new RegExp(`(${HIGHLIGHT_TERMS.join('|')})`, 'i');
+
 const normalize = (value: string) =>
   value
     .toLowerCase()
@@ -61,9 +89,27 @@ const findItemValue = (items: ParsedItem[], labels: string[]) => {
 const formatValue = (value: string, fallback = 'Não informado') =>
   value && value.trim().length > 0 ? value : fallback;
 
+const isNotInformed = (value: string) =>
+  normalize(value).includes('nao informado');
+
 const matchesAny = (item: ParsedItem, labels: string[]) => {
   const haystack = normalize(item.label || item.raw);
   return labels.some((label) => haystack.includes(normalize(label)));
+};
+
+const highlightText = (text: string) => {
+  if (!text) return text;
+  const parts = text.split(highlightRegex);
+  return parts.map((part, idx) => {
+    if (highlightTestRegex.test(part)) {
+      return (
+        <span key={`${part}-${idx}`} className="clinical-inline-highlight">
+          {part}
+        </span>
+      );
+    }
+    return part;
+  });
 };
 
 const DivergenceChip: React.FC = () => (
@@ -77,7 +123,9 @@ const KeyValueRow: React.FC<{
 }> = ({ label, value, isDivergent }) => (
   <div className="clinical-kv-row">
     {label ? <span className="clinical-kv-label">{label}</span> : null}
-    <span className="clinical-kv-value">{value}</span>
+    <span className={`clinical-kv-value ${isNotInformed(value) ? 'clinical-line-muted' : ''}`}>
+      {highlightText(value)}
+    </span>
     {isDivergent ? <DivergenceChip /> : null}
   </div>
 );
@@ -86,7 +134,12 @@ const TextList: React.FC<{ items: ParsedItem[] }> = ({ items }) => (
   <div className="clinical-text-list">
     {items.map((item, idx) => (
       <div key={`${item.raw}-${idx}`} className="clinical-line">
-        <span className="clinical-line-text">{item.raw}</span>
+        {item.label ? (
+          <span className="clinical-line-label">{item.label}:</span>
+        ) : null}
+        <span className={`clinical-line-text ${isNotInformed(item.value || item.raw) ? 'clinical-line-muted' : ''}`}>
+          {highlightText(item.value || item.raw)}
+        </span>
         {item.isDivergent ? <DivergenceChip /> : null}
       </div>
     ))}
@@ -269,7 +322,7 @@ const ClinicalSummaryStructured: React.FC<{ data: ClinicalSummary }> = ({ data }
           <div className="clinical-summary-text">
             {executiveSection.itens.map((item, idx) => (
               <p key={`${item}-${idx}`} className="clinical-summary-line">
-                {item}
+                {highlightText(item)}
               </p>
             ))}
           </div>
@@ -369,7 +422,7 @@ const ClinicalSummaryStructured: React.FC<{ data: ClinicalSummary }> = ({ data }
             <div className="clinical-request-text">
               {requestSection.itens.map((item, idx) => (
                 <p key={`${item}-${idx}`} className="clinical-request-line">
-                  {item}
+                  {highlightText(item)}
                 </p>
               ))}
             </div>

@@ -44,9 +44,10 @@ interface Props {
     data: Partial<AnotacaoClinicaData>;
     // verbatimText é o texto OCR original, caso extractedData não tenha transcricao_corrigida
     verbatimText?: string;
+    showHeader?: boolean;
 }
 
-export const AnotacaoClinicaTemplate: React.FC<Props> = ({ data, verbatimText }) => {
+export const AnotacaoClinicaTemplate: React.FC<Props> = ({ data, verbatimText, showHeader = true }) => {
     // Texto principal: prioriza transcricao_corrigida, depois verbatimText
     const displayText = data.transcricao_corrigida || verbatimText || '';
 
@@ -55,18 +56,20 @@ export const AnotacaoClinicaTemplate: React.FC<Props> = ({ data, verbatimText })
     return (
         <div className="structured-report-container animate-fade-in">
             {/* Header */}
-            <div className="flex items-center gap-2 mb-4 pb-3 border-b border-subtle">
-                <FileEdit className="text-pink-400" size={20} />
-                <h3 className="text-lg font-bold text-primary">
-                    {data.titulo_sugerido || 'Anotação Clínica'}
-                </h3>
-                {data.data_detectada && (
-                    <span className="ml-auto text-xs text-tertiary flex items-center gap-1">
-                        <Calendar size={12} />
-                        {data.data_detectada}
-                    </span>
-                )}
-            </div>
+            {showHeader && (
+                <div className="flex items-center gap-2 mb-4 pb-3 border-b border-subtle">
+                    <FileEdit className="text-pink-400" size={20} />
+                    <h3 className="text-lg font-bold text-primary">
+                        {data.titulo_sugerido || 'Anotação Clínica'}
+                    </h3>
+                    {data.data_detectada && (
+                        <span className="ml-auto text-xs text-tertiary flex items-center gap-1">
+                            <Calendar size={12} />
+                            {data.data_detectada}
+                        </span>
+                    )}
+                </div>
+            )}
 
             {/* Profissional responsável */}
             {data.profissional?.nome && (

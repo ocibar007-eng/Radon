@@ -6,6 +6,7 @@ import { QuestionarioTemplate } from './templates/QuestionarioTemplate';
 import { TermoConsentimentoTemplate } from './templates/TermoConsentimentoTemplate';
 import { GuiaAutorizacaoTemplate } from './templates/GuiaAutorizacaoTemplate';
 import { EmptyPageTemplate } from './templates/EmptyPageTemplate';
+import { AnotacaoClinicaTemplate } from './templates/AnotacaoClinicaTemplate';
 import { FileText, ChevronRight } from 'lucide-react'; // Fallback icon
 
 interface Props {
@@ -82,6 +83,8 @@ export const MultiDocumentTabs: React.FC<Props> = ({ docs, renderLaudoContent })
                 return <TermoConsentimentoTemplate data={doc.extractedData} verbatim={doc.verbatimText} />;
             case 'questionario':
                 return <QuestionarioTemplate data={doc.extractedData} verbatim={doc.verbatimText} />;
+            case 'assistencial':
+                return <AnotacaoClinicaTemplate data={doc.extractedData || {}} verbatimText={doc.verbatimText} showHeader={false} />;
             case 'pagina_vazia':
                 return <EmptyPageTemplate />;
             case 'laudo_previo':

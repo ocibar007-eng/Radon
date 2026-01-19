@@ -134,10 +134,32 @@
   align-items: flex-start;
 }
 
+.clinical-line-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 .clinical-line-text {
   font-size: 0.85rem;
   color: var(--color-text-secondary);
   line-height: 1.5;
+}
+
+.clinical-line-muted {
+  color: var(--color-text-muted);
+  opacity: 0.8;
+}
+
+.clinical-inline-highlight {
+  color: var(--color-accent-primary);
+  background: rgba(245, 158, 11, 0.12);
+  padding: 0 4px;
+  border-radius: 4px;
+  font-weight: 600;
 }
 
 .clinical-badges {
