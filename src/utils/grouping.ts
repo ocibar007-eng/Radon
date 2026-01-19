@@ -3,14 +3,17 @@ import { AttachmentDoc } from '../types';
 
 const DEBUG_LOGS = true;
 
-type PdfGroupingOverride = 'os' | 'atendimento';
+type PdfGroupingOverride = 'os' | 'atendimento' | 'atendimento_pagina';
 type PageMarkers = {
   os?: string;
   atendimento?: string;
+  pageCurrent?: number;
+  pageTotal?: number;
 };
 
 const OS_REGEX = /C[oó]digo\s+da\s+OS\s*[:\-]?\s*([0-9][0-9.\-\/]+)/i;
 const ATENDIMENTO_DATE_REGEX = /Atendimento\s*[:\-]?\s*(\d{2}\/\d{2}\/\d{4})/i;
+const PAGINATION_REGEX = /P[aá]gina\s*[:\-]?\s*(\d{1,3})\s*\/\s*(\d{1,3})/i;
 
 function extractOsFromText(text: string): string | null {
   if (!text) return null;
@@ -22,6 +25,16 @@ function extractAtendimentoDate(text: string): string | null {
   if (!text) return null;
   const match = text.match(ATENDIMENTO_DATE_REGEX);
   return match?.[1]?.trim() || null;
+}
+
+function extractPagination(text: string): { current: number; total: number } | null {
+  if (!text) return null;
+  const match = text.match(PAGINATION_REGEX);
+  if (!match) return null;
+  const current = Number(match[1]);
+  const total = Number(match[2]);
+  if (!Number.isFinite(current) || !Number.isFinite(total) || current <= 0 || total <= 0) return null;
+  return { current, total };
 }
 
 function normalizeGroupToken(value: string): string {
@@ -46,6 +59,10 @@ function computePdfGroupingOverrides(docs: AttachmentDoc[]) {
     osCount: number;
     dateValues: Set<string>;
     dateCount: number;
+    pageTotals: Set<number>;
+    pageTotalCount: number;
+    atendimentoPagePairs: Set<string>;
+    atendimentoPagePairCount: number;
   }>();
 
   const pageMarkers = new Map<string, PageMarkers>();
@@ -61,7 +78,11 @@ function computePdfGroupingOverrides(docs: AttachmentDoc[]) {
       osValues: new Set<string>(),
       osCount: 0,
       dateValues: new Set<string>(),
-      dateCount: 0
+      dateCount: 0,
+      pageTotals: new Set<number>(),
+      pageTotalCount: 0,
+      atendimentoPagePairs: new Set<string>(),
+      atendimentoPagePairCount: 0
     };
 
     stats.total += 1;
@@ -70,6 +91,9 @@ function computePdfGroupingOverrides(docs: AttachmentDoc[]) {
       stats.ready += 1;
       const os = extractOsFromText(doc.verbatimText);
       const atendimento = extractAtendimentoDate(doc.verbatimText);
+      const pagination = extractPagination(doc.verbatimText);
+      const pageCurrent = pagination?.current;
+      const pageTotal = pagination?.total;
 
       if (os) {
         stats.osValues.add(os);
@@ -81,8 +105,18 @@ function computePdfGroupingOverrides(docs: AttachmentDoc[]) {
         stats.dateCount += 1;
       }
 
-      if (os || atendimento) {
-        pageMarkers.set(doc.id, { os, atendimento });
+      if (pageTotal) {
+        stats.pageTotals.add(pageTotal);
+        stats.pageTotalCount += 1;
+      }
+
+      if (atendimento && pageTotal) {
+        stats.atendimentoPagePairs.add(`${atendimento}|${pageTotal}`);
+        stats.atendimentoPagePairCount += 1;
+      }
+
+      if (os || atendimento || pageTotal) {
+        pageMarkers.set(doc.id, { os, atendimento, pageCurrent, pageTotal });
       }
     }
 
@@ -95,6 +129,10 @@ function computePdfGroupingOverrides(docs: AttachmentDoc[]) {
     if (stats.total < 2 || stats.ready !== stats.total) return;
     if (stats.osValues.size > 1 && stats.osCount === stats.total) {
       overrides.set(baseName, 'os');
+      return;
+    }
+    if (stats.atendimentoPagePairs.size > 1 && stats.atendimentoPagePairCount === stats.total) {
+      overrides.set(baseName, 'atendimento_pagina');
       return;
     }
     if (stats.dateValues.size > 1 && stats.dateCount === stats.total) {
@@ -146,7 +184,12 @@ export function groupDocsVisuals(docs: AttachmentDoc[]): ReportGroup[] {
     // PRIORIDADE 1: Agrupamento Global (análise global de PDF)
     // Este é o método mais confiável pois a IA viu todas as páginas juntas
     if (!isManualSplit && override && marker && baseName) {
-      const token = override === 'os' ? marker.os : marker.atendimento;
+      let token: string | undefined;
+      if (override === 'os') token = marker.os;
+      if (override === 'atendimento') token = marker.atendimento;
+      if (override === 'atendimento_pagina' && marker.atendimento && marker.pageTotal) {
+        token = `${marker.atendimento}-P${marker.pageTotal}`;
+      }
       if (token) {
         const normalizedToken = normalizeGroupToken(token);
         const keyPrefix = doc.globalGroupSource ? 'global' : 'pdf';

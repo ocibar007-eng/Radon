@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Calendar, MapPin, ChevronDown, ChevronUp,
   Copy, Check, FileText, Layers, AlertTriangle, AlertCircle, Quote, Trash2, Scissors
@@ -41,6 +41,44 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
   } = useReportDisplay(group);
 
   const canSplit = group.docs.length > 1 && group.id.startsWith('pdf::') && !!onSplitGroup;
+  const orderedDocs = useMemo(() => (
+    [...group.docs].sort((a, b) => a.source.localeCompare(b.source, undefined, { numeric: true }))
+  ), [group.docs]);
+  const maxSplit = Math.max(2, orderedDocs.length);
+  const clampedSplit = Math.min(Math.max(splitStartPage, 2), maxSplit);
+  const splitIndex = clampedSplit - 1;
+  const leftDocs = orderedDocs.slice(0, splitIndex);
+  const rightDocs = orderedDocs.slice(splitIndex);
+  const MAX_SPLIT_THUMBS = 6;
+
+  const resolvePageLabel = (source: string, fallback: number) => {
+    const match = source.match(/Pg\s*(\d+)/i);
+    return match?.[1] ?? String(fallback);
+  };
+
+  const renderSplitThumbs = (docs: typeof orderedDocs, offset: number) => {
+    const visible = docs.slice(0, MAX_SPLIT_THUMBS);
+    return (
+      <>
+        {visible.map((doc, idx) => {
+          const pageLabel = resolvePageLabel(doc.source, offset + idx + 1);
+          return (
+            <div key={doc.id} className="rcu-split-thumb" title={doc.source}>
+              {doc.previewUrl ? (
+                <img src={doc.previewUrl} alt={`Página ${pageLabel}`} loading="lazy" />
+              ) : (
+                <div className="rcu-split-thumb-placeholder">Pg {pageLabel}</div>
+              )}
+              <span className="rcu-split-thumb-label">{pageLabel}</span>
+            </div>
+          );
+        })}
+        {docs.length > MAX_SPLIT_THUMBS ? (
+          <span className="rcu-split-thumb-more">+{docs.length - MAX_SPLIT_THUMBS}</span>
+        ) : null}
+      </>
+    );
+  };
 
   useEffect(() => {
     setSplitStartPage(2);
@@ -310,34 +348,60 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
 
       {/* PAINEL DE SPLIT MANUAL */}
       {isSplitMode && canSplit && onSplitGroup && (
-        <div className="p-3 bg-surface-elevated border-b border-subtle flex items-center justify-between gap-2 animate-fade-in" onClick={(e) => e.stopPropagation()}>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-secondary">Novo laudo a partir da página:</span>
-            <select
-              className="bg-app border border-strong rounded text-xs p-1 text-primary"
-              value={splitStartPage}
-              onChange={(e) => setSplitStartPage(Number(e.target.value))}
-            >
-              {Array.from({ length: group.docs.length - 1 }, (_, idx) => idx + 2).map(page => (
-                <option key={page} value={page}>
-                  Página {page}
-                </option>
-              ))}
-            </select>
+        <div className="p-3 bg-surface-elevated border-b border-subtle animate-fade-in" onClick={(e) => e.stopPropagation()}>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-secondary">Novo laudo a partir da página:</span>
+              <select
+                className="bg-app border border-strong rounded text-xs p-1 text-primary"
+                value={splitStartPage}
+                onChange={(e) => setSplitStartPage(Number(e.target.value))}
+              >
+                {Array.from({ length: orderedDocs.length - 1 }, (_, idx) => idx + 2).map(page => (
+                  <option key={page} value={page}>
+                    Página {page}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex gap-2">
+              <button
+                className="btn btn-sm btn-primary"
+                onClick={() => {
+                  onSplitGroup(group.id, splitStartPage);
+                  setIsSplitMode(false);
+                }}
+              >
+                Confirmar
+              </button>
+              <button className="btn btn-sm btn-ghost" onClick={() => setIsSplitMode(false)}>
+                Cancelar
+              </button>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <button
-              className="btn btn-sm btn-primary"
-              onClick={() => {
-                onSplitGroup(group.id, splitStartPage);
-                setIsSplitMode(false);
-              }}
-            >
-              Confirmar
-            </button>
-            <button className="btn btn-sm btn-ghost" onClick={() => setIsSplitMode(false)}>
-              Cancelar
-            </button>
+          <div className="rcu-split-preview">
+            <div className="rcu-split-preview-header">
+              <span>Prévia da divisão</span>
+              <span>{leftDocs.length} + {rightDocs.length} páginas</span>
+            </div>
+            <div className="rcu-split-preview-columns">
+              <div className="rcu-split-preview-column">
+                <div className="rcu-split-preview-title">
+                  Laudo A · páginas 1–{splitIndex}
+                </div>
+                <div className="rcu-split-preview-pages">
+                  {renderSplitThumbs(leftDocs, 0)}
+                </div>
+              </div>
+              <div className="rcu-split-preview-column">
+                <div className="rcu-split-preview-title">
+                  Laudo B · páginas {splitIndex + 1}–{orderedDocs.length}
+                </div>
+                <div className="rcu-split-preview-pages">
+                  {renderSplitThumbs(rightDocs, splitIndex)}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}

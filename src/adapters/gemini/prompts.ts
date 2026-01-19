@@ -410,6 +410,7 @@ COMO IDENTIFICAR ONDE UM LAUDO TERMINA E OUTRO COMEÇA:
 - Se houver "Página 1/2", "Página 2/2", "Página 1/3" etc, ESSAS páginas pertencem ao MESMO laudo
 - NÃO separe páginas só porque há assinatura digital no rodapé (alguns serviços repetem assinatura em toda página)
 - Use a paginação + OS/Atendimento para confirmar continuidade do mesmo laudo
+- Se a paginação reinicia em "Página 1/..." com outro Atendimento, é NOVO laudo
 
 >>> LAUDOS PROVISÓRIOS (sem valor legal) <<<
 - Marcação "Pré-visualização. Laudo sem valor legal." no cabeçalho
