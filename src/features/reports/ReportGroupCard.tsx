@@ -17,10 +17,12 @@ interface Props {
   group: ReportGroup;
   onRemove: () => void;
   onSplitGroup?: (groupId: string, splitStartPage: number) => void;
+  embedded?: boolean;
 }
 
-export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup }) => {
+export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup, embedded = false }) => {
   const { openGallery } = useGallery();
+  const isEmbedded = embedded;
 
   // Hooks de Estado de UI
   const [isExpanded, setIsExpanded] = useState(false);
@@ -187,35 +189,58 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
   };
 
   return (
-    <Card className={`report-card-unified ${isExpanded ? 'expanded' : ''}`}>
+    <Card className={`report-card-unified ${isExpanded ? 'expanded' : ''} ${isEmbedded ? 'embedded' : ''}`}>
 
       {/* HEADER DO CARD */}
-      <div className="rcu-header" onClick={() => setIsExpanded(!isExpanded)}>
-        <div className="rcu-main-info">
-          <div className="rcu-type-row">
-            <h3 className="rcu-title">{meta.type}</h3>
-            {group.docs.length > 1 && (
-              <span className="rcu-badge-pages">
-                <Layers size={10} /> {group.docs.length}
-                {meta.isUnifiedSuccess && (
-                  <Check size={10} className="text-success ml-1" />
-                )}
+      {!isEmbedded && (
+        <div className="rcu-header" onClick={() => setIsExpanded(!isExpanded)}>
+          <div className="rcu-main-info">
+            <div className="rcu-type-row">
+              <h3 className="rcu-title">{meta.type}</h3>
+              {group.docs.length > 1 && (
+                <span className="rcu-badge-pages">
+                  <Layers size={10} /> {group.docs.length}
+                  {meta.isUnifiedSuccess && (
+                    <Check size={10} className="text-success ml-1" />
+                  )}
+                </span>
+              )}
+            </div>
+
+            <div className="rcu-meta-row">
+              <span className="rcu-meta-item">
+                <Calendar size={12} className="text-accent" /> {meta.date}
               </span>
-            )}
+              <span className="rcu-meta-divider">•</span>
+              <span className={`rcu-meta-item ${meta.isSabin ? 'text-info' : ''}`}>
+                <MapPin size={12} /> {meta.originLabel}
+              </span>
+            </div>
           </div>
 
-          <div className="rcu-meta-row">
-            <span className="rcu-meta-item">
-              <Calendar size={12} className="text-accent" /> {meta.date}
-            </span>
-            <span className="rcu-meta-divider">•</span>
-            <span className={`rcu-meta-item ${meta.isSabin ? 'text-info' : ''}`}>
-              <MapPin size={12} /> {meta.originLabel}
-            </span>
+          <div className="rcu-actions" onClick={(e) => e.stopPropagation()}>
+            {canSplit && (
+              <button
+                className={`rcu-split-btn ${isSplitMode ? 'active' : ''}`}
+                onClick={(e) => { e.stopPropagation(); setIsSplitMode(prev => !prev); }}
+                title="Dividir laudo"
+              >
+                <Scissors size={14} />
+                <span className="hidden sm:inline">Dividir</span>
+              </button>
+            )}
+            <button className="action-btn-mini hover:text-error" onClick={onRemove} title="Remover Exame Inteiro">
+              <Trash2 size={16} />
+            </button>
+            <button className={`rcu-expand-btn ${isExpanded ? 'active' : ''}`} onClick={() => setIsExpanded(!isExpanded)}>
+              {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+            </button>
           </div>
         </div>
+      )}
 
-        <div className="rcu-actions" onClick={(e) => e.stopPropagation()}>
+      {isEmbedded && (
+        <div className="rcu-embedded-actions" onClick={(e) => e.stopPropagation()}>
           {canSplit && (
             <button
               className={`rcu-split-btn ${isSplitMode ? 'active' : ''}`}
@@ -233,10 +258,10 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
             {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
           </button>
         </div>
-      </div>
+      )}
 
       {/* METADADOS ADICIONAIS (Laudador e Serviço de Origem) */}
-      {(meta.laudador || meta.servicoOrigem) && (
+      {!isEmbedded && (meta.laudador || meta.servicoOrigem) && (
         <div className="px-4 py-3 bg-surface-elevated/50 border-b border-subtle">
           <div className="flex flex-col gap-2 text-xs">
             {meta.servicoOrigem && meta.servicoOrigem.nome && meta.servicoOrigem.nome !== 'Serviço externo não identificado' && (
@@ -332,6 +357,9 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
               <div className="h-[500px] border-t border-white/5">
                 <MultiDocumentTabs
                   docs={group.docs}
+                  mode={isEmbedded ? 'stack' : 'tabs'}
+                  showTemplateHeader={!isEmbedded}
+                  showDocLabel={isEmbedded}
                   renderLaudoContent={(doc) => (
                     <div className="p-4">
                       {/* Renderiza o Laudo Unificado */}
@@ -364,6 +392,9 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
               <div className="h-[500px] border-t border-white/5">
                 <MultiDocumentTabs
                   docs={group.docs}
+                  mode={isEmbedded ? 'stack' : 'tabs'}
+                  showTemplateHeader={!isEmbedded}
+                  showDocLabel={isEmbedded}
                   renderLaudoContent={() => (
                     <div className="p-4 text-sm text-secondary">
                       Documento de laudo não esperado neste grupo.

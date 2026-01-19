@@ -4,16 +4,19 @@ import type { QuestionarioData } from '../../adapters/schemas-templates';
 
 interface Props {
     data: Partial<QuestionarioData>;
+    showHeader?: boolean;
 }
 
-export const QuestionarioTemplate: React.FC<Props> = ({ data }) => {
+export const QuestionarioTemplate: React.FC<Props> = ({ data, showHeader = true }) => {
     return (
         <div className="structured-report-container animate-fade-in">
             {/* Header */}
-            <div className="flex items-center gap-2 mb-4 pb-3 border-b border-subtle">
-                <ClipboardList className="text-accent" size={20} />
-                <h3 className="text-lg font-bold text-primary">Questionário Pré-Exame</h3>
-            </div>
+            {showHeader && (
+                <div className="flex items-center gap-2 mb-4 pb-3 border-b border-subtle">
+                    <ClipboardList className="text-accent" size={20} />
+                    <h3 className="text-lg font-bold text-primary">Questionário Pré-Exame</h3>
+                </div>
+            )}
 
             {/* Tipo de Exame Relacionado */}
             {data.tipo_exame_relacionado && (

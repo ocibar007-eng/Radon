@@ -7,11 +7,14 @@ import { TermoConsentimentoTemplate } from './templates/TermoConsentimentoTempla
 import { GuiaAutorizacaoTemplate } from './templates/GuiaAutorizacaoTemplate';
 import { EmptyPageTemplate } from './templates/EmptyPageTemplate';
 import { AnotacaoClinicaTemplate } from './templates/AnotacaoClinicaTemplate';
-import { FileText, ChevronRight } from 'lucide-react'; // Fallback icon
+import { FileText } from 'lucide-react'; // Fallback icon
 
 interface Props {
     docs: AttachmentDoc[];
     renderLaudoContent: (doc: AttachmentDoc) => React.ReactNode;
+    mode?: 'tabs' | 'stack';
+    showTemplateHeader?: boolean;
+    showDocLabel?: boolean;
 }
 
 const TAB_ORDER: DocClassification[] = [
@@ -40,7 +43,13 @@ const TAB_LABELS: Partial<Record<DocClassification, string>> = {
     indeterminado: 'Indeterminado'
 };
 
-export const MultiDocumentTabs: React.FC<Props> = ({ docs, renderLaudoContent }) => {
+export const MultiDocumentTabs: React.FC<Props> = ({
+    docs,
+    renderLaudoContent,
+    mode = 'tabs',
+    showTemplateHeader = true,
+    showDocLabel
+}) => {
     const [activeTabId, setActiveTabId] = useState<string>(docs[0]?.id);
 
     // Group docs by sorting them according to TAB_ORDER
@@ -61,7 +70,7 @@ export const MultiDocumentTabs: React.FC<Props> = ({ docs, renderLaudoContent })
     }, [docs]);
 
     const typeCounts = useMemo(() => {
-        const counts: Record<string, number> = {};
+        const counts: Partial<Record<DocClassification, number>> = {};
         sortedDocs.forEach(doc => {
             counts[doc.classification] = (counts[doc.classification] || 0) + 1;
         });
@@ -69,7 +78,7 @@ export const MultiDocumentTabs: React.FC<Props> = ({ docs, renderLaudoContent })
     }, [sortedDocs]);
 
     const typeIndexes = useMemo(() => {
-        const counters: Record<string, number> = {};
+        const counters: Partial<Record<DocClassification, number>> = {};
         const indexes = new Map<string, number>();
         sortedDocs.forEach(doc => {
             const count = (counters[doc.classification] || 0) + 1;
@@ -92,18 +101,18 @@ export const MultiDocumentTabs: React.FC<Props> = ({ docs, renderLaudoContent })
         }
     }, [docs, sortedDocs, activeTabId]);
 
-    const renderContent = (doc: AttachmentDoc) => {
+    const renderContent = (doc: AttachmentDoc, headerVisible: boolean) => {
         switch (doc.classification) {
             case 'pedido_medico':
-                return <PedidoMedicoTemplate data={doc.extractedData} verbatim={doc.verbatimText} />;
+                return <PedidoMedicoTemplate data={doc.extractedData} showHeader={headerVisible} />;
             case 'guia_autorizacao':
-                return <GuiaAutorizacaoTemplate data={doc.extractedData} verbatim={doc.verbatimText} />;
+                return <GuiaAutorizacaoTemplate data={doc.extractedData} showHeader={headerVisible} />;
             case 'termo_consentimento':
-                return <TermoConsentimentoTemplate data={doc.extractedData} verbatim={doc.verbatimText} />;
+                return <TermoConsentimentoTemplate data={doc.extractedData} showHeader={headerVisible} />;
             case 'questionario':
-                return <QuestionarioTemplate data={doc.extractedData} verbatim={doc.verbatimText} />;
+                return <QuestionarioTemplate data={doc.extractedData} showHeader={headerVisible} />;
             case 'assistencial':
-                return <AnotacaoClinicaTemplate data={doc.extractedData || {}} verbatimText={doc.verbatimText} showHeader={false} />;
+                return <AnotacaoClinicaTemplate data={doc.extractedData || {}} verbatimText={doc.verbatimText} showHeader={headerVisible} />;
             case 'pagina_vazia':
                 return <EmptyPageTemplate />;
             case 'laudo_previo':
@@ -126,41 +135,73 @@ export const MultiDocumentTabs: React.FC<Props> = ({ docs, renderLaudoContent })
 
     if (!activeDoc) return null;
 
+    const showTabs = mode === 'tabs' && sortedDocs.length > 1;
+    const showLabels = typeof showDocLabel === 'boolean'
+        ? showDocLabel
+        : mode === 'stack' && sortedDocs.length > 1;
+
     return (
         <div className="flex flex-col h-full">
             {/* Tabs Header */}
-            <div className="flex items-center gap-1 p-1 bg-black/20 border-b border-white/5 overflow-x-auto scroller-thin">
-                {sortedDocs.map(doc => {
-                    const isActive = doc.id === activeDoc.id;
-                    const baseLabel = TAB_LABELS[doc.classification] || doc.classification;
-                    const totalOfType = typeCounts[doc.classification] || 0;
-                    const typeIndex = typeIndexes.get(doc.id);
-                    const label = totalOfType > 1 && typeIndex
-                        ? `${baseLabel} ${typeIndex}`
-                        : baseLabel;
+            {showTabs && (
+                <div className="flex items-center gap-1 p-1 bg-black/20 border-b border-white/5 overflow-x-auto scroller-thin">
+                    {sortedDocs.map(doc => {
+                        const isActive = doc.id === activeDoc.id;
+                        const baseLabel = TAB_LABELS[doc.classification] || doc.classification;
+                        const totalOfType = typeCounts[doc.classification] || 0;
+                        const typeIndex = typeIndexes.get(doc.id);
+                        const label = totalOfType > 1 && typeIndex
+                            ? `${baseLabel} ${typeIndex}`
+                            : baseLabel;
 
-                    return (
-                        <button
-                            key={doc.id}
-                            onClick={() => setActiveTabId(doc.id)}
-                            className={`
-                                flex items-center gap-2 px-3 py-1.5 rounded text-xs font-medium transition-all whitespace-nowrap
-                                ${isActive
-                                    ? 'bg-amber-500/20 text-amber-200 border border-amber-500/30 shadow-sm'
-                                    : 'text-zinc-400 hover:bg-white/5 hover:text-zinc-200 border border-transparent'
-                                }
-                            `}
-                        >
-                            <ClassificationChip classification={doc.classification} size="xs" />
-                            <span>{label}</span>
-                        </button>
-                    );
-                })}
-            </div>
+                        return (
+                            <button
+                                key={doc.id}
+                                onClick={() => setActiveTabId(doc.id)}
+                                className={`
+                                    flex items-center gap-2 px-3 py-1.5 rounded text-xs font-medium transition-all whitespace-nowrap
+                                    ${isActive
+                                        ? 'bg-amber-500/20 text-amber-200 border border-amber-500/30 shadow-sm'
+                                        : 'text-zinc-400 hover:bg-white/5 hover:text-zinc-200 border border-transparent'
+                                    }
+                                `}
+                            >
+                                <ClassificationChip classification={doc.classification} size="xs" />
+                                <span>{label}</span>
+                            </button>
+                        );
+                    })}
+                </div>
+            )}
 
             {/* Content Body */}
-            <div className="flex-1 overflow-y-auto min-h-[300px] bg-zinc-900/30 relative">
-                {renderContent(activeDoc)}
+            <div className={`flex-1 overflow-y-auto min-h-[300px] relative ${mode === 'stack' ? 'bg-transparent' : 'bg-zinc-900/30'}`}>
+                {mode === 'stack' ? (
+                    <div className="multi-doc-stack">
+                        {sortedDocs.map((doc) => {
+                            const baseLabel = TAB_LABELS[doc.classification] || doc.classification;
+                            const totalOfType = typeCounts[doc.classification] || 0;
+                            const typeIndex = typeIndexes.get(doc.id);
+                            const label = totalOfType > 1 && typeIndex
+                                ? `${baseLabel} ${typeIndex}`
+                                : baseLabel;
+
+                            return (
+                                <div key={doc.id} className="multi-doc-section">
+                                    {showLabels && (
+                                        <div className="multi-doc-label">
+                                            <span className="multi-doc-label-title">{label}</span>
+                                            <span className="multi-doc-label-source">{doc.source}</span>
+                                        </div>
+                                    )}
+                                    {renderContent(doc, showTemplateHeader)}
+                                </div>
+                            );
+                        })}
+                    </div>
+                ) : (
+                    renderContent(activeDoc, showTemplateHeader)
+                )}
             </div>
         </div>
     );

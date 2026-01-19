@@ -544,6 +544,65 @@
   background: var(--color-bg-secondary);
 }
 
+.report-card-unified.embedded {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.report-card-unified.embedded .rcu-body {
+  background: transparent;
+  padding: 1rem 0;
+}
+
+.rcu-embedded-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-border-default);
+  background: var(--color-bg-secondary);
+}
+
+.multi-doc-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem 1.5rem;
+}
+
+.multi-doc-section {
+  border-top: 1px solid var(--color-border-default);
+  padding-top: 1rem;
+}
+
+.multi-doc-section:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.multi-doc-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-tertiary);
+}
+
+.multi-doc-label-title {
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.multi-doc-label-source {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--color-text-tertiary);
+}
+
 /* === STRUCTURED FINDINGS (GRID LAYOUT) === */
 .structured-report-container {
   display: flex;

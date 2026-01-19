@@ -4,16 +4,19 @@ import type { GuiaAutorizacaoData } from '../../adapters/schemas-templates';
 
 interface Props {
     data: Partial<GuiaAutorizacaoData>;
+    showHeader?: boolean;
 }
 
-export const GuiaAutorizacaoTemplate: React.FC<Props> = ({ data }) => {
+export const GuiaAutorizacaoTemplate: React.FC<Props> = ({ data, showHeader = true }) => {
     return (
         <div className="structured-report-container animate-fade-in">
             {/* Header */}
-            <div className="flex items-center gap-2 mb-4 pb-3 border-b border-subtle">
-                <CreditCard className="text-success" size={20} />
-                <h3 className="text-lg font-bold text-primary">Guia de Autorização</h3>
-            </div>
+            {showHeader && (
+                <div className="flex items-center gap-2 mb-4 pb-3 border-b border-subtle">
+                    <CreditCard className="text-success" size={20} />
+                    <h3 className="text-lg font-bold text-primary">Guia de Autorização</h3>
+                </div>
+            )}
 
             {/* Convênio */}
             {data.convenio && (

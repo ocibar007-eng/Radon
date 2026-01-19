@@ -4,16 +4,19 @@ import type { TermoConsentimentoData } from '../../adapters/schemas-templates';
 
 interface Props {
     data: Partial<TermoConsentimentoData>;
+    showHeader?: boolean;
 }
 
-export const TermoConsentimentoTemplate: React.FC<Props> = ({ data }) => {
+export const TermoConsentimentoTemplate: React.FC<Props> = ({ data, showHeader = true }) => {
     return (
         <div className="structured-report-container animate-fade-in">
             {/* Header */}
-            <div className="flex items-center gap-2 mb-4 pb-3 border-b border-subtle">
-                <ShieldCheck className="text-success" size={20} />
-                <h3 className="text-lg font-bold text-primary">Termo de Consentimento</h3>
-            </div>
+            {showHeader && (
+                <div className="flex items-center gap-2 mb-4 pb-3 border-b border-subtle">
+                    <ShieldCheck className="text-success" size={20} />
+                    <h3 className="text-lg font-bold text-primary">Termo de Consentimento</h3>
+                </div>
+            )}
 
             {/* Título do Termo */}
             {data.titulo && (

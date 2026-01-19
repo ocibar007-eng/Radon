@@ -170,6 +170,7 @@ export const PdfDocumentBundle: React.FC<Props> = ({ groups, onRemoveGroup, onSp
                     group={activeGroup}
                     onRemove={() => onRemoveGroup(activeGroup.id)}
                     onSplitGroup={onSplitGroup}
+                    embedded
                 />
             </div>
         </div>

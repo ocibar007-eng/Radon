@@ -4,16 +4,19 @@ import type { PedidoMedicoData } from '../../adapters/schemas-templates';
 
 interface Props {
     data: Partial<PedidoMedicoData>;
+    showHeader?: boolean;
 }
 
-export const PedidoMedicoTemplate: React.FC<Props> = ({ data }) => {
+export const PedidoMedicoTemplate: React.FC<Props> = ({ data, showHeader = true }) => {
     return (
         <div className="structured-report-container animate-fade-in">
             {/* Header com ícone */}
-            <div className="flex items-center gap-2 mb-4 pb-3 border-b border-subtle">
-                <FileText className="text-info" size={20} />
-                <h3 className="text-lg font-bold text-primary">Pedido Médico / Ordem de Serviço</h3>
-            </div>
+            {showHeader && (
+                <div className="flex items-center gap-2 mb-4 pb-3 border-b border-subtle">
+                    <FileText className="text-info" size={20} />
+                    <h3 className="text-lg font-bold text-primary">Pedido Médico / Ordem de Serviço</h3>
+                </div>
+            )}
 
             {/* Paciente */}
             {data.paciente?.nome && (
