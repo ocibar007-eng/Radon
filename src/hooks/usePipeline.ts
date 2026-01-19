@@ -149,7 +149,7 @@ export function usePipeline() {
     }, [session.docs]);
 
     // --- AUTO CLINICAL SUMMARY (Restored from Legacy) ---
-    const prevAssistencialCountRef = useRef(0);
+    const prevSummaryKeyRef = useRef<string>('');
     const summaryTimeoutRef = useRef<number | null>(null);
 
     useEffect(() => {
@@ -162,11 +162,27 @@ export function usePipeline() {
             (d.verbatimText || d.extractedData)
         );
 
-        if (readyDocs.length > 0 && readyDocs.length !== prevAssistencialCountRef.current) {
+        const summaryKey = readyDocs
+            .map(doc => `${doc.id}:${doc.classification}:${doc.verbatimText?.length || 0}:${doc.extractedData ? 1 : 0}`)
+            .join('|');
+
+        if (readyDocs.length === 0) {
+            if (summaryTimeoutRef.current) clearTimeout(summaryTimeoutRef.current);
+            if (prevSummaryKeyRef.current !== '') {
+                prevSummaryKeyRef.current = '';
+                sessionDispatch({
+                    type: 'SET_CLINICAL_MARKDOWN',
+                    payload: { markdown: '', data: undefined }
+                });
+            }
+            return;
+        }
+
+        if (summaryKey !== prevSummaryKeyRef.current) {
             if (summaryTimeoutRef.current) clearTimeout(summaryTimeoutRef.current);
 
             summaryTimeoutRef.current = window.setTimeout(async () => {
-                prevAssistencialCountRef.current = readyDocs.length;
+                prevSummaryKeyRef.current = summaryKey;
                 try {
                     const result = await PipelineActions.processClinicalSummary(readyDocs);
                     if (result && isMounted.current) {
