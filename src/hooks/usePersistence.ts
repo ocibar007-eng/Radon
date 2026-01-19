@@ -15,6 +15,11 @@ export function usePersistence(patientId?: string, isHydrating: boolean = false)
 
     const timeout = setTimeout(async () => {
       try {
+        // Prevent saving a previous patient's session into the next patient's workspace.
+        if (patientId && session.patientId && patientId !== session.patientId) {
+          return;
+        }
+
         const snapshotCloud = buildSessionSnapshot(session);
         const snapshotFull = buildPersistentSnapshot(session);
         const jsonString = JSON.stringify(snapshotCloud);
@@ -22,7 +27,7 @@ export function usePersistence(patientId?: string, isHydrating: boolean = false)
         if (jsonString === lastSavedJson.current) return;
 
         // 1. Persistência de Emergência (IndexedDB) - SEMPRE SALVA LOCALMENTE COM BINARIOS
-        const localId = patientId || 'local-draft';
+        const localId = patientId || session.patientId || 'local-draft';
         await StorageService.saveSession(localId, snapshotFull);
 
         // 2. Persistência em Nuvem (Firestore) - SE TIVER PACIENTE
