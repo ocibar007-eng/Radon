@@ -28,9 +28,7 @@ const HIGHLIGHT_TERMS = [
   'buscopan',
   'manitol',
   'hipotese',
-  'hipótese',
   'cancer',
-  'câncer',
   'tumor',
   'neoplas',
   'avc',
@@ -43,9 +41,6 @@ const HIGHLIGHT_TERMS = [
   'recidiva',
   'fibrose'
 ];
-
-const highlightRegex = new RegExp(`(${HIGHLIGHT_TERMS.join('|')})`, 'gi');
-const highlightTestRegex = new RegExp(`(${HIGHLIGHT_TERMS.join('|')})`, 'i');
 
 const normalize = (value: string) =>
   value
@@ -99,17 +94,38 @@ const matchesAny = (item: ParsedItem, labels: string[]) => {
 
 const highlightText = (text: string) => {
   if (!text) return text;
-  const parts = text.split(highlightRegex);
-  return parts.map((part, idx) => {
-    if (highlightTestRegex.test(part)) {
-      return (
-        <span key={`${part}-${idx}`} className="clinical-inline-highlight">
-          {part}
+  const parts: React.ReactNode[] = [];
+  const tokenRegex = /[A-Za-zÀ-ÿ0-9/-]+/g;
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = tokenRegex.exec(text)) !== null) {
+    const token = match[0];
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
+    }
+
+    const normalizedToken = normalize(token);
+    const shouldHighlight = HIGHLIGHT_TERMS.some((term) => normalizedToken.startsWith(term));
+
+    if (shouldHighlight) {
+      parts.push(
+        <span key={`${token}-${match.index}`} className="clinical-inline-highlight">
+          {token}
         </span>
       );
+    } else {
+      parts.push(token);
     }
-    return part;
-  });
+
+    lastIndex = match.index + token.length;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+
+  return parts;
 };
 
 const DivergenceChip: React.FC = () => (
