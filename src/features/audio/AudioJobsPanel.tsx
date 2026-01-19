@@ -57,7 +57,7 @@ export const AudioJobsPanel: React.FC<Props> = ({ jobs }) => {
                 {/* Download Audio Action */}
                 <div className="border-t border-subtle mt-3 pt-2 flex justify-end">
                   <button
-                    className="text-xs flex items-center gap-1 text-tertiary hover:text-primary transition-colors"
+                    className="audio-download-btn"
                     onClick={(e) => {
                       e.stopPropagation();
 
