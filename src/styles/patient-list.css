@@ -61,6 +61,13 @@
   backdrop-filter: blur(12px);
 }
 
+.pl-view-divider {
+  width: 1px;
+  align-self: stretch;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 2px 4px;
+}
+
 .pl-view-button {
   display: inline-flex;
   align-items: center;
@@ -94,6 +101,41 @@
 }
 
 .pl-view-button:focus-visible {
+  outline: 2px solid var(--color-accent-primary);
+  outline-offset: 2px;
+}
+
+.pl-view-lock {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.pl-view-lock:hover {
+  color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
+}
+
+.pl-view-lock:active {
+  transform: translateY(1px);
+}
+
+.pl-view-lock.active {
+  color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border-subtle);
+  box-shadow: var(--shadow-sm);
+}
+
+.pl-view-lock:focus-visible {
   outline: 2px solid var(--color-accent-primary);
   outline-offset: 2px;
 }

@@ -1,6 +1,6 @@
 
 import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
-import { Plus, AlertTriangle, ScanLine, UploadCloud, Loader2, Zap, Table, LayoutGrid, List, Archive } from 'lucide-react';
+import { Plus, AlertTriangle, ScanLine, UploadCloud, Loader2, Zap, Table, LayoutGrid, List, Archive, Lock, Unlock } from 'lucide-react';
 import { usePatients } from '../hooks/usePatients';
 import { PatientCard } from './PatientCard';
 import { PatientTableRow } from './PatientTableRow';
@@ -26,7 +26,21 @@ export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) 
   const { patients, loading, error, filter, setFilter, refresh, createPatient, createPatientsBatch, archivePatient, purgePatient } = usePatients();
   const { showToast, ToastComponent } = useToast();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
+  const [viewLocked, setViewLocked] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return true;
+    const stored = window.localStorage.getItem('radon:worklist:view-locked');
+    return stored ? stored === 'true' : true;
+  });
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>(() => {
+    if (typeof window === 'undefined') return 'cards';
+    const storedLock = window.localStorage.getItem('radon:worklist:view-locked');
+    const storedMode = window.localStorage.getItem('radon:worklist:view-mode');
+    const isLocked = storedLock ? storedLock === 'true' : true;
+    if (isLocked && (storedMode === 'cards' || storedMode === 'table')) {
+      return storedMode;
+    }
+    return 'cards';
+  });
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [showArchiveSelectedConfirm, setShowArchiveSelectedConfirm] = useState(false);
   const selectAllRef = useRef<HTMLInputElement | null>(null);
@@ -46,6 +60,16 @@ export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) 
   const [isProcessingBatch, setIsProcessingBatch] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const [isDragOverOCR, setIsDragOverOCR] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem('radon:worklist:view-locked', String(viewLocked));
+    if (!viewLocked) {
+      window.localStorage.removeItem('radon:worklist:view-mode');
+      return;
+    }
+    window.localStorage.setItem('radon:worklist:view-mode', viewMode);
+  }, [viewLocked, viewMode]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -374,6 +398,16 @@ export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) 
             >
               <List size={16} />
               Tabela
+            </button>
+            <span className="pl-view-divider" aria-hidden="true" />
+            <button
+              type="button"
+              className={`pl-view-lock ${viewLocked ? 'active' : ''}`}
+              onClick={() => setViewLocked((prev) => !prev)}
+              aria-pressed={viewLocked}
+              title={viewLocked ? 'Visualização fixada' : 'Fixar visualização'}
+            >
+              {viewLocked ? <Lock size={14} /> : <Unlock size={14} />}
             </button>
           </div>
 
