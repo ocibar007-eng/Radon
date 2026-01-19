@@ -435,7 +435,7 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
               <span>{leftDocs.length} + {rightDocs.length} páginas</span>
             </div>
             <div className="rcu-split-preview-hint">
-              Arraste uma página para definir onde começa o laudo B.
+              Arraste a página que deve iniciar o laudo B (o corte acontece antes dela).
             </div>
             <div className="rcu-split-preview-columns">
               <div

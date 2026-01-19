@@ -12,6 +12,54 @@ import { Patient } from '../types/patient';
 import { SimilarityResult } from '../utils/similarity';
 
 const DEBUG_LOGS = true;
+const BLANK_PAGE_MAX_DIMENSION = 72;
+const BLANK_PAGE_DARK_RATIO = 0.02;
+const BLANK_PAGE_LIGHT_THRESHOLD = 245;
+const BLANK_PAGE_DARK_THRESHOLD = 12;
+
+async function detectBlankPage(blob: Blob): Promise<boolean> {
+  if (typeof createImageBitmap === 'undefined') return false;
+  const bitmap = await createImageBitmap(blob);
+  const scale = Math.min(
+    BLANK_PAGE_MAX_DIMENSION / bitmap.width,
+    BLANK_PAGE_MAX_DIMENSION / bitmap.height,
+    1
+  );
+  const width = Math.max(1, Math.round(bitmap.width * scale));
+  const height = Math.max(1, Math.round(bitmap.height * scale));
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  if (!ctx) return false;
+  ctx.drawImage(bitmap, 0, 0, width, height);
+  bitmap.close?.();
+
+  const { data } = ctx.getImageData(0, 0, width, height);
+  const total = width * height;
+  let darkPixels = 0;
+  let lightPixels = 0;
+  let luminanceSum = 0;
+
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i];
+    const g = data[i + 1];
+    const b = data[i + 2];
+    const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    luminanceSum += luminance;
+    if (luminance < BLANK_PAGE_LIGHT_THRESHOLD) darkPixels += 1;
+    if (luminance > 250) lightPixels += 1;
+  }
+
+  const average = luminanceSum / total;
+  const darkRatio = darkPixels / total;
+  const lightRatio = lightPixels / total;
+
+  const mostlyWhite = average > BLANK_PAGE_LIGHT_THRESHOLD && darkRatio < BLANK_PAGE_DARK_RATIO;
+  const mostlyBlack = average < BLANK_PAGE_DARK_THRESHOLD && lightRatio < BLANK_PAGE_DARK_RATIO;
+
+  return mostlyWhite || mostlyBlack;
+}
 
 export function useWorkspaceActions(patient: Patient | null) {
   const { session, dispatch } = useSession();
@@ -185,6 +233,16 @@ export function useWorkspaceActions(patient: Patient | null) {
 
         try {
           const images = await convertPdfToImages(file);
+          const blankPageMap = await Promise.all(
+            images.map(async (blob) => {
+              if (forcedType) return false;
+              try {
+                return await detectBlankPage(blob);
+              } catch {
+                return false;
+              }
+            })
+          );
           if (DEBUG_LOGS) {
             console.log('[Debug][Upload] handleFilesUpload:pdf', {
               displayName,
@@ -246,9 +304,49 @@ export function useWorkspaceActions(patient: Patient | null) {
             const pageNum = idx + 1;
             const pageFile = new File([blob], `${baseName}_Pg${pageNum}.jpg`, { type: 'image/jpeg' });
             const sourceName = `${displayName} Pg ${pageNum}`;
+            const isBlankPage = blankPageMap[idx];
 
             // Encontrar o grupo desta página na análise global
             const grupo = globalGrouping?.grupos.find(g => g.paginas.includes(pageNum));
+
+            if (isBlankPage) {
+              const docId = crypto.randomUUID();
+              const tempUrl = URL.createObjectURL(pageFile);
+
+              const newDoc: AttachmentDoc = {
+                id: docId,
+                file: pageFile,
+                source: sourceName,
+                previewUrl: tempUrl,
+                status: 'done',
+                classification: 'pagina_vazia',
+                classificationSource: 'auto',
+                globalGroupId: grupo?.laudo_id,
+                globalGroupType: grupo?.tipo_detectado,
+                globalGroupSource: displayName,
+                isProvisorio: grupo?.is_provisorio,
+                isAdendo: grupo?.is_adendo,
+                reportGroupHint: grupo
+                  ? `GLOBAL:${grupo.laudo_id}|PDF:${displayName}|TIPO:${grupo.tipo_detectado}`
+                  : undefined,
+                reportGroupHintSource: 'auto',
+                tipoPagina: 'pagina_vazia'
+              };
+
+              dispatch({ type: 'ADD_DOC', payload: newDoc });
+
+              if (patient) {
+                StorageService.uploadFile(patient.id, pageFile, sourceName)
+                  .then((downloadUrl) => {
+                    dispatch({
+                      type: 'UPDATE_DOC',
+                      payload: { id: docId, updates: { previewUrl: downloadUrl } }
+                    });
+                  })
+                  .catch(console.error);
+              }
+              return;
+            }
 
             // Se tem análise global, criar doc com metadados corretos
             if (grupo) {

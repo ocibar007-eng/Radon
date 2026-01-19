@@ -2,14 +2,20 @@
 import React from 'react';
 import { Card } from '../../components/ui/Card';
 import { PatientRegistrationDetails, AttachmentDoc } from '../../types';
+import type { Patient } from '../../types/patient';
 import { User, Calendar, Activity, UploadCloud, Hash } from 'lucide-react';
 
 interface Props {
   data: PatientRegistrationDetails | null;
   headerDoc: AttachmentDoc | null;
+  patientRecord?: Patient | null;
 }
 
-export const IntakeCard: React.FC<Props> = ({ data, headerDoc }) => {
+export const IntakeCard: React.FC<Props> = ({ data, headerDoc, patientRecord }) => {
+  const displayName = patientRecord?.name || data?.paciente?.valor || 'Paciente não identificado';
+  const displayOs = patientRecord?.os || data?.os?.valor || 'N/A';
+  const displayExam = data?.tipo_exame?.valor || patientRecord?.examType || 'N/A';
+  const displayDate = data?.data_exame?.valor || patientRecord?.examDate || 'N/A';
   // Empty State (Upload Area)
   if (!data && !headerDoc) {
     return (
@@ -47,8 +53,8 @@ export const IntakeCard: React.FC<Props> = ({ data, headerDoc }) => {
               <span className="intake-label">
                 <User size={10} /> Paciente
               </span>
-              <span className="intake-name" title={data.paciente?.valor}>
-                {data.paciente?.valor || 'Paciente não identificado'}
+              <span className="intake-name" title={displayName}>
+                {displayName}
               </span>
             </div>
 
@@ -57,24 +63,24 @@ export const IntakeCard: React.FC<Props> = ({ data, headerDoc }) => {
                 <span className="intake-meta-label">
                   <Calendar size={10} /> Realização
                 </span>
-                <span className="intake-meta-value intake-meta-value--accent" title={data.data_exame?.valor}>
-                  {data.data_exame?.valor || 'N/A'}
+                <span className="intake-meta-value intake-meta-value--accent" title={displayDate}>
+                  {displayDate}
                 </span>
               </div>
               <div className="intake-meta-item">
                 <span className="intake-meta-label">
                   <Activity size={10} /> Exame
                 </span>
-                <span className="intake-meta-value" title={data.tipo_exame?.valor}>
-                  {data.tipo_exame?.valor || 'N/A'}
+                <span className="intake-meta-value" title={displayExam}>
+                  {displayExam}
                 </span>
               </div>
               <div className="intake-meta-item">
                 <span className="intake-meta-label">
                   <Hash size={10} /> OS / Pedido
                 </span>
-                <span className="intake-meta-value" title={data.os?.valor}>
-                  {data.os?.valor || 'N/A'}
+                <span className="intake-meta-value" title={displayOs}>
+                  {displayOs}
                 </span>
               </div>
             </div>

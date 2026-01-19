@@ -108,6 +108,10 @@ Exemplos: Receita, resumo de alta, exames laboratoriais, prontuário
 Documentos administrativos NÃO médicos.
 Exemplos: Comprovante de agendamento, recibo, protocolo de entrega
 
+>>> "pagina_vazia" <<<
+Página em branco ou quase vazia (scan errado).
+Exemplos: página totalmente branca/preta, com apenas ruído de scanner.
+
 >>> "indeterminado" <<<
 APENAS se ilegível, imagem vazia/preta, ou documento completamente não médico (RG, boleto).
 SE TIVER DÚVIDA entre tipos médicos, ESCOLHA o mais específico.

@@ -19,6 +19,7 @@ interface Props {
 export const PreviousReportsTab: React.FC<Props> = ({ groups, onRemoveGroup, onSplitGroup, onUpload, onDropFiles, onReclassifyDoc }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isDragOver, setIsDragOver] = useState(false);
+  const [showBlankPages, setShowBlankPages] = useState(false);
 
   const isFileDragEvent = (event: React.DragEvent<HTMLDivElement>) => {
     const types = event.dataTransfer?.types;
@@ -69,16 +70,26 @@ export const PreviousReportsTab: React.FC<Props> = ({ groups, onRemoveGroup, onS
     });
   }, [groups, searchTerm]);
 
-  const groupedBundles = useMemo(() => groupReportsByPdf(filteredGroups), [filteredGroups]);
+  const blankGroups = useMemo(
+    () => filteredGroups.filter(group => group.docs.every(doc => doc.classification === 'pagina_vazia')),
+    [filteredGroups]
+  );
+
+  const visibleGroups = useMemo(
+    () => (showBlankPages ? filteredGroups : filteredGroups.filter(group => group.docs.some(doc => doc.classification !== 'pagina_vazia'))),
+    [filteredGroups, showBlankPages]
+  );
+
+  const groupedBundles = useMemo(() => groupReportsByPdf(visibleGroups), [visibleGroups]);
 
   const stats = useMemo(() => {
-    const documents = filteredGroups.reduce((acc, group) => acc + group.docs.length, 0);
+    const documents = visibleGroups.reduce((acc, group) => acc + group.docs.length, 0);
     return {
-      groups: filteredGroups.length,
+      groups: visibleGroups.length,
       documents,
       sources: groupedBundles.length
     };
-  }, [filteredGroups, groupedBundles]);
+  }, [visibleGroups, groupedBundles]);
 
   return (
     <div
@@ -124,6 +135,16 @@ export const PreviousReportsTab: React.FC<Props> = ({ groups, onRemoveGroup, onS
           />
         </div>
 
+        {blankGroups.length > 0 && (
+          <button
+            type="button"
+            className="text-xs text-tertiary hover:text-accent transition-colors"
+            onClick={() => setShowBlankPages((prev) => !prev)}
+          >
+            {showBlankPages ? 'Ocultar' : 'Mostrar'} páginas em branco ({blankGroups.length})
+          </button>
+        )}
+
         <label>
           <Button as="span" variant="secondary" className="cursor-pointer h-full">
             <UploadCloud size={16} className="mr-2" />
@@ -140,7 +161,7 @@ export const PreviousReportsTab: React.FC<Props> = ({ groups, onRemoveGroup, onS
       </div>
 
       <div className="reports-grid">
-        {filteredGroups.length === 0 ? (
+        {visibleGroups.length === 0 ? (
           <div className="empty-state">
             {searchTerm ? 'Nenhum documento encontrado para sua busca.' : 'Nenhum documento clínico identificado.'}
           </div>

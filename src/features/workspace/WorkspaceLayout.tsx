@@ -480,7 +480,7 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
                                 <Pencil size={16} />
                             </button>
                         </div>
-                        <IntakeCard data={session.patient} headerDoc={session.headerImage} />
+                        <IntakeCard data={session.patient} headerDoc={session.headerImage} patientRecord={patient} />
                     </section>
 
                     {/* TABS CONTAINER */}
@@ -520,7 +520,8 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
                                     <ClinicalTab
                                         markdown={session.clinicalMarkdown}
                                         data={session.clinicalSummaryData}
-                                        patient={session.patient}
+                                        patientHeader={session.patient}
+                                        patientRecord={patient}
                                         isProcessing={isDocsProcessing}
                                     />
                                     <DocumentGallery

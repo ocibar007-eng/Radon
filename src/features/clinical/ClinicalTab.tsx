@@ -2,12 +2,14 @@
 import React from 'react';
 import { MarkdownRenderer } from '../../components/MarkdownRenderer';
 import { ClinicalSummary, PatientRegistrationDetails } from '../../types';
+import type { Patient } from '../../types/patient';
 import { Link2, FileText } from 'lucide-react';
 
 interface Props {
   markdown: string;
   data?: ClinicalSummary;
-  patient?: PatientRegistrationDetails | null;
+  patientHeader?: PatientRegistrationDetails | null;
+  patientRecord?: Patient | null;
   isProcessing: boolean;
 }
 
@@ -167,7 +169,11 @@ const TextList: React.FC<{ items: ParsedItem[] }> = ({ items }) => (
   </div>
 );
 
-const ClinicalSummaryStructured: React.FC<{ data: ClinicalSummary; patient?: PatientRegistrationDetails | null }> = ({ data, patient }) => {
+const ClinicalSummaryStructured: React.FC<{
+  data: ClinicalSummary;
+  patientHeader?: PatientRegistrationDetails | null;
+  patientRecord?: Patient | null;
+}> = ({ data, patientHeader, patientRecord }) => {
   const sections = data.resumo_clinico_consolidado?.texto_em_topicos ?? [];
   const identificationSection = findSection(sections, ['identificação e contexto', 'identificacao e contexto', 'identificacao']);
   const executiveSection = findSection(sections, ['resumo executivo']);
@@ -296,21 +302,23 @@ const ClinicalSummaryStructured: React.FC<{ data: ClinicalSummary; patient?: Pat
   const renalInfo = findItemValue(safetyItems, ['função renal', 'funcao renal', 'creatinina', 'etfg', 'tfg']);
   const allergyInfo = findItemValue(safetyItems, ['alergia']);
 
-  const headerPatientName = patient?.paciente?.valor?.trim() || '';
-  const headerPatientId = patient?.os?.valor?.trim() || '';
-  const displayPatientName = headerPatientName || formatValue(patientName.value);
-  const displayPatientId = headerPatientId || formatValue(patientId.value);
+  const recordPatientName = patientRecord?.name?.trim() || '';
+  const recordPatientId = patientRecord?.os?.trim() || '';
+  const headerPatientName = patientHeader?.paciente?.valor?.trim() || '';
+  const headerPatientId = patientHeader?.os?.valor?.trim() || '';
+  const displayPatientName = recordPatientName || headerPatientName || formatValue(patientName.value);
+  const displayPatientId = recordPatientId || headerPatientId || formatValue(patientId.value);
 
   const nameIsDivergent = patientName.isDivergent || (
-    headerPatientName &&
     patientName.value &&
-    normalizeValue(headerPatientName) !== normalizeValue(patientName.value)
+    displayPatientName &&
+    normalizeValue(displayPatientName) !== normalizeValue(patientName.value)
   );
 
   const idIsDivergent = patientId.isDivergent || (
-    headerPatientId &&
     patientId.value &&
-    normalizeValue(headerPatientId) !== normalizeValue(patientId.value)
+    displayPatientId &&
+    normalizeValue(displayPatientId) !== normalizeValue(patientId.value)
   );
 
   const safetyNotes = safetyItems.filter((item) => {
@@ -480,7 +488,7 @@ const ClinicalSummaryStructured: React.FC<{ data: ClinicalSummary; patient?: Pat
   );
 };
 
-export const ClinicalTab: React.FC<Props> = ({ markdown, data, isProcessing }) => {
+export const ClinicalTab: React.FC<Props> = ({ markdown, data, isProcessing, patientHeader, patientRecord }) => {
   const hasStructured =
     data?.resumo_clinico_consolidado?.texto_em_topicos &&
     data.resumo_clinico_consolidado.texto_em_topicos.length > 0;
@@ -488,7 +496,7 @@ export const ClinicalTab: React.FC<Props> = ({ markdown, data, isProcessing }) =
   return (
     <div className="clinical-container animate-fade-in">
       {hasStructured ? (
-        <ClinicalSummaryStructured data={data as ClinicalSummary} />
+        <ClinicalSummaryStructured data={data as ClinicalSummary} patientHeader={patientHeader} patientRecord={patientRecord} />
       ) : markdown ? (
         <MarkdownRenderer content={markdown} variant="clinical" />
       ) : (

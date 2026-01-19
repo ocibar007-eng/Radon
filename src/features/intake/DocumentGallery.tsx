@@ -18,6 +18,13 @@ interface Props {
 export const DocumentGallery: React.FC<Props> = ({ docs, reportGroups, onUpload, onDropFiles, onRemoveDoc, onReclassifyDoc }) => {
   const { openGallery } = useGallery();
   const [isDragOver, setIsDragOver] = useState(false);
+  const [showBlankPages, setShowBlankPages] = useState(false);
+
+  const blankDocs = useMemo(() => docs.filter(doc => doc.classification === 'pagina_vazia'), [docs]);
+  const visibleDocs = useMemo(
+    () => (showBlankPages ? docs : docs.filter(doc => doc.classification !== 'pagina_vazia')),
+    [docs, showBlankPages]
+  );
 
   const handleDragStart = (docId: string) => (event: React.DragEvent<HTMLDivElement>) => {
     event.dataTransfer.setData('text/plain', docId);
@@ -58,7 +65,7 @@ export const DocumentGallery: React.FC<Props> = ({ docs, reportGroups, onUpload,
         className={`doc-row-item ${isError ? 'error' : ''} ${doc.status === 'processing' ? 'processing' : ''}`}
         draggable={!isError}
         onDragStart={handleDragStart(doc.id)}
-        onClick={() => !isError && openGallery(docs, doc.id, onReclassifyDoc)}
+        onClick={() => !isError && openGallery(visibleDocs, doc.id, onReclassifyDoc)}
       >
         {doc.status === 'processing' && (
           <div className="absolute bottom-0 left-0 h-[2px] bg-accent w-full animate-progress-indeterminate z-10" />
@@ -94,7 +101,7 @@ export const DocumentGallery: React.FC<Props> = ({ docs, reportGroups, onUpload,
         </div>
 
         <div className="doc-row-actions">
-          <button className="action-btn-mini" title="Visualizar" onClick={(e) => { e.stopPropagation(); openGallery(docs, doc.id, onReclassifyDoc); }}>
+          <button className="action-btn-mini" title="Visualizar" onClick={(e) => { e.stopPropagation(); openGallery(visibleDocs, doc.id, onReclassifyDoc); }}>
             <Eye size={14} />
           </button>
           <button className="action-btn-mini" title="Remover" onClick={(e) => { e.stopPropagation(); onRemoveDoc(doc.id); }}>
@@ -108,8 +115,19 @@ export const DocumentGallery: React.FC<Props> = ({ docs, reportGroups, onUpload,
   return (
     <div className="gallery-section">
       <div className="gallery-section-header">
-        <h4 className="gallery-section-title">Documentos do Paciente</h4>
-        <span className="text-muted text-xs">Arraste arquivos para adicionar</span>
+        <div>
+          <h4 className="gallery-section-title">Documentos do Paciente</h4>
+          <span className="text-muted text-xs">Arraste arquivos para adicionar</span>
+        </div>
+        {blankDocs.length > 0 && (
+          <button
+            type="button"
+            className="text-xs text-tertiary hover:text-accent transition-colors"
+            onClick={() => setShowBlankPages((prev) => !prev)}
+          >
+            {showBlankPages ? 'Ocultar' : 'Mostrar'} páginas em branco ({blankDocs.length})
+          </button>
+        )}
       </div>
 
       <div
@@ -121,16 +139,16 @@ export const DocumentGallery: React.FC<Props> = ({ docs, reportGroups, onUpload,
         <div className="doc-group-header doc-group-header-amber">
           <FileText size={16} />
           <span>Todos os Arquivos</span>
-          <span className="doc-group-count">{docs.length}</span>
+          <span className="doc-group-count">{visibleDocs.length}</span>
         </div>
 
         <div className="doc-group-content">
-          {docs.length === 0 ? (
+          {visibleDocs.length === 0 ? (
             <div className="doc-group-empty">
               Nenhum documento
             </div>
           ) : (
-            docs.map(renderDocRow)
+            visibleDocs.map(renderDocRow)
           )}
         </div>
 
