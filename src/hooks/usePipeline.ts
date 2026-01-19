@@ -242,14 +242,26 @@ async function processItem(
 
         case 'doc': {
             const doc = session.docs.find((d: any) => d.id === item.docId);
-            if (doc && doc.status === 'pending' && doc.file) {
-                sessionDispatch({ type: 'UPDATE_DOC', payload: { id: item.docId, updates: { status: 'processing' } } });
-                const latestDoc = latestDocs.find((d: any) => d.id === item.docId) || doc;
-                const updates = await PipelineActions.processDocument(doc.file, latestDoc);
-                sessionDispatch({ type: 'UPDATE_DOC', payload: { id: item.docId, updates } });
-                return updates;
+            if (!doc) {
+                throw new Error(`Doc ${item.docId} not ready`);
             }
-            break;
+            if (doc.status !== 'pending') break;
+            if (!doc.file) {
+                sessionDispatch({
+                    type: 'UPDATE_DOC',
+                    payload: {
+                        id: item.docId,
+                        updates: { status: 'error', errorMessage: 'Arquivo indisponível para OCR.' }
+                    }
+                });
+                break;
+            }
+
+            sessionDispatch({ type: 'UPDATE_DOC', payload: { id: item.docId, updates: { status: 'processing' } } });
+            const latestDoc = latestDocs.find((d: any) => d.id === item.docId) || doc;
+            const updates = await PipelineActions.processDocument(doc.file, latestDoc);
+            sessionDispatch({ type: 'UPDATE_DOC', payload: { id: item.docId, updates } });
+            return updates;
         }
 
         case 'group_analysis': {
