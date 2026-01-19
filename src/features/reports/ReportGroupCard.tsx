@@ -29,6 +29,7 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
   const [copied, setCopied] = useState(false);
   const [isSplitMode, setIsSplitMode] = useState(false);
   const [splitStartPage, setSplitStartPage] = useState(2);
+  const [dragTarget, setDragTarget] = useState<'left' | 'right' | null>(null);
 
   // Custom Hook: Lógica de Dados e Visualização
   const {
@@ -56,12 +57,48 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
     return match?.[1] ?? String(fallback);
   };
 
+  const handleThumbDragStart = (event: React.DragEvent<HTMLButtonElement>, pageIndex: number) => {
+    event.dataTransfer.setData('text/plain', String(pageIndex));
+    event.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleThumbDragEnd = () => {
+    setDragTarget(null);
+  };
+
+  const handleSplitDrop = (event: React.DragEvent<HTMLDivElement>, target: 'left' | 'right') => {
+    event.preventDefault();
+    const payload = event.dataTransfer.getData('text/plain');
+    const pageIndex = Number(payload);
+    if (!Number.isFinite(pageIndex)) return;
+
+    const nextSplit = target === 'left'
+      ? Math.min(maxSplit, pageIndex + 2)
+      : Math.max(2, Math.min(maxSplit, pageIndex + 1));
+
+    setSplitStartPage(nextSplit);
+    setDragTarget(null);
+  };
+
+  const handleSplitDragOver = (event: React.DragEvent<HTMLDivElement>, target: 'left' | 'right') => {
+    event.preventDefault();
+    if (dragTarget !== target) setDragTarget(target);
+    event.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleSplitDragLeave = (event: React.DragEvent<HTMLDivElement>, target: 'left' | 'right') => {
+    const related = event.relatedTarget as Node | null;
+    if (related && event.currentTarget.contains(related)) return;
+    if (dragTarget === target) setDragTarget(null);
+  };
+
   const renderSplitThumbs = (docs: typeof orderedDocs, offset: number) => {
     const visible = docs.slice(0, MAX_SPLIT_THUMBS);
     return (
       <>
         {visible.map((doc, idx) => {
           const pageLabel = resolvePageLabel(doc.source, offset + idx + 1);
+          const pageIndex = offset + idx;
           return (
             <button
               key={doc.id}
@@ -69,6 +106,9 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
               className="rcu-split-thumb"
               title={doc.source}
               aria-label={`Abrir página ${pageLabel}`}
+              draggable
+              onDragStart={(event) => handleThumbDragStart(event, pageIndex)}
+              onDragEnd={handleThumbDragEnd}
               onClick={(event) => {
                 event.stopPropagation();
                 openGallery(orderedDocs, doc.id);
@@ -394,8 +434,16 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
               <span>Prévia da divisão</span>
               <span>{leftDocs.length} + {rightDocs.length} páginas</span>
             </div>
+            <div className="rcu-split-preview-hint">
+              Arraste uma página para definir onde começa o laudo B.
+            </div>
             <div className="rcu-split-preview-columns">
-              <div className="rcu-split-preview-column">
+              <div
+                className={`rcu-split-preview-column ${dragTarget === 'left' ? 'is-drop-target' : ''}`}
+                onDragOver={(event) => handleSplitDragOver(event, 'left')}
+                onDragLeave={(event) => handleSplitDragLeave(event, 'left')}
+                onDrop={(event) => handleSplitDrop(event, 'left')}
+              >
                 <div className="rcu-split-preview-title">
                   Laudo A · páginas 1–{splitIndex}
                 </div>
@@ -403,7 +451,12 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
                   {renderSplitThumbs(leftDocs, 0)}
                 </div>
               </div>
-              <div className="rcu-split-preview-column">
+              <div
+                className={`rcu-split-preview-column ${dragTarget === 'right' ? 'is-drop-target' : ''}`}
+                onDragOver={(event) => handleSplitDragOver(event, 'right')}
+                onDragLeave={(event) => handleSplitDragLeave(event, 'right')}
+                onDrop={(event) => handleSplitDrop(event, 'right')}
+              >
                 <div className="rcu-split-preview-title">
                   Laudo B · páginas {splitIndex + 1}–{orderedDocs.length}
                 </div>
