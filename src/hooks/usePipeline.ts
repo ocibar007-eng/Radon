@@ -210,14 +210,16 @@ export function usePipeline() {
 
         const summaryFingerprint = session.clinicalMarkdown || '';
         const examFingerprint = session.patient?.tipo_exame?.valor || '';
+        const queryFingerprint = session.checklistQuery || '';
 
         const checklistKey = [
             checklistDocs.map(doc => `${doc.id}:${doc.classification}:${doc.verbatimText?.length || 0}:${doc.extractedData ? 1 : 0}`).join('|'),
             `summary:${summaryFingerprint}`,
-            `exam:${examFingerprint}`
+            `exam:${examFingerprint}`,
+            `query:${queryFingerprint}`
         ].join('|');
 
-        const hasInput = checklistDocs.length > 0 || summaryFingerprint.length > 0 || !!examFingerprint;
+        const hasInput = checklistDocs.length > 0 || summaryFingerprint.length > 0 || !!examFingerprint || queryFingerprint.length > 0;
 
         if (!hasInput) {
             if (checklistTimeoutRef.current) clearTimeout(checklistTimeoutRef.current);
@@ -237,7 +239,7 @@ export function usePipeline() {
             checklistTimeoutRef.current = window.setTimeout(async () => {
                 prevChecklistKeyRef.current = checklistKey;
                 try {
-                    const input = buildChecklistInput(session);
+                    const input = buildChecklistInput(session, { query: queryFingerprint });
                     const result = await PipelineActions.processRadiologyChecklist(input);
                     if (result && isMounted.current) {
                         sessionDispatch({
@@ -250,7 +252,7 @@ export function usePipeline() {
                 }
             }, 2500);
         }
-    }, [session.docs, session.patient, session.clinicalMarkdown, session.clinicalSummaryData, sessionDispatch]);
+    }, [session.docs, session.patient, session.clinicalMarkdown, session.clinicalSummaryData, session.checklistQuery, sessionDispatch]);
 
     // Cleanup completed jobs periodically
     useEffect(() => {

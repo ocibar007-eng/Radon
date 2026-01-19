@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { BookOpen, ClipboardList, ShieldAlert } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { BookOpen, ClipboardList, Search, ShieldAlert } from 'lucide-react';
 import { MarkdownRenderer } from '../../components/MarkdownRenderer';
 import type { RadiologyChecklist } from '../../types';
 
@@ -7,6 +7,9 @@ interface Props {
   data?: RadiologyChecklist;
   markdown?: string;
   isProcessing: boolean;
+  query: string;
+  onApplyQuery: (value: string) => void;
+  onClearQuery: () => void;
 }
 
 const normalize = (value: string) =>
@@ -24,7 +27,67 @@ const formatText = (value: string, fallback = 'não informado') =>
 const formatList = (values?: string[], fallback = 'não informado') =>
   values && values.length > 0 ? values : [fallback];
 
-export const ChecklistTab: React.FC<Props> = ({ data, markdown, isProcessing }) => {
+export const ChecklistTab: React.FC<Props> = ({
+  data,
+  markdown,
+  isProcessing,
+  query,
+  onApplyQuery,
+  onClearQuery
+}) => {
+  const [draftQuery, setDraftQuery] = useState(query);
+  const trimmedDraft = draftQuery.trim();
+  const trimmedQuery = query.trim();
+
+  useEffect(() => {
+    setDraftQuery(query);
+  }, [query]);
+
+  const renderSearch = () => (
+    <div className="checklist-search">
+      <div className="checklist-search-input">
+        <Search size={16} />
+        <input
+          type="text"
+          value={draftQuery}
+          onChange={(event) => setDraftQuery(event.target.value)}
+          placeholder="Buscar checklist (ex: estadiamento de tumor de reto, MERCURY)"
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              if (trimmedDraft !== trimmedQuery) {
+                onApplyQuery(trimmedDraft);
+              }
+            }
+          }}
+        />
+      </div>
+      <button
+        type="button"
+        className="checklist-search-btn"
+        onClick={() => onApplyQuery(trimmedDraft)}
+        disabled={trimmedDraft === trimmedQuery}
+      >
+        Atualizar
+      </button>
+      <button
+        type="button"
+        className="checklist-search-btn is-ghost"
+        onClick={() => {
+          setDraftQuery('');
+          onClearQuery();
+        }}
+        disabled={!trimmedQuery}
+      >
+        Limpar
+      </button>
+      {trimmedQuery ? (
+        <span className="checklist-search-note">Busca ativa: {query}</span>
+      ) : (
+        <span className="checklist-search-note">Dica: refine por intenção, órgão e guideline.</span>
+      )}
+    </div>
+  );
+
   const sections = data?.checklist ?? [];
 
   const stats = useMemo(() => {
@@ -50,14 +113,22 @@ export const ChecklistTab: React.FC<Props> = ({ data, markdown, isProcessing }) 
 
   if (!data && !markdown) {
     return (
-      <div className="empty-state">
-        {isProcessing ? 'Processando documentos e preparando checklist...' : 'Aguardando dados clínicos para gerar o checklist.'}
+      <div className="checklist-container animate-fade-in">
+        {renderSearch()}
+        <div className="empty-state">
+          {isProcessing ? 'Processando documentos e preparando checklist...' : 'Aguardando dados clínicos para gerar o checklist.'}
+        </div>
       </div>
     );
   }
 
   if (!data && markdown) {
-    return <MarkdownRenderer content={markdown} variant="clinical" />;
+    return (
+      <div className="checklist-container animate-fade-in">
+        {renderSearch()}
+        <MarkdownRenderer content={markdown} variant="clinical" />
+      </div>
+    );
   }
 
   if (!data) {
@@ -68,6 +139,7 @@ export const ChecklistTab: React.FC<Props> = ({ data, markdown, isProcessing }) 
 
   return (
     <div className="checklist-container animate-fade-in">
+      {renderSearch()}
       <div className="checklist-hero">
         <div className="checklist-hero-main">
           <span className="checklist-hero-eyebrow">Checklist radiológico</span>

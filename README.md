@@ -44,6 +44,7 @@ Este guia documenta um problema **RECORRENTE** de deploys falharem na Vercel dev
 - **Checklist de Leitura:** Itens críticos (P0/P1/P2) com como avaliar, thresholds e onde reportar no laudo.
 - **Resumo Estruturado:** Campos obrigatórios prontos para conclusão e rastreio de lacunas clínicas.
 - **Foco em Segurança:** Pitfalls específicos por condição e modalidade.
+- **Busca Guiada:** Reprocessa o checklist por palavra-chave (ex.: estadiamento de tumor de reto, MERCURY).
 
 ---
 

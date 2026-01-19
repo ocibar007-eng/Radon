@@ -16,7 +16,8 @@ type SessionAction =
   | { type: 'ADD_AUDIO_JOB'; payload: AudioJob }
   | { type: 'UPDATE_AUDIO_JOB'; payload: { id: string; updates: Partial<AudioJob> } }
   | { type: 'SET_CLINICAL_MARKDOWN'; payload: { markdown: string; data?: ClinicalSummary } }
-  | { type: 'SET_CHECKLIST'; payload: { markdown: string; data?: RadiologyChecklist } };
+  | { type: 'SET_CHECKLIST'; payload: { markdown: string; data?: RadiologyChecklist } }
+  | { type: 'SET_CHECKLIST_QUERY'; payload: string };
 
 const initialSession: AppSession = {
   patientId: null,
@@ -25,7 +26,8 @@ const initialSession: AppSession = {
   docs: [],
   audioJobs: [],
   clinicalMarkdown: '',
-  checklistMarkdown: ''
+  checklistMarkdown: '',
+  checklistQuery: ''
 };
 
 function sessionReducer(state: AppSession, action: SessionAction): AppSession {
@@ -35,7 +37,8 @@ function sessionReducer(state: AppSession, action: SessionAction): AppSession {
         ...initialSession,
         ...action.payload,
         checklistMarkdown: action.payload.checklistMarkdown ?? '',
-        clinicalMarkdown: action.payload.clinicalMarkdown ?? ''
+        clinicalMarkdown: action.payload.clinicalMarkdown ?? '',
+        checklistQuery: action.payload.checklistQuery ?? ''
       };
 
     case 'CLEAR_SESSION':
@@ -94,6 +97,11 @@ function sessionReducer(state: AppSession, action: SessionAction): AppSession {
         ...state,
         checklistMarkdown: action.payload.markdown,
         checklistData: action.payload.data
+      };
+    case 'SET_CHECKLIST_QUERY':
+      return {
+        ...state,
+        checklistQuery: action.payload
       };
 
     default:

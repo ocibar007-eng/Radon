@@ -14,6 +14,7 @@ export function buildSessionSnapshot(session: AppSession): Partial<AppSession> {
     clinicalSummaryData: session.clinicalSummaryData,
     checklistMarkdown: session.checklistMarkdown,
     checklistData: session.checklistData,
+    checklistQuery: session.checklistQuery,
     headerImage: session.headerImage
       ? { ...session.headerImage, file: undefined, previewUrl: sanitizeUrl(session.headerImage.previewUrl) }
       : null,

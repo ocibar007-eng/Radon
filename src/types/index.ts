@@ -132,6 +132,7 @@ export interface AppSession {
     clinicalSummaryData?: ClinicalSummary; // Usa o tipo inferido aqui
     checklistMarkdown: string;
     checklistData?: RadiologyChecklist;
+    checklistQuery: string;
 }
 
 export type ProcessingQueueItem =

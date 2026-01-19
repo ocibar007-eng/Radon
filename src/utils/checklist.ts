@@ -131,7 +131,17 @@ const extractQuestionarioData = (docs: AttachmentDoc[]) =>
     .map((doc) => doc.extractedData)
     .filter((data): data is QuestionarioData => data?.tipo_documento === 'questionario');
 
-export function buildChecklistInput(session: AppSession): ChecklistInput {
+const hasIntentKeyword = (text: string) => {
+  const normalized = normalizeText(text);
+  return /reestadi|estadi|seguim|follow|diagnost/.test(normalized);
+};
+
+const hasContrastKeyword = (text: string) => {
+  const normalized = normalizeText(text);
+  return /contraste|c\/ contraste|c\/contraste|s\/ contraste|sem contraste/.test(normalized);
+};
+
+export function buildChecklistInput(session: AppSession, options?: { query?: string }): ChecklistInput {
   const pedido = getPedidoMedico(session.docs);
   const summary = getClinicalSummary(session);
   const questionarios = extractQuestionarioData(session.docs);
@@ -161,7 +171,7 @@ export function buildChecklistInput(session: AppSession): ChecklistInput {
       .join(' ')
   );
 
-  return {
+  const baseInput: ChecklistInput = {
     pedido_medico: pedido || {},
     resumo_clinico: summary,
     exame_planejado: {
@@ -182,5 +192,33 @@ export function buildChecklistInput(session: AppSession): ChecklistInput {
       sinais_de_alerta: []
     },
     preferencias_de_estilo: DEFAULT_STYLE
+  };
+
+  const query = options?.query?.trim();
+  if (!query) return baseInput;
+
+  const queryPlan = inferExamPlan(query);
+  const queryIntent = detectIntent(query);
+  const useQueryIntent = hasIntentKeyword(query);
+  const shouldOverrideRegion =
+    queryPlan.modalidade !== 'não informado' || baseInput.exame_planejado.regiao === 'não informado';
+
+  const mergedSuspects = uniqueValues([query, ...baseInput.dados_estruturados_detectados.suspeitas_principais]);
+
+  return {
+    ...baseInput,
+    exame_planejado: {
+      ...baseInput.exame_planejado,
+      modalidade: queryPlan.modalidade !== 'não informado' ? queryPlan.modalidade : baseInput.exame_planejado.modalidade,
+      regiao: shouldOverrideRegion && queryPlan.regiao !== 'não informado'
+        ? queryPlan.regiao
+        : baseInput.exame_planejado.regiao,
+      com_contraste: hasContrastKeyword(query) ? queryPlan.com_contraste : baseInput.exame_planejado.com_contraste,
+      contexto: useQueryIntent ? queryIntent : baseInput.exame_planejado.contexto
+    },
+    dados_estruturados_detectados: {
+      ...baseInput.dados_estruturados_detectados,
+      suspeitas_principais: mergedSuspects
+    }
   };
 }

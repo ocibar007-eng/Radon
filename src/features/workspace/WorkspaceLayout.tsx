@@ -362,6 +362,14 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
         laudoPages: session.docs.filter(d => ['laudo_previo', 'pedido_medico', 'termo_consentimento', 'questionario', 'guia_autorizacao'].includes(d.classification)).length
     }), [session.docs, reportGroups, assistencialDocs]);
 
+    const handleChecklistQueryApply = useCallback((value: string) => {
+        dispatch({ type: 'SET_CHECKLIST_QUERY', payload: value });
+    }, [dispatch]);
+
+    const handleChecklistQueryClear = useCallback(() => {
+        dispatch({ type: 'SET_CHECKLIST_QUERY', payload: '' });
+    }, [dispatch]);
+
     const checklistStats = useMemo(() => {
         const sections = session.checklistData?.checklist || [];
         const totalItems = sections.reduce((acc, section) => acc + section.itens.length, 0);
@@ -588,6 +596,9 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
                                         data={session.checklistData}
                                         markdown={session.checklistMarkdown}
                                         isProcessing={isDocsProcessing}
+                                        query={session.checklistQuery}
+                                        onApplyQuery={handleChecklistQueryApply}
+                                        onClearQuery={handleChecklistQueryClear}
                                     />
                                 </div>
                             )}

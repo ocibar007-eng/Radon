@@ -16,7 +16,8 @@ const mockSession = {
   patient: { id: 'patient-123', os: { valor: 'OS-TEST' } },
   audioJobs: [],
   clinicalMarkdown: '',
-  checklistMarkdown: ''
+  checklistMarkdown: '',
+  checklistQuery: ''
 };
 
 vi.mock('../context/SessionContext', () => ({
