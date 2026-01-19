@@ -157,7 +157,7 @@
 }
 
 .clinical-line--plain .clinical-line-text::before {
-  content: "•";
+  content: "–";
   color: var(--color-accent-primary);
   display: inline-block;
   margin-right: 0.5rem;
