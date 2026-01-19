@@ -362,6 +362,10 @@ export function groupReportsByPdf(groups: ReportGroup[]): PdfBundle[] {
         else if (docs.some(d => d.status === 'pending')) groupStatus = 'pending';
 
         const representative = docs.find(d => d.metadata?.reportType) || docs[0];
+        const validation = validateGroupConsistency(docs);
+        if (validation.isBlocked) {
+          groupStatus = 'error';
+        }
 
         normalizedGroups.push({
           id: `virtual::${baseName}::${classification}::${group.id}`,
@@ -370,7 +374,9 @@ export function groupReportsByPdf(groups: ReportGroup[]): PdfBundle[] {
           docs,
           date: representative?.metadata?.reportDate,
           type: representative?.metadata?.reportType || classification,
-          status: groupStatus
+          status: groupStatus,
+          isBlocked: validation.isBlocked || undefined,
+          blockingReasons: validation.reasons.length ? validation.reasons : undefined
         });
       });
     });
