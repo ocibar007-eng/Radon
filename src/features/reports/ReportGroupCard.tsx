@@ -63,14 +63,24 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
         {visible.map((doc, idx) => {
           const pageLabel = resolvePageLabel(doc.source, offset + idx + 1);
           return (
-            <div key={doc.id} className="rcu-split-thumb" title={doc.source}>
+            <button
+              key={doc.id}
+              type="button"
+              className="rcu-split-thumb"
+              title={doc.source}
+              aria-label={`Abrir página ${pageLabel}`}
+              onClick={(event) => {
+                event.stopPropagation();
+                openGallery(orderedDocs, doc.id);
+              }}
+            >
               {doc.previewUrl ? (
                 <img src={doc.previewUrl} alt={`Página ${pageLabel}`} loading="lazy" />
               ) : (
                 <div className="rcu-split-thumb-placeholder">Pg {pageLabel}</div>
               )}
               <span className="rcu-split-thumb-label">{pageLabel}</span>
-            </div>
+            </button>
           );
         })}
         {docs.length > MAX_SPLIT_THUMBS ? (
