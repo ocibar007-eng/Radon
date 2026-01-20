@@ -17,6 +17,7 @@ const BLANK_PAGE_MAX_DIMENSION = 72;
 const BLANK_PAGE_DARK_RATIO = 0.02;
 const BLANK_PAGE_LIGHT_THRESHOLD = 245;
 const BLANK_PAGE_DARK_THRESHOLD = 12;
+const MIN_VERBATIM_LENGTH = 120;
 
 async function detectBlankPage(blob: Blob): Promise<boolean> {
   if (typeof createImageBitmap === 'undefined') return false;
@@ -633,13 +634,93 @@ export function useWorkspaceActions(patient: Patient | null) {
 
     if (docs.length === 0) return false;
 
-    if (docs.some(doc => doc.status !== 'done')) {
+    if (docs.some(doc => doc.status === 'processing' || doc.status === 'pending')) {
       showToast('Aguarde o OCR terminar antes de reprocessar este grupo.', 'warning');
       return false;
     }
 
     reprocessingGroupsRef.current.add(group.id);
     try {
+      const analysisVersion = Date.now();
+      const docsNeedingOcr = docs.filter(doc =>
+        doc.status !== 'done' ||
+        !doc.verbatimText ||
+        doc.verbatimText.trim().length < MIN_VERBATIM_LENGTH
+      );
+
+      const hydrateDocFile = async (doc: AttachmentDoc): Promise<File | null> => {
+        if (doc.file) return doc.file;
+        if (!doc.previewUrl) return null;
+        try {
+          const response = await fetch(doc.previewUrl);
+          if (!response.ok) return null;
+          const blob = await response.blob();
+          const name = doc.source.replace(/\s+/g, '_');
+          return new File([blob], name, { type: blob.type || 'image/jpeg' });
+        } catch (error) {
+          console.warn('[Reprocess] Falha ao rehidratar arquivo', { docId: doc.id, error });
+          return null;
+        }
+      };
+
+      if (docsNeedingOcr.length > 0) {
+        const missingFiles: string[] = [];
+
+        await Promise.all(docsNeedingOcr.map(async (doc) => {
+          const hydratedFile = await hydrateDocFile(doc);
+          if (!hydratedFile) {
+            missingFiles.push(doc.source);
+            return;
+          }
+
+          dispatch({
+            type: 'UPDATE_DOC',
+            payload: {
+              id: doc.id,
+              updates: {
+                file: hydratedFile,
+                status: 'pending',
+                errorMessage: undefined,
+                verbatimText: '',
+                isUnified: false,
+                detailedAnalysis: undefined,
+                metadata: undefined,
+                summary: undefined,
+                analysisVersion
+              }
+            }
+          });
+
+          enqueue({ type: 'doc', docId: doc.id });
+        }));
+
+        docs
+          .filter(doc => !docsNeedingOcr.includes(doc))
+          .forEach(doc => {
+            dispatch({
+              type: 'UPDATE_DOC',
+              payload: {
+                id: doc.id,
+                updates: {
+                  isUnified: false,
+                  detailedAnalysis: undefined,
+                  metadata: undefined,
+                  summary: undefined,
+                  analysisVersion
+                }
+              }
+            });
+          });
+
+        if (missingFiles.length > 0) {
+          showToast('Algumas páginas não puderam ser reprocessadas por falta do arquivo.', 'warning');
+          console.warn('[Reprocess] Arquivos indisponíveis para re-OCR', missingFiles);
+        }
+
+        showToast('Reprocessamento iniciado. OCR das páginas incompletas em andamento.', 'info');
+        return docsNeedingOcr.length > missingFiles.length;
+      }
+
       docs.forEach(doc => {
         dispatch({
           type: 'UPDATE_DOC',
@@ -648,7 +729,9 @@ export function useWorkspaceActions(patient: Patient | null) {
             updates: {
               isUnified: false,
               detailedAnalysis: undefined,
-              summary: undefined
+              metadata: undefined,
+              summary: undefined,
+              analysisVersion
             }
           }
         });

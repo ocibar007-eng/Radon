@@ -107,6 +107,7 @@ export interface AttachmentDoc {
     summary?: string;
     detailedAnalysis?: ReportAnalysis; // Usa o tipo inferido aqui
     isUnified?: boolean;
+    analysisVersion?: number;
     metadata?: {
         reportType?: string;
         reportDate?: string;

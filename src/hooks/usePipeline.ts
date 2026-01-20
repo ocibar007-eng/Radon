@@ -130,7 +130,11 @@ export function usePipeline() {
 
         groups.forEach(group => {
             // Usar todos os IDs ordenados como chave única do grupo
-            const groupKey = `${group.id}::${[...group.docIds].sort().join('|')}`;
+            const groupVersion = group.docs.reduce(
+                (acc, doc) => Math.max(acc, doc.analysisVersion ?? 0),
+                0
+            );
+            const groupKey = `${group.id}::${groupVersion}::${[...group.docIds].sort().join('|')}`;
 
             if (analyzingGroupsRef.current.has(groupKey)) return;
 
