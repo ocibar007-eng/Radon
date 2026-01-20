@@ -1,0 +1,177 @@
+[
+    {
+        "pattern": "bone island",
+        "fix": "enostose (ilhota óssea)",
+        "reason": "Anglicanismo"
+    },
+    {
+        "pattern": "air trapping",
+        "fix": "aprisionamento aéreo",
+        "reason": "Anglicanismo"
+    },
+    {
+        "pattern": "steal syndrome",
+        "fix": "síndrome do roubo (steal)",
+        "reason": "Anglicanismo"
+    },
+    {
+        "pattern": "zonalidade",
+        "fix": "zonagem",
+        "reason": "Terminologia incorreta"
+    },
+    {
+        "pattern": "laminares atelectasias",
+        "fix": "atelectasias laminares",
+        "reason": "Ordem incorreta"
+    },
+    {
+        "pattern": "colo sigmoide",
+        "fix": "cólon sigmoide",
+        "reason": "Ortografia"
+    },
+    {
+        "pattern": "ístmico-cervical",
+        "fix": "istmo-cervical",
+        "reason": "Ortografia"
+    },
+    {
+        "pattern": "lacerizacões",
+        "fix": "lacerações",
+        "reason": "Não existe"
+    },
+    {
+        "pattern": "excarator",
+        "fix": "excretor",
+        "reason": "Erro comum"
+    },
+    {
+        "pattern": "subsentimétrico",
+        "fix": "subcentimétrico",
+        "reason": "Ortografia"
+    },
+    {
+        "pattern": "incisural",
+        "fix": "incisional",
+        "reason": "Termo incorreto"
+    },
+    {
+        "pattern": "inficional",
+        "fix": "infeccioso",
+        "reason": "Termo incorreto"
+    },
+    {
+        "pattern": "brachiocefálico",
+        "fix": "braquiocefálico",
+        "reason": "Ortografia antiga/en"
+    },
+    {
+        "pattern": "segmentos caróticos",
+        "fix": "segmentos carotídeos",
+        "reason": "Termo incorreto"
+    },
+    {
+        "pattern": "hemithyroidectomia",
+        "fix": "hemitireoidectomia",
+        "reason": "Anglicanismo"
+    },
+    {
+        "pattern": "adnexial",
+        "fix": "anexial",
+        "reason": "Anglicanismo"
+    },
+    {
+        "pattern": "COLANGIO-RESSONANCIA",
+        "fix": "colangiorressonância",
+        "reason": "Caixa alta indevida/hífen"
+    },
+    {
+        "pattern": "imagemológico",
+        "fix": "por imagem",
+        "reason": "Preferência estilística"
+    },
+    {
+        "pattern": "imaginológico",
+        "fix": "por imagem",
+        "reason": "Preferência estilística"
+    },
+    {
+        "pattern": "hepatomegalizado",
+        "fix": "aumentado de volume",
+        "reason": "Jargão ruim"
+    },
+    {
+        "pattern": "pequenina",
+        "fix": "diminuta",
+        "reason": "Diminutivo informal"
+    },
+    {
+        "pattern": "lesões focalizadas",
+        "fix": "lesões focais",
+        "reason": "Termo incorreto"
+    },
+    {
+        "pattern": "leiomioma subserosal",
+        "fix": "leiomioma subseroso",
+        "reason": "Anglicanismo"
+    },
+    {
+        "pattern": "cisto paraovárico",
+        "fix": "cisto paraovariano",
+        "reason": "Termo incorreto"
+    },
+    {
+        "pattern": "região hipocondríaca",
+        "fix": "região do hipocôndrio",
+        "reason": "Termo incorreto"
+    },
+    {
+        "pattern": "opacidades subdecubitais",
+        "fix": "opacidades subdependentes",
+        "reason": "Termo incorreto"
+    },
+    {
+        "pattern": "supra-renal",
+        "fix": "suprarrenal",
+        "reason": "Novo acordo ortográfico"
+    },
+    {
+        "pattern": "parênquima miometrial",
+        "fix": "miométrio",
+        "reason": "Redundância"
+    },
+    {
+        "pattern": "two hemicavities",
+        "fix": "duas hemicavidades",
+        "reason": "Inglês"
+    },
+    {
+        "pattern": "FNH",
+        "fix": "hiperplasia nodular focal",
+        "reason": "Sigla en"
+    },
+    {
+        "pattern": "gadolínio",
+        "fix": "realce pelo meio de contraste",
+        "reason": "Termo RM em TC (exceto se comparação)"
+    },
+    {
+        "pattern": "conforme áudio",
+        "fix": "[REMOVER]",
+        "reason": "Metatexto proibido"
+    },
+    {
+        "pattern": "segundo input",
+        "fix": "[REMOVER]",
+        "reason": "Metatexto proibido"
+    },
+    {
+        "pattern": "neste laudo",
+        "fix": "[REMOVER]",
+        "reason": "Metatexto proibido"
+    },
+    {
+        "pattern": "o exame demonstra",
+        "fix": "Observa-se",
+        "reason": "Metatexto proibido"
+    }
+]

@@ -22,3 +22,84 @@ Use esta skill para criar ou ajustar interfaces que devem parecer **Premium** e 
 - **Cards:** Background escuro com borda sutil (`border-zinc-800`).
 - **Texto:** Nunca use branco puro (#FFF) para parágrafos; use `text-zinc-300` ou `text-zinc-400`.
 - **Acessibilidade:** Garanta contraste e `aria-label` em botões de ícone.
+
+---
+
+## ✅ UX DEFINITION OF DONE
+
+Antes de considerar UI "pronta":
+
+- [ ] **Empty States:** O que aparece quando não há dados?
+- [ ] **Loading States:** Skeleton ou spinner?
+- [ ] **Error States:** Mensagem amigável + retry?
+- [ ] **Keyboard/Focus:** Tab navega corretamente?
+- [ ] **Acessibilidade:** Contraste OK + aria-label em ícones?
+
+---
+
+## 🚫 REGRA "POLISH NÃO TOCA EM LÓGICA"
+
+> CSS-only changes: **PROIBIDO** alterar hooks / useEffect / handlers.
+
+```typescript
+// ✅ PERMITIDO em PR de polish
+className="bg-zinc-800 hover:bg-zinc-700"
+
+// ❌ PROIBIDO em PR de polish
+onClick={() => doSomething()}  // Não pode mudar isso
+useEffect(() => {...})          // Não pode mudar isso
+```
+
+Se precisar mudar lógica: **faça em PR separado**.
+
+---
+
+## ⚡ PERFORMANCE UI
+
+### Cuidados com Re-render
+```typescript
+// ❌ RUIM - recria função toda vez
+<Button onClick={() => handleClick(id)} />
+
+// ✅ BOM - useCallback memoriza
+const handleButtonClick = useCallback(() => handleClick(id), [id]);
+<Button onClick={handleButtonClick} />
+```
+
+### Listas Grandes
+```typescript
+// Usar virtualização se > 100 itens
+import { VirtualList } from 'react-window';
+
+// Ou paginação
+const visibleItems = items.slice(0, 50);
+```
+
+### Skeletons
+```typescript
+// ✅ Skeleton com altura fixa = Zero layout shift
+<div className="h-24 animate-pulse bg-zinc-800 rounded" />
+```
+
+---
+
+## 🎨 DESIGN TOKENS COMO LEI
+
+> **PROIBIDO** cores hardcoded fora dos tokens.
+
+```typescript
+// ❌ PROIBIDO
+className="bg-[#1a1a1a]"
+style={{ color: 'rgb(50, 50, 50)' }}
+
+// ✅ OBRIGATÓRIO - usar tokens
+className="bg-zinc-900"
+className="text-primary"
+```
+
+### Tokens Disponíveis
+- Cores: `zinc-*`, `primary`, `success`, `warning`, `error`
+- Spacing: Tailwind padrão (p-4, m-2, gap-3)
+- Radius: `rounded`, `rounded-lg`, `rounded-xl`
+- Shadows: `shadow-sm`, `shadow-lg`, `shadow-glow`
+

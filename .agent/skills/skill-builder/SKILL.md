@@ -45,3 +45,71 @@ description: Descrição curta e clara de quando usar esta skill.
 - **Foco Único:** Uma skill deve resolver um problema específico.
 - **Auto-contida:** Tente não depender de outras skills se possível.
 - **Markdown Rico:** Use tabelas, alertas e diagramas se ajudar na clareza.
+
+---
+
+## 🚫 NÃO DUPLICAR SKILLS
+
+Antes de criar skill nova:
+1. Verificar se já existe skill similar em `.agent/skills/`
+2. Se existir: **estender** em vez de duplicar
+3. Se for relacionada: criar seção na skill existente
+
+```markdown
+# RUIM
+Criar radon-debugger-advanced quando radon-debugger já existe
+
+# BOM
+Adicionar seção "Advanced Debugging" na radon-debugger existente
+```
+
+---
+
+## 📤 FORMATO PADRÃO DE OUTPUTS
+
+Toda skill DEVE terminar com seção "Outputs Obrigatórios":
+
+```markdown
+## 📤 OUTPUTS OBRIGATÓRIOS
+
+Ao concluir tarefa usando esta skill, entregar:
+1. [Item 1]
+2. [Item 2]
+3. [Como reverter / Rollback]
+```
+
+Isso facilita handoff e verificação.
+
+---
+
+## ⚖️ SEÇÃO ANTI-CONTRADIÇÃO
+
+Se uma skill contradizer outra, siga esta hierarquia:
+
+1. **`senior-engineer`** > outras skills (é a skill "governança")
+2. **`docs/guides/REFACTORING_SUPER_PROMPT.md`** > qualquer skill de refatoração
+3. **Skill específica** > skill genérica
+
+```markdown
+# Exemplo de conflito
+radon-feature-builder diz: "Criar pasta para tudo"
+radon-doc-keeper diz: "Co-localizar se for pequeno"
+
+# Resolução
+radon-feature-builder é mais específico para features
+→ Segue radon-feature-builder
+```
+
+---
+
+## 📋 CHECKLIST DE NOVA SKILL
+
+Antes de criar skill:
+
+- [ ] Não existe skill similar?
+- [ ] Tem frontmatter YAML correto?
+- [ ] Tem seção "Quando usar"?
+- [ ] Tem seção "Outputs Obrigatórios"?
+- [ ] Não contradiz outras skills?
+- [ ] Segue formato markdown rico?
+

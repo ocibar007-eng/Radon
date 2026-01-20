@@ -1,0 +1,57 @@
+{
+    "slos": {
+        "latency": {
+            "p50_ms": 15000,
+            "p95_ms": 35000,
+            "p99_ms": 90000
+        },
+        "cost": {
+            "median_usd": 0.10,
+            "p95_usd": 0.25
+        },
+        "escalation_rate_target": 0.05
+    },
+    "hard_gates": {
+        "meta_text_count": 0,
+        "banned_terms_count": 0,
+        "schema_validity_percent": 100,
+        "s1_contradictions": 0,
+        "missing_sections": 0
+    },
+    "soft_gates": {
+        "verificar_rate_increase": 0.20,
+        "cost_increase": 0.30,
+        "latency_increase": 0.25
+    },
+    "banlist": {
+        "meta_text": [
+            "áudio",
+            "transcrição",
+            "OCR",
+            "input",
+            "prompt",
+            "anexo",
+            "documento assistencial",
+            "neste laudo",
+            "segundo o input",
+            "conforme ditado",
+            "conforme solicitado"
+        ],
+        "forbidden_clinical": [
+            "bone island",
+            "air trapping",
+            "FNH",
+            "zonalidade prostática"
+        ]
+    },
+    "auto_fix_map": {
+        "subsentimétrico": "subcentimétrico",
+        "subsentimétrica": "subcentimétrica",
+        "cm de diâmetro": "cm",
+        "mm de diâmetro": "mm"
+    },
+    "review_queue": {
+        "target_weekly_reviews": 30,
+        "s3_sampling_rate": 0.10
+    }
+}

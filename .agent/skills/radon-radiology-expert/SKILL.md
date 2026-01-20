@@ -50,3 +50,67 @@ Evite repetir estes erros que já causaram bugs no projeto:
     1. O processamento continua paralelo.
     2. A análise automática de `laudo previo` e `resumo previo` é disparada corretamente.
     3. Nenhum `useEffect` essencial foi removido ou teve dependências quebradas.
+
+---
+
+## 📋 POLÍTICA DE STRUCTURED OUTPUT
+
+Ao mexer em resumos/laudos, sempre usar esquema estruturado:
+
+```typescript
+// Schema completo para Output Médico
+interface StructuredMedicalOutput {
+  findings: OrganFinding[];
+  impressions: string[];
+  recommendations?: string[];
+  references?: string[];  // Quando aplicável
+  schemaVersion: number;
+}
+```
+
+---
+
+## 🔒 SAFETY/PHI EM RADIOLOGIA
+
+### Regras HARD
+- ❌ Exemplos e logs NUNCA podem conter paciente real
+- ❌ Screenshots sem anonimização
+- ✅ Usar dados sintéticos: "Test Patient Alpha", "TEST-001"
+
+### Checklist de Prompt Médico
+- [ ] Prompt não expõe dados reais?
+- [ ] Response é sanitizado antes de mostrar?
+- [ ] Logs não contêm PHI?
+
+---
+
+## 📚 CATÁLOGO DE FRAMEWORKS MÉDICOS
+
+| Framework | Uso | Documentação |
+|-----------|-----|--------------|
+| TNM | Estadiamento tumoral | Ver por órgão |
+| MERCURY | Câncer de reto | MRI staging |
+| LI-RADS | Lesões hepáticas | ACR guidelines |
+| PI-RADS | Próstata | MRI scoring |
+| BI-RADS | Mama | Mammography |
+| Lung-RADS | Pulmão | Nodule classification |
+
+> ⚠️ **NUNCA invente** scoring. Use apenas os frameworks oficiais.
+
+---
+
+## 📝 CHECKLIST DE TERMINOLOGIA
+
+### Antes de criar/modificar termos médicos:
+- [ ] Termo está no `docs/GLOSSARY.md`?
+- [ ] Termo segue padrão radiológico brasileiro?
+- [ ] Não há ambiguidade com outros termos?
+- [ ] Prompt usa vocabulário fechado?
+
+### Termos que causam confusão
+| Termo Ambíguo | Termo Correto |
+|---------------|---------------|
+| "Normal" | "Sem alterações significativas" |
+| "Achado" | "Finding" (em código) |
+| "Laudo" | "laudo_previo" (classification) |
+

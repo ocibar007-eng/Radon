@@ -27,6 +27,15 @@ const formatText = (value: string, fallback = 'não informado') =>
 const formatList = (values?: string[], fallback = 'não informado') =>
   values && values.length > 0 ? values : [fallback];
 
+const INTENT_PRESETS = [
+  { key: 'diagnostico', label: 'Diagnóstico', phrase: 'diagnostico' },
+  { key: 'estadiamento', label: 'Estadiamento', phrase: 'estadiamento' },
+  { key: 'reestadiamento', label: 'Reestadiamento', phrase: 'reestadiamento' },
+  { key: 'seguimento', label: 'Seguimento', phrase: 'seguimento' }
+];
+
+const INTENT_REGEX = /\b(reestadiamento|estadiamento|seguimento|diagn[oó]stico)\b/gi;
+
 export const ChecklistTab: React.FC<Props> = ({
   data,
   markdown,
@@ -42,6 +51,34 @@ export const ChecklistTab: React.FC<Props> = ({
   useEffect(() => {
     setDraftQuery(query);
   }, [query]);
+
+  const getActiveIntent = (text: string) => {
+    const normalized = normalize(text);
+    if (normalized.includes('reestadi')) return 'reestadiamento';
+    if (normalized.includes('estadi')) return 'estadiamento';
+    if (normalized.includes('seguim')) return 'seguimento';
+    if (normalized.includes('diagnost')) return 'diagnostico';
+    return '';
+  };
+
+  const buildIntentQuery = (phrase: string) => {
+    const cleaned = draftQuery.trim();
+    if (!cleaned) return phrase;
+    const withoutIntent = cleaned.replace(INTENT_REGEX, '').replace(/\s{2,}/g, ' ').trim();
+    const base = withoutIntent || cleaned;
+    const needsConnector = base && !/^(de|da|do|das|dos)\s/i.test(base);
+    return needsConnector ? `${phrase} de ${base}` : `${phrase} ${base}`;
+  };
+
+  const applyIntentPreset = (phrase: string) => {
+    const newQuery = buildIntentQuery(phrase).replace(/\s{2,}/g, ' ').trim();
+    setDraftQuery(newQuery);
+    if (newQuery && newQuery !== trimmedQuery) {
+      onApplyQuery(newQuery);
+    }
+  };
+
+  const activeIntent = getActiveIntent(trimmedQuery);
 
   const renderSearch = () => (
     <div className="checklist-search">
@@ -80,6 +117,19 @@ export const ChecklistTab: React.FC<Props> = ({
       >
         Limpar
       </button>
+      <div className="checklist-search-presets">
+        <span className="checklist-search-label">Intenção</span>
+        {INTENT_PRESETS.map((preset) => (
+          <button
+            key={preset.key}
+            type="button"
+            className={`checklist-intent-chip ${activeIntent === preset.key ? 'is-active' : ''}`}
+            onClick={() => applyIntentPreset(preset.phrase)}
+          >
+            {preset.label}
+          </button>
+        ))}
+      </div>
       {trimmedQuery ? (
         <span className="checklist-search-note">Busca ativa: {query}</span>
       ) : (
