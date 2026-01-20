@@ -65,6 +65,7 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
         handleManualReclassify,
         handleSplitReportGroup,
         handleManualGroupDocs,
+        handleReprocessGroup,
         handleClearSession,
         handleAudioComplete,
         downloadAll,
