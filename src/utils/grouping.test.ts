@@ -6,10 +6,18 @@ import { AttachmentDoc } from '../types';
 describe('Algoritmo de Agrupamento (Grouping Logic)', () => {
 
   // Helper para criar docs mockados rapidamente
-  const mockDoc = (id: string, source: string, hint: string = ''): AttachmentDoc => ({
+  const mockDoc = (
+    id: string,
+    source: string,
+    hint: string = '',
+    pdfSessionId?: string,
+    pdfSourceName?: string
+  ): AttachmentDoc => ({
     id,
     source,
     reportGroupHint: hint,
+    pdfSessionId,
+    pdfSourceName,
     // Campos obrigatórios mas irrelevantes para o teste de agrupamento
     previewUrl: 'blob:fake',
     status: 'done',
@@ -17,20 +25,34 @@ describe('Algoritmo de Agrupamento (Grouping Logic)', () => {
   });
 
   it('deve agrupar páginas do mesmo PDF em um único grupo', () => {
+    const pdfSessionId = 'pdf-session-1';
     const docs = [
-      mockDoc('1', 'Exame_Sangue.pdf PDF Pg 1', 'default'),
-      mockDoc('2', 'Exame_Sangue.pdf PDF Pg 2', 'default'),
-      mockDoc('3', 'Exame_Sangue.pdf PDF Pg 3', 'default')
+      mockDoc('1', 'Exame_Sangue.pdf PDF Pg 1', 'default', pdfSessionId, 'Exame_Sangue.pdf'),
+      mockDoc('2', 'Exame_Sangue.pdf PDF Pg 2', 'default', pdfSessionId, 'Exame_Sangue.pdf'),
+      mockDoc('3', 'Exame_Sangue.pdf PDF Pg 3', 'default', pdfSessionId, 'Exame_Sangue.pdf')
     ];
 
     const groups = groupDocsVisuals(docs);
 
     expect(groups).toHaveLength(1);
-    expect(groups[0].id).toContain('pdf::Exame_Sangue.pdf');
+    expect(groups[0].id).toContain(`pdfsession::${pdfSessionId}`);
     expect(groups[0].docs).toHaveLength(3);
     // Garante ordenação
     expect(groups[0].docs[0].source).toContain('Pg 1');
     expect(groups[0].docs[2].source).toContain('Pg 3');
+  });
+
+  it('deve manter páginas do mesmo PDF juntas mesmo com hints diferentes quando há pdfSessionId', () => {
+    const pdfSessionId = 'pdf-session-2';
+    const docs = [
+      mockDoc('1', 'Misto.pdf PDF Pg 1', 'EXAME:TORAX', pdfSessionId, 'Misto.pdf'),
+      mockDoc('2', 'Misto.pdf PDF Pg 2', 'EXAME:ABDOMEN', pdfSessionId, 'Misto.pdf')
+    ];
+
+    const groups = groupDocsVisuals(docs);
+
+    expect(groups).toHaveLength(1);
+    expect(groups[0].docs).toHaveLength(2);
   });
 
   it('deve separar imagens soltas que não possuem hint de agrupamento', () => {

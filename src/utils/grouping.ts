@@ -45,7 +45,15 @@ function normalizeGroupToken(value: string): string {
     .replace(/[^A-Z0-9\-]/g, '-');
 }
 
-function getPdfBaseName(doc: AttachmentDoc): string | null {
+function getPdfGroupKeyBase(doc: AttachmentDoc): string | null {
+  if (doc.pdfSessionId) return doc.pdfSessionId;
+  if (doc.globalGroupSource) return doc.globalGroupSource;
+  if (doc.source.includes(' Pg ')) return doc.source.split(' Pg ')[0];
+  return null;
+}
+
+function getPdfDisplayName(doc: AttachmentDoc): string | null {
+  if (doc.pdfSourceName) return doc.pdfSourceName;
   if (doc.globalGroupSource) return doc.globalGroupSource;
   if (doc.source.includes(' Pg ')) return doc.source.split(' Pg ')[0];
   return null;
@@ -69,7 +77,7 @@ function computePdfGroupingOverrides(docs: AttachmentDoc[]) {
 
   docs.forEach(doc => {
     if (doc.classification !== 'laudo_previo') return;
-    const baseName = getPdfBaseName(doc);
+    const baseName = getPdfGroupKeyBase(doc);
     if (!baseName) return;
 
     const stats = statsByBase.get(baseName) || {
@@ -180,9 +188,10 @@ export function groupDocsVisuals(docs: AttachmentDoc[]): ReportGroup[] {
     const isManualSplit = hint.startsWith('MANUAL_SPLIT:');
     const isManualGroup = hint.startsWith('MANUAL_GROUP:');
     const hasManualOverride = isManualSplit || isManualGroup;
-    const baseName = getPdfBaseName(doc);
+    const baseName = getPdfGroupKeyBase(doc);
     const override = baseName ? pdfOverrides.get(baseName) : undefined;
     const marker = pageMarkers.get(doc.id);
+    const pdfKeyPrefix = doc.pdfSessionId ? 'pdfsession' : 'pdf';
 
     // PRIORIDADE 1: Agrupamento Global (análise global de PDF)
     // Este é o método mais confiável pois a IA viu todas as páginas juntas
@@ -195,7 +204,7 @@ export function groupDocsVisuals(docs: AttachmentDoc[]): ReportGroup[] {
       }
       if (token) {
         const normalizedToken = normalizeGroupToken(token);
-        const keyPrefix = doc.globalGroupSource ? 'global' : 'pdf';
+        const keyPrefix = doc.globalGroupSource ? 'global' : pdfKeyPrefix;
         const key = `${keyPrefix}::${baseName}::${override}:${normalizedToken}`;
         const list = groups.get(key) || [];
         list.push(doc);
@@ -205,7 +214,7 @@ export function groupDocsVisuals(docs: AttachmentDoc[]): ReportGroup[] {
     }
 
     if (doc.globalGroupId !== undefined && doc.globalGroupSource && !hasManualOverride) {
-      const key = `global::${doc.globalGroupSource}::${doc.globalGroupId}`;
+      const key = `global::${baseName || doc.globalGroupSource}::${doc.globalGroupId}`;
       const list = groups.get(key) || [];
       list.push(doc);
       groups.set(key, list);
@@ -214,9 +223,8 @@ export function groupDocsVisuals(docs: AttachmentDoc[]): ReportGroup[] {
 
     // PRIORIDADE 2: Divisão manual pelo usuário (MANUAL_SPLIT)
     // Respeita sempre a decisão do usuário
-    if (isManualSplit && doc.source.includes('PDF Pg')) {
-      const baseName = doc.source.split(' PDF Pg ')[0];
-      const key = `pdf::${baseName}::${hint}`;
+    if (isManualSplit && baseName) {
+      const key = `${pdfKeyPrefix}::${baseName}::${hint}`;
       const list = groups.get(key) || [];
       list.push(doc);
       groups.set(key, list);
@@ -225,9 +233,8 @@ export function groupDocsVisuals(docs: AttachmentDoc[]): ReportGroup[] {
 
     // PRIORIDADE 2.5: Agrupamento manual pelo usuário (MANUAL_GROUP)
     if (isManualGroup) {
-      if (doc.source.includes('PDF Pg') || doc.source.includes('.pdf Pg') || doc.source.includes('Pg ')) {
-        const baseName = doc.source.split(' Pg ')[0];
-        const key = `pdf::${baseName}::${hint}`;
+      if (baseName && (doc.source.includes('PDF Pg') || doc.source.includes('.pdf Pg') || doc.source.includes('Pg '))) {
+        const key = `${pdfKeyPrefix}::${baseName}::${hint}`;
         const list = groups.get(key) || [];
         list.push(doc);
         groups.set(key, list);
@@ -243,6 +250,14 @@ export function groupDocsVisuals(docs: AttachmentDoc[]): ReportGroup[] {
 
     // PRIORIDADE 3: Agrupamento por origem de arquivo PDF + hint da IA
     // Fallback para quando não há análise global
+    if (doc.pdfSessionId && baseName) {
+      const key = `${pdfKeyPrefix}::${baseName}`;
+      const list = groups.get(key) || [];
+      list.push(doc);
+      groups.set(key, list);
+      return;
+    }
+
     if (doc.source.includes('PDF Pg') || doc.source.includes('.pdf Pg') || doc.source.includes('Pg ')) {
       const normalizedHint = hint || 'default';
       // Extrai nome base do PDF corretamente
@@ -274,7 +289,7 @@ export function groupDocsVisuals(docs: AttachmentDoc[]): ReportGroup[] {
   const pdfBaseNameCounts = new Map<string, number>();
   groups.forEach((_, key) => {
     // Conta tanto grupos globais quanto PDF tradicionais
-    if (key.startsWith('global::') || key.startsWith('pdf::')) {
+    if (key.startsWith('global::') || key.startsWith('pdf::') || key.startsWith('pdfsession::')) {
       const baseName = key.split('::')[1];
       pdfBaseNameCounts.set(baseName, (pdfBaseNameCounts.get(baseName) || 0) + 1);
     }
@@ -303,6 +318,7 @@ export function groupDocsVisuals(docs: AttachmentDoc[]): ReportGroup[] {
     if (key.startsWith('global::')) {
       const parts = key.split('::');
       const baseName = parts[1];
+      const displayName = getPdfDisplayName(representative) || baseName;
       const globalGroupId = parts[2];
 
       // Verificar se há múltiplos grupos do mesmo PDF
@@ -315,12 +331,12 @@ export function groupDocsVisuals(docs: AttachmentDoc[]): ReportGroup[] {
 
       if (sameBasePdfGroups > 1 && globalType) {
         // Múltiplos laudos no mesmo PDF - mostrar tipo
-        title = `${baseName} - ${globalType}`;
+        title = `${displayName} - ${globalType}`;
       } else if (globalType && globalType !== 'Documento não classificado' && globalType !== 'Indefinido') {
         // PDF com único laudo mas tipo identificado
-        title = `${baseName} (${globalType})`;
+        title = `${displayName} (${globalType})`;
       } else {
-        title = baseName;
+        title = displayName;
       }
 
       // Indicar se é provisório ou adendo
@@ -332,7 +348,7 @@ export function groupDocsVisuals(docs: AttachmentDoc[]): ReportGroup[] {
       }
     }
     // PRIORIDADE 2-3: PDF tradicional
-    else if (key.startsWith('pdf::')) {
+    else if (key.startsWith('pdf::') || key.startsWith('pdfsession::')) {
       const parts = key.split('::');
       const baseName = parts[1];
       const rawHint = parts[2];
@@ -340,15 +356,16 @@ export function groupDocsVisuals(docs: AttachmentDoc[]): ReportGroup[] {
 
       // Se o PDF foi quebrado em vários exames, usamos o Hint para diferenciar no título
       const hintLabel = (representative.reportGroupHint || '').trim() || (rawHint !== 'default' ? rawHint : '');
+      const displayName = getPdfDisplayName(representative) || baseName;
 
       const displayHint = hintLabel.startsWith('MANUAL_SPLIT:')
         ? formatManualHint(hintLabel)
         : formatGlobalHint(hintLabel);
 
       if (hasMultipleGroups && displayHint) {
-        title = `${baseName} - ${displayHint}`;
+        title = `${displayName} - ${displayHint}`;
       } else {
-        title = baseName;
+        title = displayName;
       }
     }
     // PRIORIDADE 4: Hint da IA
@@ -488,7 +505,7 @@ export interface PdfBundle {
  * Ex: "global::arquivo.pdf::1" → "arquivo.pdf"
  */
 function extractPdfBaseName(groupId: string): string | null {
-  if (groupId.startsWith('pdf::') || groupId.startsWith('global::')) {
+  if (groupId.startsWith('pdf::') || groupId.startsWith('global::') || groupId.startsWith('pdfsession::')) {
     const parts = groupId.split('::');
     return parts[1] || null;
   }
@@ -510,7 +527,7 @@ export function groupReportsByPdf(groups: ReportGroup[]): PdfBundle[] {
 
   // Primeiro, agrupa todos os grupos pelo baseName do PDF
   groups.forEach(group => {
-    const baseName = extractPdfBaseName(group.id);
+    const baseName = group.docs[0]?.pdfSessionId || extractPdfBaseName(group.id);
     if (baseName) {
       const list = pdfMap.get(baseName) || [];
       list.push(group);

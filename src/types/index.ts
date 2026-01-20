@@ -98,6 +98,8 @@ export interface AttachmentDoc {
     globalGroupId?: number; // ID do grupo definido pela análise global
     globalGroupType?: string; // Tipo de exame detectado pela análise global
     globalGroupSource?: string; // Nome do arquivo PDF de origem para agrupamento
+    pdfSessionId?: string; // Identificador único do PDF nesta sessão
+    pdfSourceName?: string; // Nome exibido do PDF de origem
     isProvisorio?: boolean; // Laudo provisório (sem valor legal)
     isAdendo?: boolean; // É errata/adendo de outro laudo
     tipoPagina?: 'laudo_previo' | 'pedido_medico' | 'assistencial' | 'administrativo' | 'pagina_vazia' | 'outro';

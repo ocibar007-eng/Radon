@@ -113,7 +113,14 @@ export function useWorkspaceActions(patient: Patient | null) {
   };
 
   // --- HELPER INTERNO ---
-  const addDocToSessionAndUpload = useCallback(async (file: File, isHeader: boolean, sourceName: string, forcedType?: DocClassification) => {
+  const addDocToSessionAndUpload = useCallback(async (
+    file: File,
+    isHeader: boolean,
+    sourceName: string,
+    forcedType?: DocClassification,
+    pdfSessionId?: string,
+    pdfSourceName?: string
+  ) => {
     const docId = crypto.randomUUID();
     const tempUrl = URL.createObjectURL(file);
     if (DEBUG_LOGS) {
@@ -134,7 +141,9 @@ export function useWorkspaceActions(patient: Patient | null) {
       source: sourceName,
       previewUrl: tempUrl,
       status: 'pending',
-      classification: forcedType ?? 'indeterminado'
+      classification: forcedType ?? 'indeterminado',
+      pdfSessionId,
+      pdfSourceName
     };
 
     if (isHeader) {
@@ -256,6 +265,8 @@ export function useWorkspaceActions(patient: Patient | null) {
           ? resolvedName
           : `${resolvedName}.pdf`;
         const baseName = displayName.replace(/\.pdf$/i, '');
+        const pdfSessionId = crypto.randomUUID();
+        const pdfSourceName = displayName;
 
         try {
           const images = await convertPdfToImages(file);
@@ -351,6 +362,8 @@ export function useWorkspaceActions(patient: Patient | null) {
                 globalGroupId: grupo?.laudo_id,
                 globalGroupType: grupo?.tipo_detectado,
                 globalGroupSource: displayName,
+                pdfSessionId,
+                pdfSourceName,
                 isProvisorio: grupo?.is_provisorio,
                 isAdendo: grupo?.is_adendo,
                 reportGroupHint: grupo
@@ -390,6 +403,8 @@ export function useWorkspaceActions(patient: Patient | null) {
                 globalGroupId: grupo.laudo_id,
                 globalGroupType: grupo.tipo_detectado,
                 globalGroupSource: displayName,
+                pdfSessionId,
+                pdfSourceName,
                 isProvisorio: grupo.is_provisorio,
                 isAdendo: grupo.is_adendo,
                 reportGroupHint: `GLOBAL:${grupo.laudo_id}|PDF:${displayName}|TIPO:${grupo.tipo_detectado}`,
@@ -412,7 +427,7 @@ export function useWorkspaceActions(patient: Patient | null) {
               }
             } else {
               // Sem análise global, usa fluxo normal
-              addDocToSessionAndUpload(pageFile, isHeader, sourceName, forcedType);
+              addDocToSessionAndUpload(pageFile, isHeader, sourceName, forcedType, pdfSessionId, pdfSourceName);
             }
           });
         } catch (err: any) {
