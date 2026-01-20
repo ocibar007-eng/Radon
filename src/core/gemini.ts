@@ -15,7 +15,7 @@ export const getGeminiClient = () => {
     const rawKey = process.env.API_KEY;
     const cleanKey = rawKey.replace(/^"|"$/g, '').trim();
 
-    console.log("🔑 Gemini Client Init. Raw:", rawKey.substring(0, 5), "Clean:", cleanKey.substring(0, 5));
+    // ⚠️ NEVER log API keys (even partially) - Google detects this as a leak
 
     aiClient = new GoogleGenAI({ apiKey: cleanKey });
   }
