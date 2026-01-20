@@ -404,11 +404,11 @@ export function groupDocsVisuals(docs: AttachmentDoc[]): ReportGroup[] {
     else if (key.startsWith('pdf::') || key.startsWith('pdfsession::')) {
       const parts = key.split('::');
       const baseName = parts[1];
-      const rawHint = parts[2];
+      const rawHint = parts[2] ?? '';
       const hasMultipleGroups = (pdfBaseNameCounts.get(baseName) || 0) > 1;
 
       // Se o PDF foi quebrado em vários exames, usamos o Hint para diferenciar no título
-      const hintLabel = (representative.reportGroupHint || '').trim() || (rawHint !== 'default' ? rawHint : '');
+      const hintLabel = ((representative.reportGroupHint || '').trim() || (rawHint !== 'default' ? rawHint : '') || '').trim();
       const displayName = getPdfDisplayName(representative) || baseName;
 
       const displayHint = hintLabel.startsWith('MANUAL_SPLIT:')
