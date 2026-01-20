@@ -62,10 +62,11 @@ export function safeJsonParse<T>(text: string, fallback: T, schema?: ZodType<T, 
       parsed = JSON.parse(extracted);
     }
 
-    // CORREÇÃO: Se a IA retornou um array quando esperávamos um objeto, pega o primeiro item
+    // CORREÇÃO: Se a IA retornou um array quando esperávamos um objeto, tenta achar o primeiro item válido
     if (Array.isArray(parsed) && parsed.length > 0 && schema) {
-      console.warn('[JSON] IA retornou array ao invés de object, pegando primeiro elemento');
-      parsed = parsed[0];
+      console.warn('[JSON] IA retornou array ao invés de object, procurando item válido');
+      const candidate = parsed.find((item) => schema.safeParse(item).success);
+      parsed = candidate ?? parsed[0];
     }
 
     if (schema) {
