@@ -74,12 +74,25 @@ function computePdfGroupingOverrides(docs: AttachmentDoc[]) {
   }>();
 
   const pageMarkers = new Map<string, PageMarkers>();
+  const docsByBase = new Map<string, AttachmentDoc[]>();
 
   docs.forEach(doc => {
     if (doc.classification !== 'laudo_previo') return;
     const baseName = getPdfGroupKeyBase(doc);
     if (!baseName) return;
+    const list = docsByBase.get(baseName) || [];
+    list.push(doc);
+    docsByBase.set(baseName, list);
+  });
 
+  const extractSourcePageNumber = (source: string): number | null => {
+    const match = source.match(/Pg\s*(\d+)/i);
+    if (!match) return null;
+    const value = Number(match[1]);
+    return Number.isFinite(value) ? value : null;
+  };
+
+  docsByBase.forEach((baseDocs, baseName) => {
     const stats = statsByBase.get(baseName) || {
       total: 0,
       ready: 0,
@@ -93,9 +106,24 @@ function computePdfGroupingOverrides(docs: AttachmentDoc[]) {
       atendimentoPagePairCount: 0
     };
 
-    stats.total += 1;
+    const orderedDocs = [...baseDocs].sort((a, b) => {
+      const pageA = extractSourcePageNumber(a.source) ?? 0;
+      const pageB = extractSourcePageNumber(b.source) ?? 0;
+      return pageA - pageB;
+    });
 
-    if (doc.status === 'done' && doc.verbatimText) {
+    let currentOs: string | undefined;
+    let currentAtendimento: string | undefined;
+    let lastPageCurrent: number | null = null;
+
+    orderedDocs.forEach(doc => {
+      stats.total += 1;
+
+      if (!(doc.status === 'done' && doc.verbatimText)) {
+        statsByBase.set(baseName, stats);
+        return;
+      }
+
       stats.ready += 1;
       const os = extractOsFromText(doc.verbatimText);
       const atendimento = extractAtendimentoDate(doc.verbatimText);
@@ -103,13 +131,29 @@ function computePdfGroupingOverrides(docs: AttachmentDoc[]) {
       const pageCurrent = pagination?.current;
       const pageTotal = pagination?.total;
 
-      if (os) {
-        stats.osValues.add(os);
+      const isPageReset = pageCurrent === 1 && lastPageCurrent !== null && lastPageCurrent > 1;
+      const isOsChange = os && currentOs && os !== currentOs;
+      const isAtendimentoChange = atendimento && currentAtendimento && atendimento !== currentAtendimento;
+      const hasExplicitBreak = isPageReset || isOsChange || isAtendimentoChange;
+
+      if (hasExplicitBreak) {
+        currentOs = os || undefined;
+        currentAtendimento = atendimento || undefined;
+      } else {
+        if (os) currentOs = os;
+        if (atendimento) currentAtendimento = atendimento;
+      }
+
+      const effectiveOs = os || currentOs;
+      const effectiveAtendimento = atendimento || currentAtendimento;
+
+      if (effectiveOs) {
+        stats.osValues.add(effectiveOs);
         stats.osCount += 1;
       }
 
-      if (atendimento) {
-        stats.dateValues.add(atendimento);
+      if (effectiveAtendimento) {
+        stats.dateValues.add(effectiveAtendimento);
         stats.dateCount += 1;
       }
 
@@ -118,15 +162,24 @@ function computePdfGroupingOverrides(docs: AttachmentDoc[]) {
         stats.pageTotalCount += 1;
       }
 
-      if (atendimento && pageTotal) {
-        stats.atendimentoPagePairs.add(`${atendimento}|${pageTotal}`);
+      if (effectiveAtendimento && pageTotal) {
+        stats.atendimentoPagePairs.add(`${effectiveAtendimento}|${pageTotal}`);
         stats.atendimentoPagePairCount += 1;
       }
 
-      if (os || atendimento || pageTotal) {
-        pageMarkers.set(doc.id, { os, atendimento, pageCurrent, pageTotal });
+      if (effectiveOs || effectiveAtendimento || pageTotal) {
+        pageMarkers.set(doc.id, {
+          os: effectiveOs,
+          atendimento: effectiveAtendimento,
+          pageCurrent,
+          pageTotal
+        });
       }
-    }
+
+      if (pageCurrent) {
+        lastPageCurrent = pageCurrent;
+      }
+    });
 
     statsByBase.set(baseName, stats);
   });
