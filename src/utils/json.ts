@@ -19,6 +19,28 @@ function cleanMarkdownJson(text: string): string {
   return text.trim();
 }
 
+function extractJsonPayload(text: string): string | null {
+  if (!text) return null;
+  const firstBrace = text.indexOf('{');
+  const firstBracket = text.indexOf('[');
+
+  let start = -1;
+  let end = -1;
+
+  if (firstBrace === -1 && firstBracket === -1) return null;
+
+  if (firstBrace !== -1 && (firstBracket === -1 || firstBrace < firstBracket)) {
+    start = firstBrace;
+    end = text.lastIndexOf('}');
+  } else {
+    start = firstBracket;
+    end = text.lastIndexOf(']');
+  }
+
+  if (start === -1 || end === -1 || end <= start) return null;
+  return text.slice(start, end + 1).trim();
+}
+
 /**
  * Tenta fazer parse do JSON e validar com Schema Zod.
  * Retorna o fallback em caso de falha grave, ou dados parciais se o Zod conseguir recuperar defaults.
@@ -29,7 +51,16 @@ function cleanMarkdownJson(text: string): string {
 export function safeJsonParse<T>(text: string, fallback: T, schema?: ZodType<T, any, any>): T {
   try {
     const cleaned = cleanMarkdownJson(text);
-    let parsed = JSON.parse(cleaned);
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(cleaned);
+    } catch (parseError) {
+      const extracted = extractJsonPayload(cleaned);
+      if (!extracted || extracted === cleaned) {
+        throw parseError;
+      }
+      parsed = JSON.parse(extracted);
+    }
 
     // CORREÇÃO: Se a IA retornou um array quando esperávamos um objeto, pega o primeiro item
     if (Array.isArray(parsed) && parsed.length > 0 && schema) {
