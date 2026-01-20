@@ -63,7 +63,14 @@ const TAB_COLORS: Partial<Record<DocClassification, { bg: string; text: string; 
     indeterminado: { bg: 'bg-zinc-500/10', text: 'text-zinc-400', border: 'border-zinc-500/20', activeBg: 'bg-zinc-500/20' }
 };
 
-export const PdfDocumentBundle: React.FC<Props> = ({ groups, onRemoveGroup, onSplitGroup, onManualGroupDocs, onReclassifyDoc }) => {
+export const PdfDocumentBundle: React.FC<Props> = ({
+    groups,
+    onRemoveGroup,
+    onSplitGroup,
+    onManualGroupDocs,
+    onReprocessGroup,
+    onReclassifyDoc
+}) => {
     const [activeGroupId, setActiveGroupId] = useState<string>(groups[0]?.id);
     const [isManualGrouping, setIsManualGrouping] = useState(false);
     const [selectedDocIds, setSelectedDocIds] = useState<Set<string>>(new Set());

@@ -18,7 +18,16 @@ interface Props {
   onReclassifyDoc?: (docId: string, newType: DocClassification) => void;
 }
 
-export const PreviousReportsTab: React.FC<Props> = ({ groups, onRemoveGroup, onSplitGroup, onManualGroupDocs, onUpload, onDropFiles, onReclassifyDoc }) => {
+export const PreviousReportsTab: React.FC<Props> = ({
+  groups,
+  onRemoveGroup,
+  onSplitGroup,
+  onManualGroupDocs,
+  onReprocessGroup,
+  onUpload,
+  onDropFiles,
+  onReclassifyDoc
+}) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isDragOver, setIsDragOver] = useState(false);
   const [showBlankPages, setShowBlankPages] = useState(false);
