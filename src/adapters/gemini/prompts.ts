@@ -198,6 +198,17 @@ Classifique em UMA das categorias:
 - Inclua todo o texto após "IMPRESSÃO:", "CONCLUSÃO:", "OPINIÃO:"
 - Preserve formatação (bullets, numeração, etc)
 
+>>> CHECKLIST DE ÓRGÃOS (NÃO OMITIR) <<<
+- Você DEVE declarar explicitamente se um órgão esperado NÃO foi citado no texto.
+- Preencha "orgaos_esperados", "orgaos_encontrados" e "orgaos_ausentes".
+- Se o texto estiver incompleto/cortado, registre o motivo em "orgaos_ausentes".
+- Use a lista abaixo como referência (escolha os órgãos compatíveis com o exame detectado):
+  * TC/RM Abdome/Pelve: Fígado, Vias Biliares, Vesícula Biliar, Pâncreas, Baço, Adrenais, Rins, Ureteres, Bexiga, Linfonodos, Vasos Abdominais, Parede Abdominal, Intestino.
+  * TC/RM Tórax: Pulmões, Pleuras, Mediastino, Coração, Grandes Vasos, Linfonodos, Parede Torácica, Estruturas Ósseas.
+  * TC/RM Crânio: Encéfalo, Ventrículos, Seios da Face, Órbitas, Calota, Linfonodos Cervicais (se citados).
+  * Coluna: Vértebras, Disco, Canal Medular, Partes Moles Paravertebrais.
+  * Outros: selecione órgãos compatíveis com o texto.
+
 REGRAS CRÍTICAS:
 - Se o texto parecer cortado ou incompleto: EXTRAIA TUDO O QUE ESTIVER DISPONÍVEL e marque documento_incompleto: true
 - NÃO inventar achados. Se não estiver no texto, não inclua.
@@ -236,6 +247,11 @@ SAÍDA JSON ESPERADA:
         "achados_literais_em_topicos": ["Texto do achado 1", "Nódulo de ***1.5 cm***..."],
         "pontos_de_comparacao": ["Destaques curtos"]
       }
+    ],
+    "orgaos_esperados": ["Fígado", "Pâncreas", "Baço"],
+    "orgaos_encontrados": ["Fígado", "Baço"],
+    "orgaos_ausentes": [
+      { "orgao": "Pâncreas", "motivo": "Não mencionado no texto" }
     ],
     "impressao_diagnostica_ou_conclusao_literal": "TEXTO INTEGRAL da impressão/conclusão, sem editar",
     "alertas_de_fidelidade": []

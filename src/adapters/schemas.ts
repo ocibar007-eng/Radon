@@ -124,6 +124,13 @@ export const StructuredReportBodySchema = z.object({
 
   achados_por_estrutura: z.array(StructuredFindingSchema).default([]),
 
+  orgaos_esperados: z.array(ResilientString).default([]),
+  orgaos_encontrados: z.array(ResilientString).default([]),
+  orgaos_ausentes: z.array(z.object({
+    orgao: ResilientString,
+    motivo: ResilientString
+  })).default([]),
+
   linfonodos: z.object({
     achados_literais_em_topicos: z.array(z.string()).default([]),
     pontos_de_comparacao: z.array(z.string()).default([]),
