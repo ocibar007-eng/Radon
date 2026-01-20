@@ -128,13 +128,38 @@ export function usePipeline() {
             ].some((k) => normalized.includes(k));
         };
 
+        const nonLaudoTypes = new Set([
+            'pedido_medico',
+            'guia_autorizacao',
+            'questionario',
+            'termo_consentimento',
+            'assistencial',
+            'administrativo'
+        ]);
+
         groups.forEach(group => {
+            const laudoDocs = group.docs.filter(d =>
+                d.classification === 'laudo_previo' ||
+                d.tipoPagina === 'laudo_previo' ||
+                isLaudoKeyword(d.globalGroupType)
+            );
+
+            if (laudoDocs.length === 0) {
+                if (DEBUG_LOGS) {
+                    console.log('[PipelineV2] Group skipped (no laudo docs):', { groupId: group.id });
+                }
+                return;
+            }
+
+            const analysisDocs = laudoDocs;
+            const analysisDocIds = analysisDocs.map(d => d.id).sort();
+
             // Usar todos os IDs ordenados como chave única do grupo
-            const groupVersion = group.docs.reduce(
+            const groupVersion = analysisDocs.reduce(
                 (acc, doc) => Math.max(acc, doc.analysisVersion ?? 0),
                 0
             );
-            const groupKey = `${group.id}::${groupVersion}::${[...group.docIds].sort().join('|')}`;
+            const groupKey = `${group.id}::laudo::${groupVersion}::${analysisDocIds.join('|')}`;
 
             if (analyzingGroupsRef.current.has(groupKey)) return;
 
@@ -142,31 +167,34 @@ export function usePipeline() {
             // 1. É um laudo prévio
             // 2. Todos os docs do grupo estão com status 'done' (OCR finalizado) e têm texto verbatim.
             // 3. Verifica se precisa de análise (isUnified=false)
-            const hasNonLaudoTypes = group.docs.some(d =>
-                ['pedido_medico', 'guia_autorizacao', 'questionario', 'termo_consentimento', 'assistencial', 'administrativo']
-                    .includes(d.classification)
-            );
-            const hasLaudoSignal = group.docs.some(d =>
-                d.classification === 'laudo_previo' ||
-                d.tipoPagina === 'laudo_previo' ||
-                isLaudoKeyword(d.globalGroupType)
-            );
-            const isLaudoGroup = hasLaudoSignal && !hasNonLaudoTypes;
-            const allPagesReady = group.docs.every(d => d.status === 'done' && d.verbatimText);
-            const needsUnifiedAnalysis = !group.docs[0].isUnified;
+            const hasNonLaudoTypes = group.docs.some(d => nonLaudoTypes.has(d.classification));
+            const allPagesReady = analysisDocs.every(d => d.status === 'done' && d.verbatimText);
+            const needsUnifiedAnalysis = analysisDocs.some(d => !d.isUnified);
 
-            if (isLaudoGroup && allPagesReady && needsUnifiedAnalysis) {
+            if (allPagesReady && needsUnifiedAnalysis) {
                 analyzingGroupsRef.current.add(groupKey);
 
-                const combinedText = group.docs
+                const combinedText = analysisDocs
                     .map((d, i) => `--- PÁGINA ${i + 1} (${d.source}) ---\n${d.verbatimText}`)
                     .join('\n\n');
 
                 if (DEBUG_LOGS) {
-                    console.log(`[PipelineV2] Auto-enqueuing group analysis for ${group.title} (${group.docs.length} pages)`);
+                    console.log('[PipelineV2] Auto-enqueuing group analysis', {
+                        groupId: group.id,
+                        pages: analysisDocs.length,
+                        hasNonLaudoTypes
+                    });
                 }
 
-                enqueue({ type: 'group_analysis', docIds: group.docIds, fullText: combinedText });
+                enqueue({ type: 'group_analysis', docIds: analysisDocIds, fullText: combinedText });
+            } else if (DEBUG_LOGS) {
+                console.log('[PipelineV2] Group analysis skipped', {
+                    groupId: group.id,
+                    pages: analysisDocs.length,
+                    allPagesReady,
+                    needsUnifiedAnalysis,
+                    hasNonLaudoTypes
+                });
             }
         });
     }, [session.docs]);
