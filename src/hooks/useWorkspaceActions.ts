@@ -851,4 +851,3 @@ export function useWorkspaceActions(patient: Patient | null) {
     handleFinalize
   };
 }
-  const reprocessingGroupsRef = useRef<Set<string>>(new Set());
