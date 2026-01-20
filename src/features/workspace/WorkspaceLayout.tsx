@@ -64,6 +64,7 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
         removeReportGroup,
         handleManualReclassify,
         handleSplitReportGroup,
+        handleManualGroupDocs,
         handleClearSession,
         handleAudioComplete,
         downloadAll,
@@ -583,6 +584,7 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
                                         groups={reportGroups}
                                         onRemoveGroup={(groupId) => removeReportGroup(groupId, reportGroups)}
                                         onSplitGroup={handleSplitReportGroup}
+                                        onManualGroupDocs={handleManualGroupDocs}
                                         onUpload={(e) => handleFileUpload(e, false, undefined)}
                                         onDropFiles={(files) => handleFilesUpload(files, false, undefined, (t) => setActiveTab(t))}
                                         onReclassifyDoc={handleManualReclassify}

@@ -542,6 +542,33 @@ export function useWorkspaceActions(patient: Patient | null) {
     });
   }, [session.docs, dispatch]);
 
+  const handleManualGroupDocs = useCallback((docIds: string[]) => {
+    if (!docIds.length) return;
+
+    const availableDocs = new Set(session.docs.map(doc => doc.id));
+    const targetIds = docIds.filter(id => availableDocs.has(id));
+    if (!targetIds.length) return;
+
+    const token = `MANUAL_GROUP:${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
+
+    targetIds.forEach((docId) => {
+      dispatch({
+        type: 'UPDATE_DOC',
+        payload: {
+          id: docId,
+          updates: {
+            reportGroupHint: token,
+            reportGroupHintSource: 'manual',
+            isUnified: false,
+            detailedAnalysis: undefined,
+            metadata: undefined,
+            summary: undefined
+          }
+        }
+      });
+    });
+  }, [session.docs, dispatch]);
+
   const handleClearSession = useCallback(() => {
     // Confirmation is now handled by ConfirmModal in UI
     dispatch({ type: 'CLEAR_SESSION' });
@@ -730,6 +757,7 @@ export function useWorkspaceActions(patient: Patient | null) {
     removeReportGroup,
     handleManualReclassify,
     handleSplitReportGroup,
+    handleManualGroupDocs,
     handleClearSession,
     handleAudioComplete,
     downloadAll,

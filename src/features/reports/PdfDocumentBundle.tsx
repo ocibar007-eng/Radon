@@ -6,15 +6,17 @@
  */
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { FileText, Layers } from 'lucide-react';
+import { Check, FileText, Layers } from 'lucide-react';
 import { ReportGroup } from '../../utils/grouping';
 import { ReportGroupCard } from './ReportGroupCard';
 import { DocClassification } from '../../types';
+import { useGallery } from '../../context/GalleryContext';
 
 interface Props {
     groups: ReportGroup[];
     onRemoveGroup: (groupId: string) => void;
     onSplitGroup?: (groupId: string, splitStartPage: number) => void;
+    onManualGroupDocs?: (docIds: string[]) => void;
     onReclassifyDoc?: (docId: string, newType: DocClassification) => void;
 }
 
@@ -60,8 +62,11 @@ const TAB_COLORS: Partial<Record<DocClassification, { bg: string; text: string; 
     indeterminado: { bg: 'bg-zinc-500/10', text: 'text-zinc-400', border: 'border-zinc-500/20', activeBg: 'bg-zinc-500/20' }
 };
 
-export const PdfDocumentBundle: React.FC<Props> = ({ groups, onRemoveGroup, onSplitGroup, onReclassifyDoc }) => {
+export const PdfDocumentBundle: React.FC<Props> = ({ groups, onRemoveGroup, onSplitGroup, onManualGroupDocs, onReclassifyDoc }) => {
     const [activeGroupId, setActiveGroupId] = useState<string>(groups[0]?.id);
+    const [isManualGrouping, setIsManualGrouping] = useState(false);
+    const [selectedDocIds, setSelectedDocIds] = useState<Set<string>>(new Set());
+    const { openGallery } = useGallery();
 
     // Ordena grupos pelo tipo de documento principal
     const sortedGroups = useMemo(() => {
@@ -125,6 +130,51 @@ export const PdfDocumentBundle: React.FC<Props> = ({ groups, onRemoveGroup, onSp
         [groups]
     );
 
+    const allDocs = useMemo(() => {
+        const unique = new Map<string, ReportGroup['docs'][number]>();
+        groups.forEach(group => {
+            group.docs.forEach(doc => {
+                if (!unique.has(doc.id)) unique.set(doc.id, doc);
+            });
+        });
+        return Array.from(unique.values()).sort((a, b) =>
+            a.source.localeCompare(b.source, undefined, { numeric: true, sensitivity: 'base' })
+        );
+    }, [groups]);
+
+    const canManualGroup = !!(groups.length > 1 && allDocs.length > 1);
+    const selectedCount = selectedDocIds.size;
+
+    const resolvePageLabel = (source: string, fallback: number) => {
+        const match = source.match(/Pg\s*(\d+)/i);
+        return match?.[1] ?? String(fallback);
+    };
+
+    const toggleDocSelection = (docId: string) => {
+        setSelectedDocIds(prev => {
+            const next = new Set(prev);
+            if (next.has(docId)) {
+                next.delete(docId);
+            } else {
+                next.add(docId);
+            }
+            return next;
+        });
+    };
+
+    const handleApplyManualGrouping = () => {
+        if (!selectedCount || !onManualGroupDocs) return;
+        onManualGroupDocs(Array.from(selectedDocIds));
+        setSelectedDocIds(new Set());
+        setIsManualGrouping(false);
+    };
+
+    useEffect(() => {
+        if (!isManualGrouping) {
+            setSelectedDocIds(new Set());
+        }
+    }, [isManualGrouping, groups]);
+
     if (!activeGroup) return null;
 
     return (
@@ -142,11 +192,90 @@ export const PdfDocumentBundle: React.FC<Props> = ({ groups, onRemoveGroup, onSp
                         </span>
                     </div>
                 </div>
-                <div className="pdf-bundle-pages">
-                    <Layers size={12} />
-                    <span>{totalDocs} pg{totalDocs > 1 ? 's' : ''}</span>
+                <div className="pdf-bundle-header-actions">
+                    {onManualGroupDocs && canManualGroup && (
+                        <button
+                            type="button"
+                            className={`pdf-bundle-action ${isManualGrouping ? 'active' : ''}`}
+                            onClick={() => setIsManualGrouping(prev => !prev)}
+                        >
+                            <Layers size={12} />
+                            <span>{isManualGrouping ? 'Fechar seleção' : 'Agrupar páginas'}</span>
+                        </button>
+                    )}
+                    <div className="pdf-bundle-pages">
+                        <Layers size={12} />
+                        <span>{totalDocs} pg{totalDocs > 1 ? 's' : ''}</span>
+                    </div>
                 </div>
             </div>
+
+            {isManualGrouping && onManualGroupDocs && canManualGroup && (
+                <div className="pdf-bundle-manual">
+                    <div className="pdf-bundle-manual-header">
+                        <div className="pdf-bundle-manual-text">
+                            <div className="pdf-bundle-manual-title">Selecione as páginas que pertencem ao mesmo laudo</div>
+                            <div className="pdf-bundle-manual-subtitle">Duplo clique abre a página. As páginas selecionadas serão reagrupadas.</div>
+                        </div>
+                        <div className="pdf-bundle-manual-actions">
+                            <button
+                                type="button"
+                                className="btn btn-sm btn-primary"
+                                disabled={!selectedCount}
+                                onClick={handleApplyManualGrouping}
+                            >
+                                Agrupar {selectedCount > 0 ? `(${selectedCount})` : ''}
+                            </button>
+                            <button
+                                type="button"
+                                className="btn btn-sm btn-ghost"
+                                disabled={!selectedCount}
+                                onClick={() => setSelectedDocIds(new Set())}
+                            >
+                                Limpar
+                            </button>
+                            <button
+                                type="button"
+                                className="btn btn-sm btn-ghost"
+                                onClick={() => setIsManualGrouping(false)}
+                            >
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                    <div className="pdf-bundle-manual-count">
+                        {selectedCount} página{selectedCount === 1 ? '' : 's'} selecionada{selectedCount === 1 ? '' : 's'}
+                    </div>
+                    <div className="pdf-bundle-thumbs">
+                        {allDocs.map((doc, idx) => {
+                            const pageLabel = resolvePageLabel(doc.source, idx + 1);
+                            const isSelected = selectedDocIds.has(doc.id);
+                            return (
+                                <button
+                                    key={doc.id}
+                                    type="button"
+                                    className={`pdf-bundle-thumb ${isSelected ? 'is-selected' : ''}`}
+                                    title={doc.source}
+                                    onClick={() => toggleDocSelection(doc.id)}
+                                    onDoubleClick={() => openGallery(allDocs, doc.id)}
+                                >
+                                    {doc.previewUrl ? (
+                                        <img src={doc.previewUrl} alt={`Página ${pageLabel}`} loading="lazy" />
+                                    ) : (
+                                        <div className="pdf-bundle-thumb-placeholder">Pg {pageLabel}</div>
+                                    )}
+                                    <span className="pdf-bundle-thumb-label">Pg {pageLabel}</span>
+                                    {isSelected && (
+                                        <span className="pdf-bundle-thumb-check">
+                                            <Check size={12} />
+                                        </span>
+                                    )}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
 
             {/* Barra de Abas - Design Premium */}
             <div className="tabs-bar flex items-center gap-1 px-3 py-2 border-b border-white/5 overflow-x-auto">

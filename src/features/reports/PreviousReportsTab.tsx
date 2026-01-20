@@ -11,12 +11,13 @@ interface Props {
   groups: ReportGroup[];
   onRemoveGroup: (groupId: string) => void;
   onSplitGroup?: (groupId: string, splitStartPage: number) => void;
+  onManualGroupDocs?: (docIds: string[]) => void;
   onUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onDropFiles?: (files: File[]) => void;
   onReclassifyDoc?: (docId: string, newType: DocClassification) => void;
 }
 
-export const PreviousReportsTab: React.FC<Props> = ({ groups, onRemoveGroup, onSplitGroup, onUpload, onDropFiles, onReclassifyDoc }) => {
+export const PreviousReportsTab: React.FC<Props> = ({ groups, onRemoveGroup, onSplitGroup, onManualGroupDocs, onUpload, onDropFiles, onReclassifyDoc }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isDragOver, setIsDragOver] = useState(false);
   const [showBlankPages, setShowBlankPages] = useState(false);
@@ -175,6 +176,7 @@ export const PreviousReportsTab: React.FC<Props> = ({ groups, onRemoveGroup, onS
                 groups={bundle.groups}
                 onRemoveGroup={onRemoveGroup}
                 onSplitGroup={onSplitGroup}
+                onManualGroupDocs={onManualGroupDocs}
                 onReclassifyDoc={onReclassifyDoc}
               />
             ) : (

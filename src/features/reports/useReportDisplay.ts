@@ -53,8 +53,13 @@ export function useReportDisplay(group: ReportGroup) {
 
   // Lógica de Origem
   const origin = analysis?.report_metadata.origem || 'Origem não detectada';
-  const originLower = origin.toLowerCase();
-  const isSabin = originLower.includes('sabin') || originLower.includes('interno');
+  const serviceOrigin = analysis?.report_metadata.servico_origem?.nome || '';
+  const originLower = `${origin} ${serviceOrigin}`.toLowerCase();
+  const isSabin = originLower.includes('sabin') ||
+    originLower.includes('interno') ||
+    originLower.includes('uba - cru') ||
+    originLower.includes('uba-cru') ||
+    originLower.includes('uba cru');
 
   const meta: ReportDisplayMeta = {
     date: analysis?.report_metadata.data_realizacao || group.date || 'Data N/A',

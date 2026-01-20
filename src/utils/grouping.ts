@@ -161,6 +161,7 @@ export interface ReportGroup {
  * Ordem de prioridade para agrupamento:
  * 1. globalGroupId (análise global de PDF) - MAIS CONFIÁVEL
  * 2. MANUAL_SPLIT (divisão manual pelo usuário)
+ * 2.5. MANUAL_GROUP (agrupamento manual pelo usuário)
  * 3. PDF source + hint da IA
  * 4. Hint forte da IA para imagens soltas
  * 5. Documento avulso (sem agrupamento)
@@ -177,13 +178,15 @@ export function groupDocsVisuals(docs: AttachmentDoc[]): ReportGroup[] {
     const hint = (doc.reportGroupHint || '').trim();
     const hasStrongHint = isStrongReportHint(hint);
     const isManualSplit = hint.startsWith('MANUAL_SPLIT:');
+    const isManualGroup = hint.startsWith('MANUAL_GROUP:');
+    const hasManualOverride = isManualSplit || isManualGroup;
     const baseName = getPdfBaseName(doc);
     const override = baseName ? pdfOverrides.get(baseName) : undefined;
     const marker = pageMarkers.get(doc.id);
 
     // PRIORIDADE 1: Agrupamento Global (análise global de PDF)
     // Este é o método mais confiável pois a IA viu todas as páginas juntas
-    if (!isManualSplit && override && marker && baseName) {
+    if (!hasManualOverride && override && marker && baseName) {
       let token: string | undefined;
       if (override === 'os') token = marker.os;
       if (override === 'atendimento') token = marker.atendimento;
@@ -201,7 +204,7 @@ export function groupDocsVisuals(docs: AttachmentDoc[]): ReportGroup[] {
       }
     }
 
-    if (doc.globalGroupId !== undefined && doc.globalGroupSource && !isManualSplit) {
+    if (doc.globalGroupId !== undefined && doc.globalGroupSource && !hasManualOverride) {
       const key = `global::${doc.globalGroupSource}::${doc.globalGroupId}`;
       const list = groups.get(key) || [];
       list.push(doc);
@@ -214,6 +217,24 @@ export function groupDocsVisuals(docs: AttachmentDoc[]): ReportGroup[] {
     if (isManualSplit && doc.source.includes('PDF Pg')) {
       const baseName = doc.source.split(' PDF Pg ')[0];
       const key = `pdf::${baseName}::${hint}`;
+      const list = groups.get(key) || [];
+      list.push(doc);
+      groups.set(key, list);
+      return;
+    }
+
+    // PRIORIDADE 2.5: Agrupamento manual pelo usuário (MANUAL_GROUP)
+    if (isManualGroup) {
+      if (doc.source.includes('PDF Pg') || doc.source.includes('.pdf Pg') || doc.source.includes('Pg ')) {
+        const baseName = doc.source.split(' Pg ')[0];
+        const key = `pdf::${baseName}::${hint}`;
+        const list = groups.get(key) || [];
+        list.push(doc);
+        groups.set(key, list);
+        return;
+      }
+
+      const key = `hint::${hint}`;
       const list = groups.get(key) || [];
       list.push(doc);
       groups.set(key, list);
