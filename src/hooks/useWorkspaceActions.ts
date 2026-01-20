@@ -1,5 +1,5 @@
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useSession } from '../context/SessionContext';
 import { usePipeline } from './usePipeline';
 import { StorageService } from '../services/storage-service';
@@ -87,6 +87,7 @@ export function useWorkspaceActions(patient: Patient | null) {
     remainingFiles?: File[];
     isHeader?: boolean;
   } | null>(null);
+  const reprocessingGroupsRef = useRef<Set<string>>(new Set());
 
   const inferGroupClassification = (rawType?: string): DocClassification | undefined => {
     if (!rawType) return undefined;
