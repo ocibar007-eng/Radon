@@ -119,9 +119,18 @@ export function usePipeline() {
     useEffect(() => {
         const groups = groupDocsVisuals(session.docs);
 
+        const isLaudoKeyword = (raw?: string) => {
+            if (!raw) return false;
+            const normalized = raw.toLowerCase();
+            return [
+                'tomografia', 'resson', 'raio x', 'radiografia', 'ultrass', 'mamografia',
+                'densitometria', 'ecografia', 'angiografia', 'pet', 'cintilografia'
+            ].some((k) => normalized.includes(k));
+        };
+
         groups.forEach(group => {
             // Usar todos os IDs ordenados como chave única do grupo
-            const groupKey = [...group.docIds].sort().join('|');
+            const groupKey = `${group.id}::${[...group.docIds].sort().join('|')}`;
 
             if (analyzingGroupsRef.current.has(groupKey)) return;
 
@@ -129,7 +138,16 @@ export function usePipeline() {
             // 1. É um laudo prévio
             // 2. Todos os docs do grupo estão com status 'done' (OCR finalizado) e têm texto verbatim.
             // 3. Verifica se precisa de análise (isUnified=false)
-            const isLaudoGroup = group.docs.every(d => d.classification === 'laudo_previo');
+            const hasNonLaudoTypes = group.docs.some(d =>
+                ['pedido_medico', 'guia_autorizacao', 'questionario', 'termo_consentimento', 'assistencial', 'administrativo']
+                    .includes(d.classification)
+            );
+            const hasLaudoSignal = group.docs.some(d =>
+                d.classification === 'laudo_previo' ||
+                d.tipoPagina === 'laudo_previo' ||
+                isLaudoKeyword(d.globalGroupType)
+            );
+            const isLaudoGroup = hasLaudoSignal && !hasNonLaudoTypes;
             const allPagesReady = group.docs.every(d => d.status === 'done' && d.verbatimText);
             const needsUnifiedAnalysis = !group.docs[0].isUnified;
 

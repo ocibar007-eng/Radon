@@ -14,10 +14,16 @@ export async function processHeader(file: File): Promise<PatientRegistrationDeta
  * Encapsula a lógica de decisão entre "Classificação Manual vs Automática".
  */
 export async function processDocument(file: File, currentDoc: AttachmentDoc): Promise<Partial<AttachmentDoc>> {
+  const forcedFromGroup = currentDoc.tipoPagina &&
+    currentDoc.tipoPagina !== 'outro' &&
+    currentDoc.tipoPagina !== 'pagina_vazia'
+    ? currentDoc.tipoPagina
+    : undefined;
   const shouldForceClassification = currentDoc.classificationSource === 'manual' && currentDoc.classification;
+  const forcedClassification = forcedFromGroup || (shouldForceClassification ? currentDoc.classification : undefined);
   // Passamos a classificação existente (se houver) para o adapter
   // Se o usuário forçou 'laudo_previo', o adapter não vai tentar adivinhar, só extrair texto.
-  const analysis = await GeminiAdapter.analyzeDocument(file, shouldForceClassification ? currentDoc.classification : undefined);
+  const analysis = await GeminiAdapter.analyzeDocument(file, forcedClassification);
 
   const isManualClassification = currentDoc.classificationSource === 'manual';
   const isManualHint = currentDoc.reportGroupHintSource === 'manual';

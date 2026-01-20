@@ -86,6 +86,29 @@ export function useWorkspaceActions(patient: Patient | null) {
     isHeader?: boolean;
   } | null>(null);
 
+  const inferGroupClassification = (rawType?: string): DocClassification | undefined => {
+    if (!rawType) return undefined;
+    const normalized = rawType.toLowerCase();
+    const keywords = [
+      'tomografia', 'resson', 'raio x', 'radiografia', 'ultrass', 'mamografia',
+      'densitometria', 'ecografia', 'angiografia', 'pet', 'cintilografia'
+    ];
+    if (keywords.some((k) => normalized.includes(k))) return 'laudo_previo';
+    return undefined;
+  };
+
+  const resolveGroupPageType = (grupo: PdfGlobalGroupingResult['grupos'][number], pageNum: number) => {
+    if (!grupo) return undefined;
+    if (grupo.paginas && grupo.tipo_paginas && grupo.tipo_paginas.length > 0) {
+      const index = grupo.paginas.indexOf(pageNum);
+      if (index >= 0) {
+        const inferred = grupo.tipo_paginas[index] as DocClassification | undefined;
+        if (inferred && inferred !== 'outro') return inferred;
+      }
+    }
+    return inferGroupClassification(grupo.tipo_detectado);
+  };
+
   // --- HELPER INTERNO ---
   const addDocToSessionAndUpload = useCallback(async (file: File, isHeader: boolean, sourceName: string, forcedType?: DocClassification) => {
     const docId = crypto.randomUUID();
@@ -308,6 +331,7 @@ export function useWorkspaceActions(patient: Patient | null) {
 
             // Encontrar o grupo desta página na análise global
             const grupo = globalGrouping?.grupos.find(g => g.paginas.includes(pageNum));
+            const resolvedPageType = grupo ? resolveGroupPageType(grupo, pageNum) : undefined;
 
             if (isBlankPage) {
               const docId = crypto.randomUUID();
@@ -359,14 +383,15 @@ export function useWorkspaceActions(patient: Patient | null) {
                 source: sourceName,
                 previewUrl: tempUrl,
                 status: 'pending',
-                classification: forcedType ?? 'indeterminado',
+                classification: forcedType ?? (resolvedPageType && resolvedPageType !== 'pagina_vazia' ? resolvedPageType : 'indeterminado'),
                 globalGroupId: grupo.laudo_id,
                 globalGroupType: grupo.tipo_detectado,
                 globalGroupSource: displayName,
                 isProvisorio: grupo.is_provisorio,
                 isAdendo: grupo.is_adendo,
                 reportGroupHint: `GLOBAL:${grupo.laudo_id}|PDF:${displayName}|TIPO:${grupo.tipo_detectado}`,
-                reportGroupHintSource: 'auto'
+                reportGroupHintSource: 'auto',
+                tipoPagina: resolvedPageType
               };
 
               dispatch({ type: 'ADD_DOC', payload: newDoc });
@@ -545,18 +570,26 @@ export function useWorkspaceActions(patient: Patient | null) {
   const handleManualGroupDocs = useCallback((docIds: string[]) => {
     if (!docIds.length) return;
 
-    const availableDocs = new Set(session.docs.map(doc => doc.id));
-    const targetIds = docIds.filter(id => availableDocs.has(id));
+    const docMap = new Map(session.docs.map(doc => [doc.id, doc]));
+    const targetIds = docIds.filter(id => docMap.has(id));
     if (!targetIds.length) return;
 
+    const selectedDocs = targetIds.map(id => docMap.get(id)!).filter(Boolean);
+    const shouldForceLaudo = selectedDocs.some(doc => doc.classification === 'laudo_previo');
     const token = `MANUAL_GROUP:${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
 
     targetIds.forEach((docId) => {
+      const currentDoc = docMap.get(docId);
+      const shouldPromote = shouldForceLaudo && currentDoc &&
+        (currentDoc.classification === 'indeterminado' || currentDoc.classification === 'outro');
+      const nextClassification = shouldPromote ? 'laudo_previo' : currentDoc?.classification;
       dispatch({
         type: 'UPDATE_DOC',
         payload: {
           id: docId,
           updates: {
+            classification: nextClassification,
+            classificationSource: shouldPromote ? 'manual' : currentDoc?.classificationSource,
             reportGroupHint: token,
             reportGroupHintSource: 'manual',
             isUnified: false,
