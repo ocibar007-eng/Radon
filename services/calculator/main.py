@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from .schemas import CalcBatch, CalcResult
-from .formulas import FORMULAS
+from schemas import CalcBatch, CalcResult
+from formulas import FORMULAS
 
 app = FastAPI(title="Radon Calculator Service")
 
