@@ -580,15 +580,16 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
 
                             {activeTab === 'reports' && (
                                 <div role="tabpanel">
-                                    <PreviousReportsTab
-                                        groups={reportGroups}
-                                        onRemoveGroup={(groupId) => removeReportGroup(groupId, reportGroups)}
-                                        onSplitGroup={handleSplitReportGroup}
-                                        onManualGroupDocs={handleManualGroupDocs}
-                                        onUpload={(e) => handleFileUpload(e, false, undefined)}
-                                        onDropFiles={(files) => handleFilesUpload(files, false, undefined, (t) => setActiveTab(t))}
-                                        onReclassifyDoc={handleManualReclassify}
-                                    />
+                    <PreviousReportsTab
+                        groups={reportGroups}
+                        onRemoveGroup={(groupId) => removeReportGroup(groupId, reportGroups)}
+                        onSplitGroup={handleSplitReportGroup}
+                        onManualGroupDocs={handleManualGroupDocs}
+                        onReprocessGroup={handleReprocessGroup}
+                        onUpload={(e) => handleFileUpload(e, false, undefined)}
+                        onDropFiles={(files) => handleFilesUpload(files, false, undefined, (t) => setActiveTab(t))}
+                        onReclassifyDoc={handleManualReclassify}
+                    />
                                 </div>
                             )}
 

@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { Check, FileText, Layers } from 'lucide-react';
+import { Check, FileText, Layers, Loader2 } from 'lucide-react';
 import { ReportGroup } from '../../utils/grouping';
 import { ReportGroupCard } from './ReportGroupCard';
 import { DocClassification } from '../../types';
@@ -17,6 +17,7 @@ interface Props {
     onRemoveGroup: (groupId: string) => void;
     onSplitGroup?: (groupId: string, splitStartPage: number) => void;
     onManualGroupDocs?: (docIds: string[]) => void;
+    onReprocessGroup?: (group: ReportGroup) => Promise<boolean>;
     onReclassifyDoc?: (docId: string, newType: DocClassification) => void;
 }
 
@@ -107,6 +108,15 @@ export const PdfDocumentBundle: React.FC<Props> = ({ groups, onRemoveGroup, onSp
         sortedGroups.find(g => g.id === activeGroupId) || sortedGroups[0],
         [sortedGroups, activeGroupId]
     );
+
+    const [isReprocessing, setIsReprocessing] = useState(false);
+
+    const handleReprocessClick = async () => {
+        if (!onReprocessGroup || !activeGroup || isReprocessing) return;
+        setIsReprocessing(true);
+        await onReprocessGroup(activeGroup);
+        setIsReprocessing(false);
+    };
 
     // Atualiza aba ativa se grupos mudarem
     useEffect(() => {
@@ -201,6 +211,21 @@ export const PdfDocumentBundle: React.FC<Props> = ({ groups, onRemoveGroup, onSp
                         >
                             <Layers size={12} />
                             <span>{isManualGrouping ? 'Fechar seleção' : 'Agrupar páginas'}</span>
+                        </button>
+                    )}
+                    {onReprocessGroup && (
+                        <button
+                            type="button"
+                            className="pdf-bundle-action"
+                            onClick={handleReprocessClick}
+                            disabled={!activeGroup || isReprocessing}
+                        >
+                            {isReprocessing ? (
+                                <Loader2 size={12} className="animate-spin" />
+                            ) : (
+                                <FileText size={12} />
+                            )}
+                            <span>{isReprocessing ? 'Processando...' : 'Reprocessar laudo'}</span>
                         </button>
                     )}
                     <div className="pdf-bundle-pages">

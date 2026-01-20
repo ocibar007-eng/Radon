@@ -5,11 +5,12 @@ import { usePipeline } from './usePipeline';
 import { StorageService } from '../services/storage-service';
 import { PatientService } from '../services/patient-service';
 import { convertPdfToImages, PdfLoadError } from '../utils/pdf';
-import { groupDocsVisuals } from '../utils/grouping';
+import { groupDocsVisuals, ReportGroup } from '../utils/grouping';
 import * as GeminiAdapter from '../adapters/gemini-prompts';
 import { AttachmentDoc, AudioJob, DocClassification, PdfGlobalGroupingResult } from '../types';
 import { Patient } from '../types/patient';
 import { SimilarityResult } from '../utils/similarity';
+import { useToast } from '../components/ui/Toast';
 
 const DEBUG_LOGS = true;
 const BLANK_PAGE_MAX_DIMENSION = 72;
@@ -64,6 +65,7 @@ async function detectBlankPage(blob: Blob): Promise<boolean> {
 export function useWorkspaceActions(patient: Patient | null) {
   const { session, dispatch } = useSession();
   const { enqueue } = usePipeline();
+  const { showToast } = useToast();
 
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
 
@@ -602,6 +604,56 @@ export function useWorkspaceActions(patient: Patient | null) {
     });
   }, [session.docs, dispatch]);
 
+  const handleReprocessGroup = useCallback(async (group: ReportGroup) => {
+    if (!group || !group.docIds.length) return false;
+    if (reprocessingGroupsRef.current.has(group.id)) {
+      showToast('Reprocessamento já está em andamento para este laudo.', 'warning');
+      return false;
+    }
+
+    const docs = group.docIds
+      .map(id => session.docs.find(doc => doc.id === id))
+      .filter(Boolean) as AttachmentDoc[];
+
+    if (docs.length === 0) return false;
+
+    if (docs.some(doc => doc.status !== 'done')) {
+      showToast('Aguarde o OCR terminar antes de reprocessar este grupo.', 'warning');
+      return false;
+    }
+
+    reprocessingGroupsRef.current.add(group.id);
+    try {
+      docs.forEach(doc => {
+        dispatch({
+          type: 'UPDATE_DOC',
+          payload: {
+            id: doc.id,
+            updates: {
+              isUnified: false,
+              detailedAnalysis: undefined,
+              summary: undefined
+            }
+          }
+        });
+      });
+
+      const combinedText = docs
+        .map((doc, idx) => `--- PÁGINA ${idx + 1} (${doc.source}) ---\n${doc.verbatimText || ''}`)
+        .join('\n\n');
+
+      showToast('Reprocessamento do laudo iniciado.', 'info');
+      enqueue({ type: 'group_analysis', docIds: docs.map(d => d.id), fullText: combinedText });
+      return true;
+    } catch (error) {
+      console.error('Erro ao reprocessar laudo:', error);
+      showToast('Erro ao reprocessar o laudo.', 'error');
+      return false;
+    } finally {
+      reprocessingGroupsRef.current.delete(group.id);
+    }
+  }, [session.docs, dispatch, enqueue, showToast]);
+
   const handleClearSession = useCallback(() => {
     // Confirmation is now handled by ConfirmModal in UI
     dispatch({ type: 'CLEAR_SESSION' });
@@ -791,9 +843,11 @@ export function useWorkspaceActions(patient: Patient | null) {
     handleManualReclassify,
     handleSplitReportGroup,
     handleManualGroupDocs,
+    handleReprocessGroup,
     handleClearSession,
     handleAudioComplete,
     downloadAll,
     handleFinalize
   };
 }
+  const reprocessingGroupsRef = useRef<Set<string>>(new Set());

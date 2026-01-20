@@ -1105,6 +1105,12 @@
   box-shadow: var(--shadow-sm);
 }
 
+.pdf-bundle-action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
 .pdf-bundle-manual {
   padding: 1rem 1.25rem;
   border-bottom: 1px dashed var(--color-border-subtle);

@@ -12,6 +12,7 @@ interface Props {
   onRemoveGroup: (groupId: string) => void;
   onSplitGroup?: (groupId: string, splitStartPage: number) => void;
   onManualGroupDocs?: (docIds: string[]) => void;
+  onReprocessGroup?: (group: ReportGroup) => Promise<boolean>;
   onUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onDropFiles?: (files: File[]) => void;
   onReclassifyDoc?: (docId: string, newType: DocClassification) => void;
@@ -177,6 +178,7 @@ export const PreviousReportsTab: React.FC<Props> = ({ groups, onRemoveGroup, onS
                 onRemoveGroup={onRemoveGroup}
                 onSplitGroup={onSplitGroup}
                 onManualGroupDocs={onManualGroupDocs}
+                onReprocessGroup={onReprocessGroup}
                 onReclassifyDoc={onReclassifyDoc}
               />
             ) : (
