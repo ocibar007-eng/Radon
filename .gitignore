@@ -26,8 +26,6 @@ dist-ssr
 .env
 
 # Python
-__pycache__/
-*.pyc
 .venv/
 venv/
 
@@ -35,3 +33,5 @@ venv/
 !services/
 !services/**
 services/calculator/venv/
+__pycache__/
+*.pyc
