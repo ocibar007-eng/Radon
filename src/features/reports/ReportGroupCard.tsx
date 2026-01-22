@@ -585,7 +585,11 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
         {/* Footer actions (View Original) - Only show if not identifying tabs (tabs have their own internal structure) */}
         {!isExpanded && isStructured && !group.docs.some(d => ['pedido_medico'].includes(d.classification)) && (
           <div className="flex justify-center mt-4 pt-4 border-t border-dashed border-subtle">
-            <button className="text-xs text-tertiary hover:text-accent flex items-center gap-1 transition-colors" onClick={() => setIsExpanded(true)}>
+            <button
+              type="button"
+              className="rcu-expand-cta"
+              onClick={() => setIsExpanded(true)}
+            >
               <FileText size={12} /> Ver Texto Original Completo
             </button>
           </div>
@@ -598,11 +602,13 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
               <h4 className="rcu-section-title flex items-center gap-2">
                 <ChevronUp size={16} /> Texto Original (Íntegra)
               </h4>
-              <div className="flex gap-3">
+              <div className="rcu-content-actions flex gap-3">
                 <button
                   type="button"
                   className={`btn-icon-sm ${copied ? 'is-copied' : ''}`}
-                  onClick={handleCopy}
+                  onClick={(event) => {
+                    handleCopy(event);
+                  }}
                   title="Copiar texto"
                 >
                   {copied ? <Check size={16} className="text-success" /> : <Copy size={16} />}
