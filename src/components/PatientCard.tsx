@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Calendar, FileText, Mic, Archive, ArrowRight, CheckCircle, Trash2 } from 'lucide-react';
+import { Calendar, FileText, Mic, Archive, ArrowRight, CheckCircle, Copy, Trash2 } from 'lucide-react';
 import { Card } from './ui/Card';
 import { Patient } from '../types/patient';
 import { Button } from './ui/Button';
@@ -16,6 +16,8 @@ interface Props {
   onFinalize?: (id: string) => void;
   isSelected?: boolean;
   onToggleSelect?: () => void;
+  onCopyOS?: (os: string) => void;
+  openButtonVariant?: 'info' | 'infoAlt';
 }
 
 export const PatientCard: React.FC<Props> = ({
@@ -25,21 +27,20 @@ export const PatientCard: React.FC<Props> = ({
   onPurge,
   onFinalize,
   isSelected = false,
-  onToggleSelect
+  onToggleSelect,
+  onCopyOS,
+  openButtonVariant
 }) => {
   const [showFinalizeConfirm, setShowFinalizeConfirm] = useState(false);
   const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
   const [showPurgeConfirm, setShowPurgeConfirm] = useState(false);
   const [isFinalizingPatient, setIsFinalizingPatient] = useState(false);
+  const hasOS = Boolean(patient.os && patient.os.trim().length > 0);
 
-  const handleCardClick = (event: React.MouseEvent<HTMLDivElement>) => {
+  const handleCardClick = () => {
     if (!onToggleSelect) {
       onOpen(patient);
-      return;
     }
-
-    if (event.detail > 1) return;
-    onToggleSelect();
   };
 
   const handleCardDoubleClick = () => {
@@ -132,7 +133,23 @@ export const PatientCard: React.FC<Props> = ({
               )}
               <h3 className="pc-name">{patient.name}</h3>
             </div>
-            <span className="pc-os">{patient.os || 'Sem OS'}</span>
+            <div className="pc-os-row">
+              <span className="pc-os">{patient.os || 'Sem OS'}</span>
+              {onCopyOS && hasOS && (
+                <button
+                  type="button"
+                  className="pc-copy-button"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onCopyOS(patient.os);
+                  }}
+                  title="Copiar OS"
+                  aria-label={`Copiar OS de ${patient.name}`}
+                >
+                  <Copy size={12} />
+                </button>
+              )}
+            </div>
           </div>
           <StatusChip status={patient.status} />
         </div>
@@ -174,7 +191,7 @@ export const PatientCard: React.FC<Props> = ({
           {canFinalize && !isArchived && (
             <Button
               size="sm"
-              variant="primary"
+              variant="success"
               onClick={handleFinalizeClick}
               title="Finalizar Exame"
             >
@@ -194,7 +211,7 @@ export const PatientCard: React.FC<Props> = ({
             </button>
           )}
 
-          <Button size="sm" variant="secondary" onClick={() => onOpen(patient)}>
+          <Button size="sm" variant={openButtonVariant ?? 'info'} onClick={() => onOpen(patient)}>
             Abrir <ArrowRight size={14} />
           </Button>
         </div>

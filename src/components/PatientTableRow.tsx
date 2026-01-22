@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Archive, ArrowRight, Calendar, CheckCircle, FileText, Mic, Trash2 } from 'lucide-react';
+import { Archive, ArrowRight, Calendar, CheckCircle, Copy, FileText, Mic, Trash2 } from 'lucide-react';
 import { Patient } from '../types/patient';
 import { StatusChip } from './StatusChip';
 import { Button } from './ui/Button';
@@ -14,6 +14,8 @@ interface Props {
   onFinalize?: (id: string) => void;
   isSelected?: boolean;
   onToggleSelect?: () => void;
+  onCopyOS?: (os: string) => void;
+  openButtonVariant?: 'info' | 'infoAlt';
 }
 
 const formatDisplayDate = (patient: Patient) => (
@@ -27,12 +29,15 @@ export const PatientTableRow: React.FC<Props> = ({
   onPurge,
   onFinalize,
   isSelected = false,
-  onToggleSelect
+  onToggleSelect,
+  onCopyOS,
+  openButtonVariant
 }) => {
   const [showFinalizeConfirm, setShowFinalizeConfirm] = useState(false);
   const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
   const [showPurgeConfirm, setShowPurgeConfirm] = useState(false);
   const [isFinalizingPatient, setIsFinalizingPatient] = useState(false);
+  const hasOS = Boolean(patient.os && patient.os.trim().length > 0);
 
   const canFinalize = patient.status !== 'done' && patient.status !== 'processing';
   const isArchived = Boolean(patient.deletedAt);
@@ -53,14 +58,10 @@ export const PatientTableRow: React.FC<Props> = ({
     setShowPurgeConfirm(true);
   };
 
-  const handleRowClick = (event: React.MouseEvent<HTMLDivElement>) => {
+  const handleRowClick = () => {
     if (!onToggleSelect) {
       onOpen(patient);
-      return;
     }
-
-    if (event.detail > 1) return;
-    onToggleSelect();
   };
 
   const handleRowDoubleClick = () => {
@@ -133,7 +134,23 @@ export const PatientTableRow: React.FC<Props> = ({
 
         <div className="pl-table-cell pl-table-patient">
           <div className="pl-table-name">{patient.name}</div>
-          <div className="pl-table-os">{patient.os || 'Sem OS'}</div>
+          <div className="pl-table-os">
+            <span>{patient.os || 'Sem OS'}</span>
+            {onCopyOS && hasOS && (
+              <button
+                type="button"
+                className="pl-copy-button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onCopyOS(patient.os);
+                }}
+                title="Copiar OS"
+                aria-label={`Copiar OS de ${patient.name}`}
+              >
+                <Copy size={12} />
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="pl-table-cell pl-table-exam">
@@ -180,7 +197,7 @@ export const PatientTableRow: React.FC<Props> = ({
           {canFinalize && !isArchived && (
             <Button
               size="sm"
-              variant="secondary"
+              variant="success"
               onClick={handleFinalizeClick}
               isLoading={isFinalizingPatient}
               title="Finalizar Exame"
@@ -202,7 +219,7 @@ export const PatientTableRow: React.FC<Props> = ({
             </Button>
           )}
 
-          <Button size="sm" variant="ghost" onClick={() => onOpen(patient)}>
+          <Button size="sm" variant={openButtonVariant ?? 'info'} onClick={() => onOpen(patient)}>
             Abrir <ArrowRight size={14} />
           </Button>
         </div>

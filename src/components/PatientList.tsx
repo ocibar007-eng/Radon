@@ -342,6 +342,39 @@ export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) 
     }
   }, [archivePatient, selectedIds, showToast]);
 
+  const handleCopyOS = useCallback(async (os: string) => {
+    const trimmed = os.trim();
+    if (!trimmed) {
+      showToast('OS indisponível para copiar.', 'warning');
+      return;
+    }
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(trimmed);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = trimmed;
+        textarea.style.position = 'fixed';
+        textarea.style.top = '0';
+        textarea.style.left = '0';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        const ok = document.execCommand('copy');
+        document.body.removeChild(textarea);
+        if (!ok) {
+          throw new Error('Falha ao copiar OS');
+        }
+      }
+      showToast('OS copiada para a área de transferência.', 'success');
+    } catch (error) {
+      console.error('Erro ao copiar OS:', error);
+      showToast('Não foi possível copiar a OS.', 'error');
+    }
+  }, [showToast]);
+
   const handlePurgePatient = useCallback(async (id: string) => {
     try {
       await purgePatient(id);
@@ -535,6 +568,8 @@ export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) 
               onFinalize={() => refresh()}
               isSelected={enableSelection ? selectedIds.has(p.id) : false}
               onToggleSelect={enableSelection ? () => handleToggleSelect(p.id) : undefined}
+              onCopyOS={handleCopyOS}
+              openButtonVariant="infoAlt"
             />
           ))}
         </div>
@@ -575,6 +610,8 @@ export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) 
                 onFinalize={() => refresh()}
                 isSelected={enableSelection ? selectedIds.has(p.id) : false}
                 onToggleSelect={enableSelection ? () => handleToggleSelect(p.id) : undefined}
+                onCopyOS={handleCopyOS}
+                openButtonVariant="infoAlt"
               />
             ))}
           </div>

@@ -445,17 +445,17 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
                     </button>
 
                     {patient && patient.status !== 'done' ? (
-                        <Button variant="primary" onClick={() => setShowFinalizeConfirm(true)}>
+                        <Button variant="success" onClick={() => setShowFinalizeConfirm(true)}>
                             <CheckCircle size={16} />
                             Finalizar
                         </Button>
                     ) : patient && patient.status === 'done' ? (
                         <Button
-                            variant="secondary"
-                            className="border-green-500/50 text-green-400 bg-green-500/10 cursor-default"
+                            variant="success"
                             disabled
+                            className="disabled:opacity-100 disabled:cursor-default"
                         >
-                            <CheckCircle size={16} className="text-green-400" />
+                            <CheckCircle size={16} />
                             Finalizado
                         </Button>
                     ) : null}

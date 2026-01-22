@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'info' | 'infoAlt' | 'success';
   size?: 'sm' | 'md' | 'lg';
   isLoading?: boolean;
   leftIcon?: React.ReactNode;
@@ -32,6 +32,24 @@ const variantClasses = {
     text-white font-semibold
     hover:from-red-400 hover:to-red-500
     shadow-lg shadow-red-500/20
+  `,
+  info: `
+    bg-[#2f6db3] text-white font-semibold
+    hover:bg-[#2a63a4]
+    border border-[#2f6db3]
+    shadow-sm
+  `,
+  infoAlt: `
+    bg-[#1c4f80] text-white font-semibold
+    hover:bg-[#18466f]
+    border border-[#1c4f80]
+    shadow-sm
+  `,
+  success: `
+    bg-[#1f6d46] text-white font-semibold
+    hover:bg-[#1b603e]
+    border border-[#1f6d46]
+    shadow-sm
   `
 };
 
@@ -47,7 +65,22 @@ const variantClassesLight = {
     hover:bg-zinc-100
     text-zinc-600 hover:text-zinc-900
   `,
-  danger: variantClasses.danger
+  danger: variantClasses.danger,
+  info: `
+    bg-[#2f6db3] text-white font-semibold
+    hover:bg-[#2a63a4]
+    border border-[#2f6db3]
+  `,
+  infoAlt: `
+    bg-[#1c4f80] text-white font-semibold
+    hover:bg-[#18466f]
+    border border-[#1c4f80]
+  `,
+  success: `
+    bg-[#1f6d46] text-white font-semibold
+    hover:bg-[#1b603e]
+    border border-[#1f6d46]
+  `
 };
 
 const sizeClasses = {

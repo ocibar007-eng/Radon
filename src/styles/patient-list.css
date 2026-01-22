@@ -355,6 +355,9 @@
 }
 
 .pl-table-os {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   font-family: var(--font-mono);
   font-size: 0.72rem;
   color: var(--color-text-muted);
@@ -465,6 +468,46 @@
   border-radius: 4px;
   align-self: flex-start;
   border: 1px solid var(--color-border-default);
+}
+
+.pc-os-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  align-self: flex-start;
+}
+
+.pl-copy-button,
+.pc-copy-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pl-copy-button:hover,
+.pc-copy-button:hover {
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-default);
+}
+
+.pl-copy-button:active,
+.pc-copy-button:active {
+  transform: translateY(1px);
+}
+
+.pl-copy-button:disabled,
+.pc-copy-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .pc-meta {
