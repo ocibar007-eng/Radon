@@ -50,6 +50,9 @@ const variantClasses = {
     hover:bg-[#1b603e]
     border border-[#1f6d46]
     shadow-sm
+    disabled:bg-[#0f3f2a]
+    disabled:border-[#0f3f2a]
+    disabled:text-[#b6dec6]
   `
 };
 
@@ -80,6 +83,9 @@ const variantClassesLight = {
     bg-[#1f6d46] text-white font-semibold
     hover:bg-[#1b603e]
     border border-[#1f6d46]
+    disabled:bg-[#0f3f2a]
+    disabled:border-[#0f3f2a]
+    disabled:text-[#b6dec6]
   `
 };
 

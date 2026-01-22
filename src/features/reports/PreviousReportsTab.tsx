@@ -1,11 +1,30 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Search, UploadCloud } from 'lucide-react';
 import { ReportGroupCard } from './ReportGroupCard';
 import { PdfDocumentBundle } from './PdfDocumentBundle';
 import { ReportGroup, groupReportsByPdf } from '../../utils/grouping';
 import { Button } from '../../components/ui/Button';
 import { DocClassification } from '../../types';
+
+const DOC_TYPE_TABS: Array<{ id: string; label: string; types?: DocClassification[] }> = [
+  { id: 'laudo_previo', label: 'Laudo Prévio', types: ['laudo_previo'] },
+  { id: 'pedido_medico', label: 'Pedido Médico', types: ['pedido_medico'] },
+  { id: 'questionario', label: 'Questionário', types: ['questionario'] },
+  { id: 'termo_consentimento', label: 'Termo', types: ['termo_consentimento'] },
+  { id: 'assistencial', label: 'Anotação Clínica', types: ['assistencial'] },
+  { id: 'guia_autorizacao', label: 'Guia/Autorização', types: ['guia_autorizacao'] },
+  {
+    id: 'outros',
+    label: 'Outros',
+    types: ['administrativo', 'outro', 'pagina_vazia', 'indeterminado']
+  }
+];
+
+const resolveGroupClassification = (group: ReportGroup): DocClassification => {
+  const preferred = group.docs.find(doc => doc.classification && doc.classification !== 'pagina_vazia');
+  return (preferred?.classification ?? group.docs[0]?.classification ?? 'indeterminado') as DocClassification;
+};
 
 interface Props {
   groups: ReportGroup[];
@@ -31,6 +50,7 @@ export const PreviousReportsTab: React.FC<Props> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [isDragOver, setIsDragOver] = useState(false);
   const [showBlankPages, setShowBlankPages] = useState(false);
+  const [activeDocTab, setActiveDocTab] = useState('laudo_previo');
 
   const isFileDragEvent = (event: React.DragEvent<HTMLDivElement>) => {
     const types = event.dataTransfer?.types;
@@ -92,6 +112,47 @@ export const PreviousReportsTab: React.FC<Props> = ({
   );
 
   const groupedBundles = useMemo(() => groupReportsByPdf(visibleGroups), [visibleGroups]);
+  const flattenedGroups = useMemo(
+    () => groupedBundles.flatMap(bundle => bundle.groups),
+    [groupedBundles]
+  );
+
+  const docTabCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    DOC_TYPE_TABS.forEach(tab => {
+      counts[tab.id] = 0;
+    });
+    flattenedGroups.forEach(group => {
+      const classification = resolveGroupClassification(group);
+      DOC_TYPE_TABS.forEach(tab => {
+        if (!tab.types) return;
+        if (tab.types.includes(classification)) {
+          counts[tab.id] += 1;
+        }
+      });
+    });
+    return counts;
+  }, [flattenedGroups]);
+
+  const activeTab = DOC_TYPE_TABS.find(tab => tab.id === activeDocTab) ?? DOC_TYPE_TABS[0];
+
+  const displayBundles = useMemo(() => {
+    return groupedBundles
+      .map(bundle => {
+        const filteredGroups = bundle.groups.filter(group =>
+          activeTab.types?.includes(resolveGroupClassification(group))
+        );
+        if (filteredGroups.length === 0) return null;
+        return { ...bundle, groups: filteredGroups };
+      })
+      .filter((bundle): bundle is (typeof groupedBundles)[number] => Boolean(bundle));
+  }, [activeTab.types, groupedBundles]);
+
+  const emptyMessage = useMemo(() => {
+    if (searchTerm) return 'Nenhum documento encontrado para sua busca.';
+    if (activeTab.types) return `Nenhum documento em "${activeTab.label}".`;
+    return 'Nenhum documento clínico identificado.';
+  }, [activeTab.label, activeTab.types, searchTerm]);
 
   const stats = useMemo(() => {
     const documents = visibleGroups.reduce((acc, group) => acc + group.docs.length, 0);
@@ -171,16 +232,33 @@ export const PreviousReportsTab: React.FC<Props> = ({
         </label>
       </div>
 
+      <div className="reports-type-tabs" role="tablist" aria-label="Tipos de documentos clínicos">
+        {DOC_TYPE_TABS.map(tab => {
+          const isActive = tab.id === activeTab.id;
+          const count = docTabCounts[tab.id] ?? 0;
+
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              className={`reports-type-tab ${isActive ? 'active' : ''} ${count === 0 ? 'is-empty' : ''}`}
+              onClick={() => setActiveDocTab(tab.id)}
+            >
+              <span>{tab.label}</span>
+              <span className="reports-type-count">{count}</span>
+            </button>
+          );
+        })}
+      </div>
+
       <div className="reports-grid">
-        {visibleGroups.length === 0 ? (
-          <div className="empty-state">
-            {searchTerm ? 'Nenhum documento encontrado para sua busca.' : 'Nenhum documento clínico identificado.'}
-          </div>
+        {displayBundles.length === 0 ? (
+          <div className="empty-state">{emptyMessage}</div>
         ) : (
-          // Agrupa ReportGroups do mesmo PDF para exibir com abas
-          groupedBundles.map(bundle =>
+          displayBundles.map(bundle =>
             bundle.groups.length > 1 ? (
-              // Bundle com múltiplos tipos → Renderiza com abas
               <PdfDocumentBundle
                 key={bundle.pdfBaseName || bundle.groups[0].id}
                 groups={bundle.groups}
@@ -191,7 +269,6 @@ export const PreviousReportsTab: React.FC<Props> = ({
                 onReclassifyDoc={onReclassifyDoc}
               />
             ) : (
-              // Grupo solo → Renderiza card normal (preserva comportamento existente)
               <ReportGroupCard
                 key={bundle.groups[0].id}
                 group={bundle.groups[0]}

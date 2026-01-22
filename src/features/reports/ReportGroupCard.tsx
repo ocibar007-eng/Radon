@@ -30,6 +30,7 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
   const [isSplitMode, setIsSplitMode] = useState(false);
   const [splitStartPage, setSplitStartPage] = useState(2);
   const [dragTarget, setDragTarget] = useState<'left' | 'right' | null>(null);
+  const [isVerbatimExpanded, setIsVerbatimExpanded] = useState(false);
 
   // Custom Hook: Lógica de Dados e Visualização
   const {
@@ -133,7 +134,14 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
   useEffect(() => {
     setSplitStartPage(2);
     setIsSplitMode(false);
+    setIsVerbatimExpanded(false);
   }, [group.id]);
+
+  useEffect(() => {
+    if (!isExpanded) {
+      setIsVerbatimExpanded(false);
+    }
+  }, [isExpanded]);
 
   const handleCopy = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -505,7 +513,7 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
           // Se tiver Laudo + Outros, usa o sistema de Abas
           if (hasAdaptive && hasLaudo) {
             return (
-              <div className="h-[500px] border-t border-white/5">
+              <div className="border-t border-white/5">
                 <MultiDocumentTabs
                   docs={group.docs}
                   mode={isEmbedded ? 'stack' : 'tabs'}
@@ -540,7 +548,7 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
 
           if (isAdaptiveType) {
             return (
-              <div className="h-[500px] border-t border-white/5">
+              <div className="border-t border-white/5">
                 <MultiDocumentTabs
                   docs={group.docs}
                   mode={isEmbedded ? 'stack' : 'tabs'}
@@ -591,17 +599,41 @@ export const ReportGroupCard: React.FC<Props> = ({ group, onRemove, onSplitGroup
                 <ChevronUp size={16} /> Texto Original (Íntegra)
               </h4>
               <div className="flex gap-3">
-                <button className="btn-icon-sm flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-surface-elevated transition-colors" onClick={handleCopy} title="Copiar texto">
+                <button
+                  type="button"
+                  className={`btn-icon-sm ${copied ? 'is-copied' : ''}`}
+                  onClick={handleCopy}
+                  title="Copiar texto"
+                >
                   {copied ? <Check size={16} className="text-success" /> : <Copy size={16} />}
                   <span className="text-sm">{copied ? 'Copiado' : 'Copiar'}</span>
                 </button>
-                <button className="btn-icon-sm flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-surface-elevated transition-colors" onClick={() => openGallery(group.docs, unifiedDoc.id)} title="Ver Imagens Originais">
+                <button
+                  type="button"
+                  className="btn-icon-sm"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    openGallery(group.docs, unifiedDoc.id);
+                  }}
+                  title="Ver Imagens Originais"
+                >
                   <FileText size={16} />
                   <span className="text-sm">Original</span>
                 </button>
               </div>
             </div>
-            <div className="rcu-verbatim-box scroll-thin">{plainText}</div>
+            <div className={`rcu-verbatim-box ${isVerbatimExpanded ? 'is-expanded' : 'is-collapsed'}`}>
+              {plainText}
+            </div>
+            {plainText.length > 1200 && (
+              <button
+                type="button"
+                className="rcu-verbatim-toggle"
+                onClick={() => setIsVerbatimExpanded((prev) => !prev)}
+              >
+                {isVerbatimExpanded ? 'Mostrar menos' : 'Mostrar mais'}
+              </button>
+            )}
           </div>
         )}
       </div>

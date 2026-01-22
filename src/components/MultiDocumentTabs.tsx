@@ -175,7 +175,7 @@ export const MultiDocumentTabs: React.FC<Props> = ({
             )}
 
             {/* Content Body */}
-            <div className={`flex-1 overflow-y-auto min-h-[300px] relative ${mode === 'stack' ? 'bg-transparent' : 'bg-zinc-900/30'}`}>
+            <div className={`relative ${mode === 'stack' ? 'bg-transparent' : 'bg-zinc-900/30'}`}>
                 {mode === 'stack' ? (
                     <div className="multi-doc-stack">
                         {sortedDocs.map((doc) => {
