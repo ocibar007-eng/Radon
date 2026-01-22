@@ -568,14 +568,6 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
                                         patientRecord={patient}
                                         isProcessing={isDocsProcessing}
                                     />
-                                    <DocumentGallery
-                                        docs={session.docs}
-                                        reportGroups={reportGroups}
-                                        onUpload={(e, type) => handleFileUpload(e, false, type, (t) => setActiveTab(t))}
-                                        onDropFiles={(files, target) => handleFilesUpload(files, false, target, (t) => setActiveTab(t))}
-                                        onRemoveDoc={removeDoc}
-                                        onReclassifyDoc={handleManualReclassify}
-                                    />
                                 </div>
                             )}
 
@@ -611,7 +603,16 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
                 </div>
 
                 {/* SIDEBAR */}
-                <AudioJobsPanel jobs={session.audioJobs} />
+                <AudioJobsPanel jobs={session.audioJobs}>
+                    <DocumentGallery
+                        docs={session.docs}
+                        reportGroups={reportGroups}
+                        onUpload={(e, type) => handleFileUpload(e, false, type, (t) => setActiveTab(t))}
+                        onDropFiles={(files, target) => handleFilesUpload(files, false, target, (t) => setActiveTab(t))}
+                        onRemoveDoc={removeDoc}
+                        onReclassifyDoc={handleManualReclassify}
+                    />
+                </AudioJobsPanel>
             </div>
 
             {/* Confirmation Modal for Clear Session */}

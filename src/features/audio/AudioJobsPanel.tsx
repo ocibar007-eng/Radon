@@ -6,9 +6,10 @@ import { Mic, Clock, FileText, Download } from 'lucide-react';
 
 interface Props {
   jobs: AudioJob[];
+  children?: React.ReactNode;
 }
 
-export const AudioJobsPanel: React.FC<Props> = ({ jobs }) => {
+export const AudioJobsPanel: React.FC<Props> = ({ jobs, children }) => {
   return (
     <aside className="sidebar">
       <h2 className="section-title">
@@ -92,6 +93,8 @@ export const AudioJobsPanel: React.FC<Props> = ({ jobs }) => {
           </Card>
         ))}
       </div>
+
+      {children}
     </aside>
   );
 };
