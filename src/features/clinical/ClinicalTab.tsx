@@ -4,6 +4,7 @@ import { MarkdownRenderer } from '../../components/MarkdownRenderer';
 import { ClinicalSummary, PatientRegistrationDetails } from '../../types';
 import type { Patient } from '../../types/patient';
 import { Link2, FileText } from 'lucide-react';
+import { formatDateBR } from '../../utils/date';
 
 interface Props {
   markdown: string;
@@ -252,7 +253,7 @@ const ClinicalSummaryStructured: React.FC<{
     },
     {
       label: 'Data/Hora',
-      value: formatValue(examDate.value),
+      value: formatValue(formatDateBR(examDate.value)),
       isDivergent: examDate.isDivergent
     },
     {

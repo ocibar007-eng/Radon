@@ -1056,7 +1056,7 @@
   font-family: var(--font-mono);
   font-size: 0.8rem;
   line-height: 1.6;
-  color: var(--color-text-secondary);
+  color: rgba(244, 244, 245, 0.82);
   white-space: pre-wrap;
   position: relative;
 }

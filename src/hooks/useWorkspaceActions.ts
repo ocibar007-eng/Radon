@@ -791,6 +791,19 @@ export function useWorkspaceActions(patient: Patient | null) {
     }
   }, [dispatch, enqueue, patient, session]);
 
+  const removeAudioJob = useCallback((jobId: string) => {
+    const job = session.audioJobs.find((item) => item.id === jobId);
+    if (!job) return;
+
+    if (job.storageUrl) {
+      StorageService.deleteFileByUrl(job.storageUrl).catch((error) => {
+        console.warn('[StorageService] Audio delete failed', error);
+      });
+    }
+
+    dispatch({ type: 'REMOVE_AUDIO_JOB', payload: jobId });
+  }, [dispatch, session.audioJobs]);
+
   const downloadAll = useCallback(async (ocrData?: { batchName: string; jsonResult: any }) => {
     setIsGeneratingReport(true);
     try {
@@ -945,6 +958,7 @@ export function useWorkspaceActions(patient: Patient | null) {
     handleReprocessGroup,
     handleClearSession,
     handleAudioComplete,
+    removeAudioJob,
     downloadAll,
     handleFinalize
   };

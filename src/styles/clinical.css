@@ -54,7 +54,7 @@
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--color-text-muted);
+  color: var(--color-text-secondary);
   font-weight: 700;
 }
 
@@ -114,8 +114,8 @@
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--color-text-muted);
-  opacity: 0.8;
+  color: var(--color-text-secondary);
+  opacity: 0.92;
 }
 
 .clinical-kv-value {
@@ -149,8 +149,9 @@
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--color-text-muted);
+  color: var(--color-text-secondary);
   font-weight: 600;
+  opacity: 0.92;
   white-space: normal;
   overflow-wrap: anywhere;
   word-break: break-word;
@@ -255,7 +256,7 @@
 .clinical-summary-line {
   margin: 0;
   font-size: 0.95rem;
-  color: var(--color-text-secondary);
+  color: rgba(244, 244, 245, 0.82);
   line-height: 1.5;
   overflow-wrap: anywhere;
   word-break: break-word;
@@ -270,7 +271,7 @@
 .clinical-request-line {
   margin: 0;
   font-size: 0.9rem;
-  color: var(--color-text-secondary);
+  color: rgba(244, 244, 245, 0.82);
   line-height: 1.5;
   white-space: pre-wrap;
   overflow-wrap: anywhere;

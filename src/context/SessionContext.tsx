@@ -15,6 +15,7 @@ type SessionAction =
   | { type: 'REMOVE_DOC'; payload: string }
   | { type: 'ADD_AUDIO_JOB'; payload: AudioJob }
   | { type: 'UPDATE_AUDIO_JOB'; payload: { id: string; updates: Partial<AudioJob> } }
+  | { type: 'REMOVE_AUDIO_JOB'; payload: string }
   | { type: 'SET_CLINICAL_MARKDOWN'; payload: { markdown: string; data?: ClinicalSummary } }
   | { type: 'SET_CHECKLIST'; payload: { markdown: string; data?: RadiologyChecklist } }
   | { type: 'SET_CHECKLIST_QUERY'; payload: string };
@@ -85,6 +86,8 @@ function sessionReducer(state: AppSession, action: SessionAction): AppSession {
           j.id === action.payload.id ? { ...j, ...action.payload.updates } : j
         )
       };
+    case 'REMOVE_AUDIO_JOB':
+      return { ...state, audioJobs: state.audioJobs.filter(j => j.id !== action.payload) };
 
     case 'SET_CLINICAL_MARKDOWN':
       return {

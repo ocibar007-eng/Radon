@@ -68,6 +68,7 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
         handleReprocessGroup,
         handleClearSession,
         handleAudioComplete,
+        removeAudioJob,
         downloadAll,
         handleFinalize
     } = useWorkspaceActions(patient);
@@ -603,7 +604,7 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
                 </div>
 
                 {/* SIDEBAR */}
-                <AudioJobsPanel jobs={session.audioJobs}>
+                <AudioJobsPanel jobs={session.audioJobs} onRemoveAudio={removeAudioJob}>
                     <DocumentGallery
                         docs={session.docs}
                         reportGroups={reportGroups}

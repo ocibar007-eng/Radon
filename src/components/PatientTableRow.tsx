@@ -5,6 +5,7 @@ import { StatusChip } from './StatusChip';
 import { Button } from './ui/Button';
 import { ConfirmModal } from './ui/ConfirmModal';
 import { PatientService } from '../services/patient-service';
+import { formatDateBR } from '../utils/date';
 
 interface Props {
   patient: Patient;
@@ -156,7 +157,7 @@ export const PatientTableRow: React.FC<Props> = ({
         <div className="pl-table-cell pl-table-exam">
           <div className="pl-table-exam-type">{patient.examType || 'Exame Geral'}</div>
           {patient.examDate && patient.examDate.trim().length > 0 && (
-            <div className="pl-table-exam-date">Exame: {patient.examDate}</div>
+            <div className="pl-table-exam-date">Exame: {formatDateBR(patient.examDate)}</div>
           )}
         </div>
 

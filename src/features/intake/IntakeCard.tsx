@@ -4,6 +4,7 @@ import { Card } from '../../components/ui/Card';
 import { PatientRegistrationDetails, AttachmentDoc } from '../../types';
 import type { Patient } from '../../types/patient';
 import { User, Calendar, Activity, UploadCloud, Hash } from 'lucide-react';
+import { formatDateBR } from '../../utils/date';
 
 interface Props {
   data: PatientRegistrationDetails | null;
@@ -15,7 +16,8 @@ export const IntakeCard: React.FC<Props> = ({ data, headerDoc, patientRecord }) 
   const displayName = patientRecord?.name || data?.paciente?.valor || 'Paciente não identificado';
   const displayOs = patientRecord?.os || data?.os?.valor || 'N/A';
   const displayExam = data?.tipo_exame?.valor || patientRecord?.examType || 'N/A';
-  const displayDate = data?.data_exame?.valor || patientRecord?.examDate || 'N/A';
+  const rawDate = data?.data_exame?.valor || patientRecord?.examDate || '';
+  const displayDate = rawDate ? formatDateBR(rawDate) : 'N/A';
   // Empty State (Upload Area)
   if (!data && !headerDoc) {
     return (

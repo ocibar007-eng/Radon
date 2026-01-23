@@ -80,6 +80,22 @@ export const StorageService = {
     }
   },
 
+  async deleteFileByUrl(url: string) {
+    if (!storage || !url) return;
+
+    try {
+      const fileRef = ref(storage, url);
+      await deleteObject(fileRef);
+    } catch (error: any) {
+      const code = error?.code;
+      const isNotFound = code === 'storage/object-not-found' || code === 'storage/path-not-found';
+      if (!isNotFound) {
+        console.error('[StorageService] Error deleting file:', error);
+        throw error;
+      }
+    }
+  },
+
   /**
    * Upload file to Firebase Storage
    * @param patientId - Patient ID for folder organization
