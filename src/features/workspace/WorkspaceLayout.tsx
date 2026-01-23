@@ -93,6 +93,8 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
     const sessionRef = useRef(session);
     const firebaseActive = isFirebaseEnabled();
     const now = useNow(1000);
+    const headerOs = patient?.os || session.patient?.os?.valor || '';
+    const headerExamType = session.patient?.tipo_exame?.valor || patient?.examType || '';
 
     useEffect(() => {
         sessionRef.current = session;
@@ -428,7 +430,8 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
                         <h1 className="header-title">
                             {patient ? patient.name : <span>Novo</span>} <span>Workspace</span>
                         </h1>
-                        {patient && <span className="text-muted text-xs font-mono">{patient.os}</span>}
+                        {headerExamType && <div className="header-exam-type">{headerExamType}</div>}
+                        {headerOs && <div className="header-meta">{headerOs}</div>}
                     </div>
                 </div>
 

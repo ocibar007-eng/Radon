@@ -149,6 +149,21 @@
   font-size: 1.25rem;
 }
 
+.header-exam-type {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-top: 0.25rem;
+  letter-spacing: -0.01em;
+}
+
+.header-meta {
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  color: var(--color-text-muted);
+  margin-top: 0.15rem;
+}
+
 .header-actions {
   display: flex;
   gap: 0.75rem;

@@ -247,6 +247,44 @@
   color: var(--color-text-primary);
 }
 
+.intake-meta-value--action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.intake-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 6px;
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.intake-copy-btn:hover:not(:disabled) {
+  background: var(--color-bg-elevated);
+  border-color: var(--color-border-strong);
+  color: var(--color-text-primary);
+}
+
+.intake-copy-btn.is-copied {
+  background: rgba(59, 130, 246, 0.18);
+  border-color: rgba(59, 130, 246, 0.55);
+  color: var(--color-text-primary);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+.intake-copy-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .intake-meta-value--accent {
   color: var(--color-accent-primary);
 }

@@ -1,9 +1,9 @@
 
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Card } from '../../components/ui/Card';
 import { PatientRegistrationDetails, AttachmentDoc } from '../../types';
 import type { Patient } from '../../types/patient';
-import { User, Calendar, Activity, UploadCloud, Hash } from 'lucide-react';
+import { User, Calendar, UploadCloud, Hash, Activity, Copy } from 'lucide-react';
 import { formatDateBR } from '../../utils/date';
 
 interface Props {
@@ -18,6 +18,50 @@ export const IntakeCard: React.FC<Props> = ({ data, headerDoc, patientRecord }) 
   const displayExam = data?.tipo_exame?.valor || patientRecord?.examType || 'N/A';
   const rawDate = data?.data_exame?.valor || patientRecord?.examDate || '';
   const displayDate = rawDate ? formatDateBR(rawDate) : 'N/A';
+  const canCopyOs = !!displayOs && displayOs !== 'N/A';
+  const [hasCopied, setHasCopied] = useState(false);
+  const copyTimeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current) {
+        window.clearTimeout(copyTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const markCopied = () => {
+    setHasCopied(true);
+    if (copyTimeoutRef.current) {
+      window.clearTimeout(copyTimeoutRef.current);
+    }
+    copyTimeoutRef.current = window.setTimeout(() => {
+      setHasCopied(false);
+      copyTimeoutRef.current = null;
+    }, 2000);
+  };
+
+  const handleCopyOs = async () => {
+    if (!canCopyOs) return;
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(displayOs);
+        markCopied();
+        return;
+      }
+      const textarea = document.createElement('textarea');
+      textarea.value = displayOs;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      const didCopy = document.execCommand('copy');
+      textarea.remove();
+      if (didCopy) markCopied();
+    } catch (error) {
+      console.warn('Falha ao copiar OS', error);
+    }
+  };
   // Empty State (Upload Area)
   if (!data && !headerDoc) {
     return (
@@ -30,22 +74,18 @@ export const IntakeCard: React.FC<Props> = ({ data, headerDoc, patientRecord }) 
 
   return (
     <Card className="intake-card p-0 flex flex-row h-auto min-h-[8rem] border-subtle bg-surface">
-      {/* Coluna 1: Imagem (Thumbnail) - Agora com fundo Slate e não Preto */}
-      <div className="intake-header-image group cursor-pointer">
-        {headerDoc ? (
+      {/* Coluna 1: Imagem (Thumbnail) */}
+      {headerDoc ? (
+        <div className="intake-header-image group cursor-pointer">
           <img
             src={headerDoc.previewUrl}
             alt="Header"
             className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
           />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-tertiary">
-            <Activity size={24} className="opacity-20" />
-          </div>
-        )}
-        {/* Overlay sutil para integração */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[var(--border-subtle)] opacity-10 pointer-events-none" />
-      </div>
+          {/* Overlay sutil para integração */}
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[var(--border-subtle)] opacity-10 pointer-events-none" />
+        </div>
+      ) : null}
 
       {/* Coluna 2: Dados (Grid) */}
       <div className="intake-body">
@@ -81,8 +121,18 @@ export const IntakeCard: React.FC<Props> = ({ data, headerDoc, patientRecord }) 
                 <span className="intake-meta-label">
                   <Hash size={10} /> OS / Pedido
                 </span>
-                <span className="intake-meta-value" title={displayOs}>
+                <span className="intake-meta-value intake-meta-value--action" title={displayOs}>
                   {displayOs}
+                  <button
+                    type="button"
+                    className={`intake-copy-btn ${hasCopied ? 'is-copied' : ''}`}
+                    onClick={handleCopyOs}
+                    disabled={!canCopyOs}
+                    title="Copiar OS/Pedido"
+                    aria-label="Copiar OS/Pedido"
+                  >
+                    <Copy size={12} />
+                  </button>
                 </span>
               </div>
             </div>

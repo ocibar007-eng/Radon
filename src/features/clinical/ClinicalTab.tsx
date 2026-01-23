@@ -1,9 +1,23 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { MarkdownRenderer } from '../../components/MarkdownRenderer';
 import { ClinicalSummary, PatientRegistrationDetails } from '../../types';
 import type { Patient } from '../../types/patient';
-import { Link2, FileText } from 'lucide-react';
+import {
+  Activity,
+  BookOpen,
+  ChevronDown,
+  ClipboardCheck,
+  FileText,
+  FlaskConical,
+  Gauge,
+  HeartPulse,
+  HelpCircle,
+  History,
+  Pill,
+  Scissors,
+  ShieldAlert
+} from 'lucide-react';
 import { formatDateBR } from '../../utils/date';
 
 interface Props {
@@ -181,11 +195,16 @@ const ClinicalSummaryStructured: React.FC<{
   const questionSection = findSection(sections, ['pergunta clínica', 'pergunta clinica']);
   const surgerySection = findSection(sections, ['cirurgias e procedimentos', 'cirurgias']);
   const antecedentsSection = findSection(sections, ['antecedentes e comorbidades', 'antecedentes']);
+  const historySection = findSection(sections, ['história da doença atual', 'historia da doenca atual', 'historia da doença atual']);
   const medsSection = findSection(sections, ['medicações e condições', 'medicacoes e condicoes', 'medicações', 'medicacoes']);
   const safetySection = findSection(sections, ['alergias e segurança', 'alergias e seguranca', 'segurança', 'seguranca']);
   const labsSection = findSection(sections, ['laboratório relevante', 'laboratorio relevante', 'laboratório', 'laboratorio']);
   const previousSection = findSection(sections, ['exames prévios', 'exames previos', 'comparativos']);
-  const operationalSection = findSection(sections, ['status operacional', 'procedimento']);
+  const operationalSections = sections.filter((section) =>
+    ['status operacional', 'procedimento'].some((label) => normalize(section.secao).includes(normalize(label)))
+  );
+  const operationalSection =
+    operationalSections.sort((a, b) => (b.itens?.length ?? 0) - (a.itens?.length ?? 0))[0] ?? null;
   const requestSection = findSection(sections, ['texto do pedido']);
 
   const usedSections = new Set(
@@ -195,6 +214,7 @@ const ClinicalSummaryStructured: React.FC<{
       questionSection,
       surgerySection,
       antecedentsSection,
+      historySection,
       medsSection,
       safetySection,
       labsSection,
@@ -204,21 +224,29 @@ const ClinicalSummaryStructured: React.FC<{
     ].filter(Boolean)
   );
 
-  const extraSections = sections.filter((section) => !usedSections.has(section));
+  const extraSections = sections.filter((section) => !usedSections.has(section) && !operationalSections.includes(section));
 
   const identificationItems = (identificationSection?.itens ?? []).map(parseItem);
   const questionItems = (questionSection?.itens ?? []).map(parseItem);
+  const historyItems = (historySection?.itens ?? []).map(parseItem);
   const safetyItems = (safetySection?.itens ?? []).map(parseItem);
   const operationalItems = (operationalSection?.itens ?? []).map(parseItem);
+  const isContrastItem = (item: ParsedItem) => {
+    const haystack = normalize(item.label || item.raw);
+    return haystack.includes('contraste') && !haystack.includes('alerg');
+  };
+  const safetyContrastItems = safetyItems.filter(isContrastItem);
+  const operationalContrastItems = operationalItems.filter(isContrastItem);
+  const operationalNonContrastItems = operationalItems.filter((item) => !isContrastItem(item));
+  const surgeryItems = (surgerySection?.itens ?? [])
+    .map(parseItem)
+    .map((item) => (item.label ? item : { ...item, label: 'Procedimento' }));
 
   const patientName = findItemValue(identificationItems, ['nome', 'paciente']);
   const patientId = findItemValue(identificationItems, ['id', 'prontuario', 'prontuário']);
   const ageSex = findItemValue(identificationItems, ['idade/sexo', 'idade', 'sexo']);
   const insurance = findItemValue(identificationItems, ['convenio', 'convênio']);
-  const examType = findItemValue(identificationItems, ['tipo de exame', 'exame', 'modalidade']);
   const examDate = findItemValue(identificationItems, ['data/hora', 'data']);
-  const examLocation = findItemValue(identificationItems, ['local', 'servico', 'serviço']);
-  const examProtocol = findItemValue(identificationItems, ['protocolo']);
   const orderingPhysician = findItemValue(identificationItems, ['médico solicitante', 'medico solicitante', 'solicitante']);
 
   const clinicalQuestionRows = [
@@ -247,24 +275,9 @@ const ClinicalSummaryStructured: React.FC<{
 
   const examDataRows = [
     {
-      label: 'Tipo de exame',
-      value: formatValue(examType.value),
-      isDivergent: examType.isDivergent
-    },
-    {
       label: 'Data/Hora',
       value: formatValue(formatDateBR(examDate.value)),
       isDivergent: examDate.isDivergent
-    },
-    {
-      label: 'Local/Serviço',
-      value: formatValue(examLocation.value),
-      isDivergent: examLocation.isDivergent
-    },
-    {
-      label: 'Protocolo',
-      value: formatValue(examProtocol.value),
-      isDivergent: examProtocol.isDivergent
     },
     {
       label: 'Médico solicitante',
@@ -299,7 +312,7 @@ const ClinicalSummaryStructured: React.FC<{
       ])
   );
 
-  const contrastInfo = findItemValue([...safetyItems, ...operationalItems], ['contraste']);
+  const contrastInfo = findItemValue([...safetyContrastItems, ...operationalContrastItems], ['contraste']);
   const renalInfo = findItemValue(safetyItems, ['função renal', 'funcao renal', 'creatinina', 'etfg', 'tfg']);
   const allergyInfo = findItemValue(safetyItems, ['alergia']);
 
@@ -321,6 +334,13 @@ const ClinicalSummaryStructured: React.FC<{
     displayPatientId &&
     normalizeValue(displayPatientId) !== normalizeValue(patientId.value)
   );
+  const normalizedDisplayId = normalizeValue(displayPatientId);
+  const shouldShowPatientId = !!displayPatientId
+    && !isNotInformed(displayPatientId)
+    && normalizedDisplayId.length > 0
+    && normalizedDisplayId !== normalizeValue(recordPatientId)
+    && normalizedDisplayId !== normalizeValue(headerPatientId);
+  const showAgeSex = !!ageSex.value && !isNotInformed(ageSex.value);
 
   const safetyNotes = safetyItems.filter((item) => {
     const haystack = normalize(item.label || item.raw);
@@ -328,20 +348,55 @@ const ClinicalSummaryStructured: React.FC<{
       haystack.includes(normalize(key))
     );
   });
+  const contrastValue = formatValue(contrastInfo.value);
+  const fallbackContrastRow: ParsedItem = {
+    raw: contrastValue,
+    label: 'Contraste',
+    value: contrastValue,
+    isDivergent: contrastInfo.isDivergent
+  };
+  const contrastCandidates = [...operationalContrastItems, ...safetyContrastItems];
+  const contrastRows = contrastCandidates.length ? contrastCandidates : [fallbackContrastRow];
+  const normalizedContrastValues = contrastRows
+    .map((row) => normalizeValue(row.value || row.raw || ''))
+    .filter(Boolean);
+  const hasContrastConflict = new Set(normalizedContrastValues).size > 1;
+  const seenContrastValues = new Set<string>();
+  const uniqueContrastRows = contrastRows.filter((row) => {
+    const normalized = normalizeValue(row.value || row.raw || '');
+    if (!normalized) return false;
+    if (seenContrastValues.has(normalized)) return false;
+    seenContrastValues.add(normalized);
+    return true;
+  });
+  const contrastRowsWithFlags = (uniqueContrastRows.length ? uniqueContrastRows : [fallbackContrastRow]).map((row) => ({
+    ...row,
+    label: row.label || 'Contraste',
+    value: row.value || row.raw,
+    isDivergent: row.isDivergent || hasContrastConflict
+  }));
+  const operationalDisplayItems = [...contrastRowsWithFlags, ...operationalNonContrastItems];
+  const showOperational = operationalDisplayItems.length > 0;
 
   return (
     <div className="clinical-summary">
       <div className="sr-organ-card clinical-card clinical-card--full clinical-hero">
         <div className="clinical-hero-title">
           <span className="clinical-patient-name">{displayPatientName}</span>
-          <span className="clinical-patient-demographics">{formatValue(ageSex.value)}</span>
           {nameIsDivergent ? <DivergenceChip /> : null}
         </div>
         <div className="clinical-hero-sub">
-          <span>
-            ID/Prontuário: <b>{displayPatientId}</b>
-          </span>
-          {idIsDivergent ? <DivergenceChip /> : null}
+          {showAgeSex ? (
+            <span className="clinical-hero-chip">
+              Idade/Sexo: <b>{formatValue(ageSex.value)}</b>
+            </span>
+          ) : null}
+          {shouldShowPatientId ? (
+            <span>
+              Prontuário: <b>{displayPatientId}</b>
+            </span>
+          ) : null}
+          {shouldShowPatientId && idIsDivergent ? <DivergenceChip /> : null}
           <span>
             Convênio: <b>{formatValue(insurance.value)}</b>
           </span>
@@ -351,7 +406,10 @@ const ClinicalSummaryStructured: React.FC<{
 
       <div className="sr-organ-card clinical-card clinical-card--full clinical-card--highlight">
         <div className="clinical-card-header">
-          <h4 className="clinical-card-title">Pergunta clínica</h4>
+          <h4 className="clinical-card-title">
+            <HelpCircle size={14} className="clinical-card-icon" />
+            Pergunta clínica
+          </h4>
         </div>
         <div className="clinical-kv">
           {clinicalQuestionRows.map((row) => (
@@ -364,7 +422,10 @@ const ClinicalSummaryStructured: React.FC<{
       {executiveSection?.itens?.length ? (
         <div className="sr-organ-card clinical-card clinical-card--full clinical-card--summary">
           <div className="clinical-card-header">
-            <h4 className="clinical-card-title">Resumo executivo</h4>
+            <h4 className="clinical-card-title">
+              <BookOpen size={14} className="clinical-card-icon" />
+              Resumo executivo
+            </h4>
           </div>
           <div className="clinical-summary-text">
             {executiveSection.itens.map((item, idx) => (
@@ -377,9 +438,23 @@ const ClinicalSummaryStructured: React.FC<{
       ) : null}
 
       <div className="clinical-grid">
+        {historyItems.length ? (
+          <div className="sr-organ-card clinical-card">
+            <div className="clinical-card-header">
+              <h4 className="clinical-card-title">
+                <Activity size={14} className="clinical-card-icon" />
+                História da doença atual
+              </h4>
+            </div>
+            <TextList items={historyItems} />
+          </div>
+        ) : null}
         <div className="sr-organ-card clinical-card">
           <div className="clinical-card-header">
-            <h4 className="clinical-card-title">Dados do exame</h4>
+            <h4 className="clinical-card-title">
+              <ClipboardCheck size={14} className="clinical-card-icon" />
+              Dados do exame
+            </h4>
           </div>
           <div className="clinical-kv">
             {examDataRows.map((row) => (
@@ -391,35 +466,54 @@ const ClinicalSummaryStructured: React.FC<{
 
         <div className="sr-organ-card clinical-card">
           <div className="clinical-card-header">
-            <h4 className="clinical-card-title">Alertas</h4>
+            <h4 className="clinical-card-title">
+              <ShieldAlert size={14} className="clinical-card-icon" />
+              Alertas
+            </h4>
           </div>
-          <div className="clinical-badges">
-            <span className="clinical-badge clinical-badge--danger">
-              Alergias: <b>{formatValue(allergyInfo.value)}</b>
-            </span>
-            <span className="clinical-badge clinical-badge--success">
-              Função renal: <b>{formatValue(renalInfo.value)}</b>
-            </span>
-            <span className="clinical-badge clinical-badge--info">
-              Contraste: <b>{formatValue(contrastInfo.value)}</b>
-            </span>
+          <div className="clinical-alerts">
+            <div className="clinical-alert-row">
+              <span className="clinical-alert-chip clinical-alert-chip--danger">Alergias</span>
+              <span className={`clinical-alert-text ${isNotInformed(allergyInfo.value) ? 'clinical-line-muted' : ''}`}>
+                {formatValue(allergyInfo.value)}
+              </span>
+            </div>
+            <div className="clinical-alert-row">
+              <span className="clinical-alert-chip clinical-alert-chip--success">Função renal</span>
+              <span className={`clinical-alert-text ${isNotInformed(renalInfo.value) ? 'clinical-line-muted' : ''}`}>
+                {formatValue(renalInfo.value)}
+              </span>
+            </div>
+            <div className="clinical-alert-row">
+              <span className="clinical-alert-chip clinical-alert-chip--info">Contraste</span>
+              <span className={`clinical-alert-text ${isNotInformed(contrastInfo.value) ? 'clinical-line-muted' : ''}`}>
+                {formatValue(contrastInfo.value)}
+              </span>
+              {hasContrastConflict ? <DivergenceChip /> : null}
+            </div>
           </div>
           {safetyNotes.length ? <TextList items={safetyNotes} /> : null}
         </div>
 
-        {surgerySection?.itens?.length ? (
+        {surgeryItems.length ? (
           <div className="sr-organ-card clinical-card">
             <div className="clinical-card-header">
-              <h4 className="clinical-card-title">Cirurgias e procedimentos prévios</h4>
+              <h4 className="clinical-card-title">
+                <Scissors size={14} className="clinical-card-icon" />
+                Cirurgias e procedimentos prévios
+              </h4>
             </div>
-            <TextList items={surgerySection.itens.map(parseItem)} />
+            <TextList items={surgeryItems} />
           </div>
         ) : null}
 
         {antecedentsSection?.itens?.length ? (
           <div className="sr-organ-card clinical-card">
             <div className="clinical-card-header">
-              <h4 className="clinical-card-title">Antecedentes e comorbidades</h4>
+              <h4 className="clinical-card-title">
+                <HeartPulse size={14} className="clinical-card-icon" />
+                Antecedentes e comorbidades
+              </h4>
             </div>
             <TextList items={antecedentsSection.itens.map(parseItem)} />
           </div>
@@ -428,7 +522,10 @@ const ClinicalSummaryStructured: React.FC<{
         {medsSection?.itens?.length ? (
           <div className="sr-organ-card clinical-card">
             <div className="clinical-card-header">
-              <h4 className="clinical-card-title">Medicações e condições</h4>
+              <h4 className="clinical-card-title">
+                <Pill size={14} className="clinical-card-icon" />
+                Medicações e condições
+              </h4>
             </div>
             <TextList items={medsSection.itens.map(parseItem)} />
           </div>
@@ -437,7 +534,10 @@ const ClinicalSummaryStructured: React.FC<{
         {labsSection?.itens?.length ? (
           <div className="sr-organ-card clinical-card">
             <div className="clinical-card-header">
-              <h4 className="clinical-card-title">Laboratório relevante</h4>
+              <h4 className="clinical-card-title">
+                <FlaskConical size={14} className="clinical-card-icon" />
+                Laboratório relevante
+              </h4>
             </div>
             <TextList items={labsSection.itens.map(parseItem)} />
           </div>
@@ -446,25 +546,34 @@ const ClinicalSummaryStructured: React.FC<{
         {previousSection?.itens?.length ? (
           <div className="sr-organ-card clinical-card">
             <div className="clinical-card-header">
-              <h4 className="clinical-card-title">Exames prévios e comparativos</h4>
+              <h4 className="clinical-card-title">
+                <History size={14} className="clinical-card-icon" />
+                Exames prévios e comparativos
+              </h4>
             </div>
             <TextList items={previousSection.itens.map(parseItem)} />
           </div>
         ) : null}
 
-        {operationalSection?.itens?.length ? (
+        {showOperational ? (
           <div className="sr-organ-card clinical-card">
             <div className="clinical-card-header">
-              <h4 className="clinical-card-title">Status operacional</h4>
+              <h4 className="clinical-card-title">
+                <Gauge size={14} className="clinical-card-icon" />
+                Status operacional
+              </h4>
             </div>
-            <TextList items={operationalSection.itens.map(parseItem)} />
+            <TextList items={operationalDisplayItems} />
           </div>
         ) : null}
 
         {requestSection?.itens?.length ? (
           <div className="sr-organ-card clinical-card clinical-card--full">
             <div className="clinical-card-header">
-              <h4 className="clinical-card-title">Texto do pedido (legível)</h4>
+              <h4 className="clinical-card-title">
+                <FileText size={14} className="clinical-card-icon" />
+                Texto do pedido (legível)
+              </h4>
             </div>
             <div className="clinical-request-text">
               {requestSection.itens.map((item, idx) => (
@@ -490,6 +599,7 @@ const ClinicalSummaryStructured: React.FC<{
 };
 
 export const ClinicalTab: React.FC<Props> = ({ markdown, data, isProcessing, patientHeader, patientRecord }) => {
+  const [sourcesOpen, setSourcesOpen] = useState(false);
   const hasStructured =
     data?.resumo_clinico_consolidado?.texto_em_topicos &&
     data.resumo_clinico_consolidado.texto_em_topicos.length > 0;
@@ -511,31 +621,44 @@ export const ClinicalTab: React.FC<Props> = ({ markdown, data, isProcessing, pat
       {/* Lista de Fontes (Evidências) */}
       {data && data.assistencial_docs && data.assistencial_docs.length > 0 && (
         <div className="sources-section">
-          <h4 className="sources-title">
-            <Link2 size={14} /> Fontes Analisadas ({data.assistencial_docs.length})
-          </h4>
-
-          <div className="sources-grid">
-            {data.assistencial_docs.map((doc, idx) => (
-              <div key={idx} className="source-card">
-                <div className="source-header">
-                  <h5 className="source-title">
-                    <FileText size={12} className="mr-2" style={{ display: 'inline' }} />
-                    {doc.titulo_sugerido || 'Documento sem título'}
-                  </h5>
-                  {doc.datas_encontradas && doc.datas_encontradas.length > 0 && (
-                    <span className="source-date-badge">{doc.datas_encontradas[0]}</span>
-                  )}
-                </div>
-
-                <p className="source-summary">{doc.mini_resumo}</p>
-
-                <span className="source-origin" title={doc.source}>
-                  Arquivo: {doc.source}
-                </span>
-              </div>
-            ))}
+          <div className="sources-header">
+            <button
+              type="button"
+              className="sources-toggle"
+              onClick={() => setSourcesOpen((prev) => !prev)}
+              aria-expanded={sourcesOpen}
+              aria-label={sourcesOpen ? 'Ocultar fontes analisadas' : 'Mostrar fontes analisadas'}
+            >
+              <ChevronDown size={14} className={`sources-chevron ${sourcesOpen ? 'is-open' : ''}`} />
+            </button>
+            <h4 className="sources-title">
+              Fontes analisadas ({data.assistencial_docs.length})
+            </h4>
           </div>
+
+          {sourcesOpen && (
+            <div className="sources-grid">
+              {data.assistencial_docs.map((doc, idx) => (
+                <div key={idx} className="source-card">
+                  <div className="source-header">
+                    <h5 className="source-title">
+                      <FileText size={12} className="mr-2" style={{ display: 'inline' }} />
+                      {doc.titulo_sugerido || 'Documento sem título'}
+                    </h5>
+                    {doc.datas_encontradas && doc.datas_encontradas.length > 0 && (
+                      <span className="source-date-badge">{doc.datas_encontradas[0]}</span>
+                    )}
+                  </div>
+
+                  <p className="source-summary">{doc.mini_resumo}</p>
+
+                  <span className="source-origin" title={doc.source}>
+                    Arquivo: {doc.source}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
