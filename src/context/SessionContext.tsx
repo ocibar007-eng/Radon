@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
-import { AppSession, AttachmentDoc, AudioJob, PatientRegistrationDetails, ClinicalSummary, RadiologyChecklist } from '../types';
+import { AppSession, AttachmentDoc, AudioJob, PatientRegistrationDetails, ClinicalSummary, RadiologyChecklist, SessionTiming } from '../types';
 
 // Actions definition
 type SessionAction =
@@ -16,9 +16,14 @@ type SessionAction =
   | { type: 'ADD_AUDIO_JOB'; payload: AudioJob }
   | { type: 'UPDATE_AUDIO_JOB'; payload: { id: string; updates: Partial<AudioJob> } }
   | { type: 'REMOVE_AUDIO_JOB'; payload: string }
+  | { type: 'UPDATE_SESSION_TIMING'; payload: Partial<SessionTiming> }
   | { type: 'SET_CLINICAL_MARKDOWN'; payload: { markdown: string; data?: ClinicalSummary } }
   | { type: 'SET_CHECKLIST'; payload: { markdown: string; data?: RadiologyChecklist } }
   | { type: 'SET_CHECKLIST_QUERY'; payload: string };
+
+const createInitialTiming = (): SessionTiming => ({
+  attachmentEvents: []
+});
 
 const initialSession: AppSession = {
   patientId: null,
@@ -26,9 +31,24 @@ const initialSession: AppSession = {
   patient: null,
   docs: [],
   audioJobs: [],
+  sessionTiming: createInitialTiming(),
   clinicalMarkdown: '',
   checklistMarkdown: '',
   checklistQuery: ''
+};
+
+const appendAttachmentEvent = (
+  timing: SessionTiming | undefined,
+  event: { id: string; type: 'doc' | 'audio'; at: number }
+): SessionTiming => {
+  const base = timing ?? createInitialTiming();
+  return {
+    ...base,
+    openedAt: base.openedAt ?? event.at,
+    firstAttachmentAt: base.firstAttachmentAt ?? event.at,
+    lastAttachmentAt: event.at,
+    attachmentEvents: [...(base.attachmentEvents ?? []), event]
+  };
 };
 
 function sessionReducer(state: AppSession, action: SessionAction): AppSession {
@@ -39,11 +59,12 @@ function sessionReducer(state: AppSession, action: SessionAction): AppSession {
         ...action.payload,
         checklistMarkdown: action.payload.checklistMarkdown ?? '',
         clinicalMarkdown: action.payload.clinicalMarkdown ?? '',
-        checklistQuery: action.payload.checklistQuery ?? ''
+        checklistQuery: action.payload.checklistQuery ?? '',
+        sessionTiming: action.payload.sessionTiming ?? createInitialTiming()
       };
 
     case 'CLEAR_SESSION':
-      return { ...initialSession };
+      return { ...initialSession, sessionTiming: createInitialTiming() };
 
     case 'SET_HEADER':
       return { ...state, headerImage: action.payload };
@@ -63,7 +84,15 @@ function sessionReducer(state: AppSession, action: SessionAction): AppSession {
       return { ...state, patientId: action.payload };
 
     case 'ADD_DOC':
-      return { ...state, docs: [...state.docs, action.payload] };
+      return {
+        ...state,
+        docs: [...state.docs, action.payload],
+        sessionTiming: appendAttachmentEvent(state.sessionTiming, {
+          id: action.payload.id,
+          type: 'doc',
+          at: Date.now()
+        })
+      };
 
     case 'UPDATE_DOC':
       return {
@@ -77,7 +106,15 @@ function sessionReducer(state: AppSession, action: SessionAction): AppSession {
       return { ...state, docs: state.docs.filter(d => d.id !== action.payload) };
 
     case 'ADD_AUDIO_JOB':
-      return { ...state, audioJobs: [action.payload, ...state.audioJobs] };
+      return {
+        ...state,
+        audioJobs: [action.payload, ...state.audioJobs],
+        sessionTiming: appendAttachmentEvent(state.sessionTiming, {
+          id: action.payload.id,
+          type: 'audio',
+          at: Date.now()
+        })
+      };
 
     case 'UPDATE_AUDIO_JOB':
       return {
@@ -88,13 +125,30 @@ function sessionReducer(state: AppSession, action: SessionAction): AppSession {
       };
     case 'REMOVE_AUDIO_JOB':
       return { ...state, audioJobs: state.audioJobs.filter(j => j.id !== action.payload) };
+    case 'UPDATE_SESSION_TIMING':
+      return {
+        ...state,
+        sessionTiming: {
+          ...(state.sessionTiming ?? createInitialTiming()),
+          ...action.payload
+        }
+      };
 
-    case 'SET_CLINICAL_MARKDOWN':
+    case 'SET_CLINICAL_MARKDOWN': {
+      const shouldStartReport = !!action.payload.markdown?.trim()
+        && !(state.sessionTiming?.reportStartedAt);
       return {
         ...state,
         clinicalMarkdown: action.payload.markdown,
-        clinicalSummaryData: action.payload.data
+        clinicalSummaryData: action.payload.data,
+        sessionTiming: shouldStartReport
+          ? {
+            ...(state.sessionTiming ?? createInitialTiming()),
+            reportStartedAt: Date.now()
+          }
+          : state.sessionTiming
       };
+    }
     case 'SET_CHECKLIST':
       return {
         ...state,

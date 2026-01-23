@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo, useEffect, useCallback, useRef, useLayoutEffect } from 'react';
-import { FileText, History, ListChecks, Download, Loader2, CheckCircle, UploadCloud, AlertTriangle, ScanLine, Eraser, ArrowDown, Pencil } from 'lucide-react';
+import { FileText, History, ListChecks, Download, Loader2, CheckCircle, UploadCloud, AlertTriangle, ScanLine, Eraser, ArrowDown, Pencil, Timer } from 'lucide-react';
 import { IntakeCard } from '../intake/IntakeCard';
 import { Button } from '../../components/ui/Button';
 import { ConfirmModal } from '../../components/ui/ConfirmModal';
@@ -21,13 +21,16 @@ import { OcrImportModal } from './OcrImportModal';
 import { HistoryItem } from '../ocr-batch/types';
 import { GroupingConfirmDialog } from '../../components/GroupingConfirmDialog';
 import { MultipleImagesDialog } from '../../components/MultipleImagesDialog';
+import { GlobalTimeChips } from '../../components/GlobalTimeChips';
 
 // Architecture Imports
 import { useSession } from '../../context/SessionContext';
 import { usePersistence } from '../../hooks/usePersistence';
 import { useWorkspaceActions } from '../../hooks/useWorkspaceActions';
 import { usePasteHandler } from '../../hooks/usePasteHandler';
+import { useNow } from '../../hooks/useNow';
 import { Patient, PatientStatus } from '../../types/patient';
+import { formatDurationClock } from '../../utils/time';
 
 const DEBUG_LOGS = true;
 
@@ -89,10 +92,17 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
     const lastStatusRef = useRef<PatientStatus | null>(null);
     const sessionRef = useRef(session);
     const firebaseActive = isFirebaseEnabled();
+    const now = useNow(1000);
 
     useEffect(() => {
         sessionRef.current = session;
     }, [session]);
+
+    useEffect(() => {
+        if (!patient || isHydrating) return;
+        if (session.sessionTiming?.openedAt) return;
+        dispatch({ type: 'UPDATE_SESSION_TIMING', payload: { openedAt: Date.now() } });
+    }, [patient, isHydrating, session.sessionTiming?.openedAt, dispatch]);
 
     // 4. Persistência & Hidratação
     // 🔥 FIX: Passamos isHydrating para impedir salvamento prematuro
@@ -384,6 +394,15 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
         };
     }, [session.checklistData]);
 
+    const reportStartedAt = session.sessionTiming?.reportStartedAt;
+    const reportFinalizedAt = session.sessionTiming?.reportFinalizedAt;
+    const reportElapsedMs = reportStartedAt
+        ? Math.max(0, (reportFinalizedAt ?? now) - reportStartedAt)
+        : null;
+    const reportElapsedLabel = reportElapsedMs !== null
+        ? formatDurationClock(reportElapsedMs, { includeSeconds: true })
+        : null;
+
     // --- RENDER ---
     if (isHydrating) {
         return (
@@ -414,6 +433,13 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
                 </div>
 
                 <div className="header-actions">
+                    <GlobalTimeChips />
+                    {reportElapsedLabel && (
+                        <div className="time-chip time-chip--report" title="Tempo do laudo">
+                            <Timer size={12} />
+                            {reportElapsedLabel}
+                        </div>
+                    )}
                     <div className="recorder-wrapper">
                         <AudioRecorder onRecordingComplete={handleAudioComplete} isProcessing={false} />
                     </div>

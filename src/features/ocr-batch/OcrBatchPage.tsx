@@ -21,6 +21,7 @@ import { sortFiles, enumerateFiles } from './core/sorting';
 import { generateBatchJson, generateCombinedTxt, triggerDownload } from './core/export';
 import { saveBatchToHistory } from './core/history';
 import { playCelebrationSound } from './utils/sounds';
+import { GlobalTimeChips } from '../../components/GlobalTimeChips';
 
 // LocalStorage key for sound preference
 const SOUND_ENABLED_KEY = 'ocr-batch-sound';
@@ -427,14 +428,7 @@ export function OcrBatchPage() {
 
                         <div className={`h-4 w-px ${isDarkMode ? 'bg-zinc-700' : 'bg-zinc-300'} hidden md:block`}></div>
 
-                        {/* Digital Clock (clickable to show stats) */}
-                        <button
-                            onClick={() => setShowStatsModal(true)}
-                            className={`font-mono text-xs tabular-nums tracking-wider px-2 py-1 rounded-md transition-colors ${isDarkMode ? 'text-zinc-400 hover:bg-zinc-800' : 'text-zinc-600 hover:bg-zinc-100'}`}
-                            title="Ver estatísticas de uso"
-                        >
-                            {stats.currentTime.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                        </button>
+                        <GlobalTimeChips onClockClick={() => setShowStatsModal(true)} />
 
                         <div className={`h-4 w-px ${isDarkMode ? 'bg-zinc-700' : 'bg-zinc-300'} hidden md:block`}></div>
 
@@ -632,5 +626,3 @@ export function OcrBatchPage() {
         </div>
     );
 }
-
-

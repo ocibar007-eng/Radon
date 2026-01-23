@@ -125,12 +125,28 @@ export interface AudioJob {
     transcriptRows?: AudioTranscriptRow[]; // Usa o tipo inferido aqui
 }
 
+export interface AttachmentEvent {
+    id: string;
+    type: 'doc' | 'audio';
+    at: number;
+}
+
+export interface SessionTiming {
+    openedAt?: number;
+    firstAttachmentAt?: number;
+    lastAttachmentAt?: number;
+    reportStartedAt?: number;
+    reportFinalizedAt?: number;
+    attachmentEvents?: AttachmentEvent[];
+}
+
 export interface AppSession {
     patientId?: string;
     headerImage: AttachmentDoc | null;
     patient: PatientRegistrationDetails | null; // Usa o tipo inferido aqui
     docs: AttachmentDoc[];
     audioJobs: AudioJob[];
+    sessionTiming?: SessionTiming;
     clinicalMarkdown: string;
     clinicalSummaryData?: ClinicalSummary; // Usa o tipo inferido aqui
     checklistMarkdown: string;

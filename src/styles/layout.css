@@ -155,6 +155,209 @@
   align-items: center;
 }
 
+.global-time-chips {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.time-chip-wrapper {
+  position: relative;
+}
+
+.time-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  color: var(--color-text-secondary);
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border-subtle);
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.time-chip:hover {
+  background: var(--color-bg-elevated);
+  border-color: var(--color-border-strong);
+  color: var(--color-text-primary);
+}
+
+.time-chip--clock {
+  cursor: pointer;
+}
+
+.time-chip--clock.is-static {
+  cursor: default;
+  opacity: 0.85;
+}
+
+.time-chip--clock.is-static:hover {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-subtle);
+  color: var(--color-text-secondary);
+}
+
+.time-chip--clock.is-alarm-set {
+  border-color: rgba(234, 179, 8, 0.35);
+  color: var(--color-text-primary);
+}
+
+.time-chip--break.is-overdue {
+  color: var(--status-warning-text);
+  border-color: rgba(245, 158, 11, 0.4);
+  background: rgba(245, 158, 11, 0.12);
+}
+
+.time-chip--report {
+  color: var(--color-text-primary);
+  border-color: rgba(59, 130, 246, 0.35);
+  background: rgba(59, 130, 246, 0.12);
+  cursor: default;
+}
+
+.time-chip-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 160px;
+  padding: 0.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-bg-secondary);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  z-index: 20;
+}
+
+.time-chip-menu-title {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  font-weight: 700;
+  padding: 0.2rem 0.35rem;
+}
+
+.time-chip-menu-sub {
+  font-size: 0.7rem;
+  color: var(--color-text-secondary);
+  padding: 0 0.35rem 0.2rem;
+}
+
+.time-chip-time-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.2rem 0.35rem;
+}
+
+.time-chip-time-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.time-chip-time-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.2rem 0.45rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-bg-tertiary);
+}
+
+.time-chip-time-field:focus-within {
+  border-color: rgba(59, 130, 246, 0.6);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.18);
+}
+
+.time-chip-time-input {
+  width: 1.6rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-text-primary);
+  font-size: 0.7rem;
+  font-family: var(--font-mono);
+  text-align: center;
+}
+
+.time-chip-time-input:focus {
+  outline: none;
+}
+
+.time-chip-time-sep {
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.time-chip-apply {
+  padding: 0.25rem 0.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+  font-size: 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.time-chip-apply:hover {
+  background: var(--color-bg-elevated);
+  border-color: var(--color-border-strong);
+}
+
+.time-chip-option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.time-chip-option:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
+.time-chip-option.is-active {
+  border-color: rgba(59, 130, 246, 0.4);
+  background: rgba(59, 130, 246, 0.12);
+  color: var(--color-text-primary);
+}
+
+.time-chip-option.time-chip-option--danger {
+  border-color: rgba(239, 68, 68, 0.4);
+  color: var(--status-error-text);
+}
+
+.time-chip-option.time-chip-option--danger:hover {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--status-error-text);
+}
+
+.time-chip-option.time-chip-option--ghost {
+  gap: 0.4rem;
+  justify-content: flex-start;
+  color: var(--color-text-secondary);
+}
+
 /* Main Grid Layout */
 .main-grid {
   display: grid;

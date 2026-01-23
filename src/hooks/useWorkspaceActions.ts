@@ -842,6 +842,8 @@ export function useWorkspaceActions(patient: Patient | null) {
       if (!confirmed) return;
     }
 
+    dispatch({ type: 'UPDATE_SESSION_TIMING', payload: { reportFinalizedAt: now } });
+
     // Atualizar patient no Firestore
     try {
       const updates = {

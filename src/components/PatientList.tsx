@@ -1,6 +1,7 @@
 
 import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { Plus, AlertTriangle, ScanLine, UploadCloud, Loader2, Zap, Table, LayoutGrid, List, Archive, Lock, Unlock } from 'lucide-react';
+import { GlobalTimeChips } from './GlobalTimeChips';
 import { usePatients } from '../hooks/usePatients';
 import { PatientCard } from './PatientCard';
 import { PatientTableRow } from './PatientTableRow';
@@ -472,6 +473,7 @@ export const PatientList: React.FC<Props> = ({ onSelectPatient, onQuickStart }) 
               <Plus size={16} /> Novo Paciente
             </Button>
           </div>
+          <GlobalTimeChips />
         </div>
       </div>
 
