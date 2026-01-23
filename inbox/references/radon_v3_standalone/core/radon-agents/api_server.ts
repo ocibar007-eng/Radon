@@ -124,7 +124,10 @@ app.post('/v3/process-case', async (req, res) => {
         log("🧠 [Layer 2] Calling Gemini (Medical Reasoner)...");
 
         // Use environment variable, fallback to hardcoded ONLY if env not found (for safety) 
-        const API_KEY = process.env.GEMINI_API_KEY || "AIzaSyA191wVFA-sJ1IlFtKwgk3yGQQbdwbD_pk";
+        const API_KEY = process.env.GEMINI_API_KEY;
+        if (!API_KEY) {
+            throw new Error("GEMINI_API_KEY not set in environment");
+        }
 
         async function callGemini(p: string, model: string) {
             try {
