@@ -389,34 +389,117 @@ def calculate_hepatorenal_index(atenuacao_figado: float, atenuacao_rim: float):
 
 
 def classify_renal_cyst_bosniak_2019(
-    realce_hu: float,
-    componentes_solidos: bool,
-    septos: bool,
-    calcificacao: bool,
+    realce_hu: Optional[float] = None,
+    componentes_solidos: Optional[bool] = None,
+    septos: Optional[bool] = None,
+    calcificacao: Optional[bool] = None,
     numero_septos: Optional[float] = None,
+    modalidade: Optional[str] = None,
+    tamanho_lesao_mm: Optional[float] = None,
+    parede_espessura_mm: Optional[float] = None,
+    septos_espessura_mm: Optional[float] = None,
+    parede_irregular: Optional[bool] = None,
+    septos_irregulares: Optional[bool] = None,
+    parede_realce: Optional[bool] = None,
+    septos_realce: Optional[bool] = None,
+    nodulo_realce: Optional[bool] = None,
+    nodulo_tamanho_mm: Optional[float] = None,
+    nodulo_margem: Optional[str] = None,
+    atenuacao_hu_pre: Optional[float] = None,
+    atenuacao_hu_portal: Optional[float] = None,
+    homogeneo: Optional[bool] = None,
+    hiperintenso_t2_csf: Optional[bool] = None,
+    hiperintenso_t1_marcado: Optional[bool] = None,
+    hiperintenso_t1_heterogeneo_fs: Optional[bool] = None,
+    muito_pequeno_caracterizar: Optional[bool] = None,
+    fluido_simples: Optional[bool] = None,
 ):
-    enhancement = realce_hu >= 20
+    modality = _normalize_text(modalidade)
+    is_mri = modality in {"rm", "mri", "ressonancia", "ressonancia_magnetica"}
+    is_ct = not is_mri
+
+    enhancement_ct = realce_hu is not None and realce_hu >= 20
+    wall_enh = _as_bool(parede_realce)
+    septa_enh = _as_bool(septos_realce)
+    nodule_enh = _as_bool(nodulo_realce)
+    enhancement = enhancement_ct or wall_enh or septa_enh or nodule_enh
+
+    nodule_margin = _normalize_text(nodulo_margem)
+    nodule_size = nodulo_tamanho_mm or 0
+
     solids = _as_bool(componentes_solidos)
     septa = _as_bool(septos)
     calc = _as_bool(calcificacao)
-    sept_count = numero_septos or 0
+    sept_count = int(round(numero_septos)) if numero_septos is not None else 0
+    wall_thick = parede_espessura_mm or 0
+    septa_thick = septos_espessura_mm or 0
+    wall_irreg = _as_bool(parede_irregular)
+    septa_irreg = _as_bool(septos_irregulares)
+    t2_csf = _as_bool(hiperintenso_t2_csf)
+    t1_marked = _as_bool(hiperintenso_t1_marcado)
+    t1_hetero = _as_bool(hiperintenso_t1_heterogeneo_fs)
+    too_small = _as_bool(muito_pequeno_caracterizar)
+    simple_fluid = _as_bool(fluido_simples)
+    homogeneous = _as_bool(homogeneo)
 
-    # Simplified mapping based on available inputs.
-    if not enhancement and not solids and not septa and not calc:
-        return _result("I")
-    if not enhancement and (septa or calc):
-        if sept_count > 3:
-            return _result("IIF")
-        return _result("II")
-    if enhancement and solids:
-        if not septa and not calc:
-            return _result("V")
+    # Bosniak IV: enhancing nodules or enhancing solid components.
+    if nodule_enh:
+        if nodule_size >= 4 or nodule_margin in {"aguda", "agudo", "acute"}:
+            return _result("IV")
+        if nodule_size > 0:
+            return _result("IV")
+        if solids:
+            return _result("IV")
+    if solids and enhancement:
         return _result("IV")
-    if enhancement and septa:
-        if sept_count > 3:
-            return _result("IIF")
+
+    # Bosniak III: thick (>=4 mm) or irregular enhancing wall/septa.
+    if enhancement and (wall_irreg or septa_irreg or wall_thick >= 4 or septa_thick >= 4):
         return _result("III")
-    return _result("IIF")
+
+    # Bosniak IIF: minimally thick (3 mm) enhancing wall/septa or many thin enhancing septa.
+    if enhancement and ((3 <= wall_thick < 4) or (3 <= septa_thick < 4) or sept_count >= 4):
+        return _result("IIF")
+
+    # Bosniak I: simple cyst.
+    if simple_fluid or (not septa and not calc and not solids and (
+        (is_ct and homogeneous and atenuacao_hu_pre is not None and -9 <= atenuacao_hu_pre <= 20)
+        or (is_mri and t2_csf)
+    )):
+        return _result("I")
+
+    # MRI-specific Bosniak II/IIF.
+    if is_mri:
+        if t1_hetero:
+            return _result("IIF")
+        if t2_csf or t1_marked:
+            return _result("II")
+
+    # CT-specific Bosniak II.
+    if is_ct:
+        if too_small:
+            return _result("II")
+        if homogeneous and not enhancement:
+            if atenuacao_hu_pre is not None:
+                if atenuacao_hu_pre >= 70:
+                    return _result("II")
+                if atenuacao_hu_pre > 20:
+                    return _result("II")
+                if -9 <= atenuacao_hu_pre <= 20:
+                    return _result("II")
+            if atenuacao_hu_portal is not None and 21 <= atenuacao_hu_portal <= 30:
+                return _result("II")
+        if septa or calc:
+            if sept_count >= 4:
+                return _result("IIF" if enhancement else "II")
+            if (wall_thick <= 2 or wall_thick == 0) and (septa_thick <= 2 or septa_thick == 0):
+                return _result("II")
+
+    # Fallback: if enhancement without clear category.
+    if enhancement:
+        return _result("IIF")
+
+    return _result(None, "Indeterminado")
 
 
 def calculate_renal_nephrometry_score(

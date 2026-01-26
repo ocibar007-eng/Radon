@@ -967,11 +967,30 @@ export const FormulaInputSchemaMap = {
   "atenuacao_rim": z.number().min(0).max(100),
 }).passthrough(),
   "ABD-0002": z.object({
-  "calcificacao": z.boolean(),
-  "componentes_solidos": z.boolean(),
+  "atenuacao_hu_portal": z.number().min(-20).max(200).optional(),
+  "atenuacao_hu_pre": z.number().min(-20).max(200).optional(),
+  "calcificacao": z.boolean().optional(),
+  "componentes_solidos": z.boolean().optional(),
+  "fluido_simples": z.boolean().optional(),
+  "hiperintenso_t1_heterogeneo_fs": z.boolean().optional(),
+  "hiperintenso_t1_marcado": z.boolean().optional(),
+  "hiperintenso_t2_csf": z.boolean().optional(),
+  "homogeneo": z.boolean().optional(),
+  "modalidade": z.string().optional(),
+  "muito_pequeno_caracterizar": z.boolean().optional(),
+  "nodulo_margem": z.string().optional(),
+  "nodulo_realce": z.boolean().optional(),
+  "nodulo_tamanho_mm": z.number().min(0).max(50).optional(),
   "numero_septos": z.number().min(0).max(10).optional(),
-  "realce_hu": z.number().min(-20).max(100),
-  "septos": z.boolean(),
+  "parede_espessura_mm": z.number().min(0).max(10).optional(),
+  "parede_irregular": z.boolean().optional(),
+  "parede_realce": z.boolean().optional(),
+  "realce_hu": z.number().min(-20).max(100).optional(),
+  "septos": z.boolean().optional(),
+  "septos_espessura_mm": z.number().min(0).max(10).optional(),
+  "septos_irregulares": z.boolean().optional(),
+  "septos_realce": z.boolean().optional(),
+  "tamanho_lesao_mm": z.number().min(0).max(200).optional(),
 }).passthrough(),
   "ABD-0003": z.object({
   "anterior_posterior": z.any(),
@@ -1399,14 +1418,14 @@ export const FormulaMetaMap = {
       "cyst malignancy risk"
     ],
     "qaChecks": [
-      "Validar TC com contraste (NC + fases)",
-      "Verificar realce ≥20 HU",
+      "Validar CT com contraste (NC + fases) quando aplicável",
+      "Verificar realce ≥20 HU em CT",
       "Alertar se realce <20 HU (não significativo)",
       "Confirmar presença de septos (não confundir com artefato)",
       "Documentar localização exata (rim D/E, pólo)"
     ],
     "evidence": {
-      "primary_source": "Silverman SG et al. Management incidental adrenal mass. Radiology. 2019;292(2):251-260.",
+      "primary_source": "Bosniak MA et al. Bosniak Classification of Cystic Renal Masses, Version 2019. Radiology. 2019;292(2):475-488.",
       "radiopaedia_link": "https://radiopaedia.org/articles/bosniak-classification-of-cystic-renal-masses-version-2019",
       "notes": "Classificação Bosniak 2019 atualizada. Baseada em risco malignidade.",
       "evidence_notes": "Fonte primária: Silverman SG et al (Radiology 2019). Classificação atualizada para cistos renais."
@@ -1417,29 +1436,29 @@ export const FormulaMetaMap = {
         "label": "realce_HU",
         "type": "number",
         "unit": "HU",
-        "required": true,
+        "required": false,
         "validRange": "-20-100",
-        "notes": "Realce em unidades Hounsfield (≥20 HU = realce)"
+        "notes": "Realce em unidades Hounsfield (≥20 HU = realce). Opcional se RM."
       },
       {
         "key": "componentes_solidos",
         "label": "componentes_solidos",
         "type": "boolean",
-        "required": true,
-        "notes": "Presença de componentes sólidos?"
+        "required": false,
+        "notes": "Presença de componentes sólidos? (nódulo sólido)"
       },
       {
         "key": "septos",
         "label": "septos",
         "type": "boolean",
-        "required": true,
+        "required": false,
         "notes": "Presença de septos?"
       },
       {
         "key": "calcificacao",
         "label": "calcificacao",
         "type": "boolean",
-        "required": true,
+        "required": false,
         "notes": "Presença de calcificação?"
       },
       {
@@ -1450,6 +1469,151 @@ export const FormulaMetaMap = {
         "required": false,
         "validRange": "0-10",
         "notes": "Número de septos (se presentes)"
+      },
+      {
+        "key": "modalidade",
+        "label": "modalidade",
+        "type": "string",
+        "required": false,
+        "notes": "CT ou MRI"
+      },
+      {
+        "key": "tamanho_lesao_mm",
+        "label": "tamanho_lesao_mm",
+        "type": "number",
+        "unit": "mm",
+        "required": false,
+        "validRange": "0-200",
+        "notes": "Maior diâmetro da lesão"
+      },
+      {
+        "key": "parede_espessura_mm",
+        "label": "parede_espessura_mm",
+        "type": "number",
+        "unit": "mm",
+        "required": false,
+        "validRange": "0-10",
+        "notes": "Espessura máxima da parede"
+      },
+      {
+        "key": "septos_espessura_mm",
+        "label": "septos_espessura_mm",
+        "type": "number",
+        "unit": "mm",
+        "required": false,
+        "validRange": "0-10",
+        "notes": "Espessura máxima dos septos"
+      },
+      {
+        "key": "parede_irregular",
+        "label": "parede_irregular",
+        "type": "boolean",
+        "required": false,
+        "notes": "Parede irregular?"
+      },
+      {
+        "key": "septos_irregulares",
+        "label": "septos_irregulares",
+        "type": "boolean",
+        "required": false,
+        "notes": "Septos irregulares?"
+      },
+      {
+        "key": "parede_realce",
+        "label": "parede_realce",
+        "type": "boolean",
+        "required": false,
+        "notes": "Realce de parede (RM/CT)"
+      },
+      {
+        "key": "septos_realce",
+        "label": "septos_realce",
+        "type": "boolean",
+        "required": false,
+        "notes": "Realce de septos (RM/CT)"
+      },
+      {
+        "key": "nodulo_realce",
+        "label": "nodulo_realce",
+        "type": "boolean",
+        "required": false,
+        "notes": "Realce de nódulo mural"
+      },
+      {
+        "key": "nodulo_tamanho_mm",
+        "label": "nodulo_tamanho_mm",
+        "type": "number",
+        "unit": "mm",
+        "required": false,
+        "validRange": "0-50",
+        "notes": "Maior dimensão do nódulo mural"
+      },
+      {
+        "key": "nodulo_margem",
+        "label": "nodulo_margem",
+        "type": "string",
+        "required": false,
+        "notes": "Margem do nódulo (aguda/obtusa)"
+      },
+      {
+        "key": "atenuacao_hu_pre",
+        "label": "atenuacao_hu_pre",
+        "type": "number",
+        "unit": "HU",
+        "required": false,
+        "validRange": "-20-200",
+        "notes": "Atenuação na fase pré-contraste (CT)"
+      },
+      {
+        "key": "atenuacao_hu_portal",
+        "label": "atenuacao_hu_portal",
+        "type": "number",
+        "unit": "HU",
+        "required": false,
+        "validRange": "-20-200",
+        "notes": "Atenuação na fase portal (CT)"
+      },
+      {
+        "key": "homogeneo",
+        "label": "homogeneo",
+        "type": "boolean",
+        "required": false,
+        "notes": "Lesão homogênea?"
+      },
+      {
+        "key": "hiperintenso_t2_csf",
+        "label": "hiperintenso_t2_csf",
+        "type": "boolean",
+        "required": false,
+        "notes": "T2 muito hiperintenso (como LCR)"
+      },
+      {
+        "key": "hiperintenso_t1_marcado",
+        "label": "hiperintenso_t1_marcado",
+        "type": "boolean",
+        "required": false,
+        "notes": "T1 muito hiperintenso (aprox. 2,5x parênquima)"
+      },
+      {
+        "key": "hiperintenso_t1_heterogeneo_fs",
+        "label": "hiperintenso_t1_heterogeneo_fs",
+        "type": "boolean",
+        "required": false,
+        "notes": "T1 hiperintenso heterogêneo em fat-sat"
+      },
+      {
+        "key": "muito_pequeno_caracterizar",
+        "label": "muito_pequeno_caracterizar",
+        "type": "boolean",
+        "required": false,
+        "notes": "Muito pequeno para caracterizar (TSTC)"
+      },
+      {
+        "key": "fluido_simples",
+        "label": "fluido_simples",
+        "type": "boolean",
+        "required": false,
+        "notes": "Fluido simples (cisto simples)"
       }
     ]
   },

@@ -13,6 +13,18 @@ export const FindingSchema = z.object({
   compute_requests: z.array(ComputeRequestSchema).optional(),
 });
 
+export const ReportAuditEntrySchema = z.object({
+  type: z.enum(['inferred', 'missing']),
+  ref_id: z.string(),
+  formula: z.string(),
+  details: z.string(),
+});
+
+export const ReportAuditSchema = z.object({
+  inference_level: z.enum(['strict', 'cautious', 'permissive']),
+  entries: z.array(ReportAuditEntrySchema),
+});
+
 export const ReportJSONSchema = z.object({
   case_id: z.string(),
   modality: z.string(),
@@ -45,6 +57,7 @@ export const ReportJSONSchema = z.object({
   }).optional(),
   findings: z.array(FindingSchema),
   compute_results: z.record(ComputeResultSchema).optional(),
+  audit: ReportAuditSchema.optional(),
   impression: z.object({
     primary_diagnosis: z.string(),
     differentials: z.array(z.string()).optional(),
@@ -69,3 +82,5 @@ export const ReportJSONSchema = z.object({
 
 export type ReportJSON = z.infer<typeof ReportJSONSchema>;
 export type Finding = z.infer<typeof FindingSchema>;
+export type ReportAudit = z.infer<typeof ReportAuditSchema>;
+export type ReportAuditEntry = z.infer<typeof ReportAuditEntrySchema>;

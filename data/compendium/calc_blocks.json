@@ -1272,26 +1272,26 @@
         "name": "realce_HU",
         "type": "number",
         "unit": "HU",
-        "required": "true",
+        "required": "false",
         "valid_range": "-20-100",
-        "notes": "Realce em unidades Hounsfield (≥20 HU = realce)"
+        "notes": "Realce em unidades Hounsfield (≥20 HU = realce). Opcional se RM."
       },
       {
         "name": "componentes_solidos",
         "type": "boolean",
-        "required": "true",
-        "notes": "Presença de componentes sólidos?"
+        "required": "false",
+        "notes": "Presença de componentes sólidos? (nódulo sólido)"
       },
       {
         "name": "septos",
         "type": "boolean",
-        "required": "true",
+        "required": "false",
         "notes": "Presença de septos?"
       },
       {
         "name": "calcificacao",
         "type": "boolean",
-        "required": "true",
+        "required": "false",
         "notes": "Presença de calcificação?"
       },
       {
@@ -1301,12 +1301,139 @@
         "required": "false",
         "valid_range": "0-10",
         "notes": "Número de septos (se presentes)"
+      },
+      {
+        "name": "modalidade",
+        "type": "string",
+        "required": "false",
+        "notes": "CT ou MRI"
+      },
+      {
+        "name": "tamanho_lesao_mm",
+        "type": "number",
+        "unit": "mm",
+        "required": "false",
+        "valid_range": "0-200",
+        "notes": "Maior diâmetro da lesão"
+      },
+      {
+        "name": "parede_espessura_mm",
+        "type": "number",
+        "unit": "mm",
+        "required": "false",
+        "valid_range": "0-10",
+        "notes": "Espessura máxima da parede"
+      },
+      {
+        "name": "septos_espessura_mm",
+        "type": "number",
+        "unit": "mm",
+        "required": "false",
+        "valid_range": "0-10",
+        "notes": "Espessura máxima dos septos"
+      },
+      {
+        "name": "parede_irregular",
+        "type": "boolean",
+        "required": "false",
+        "notes": "Parede irregular?"
+      },
+      {
+        "name": "septos_irregulares",
+        "type": "boolean",
+        "required": "false",
+        "notes": "Septos irregulares?"
+      },
+      {
+        "name": "parede_realce",
+        "type": "boolean",
+        "required": "false",
+        "notes": "Realce de parede (RM/CT)"
+      },
+      {
+        "name": "septos_realce",
+        "type": "boolean",
+        "required": "false",
+        "notes": "Realce de septos (RM/CT)"
+      },
+      {
+        "name": "nodulo_realce",
+        "type": "boolean",
+        "required": "false",
+        "notes": "Realce de nódulo mural"
+      },
+      {
+        "name": "nodulo_tamanho_mm",
+        "type": "number",
+        "unit": "mm",
+        "required": "false",
+        "valid_range": "0-50",
+        "notes": "Maior dimensão do nódulo mural"
+      },
+      {
+        "name": "nodulo_margem",
+        "type": "string",
+        "required": "false",
+        "notes": "Margem do nódulo (aguda/obtusa)"
+      },
+      {
+        "name": "atenuacao_hu_pre",
+        "type": "number",
+        "unit": "HU",
+        "required": "false",
+        "valid_range": "-20-200",
+        "notes": "Atenuação na fase pré-contraste (CT)"
+      },
+      {
+        "name": "atenuacao_hu_portal",
+        "type": "number",
+        "unit": "HU",
+        "required": "false",
+        "valid_range": "-20-200",
+        "notes": "Atenuação na fase portal (CT)"
+      },
+      {
+        "name": "homogeneo",
+        "type": "boolean",
+        "required": "false",
+        "notes": "Lesão homogênea?"
+      },
+      {
+        "name": "hiperintenso_t2_csf",
+        "type": "boolean",
+        "required": "false",
+        "notes": "T2 muito hiperintenso (como LCR)"
+      },
+      {
+        "name": "hiperintenso_t1_marcado",
+        "type": "boolean",
+        "required": "false",
+        "notes": "T1 muito hiperintenso (aprox. 2,5x parênquima)"
+      },
+      {
+        "name": "hiperintenso_t1_heterogeneo_fs",
+        "type": "boolean",
+        "required": "false",
+        "notes": "T1 hiperintenso heterogêneo em fat-sat"
+      },
+      {
+        "name": "muito_pequeno_caracterizar",
+        "type": "boolean",
+        "required": "false",
+        "notes": "Muito pequeno para caracterizar (TSTC)"
+      },
+      {
+        "name": "fluido_simples",
+        "type": "boolean",
+        "required": "false",
+        "notes": "Fluido simples (cisto simples)"
       }
     ],
     "preprocessing": [
-      "Validar presença de realce (≥20 HU = realce)",
-      "Usar TC com contraste (NC + arterial + portal + tardia)",
-      "Classificar cada componente"
+      "Registrar modalidade (CT ou MRI)",
+      "Validar presença de realce (≥20 HU = realce em CT)",
+      "Usar CT com contraste (NC + arterial + portal + tardia) quando aplicável",
+      "Classificar cada componente de parede/septos/nodulo"
     ],
     "formula": [
       "Categoria Bosniak = f(realce, sólido, septos, calcificação)",
@@ -1320,7 +1447,7 @@
       "raw": [
         "primary_value:",
         "name: bosniak_category",
-        "value: \"I / II / IIF / III / IV / V\"",
+        "value: \"I / II / IIF / III / IV\"",
         "derived_values:",
         "- name: malignancy_risk",
         "value: \"Risco malignidade (%)\""
@@ -1338,20 +1465,18 @@
         "- if: bosniak_category = \"III\"",
         "then: \"Complexo ambíguo; 10-50% risco; follow-up ou biópsia\"",
         "- if: bosniak_category = \"IV\"",
-        "then: \"Sólido com realce; >50% risco; considerar cirurgia\"",
-        "- if: bosniak_category = \"V\"",
-        "then: \"Completamente sólido; >90% risco; cirurgia recomendada\""
+        "then: \"Alto risco; considerar cirurgia\""
       ]
     },
     "qa_checks": [
-      "Validar TC com contraste (NC + fases)",
-      "Verificar realce ≥20 HU",
+      "Validar CT com contraste (NC + fases) quando aplicável",
+      "Verificar realce ≥20 HU em CT",
       "Alertar se realce <20 HU (não significativo)",
       "Confirmar presença de septos (não confundir com artefato)",
       "Documentar localização exata (rim D/E, pólo)"
     ],
     "evidence": {
-      "primary_source": "Silverman SG et al. Management incidental adrenal mass. Radiology. 2019;292(2):251-260.",
+      "primary_source": "Bosniak MA et al. Bosniak Classification of Cystic Renal Masses, Version 2019. Radiology. 2019;292(2):475-488.",
       "radiopaedia_link": "https://radiopaedia.org/articles/bosniak-classification-of-cystic-renal-masses-version-2019",
       "notes": "Classificação Bosniak 2019 atualizada. Baseada em risco malignidade."
     }

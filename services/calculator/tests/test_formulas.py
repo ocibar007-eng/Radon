@@ -7,6 +7,7 @@ from ..formulas import (
     calculate_nascet_stenosis,
     calculate_stone_skin_distance_mean,
     classify_nodule_fleischner_2017,
+    classify_renal_cyst_bosniak_2019,
     measure_bile_duct_diameter,
 )
 
@@ -55,3 +56,39 @@ def test_measure_bile_duct_diameter():
     result = measure_bile_duct_diameter(8)
     assert result["value"] == 8.0
     assert result["category"] == "Dilatado leve"
+
+
+def test_classify_bosniak_simple_cyst():
+    result = classify_renal_cyst_bosniak_2019(
+        modalidade="CT",
+        fluido_simples=True,
+        homogeneo=True,
+        atenuacao_hu_pre=10,
+    )
+    assert result["value"] == "I"
+
+
+def test_classify_bosniak_tstc():
+    result = classify_renal_cyst_bosniak_2019(
+        modalidade="CT",
+        muito_pequeno_caracterizar=True,
+    )
+    assert result["value"] == "II"
+
+
+def test_classify_bosniak_thick_wall():
+    result = classify_renal_cyst_bosniak_2019(
+        modalidade="CT",
+        parede_realce=True,
+        parede_espessura_mm=4,
+    )
+    assert result["value"] == "III"
+
+
+def test_classify_bosniak_nodule():
+    result = classify_renal_cyst_bosniak_2019(
+        modalidade="CT",
+        nodulo_realce=True,
+        nodulo_tamanho_mm=5,
+    )
+    assert result["value"] == "IV"

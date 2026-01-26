@@ -12,6 +12,8 @@ import { CONFIG } from '../config';
 import { OPENAI_MODELS } from '../openai';
 import { renderReportMarkdown } from './renderer';
 import { canonicalizeMarkdown } from './canonicalizer';
+import { appendAuditBlock } from './audit';
+import { applyCautiousInference, INFERENCE_LEVEL } from './compute-inference';
 import { runDeterministicQA } from './qa/deterministic';
 import { healReport } from './qa/self-healing';
 import { classifyRisk } from './qa/risk';
@@ -136,15 +138,28 @@ export async function processCase(bundle: CaseBundle): Promise<ReportJSON> {
   const clinical = await processClinicalIndication(bundle);
   const technical = await generateTechniqueSection(bundle);
   const findings = await generateFindings(bundle);
+  const modality = resolveModality(bundle);
 
-  const computeRequests = collectComputeRequests(findings);
+  const { requests: computeRequests, auditEntries } = applyCautiousInference(findings, modality);
   let computeResults: ComputeResult[] | undefined;
 
   if (computeRequests.length > 0) {
     computeResults = await computeFormulas(computeRequests);
   }
 
-  return buildReport(bundle, clinical, technical, findings, computeResults);
+  let report = buildReport(bundle, clinical, technical, findings, computeResults);
+
+  if (auditEntries.length > 0) {
+    report = {
+      ...report,
+      audit: {
+        inference_level: INFERENCE_LEVEL,
+        entries: auditEntries,
+      },
+    };
+  }
+
+  return report;
 }
 
 export type ReportPipelineResult = {
@@ -191,8 +206,14 @@ export async function processCasePipeline(bundle: CaseBundle): Promise<ReportPip
     canonicalizer
   );
 
+  let finalMarkdown = healing.markdown;
+  if (report.audit?.entries?.length) {
+    finalMarkdown = appendAuditBlock(finalMarkdown, report.audit);
+    finalMarkdown = canonicalizer(finalMarkdown);
+  }
+
   const latencyMs = Date.now() - start;
-  const missingMarkers = countMissingMarkers(healing.markdown);
+  const missingMarkers = countMissingMarkers(finalMarkdown);
 
   const risk = classifyRisk(report, healing.qa, {
     latency_ms: latencyMs,
@@ -218,7 +239,7 @@ export async function processCasePipeline(bundle: CaseBundle): Promise<ReportPip
 
   return {
     report,
-    markdown: healing.markdown,
+    markdown: finalMarkdown,
     qa: healing.qa,
     risk,
   };
