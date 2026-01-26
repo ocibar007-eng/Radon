@@ -34,12 +34,17 @@ export default defineConfig(({ mode }) => {
       // Prioridade: process.env (Vercel) > loadEnv (.env local)
       'process.env': {
         API_KEY: JSON.stringify(process.env.API_KEY || process.env.VITE_API_KEY || env.API_KEY || env.VITE_API_KEY || process.env.GEMINI_API_KEY || env.GEMINI_API_KEY),
+        OPENAI_API_KEY: JSON.stringify(process.env.OPENAI_API_KEY || env.OPENAI_API_KEY),
         FIREBASE_API_KEY: JSON.stringify(process.env.FIREBASE_API_KEY || env.FIREBASE_API_KEY),
         FIREBASE_AUTH_DOMAIN: JSON.stringify(process.env.FIREBASE_AUTH_DOMAIN || env.FIREBASE_AUTH_DOMAIN),
         FIREBASE_PROJECT_ID: JSON.stringify(process.env.FIREBASE_PROJECT_ID || env.FIREBASE_PROJECT_ID),
         FIREBASE_STORAGE_BUCKET: JSON.stringify(process.env.FIREBASE_STORAGE_BUCKET || env.FIREBASE_STORAGE_BUCKET),
         FIREBASE_MESSAGING_SENDER_ID: JSON.stringify(process.env.FIREBASE_MESSAGING_SENDER_ID || env.FIREBASE_MESSAGING_SENDER_ID),
-        FIREBASE_APP_ID: JSON.stringify(process.env.FIREBASE_APP_ID || env.FIREBASE_APP_ID)
+        FIREBASE_APP_ID: JSON.stringify(process.env.FIREBASE_APP_ID || env.FIREBASE_APP_ID),
+        OPENAI_API_KEY: JSON.stringify(process.env.OPENAI_API_KEY || env.OPENAI_API_KEY),
+        OPENAI_MODEL_COMPARISON: JSON.stringify(process.env.OPENAI_MODEL_COMPARISON || env.OPENAI_MODEL_COMPARISON),
+        OPENAI_MODEL_IMPRESSION: JSON.stringify(process.env.OPENAI_MODEL_IMPRESSION || env.OPENAI_MODEL_IMPRESSION),
+        CALCULATOR_URL: JSON.stringify(process.env.CALCULATOR_URL || env.CALCULATOR_URL || process.env.VITE_CALC_URL || env.VITE_CALC_URL),
       }
     },
     server: {

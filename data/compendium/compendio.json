@@ -1,0 +1,1995 @@
+[
+  {
+    "ItemID": "ABD-0001",
+    "Categoria": "C - Abdome",
+    "Subcategoria": "C1 - Fígado",
+    "Nome": "Hepatorenal Index",
+    "Sinonimos": "Liver-to-kidney ratio; HRI",
+    "search_terms": [
+      "hepatorenal index",
+      "HRI steatosis",
+      "liver kidney ratio",
+      "hepatic steatosis ultrasound",
+      "fatty liver US"
+    ],
+    "evidence_notes": "Fonte primária: Hamaguchi M et al (AJR 2007). Índice US para quantificar esteatose.",
+    "Status": "OK",
+    "tags": [
+      "#esteatose",
+      "#fígado",
+      "#ultrassom",
+      "#índice",
+      "#hepatorenal"
+    ]
+  },
+  {
+    "ItemID": "ABD-0002",
+    "Categoria": "C - Abdome",
+    "Subcategoria": "C2 - Rins",
+    "Nome": "Bosniak Classification 2019",
+    "Sinonimos": "Bosniak 2019; cystic renal mass classification",
+    "search_terms": [
+      "Bosniak classification",
+      "cystic renal mass",
+      "Bosniak 2019",
+      "renal cyst classification",
+      "cyst malignancy risk"
+    ],
+    "evidence_notes": "Fonte primária: Silverman SG et al (Radiology 2019). Classificação atualizada para cistos renais.",
+    "Status": "OK",
+    "tags": [
+      "#cisto",
+      "#rim",
+      "#Bosniak",
+      "#classificação",
+      "#malignidade"
+    ]
+  },
+  {
+    "ItemID": "ABD-0003",
+    "Categoria": "C - Abdome",
+    "Subcategoria": "C2 - Rins",
+    "Nome": "RENAL Nephrometry Score",
+    "Sinonimos": "RENAL score; nephrometry scoring",
+    "search_terms": [
+      "RENAL nephrometry",
+      "RENAL score",
+      "renal mass complexity",
+      "nephrometry scoring",
+      "renal tumor assessment"
+    ],
+    "evidence_notes": "Fonte primária: Kutikov A, Uzzo RG (J Urol 2009). Score para complexidade anatômica massas renais.",
+    "Status": "OK",
+    "tags": [
+      "#rim",
+      "#nefrometria",
+      "#RENAL",
+      "#complexidade",
+      "#score"
+    ]
+  },
+  {
+    "ItemID": "ABD-0004",
+    "Categoria": "C - Abdome",
+    "Subcategoria": "C2 - Rins",
+    "Nome": "Height-Adjusted TKV",
+    "Sinonimos": "ht-TKV; Mayo imaging classification; ADPKD volume",
+    "search_terms": [
+      "height adjusted TKV",
+      "ht-TKV ADPKD",
+      "total kidney volume",
+      "Mayo classification",
+      "ADPKD prognosis"
+    ],
+    "evidence_notes": "Fonte primária: Irazabal MV et al (J Am Soc Nephrol 2015). Classificação Mayo para DRPAD.",
+    "Status": "OK",
+    "tags": [
+      "#DRPAD",
+      "#rim",
+      "#volume",
+      "#altura-ajustado",
+      "#ht-TKV"
+    ]
+  },
+  {
+    "ItemID": "ABD-0005",
+    "Categoria": "C - Abdome",
+    "Subcategoria": "C3 - Adrenais",
+    "Nome": "Adrenal Absolute Washout",
+    "Sinonimos": "Absolute washout; AW",
+    "search_terms": [
+      "adrenal washout",
+      "absolute washout adenoma",
+      "adrenal CT washout",
+      "adenoma characterization",
+      "adrenal mass washout"
+    ],
+    "evidence_notes": "Fonte primária: Caoili EM et al (Radiology 2002). Protocolo TC para caracterização adenoma.",
+    "Status": "OK",
+    "tags": [
+      "#adrenal",
+      "#washout",
+      "#adenoma",
+      "#TC",
+      "#caracterização"
+    ]
+  },
+  {
+    "ItemID": "ABD-0006",
+    "Categoria": "C - Abdome",
+    "Subcategoria": "C3 - Adrenais",
+    "Nome": "Adrenal Signal Intensity Index",
+    "Sinonimos": "Chemical shift index; CSI; opposed/in-phase ratio",
+    "search_terms": [
+      "signal intensity index adrenal",
+      "chemical shift index",
+      "CSI adenoma",
+      "opposed in-phase ratio",
+      "adrenal MRI"
+    ],
+    "evidence_notes": "Fonte primária: Halefoglu AM, Baskan O (Diagn Interv Radiol 2012). Índice RM para detectar gordura.",
+    "Status": "OK",
+    "tags": [
+      "#adrenal",
+      "#chemical-shift",
+      "#SII",
+      "#RM",
+      "#gordura"
+    ]
+  },
+  {
+    "ItemID": "ABD-0007",
+    "Categoria": "C - Abdome",
+    "Subcategoria": "C1 - Fígado",
+    "Nome": "LI-RADS Threshold Growth",
+    "Sinonimos": "Threshold growth; LI-RADS major feature",
+    "search_terms": [
+      "LI-RADS threshold growth",
+      "HCC growth criteria",
+      "nodule growth LI-RADS",
+      "50% growth 6 months",
+      "LI-RADS major feature"
+    ],
+    "evidence_notes": "Fonte primária: Chernyak V et al (Radiology 2018). Definição LI-RADS v2018 para crescimento.",
+    "Status": "OK",
+    "tags": [
+      "#HCC",
+      "#fígado",
+      "#LI-RADS",
+      "#crescimento",
+      "#limiar"
+    ]
+  },
+  {
+    "ItemID": "ABD-0008",
+    "Categoria": "D - Pâncreas",
+    "Subcategoria": "D1 - Pancreatite Aguda",
+    "Nome": "Modified CT Severity Index",
+    "Sinonimos": "Mortele MCTSI; modified CTSI",
+    "search_terms": [
+      "modified CT severity index",
+      "MCTSI pancreatitis",
+      "Mortele score",
+      "acute pancreatitis severity",
+      "CT severity pancreatitis"
+    ],
+    "evidence_notes": "Fonte primária: Mortele KJ et al (AJR 2004). Score para avaliar gravidade pancreatite.",
+    "Status": "OK",
+    "tags": [
+      "#pancreatite",
+      "#MCTSI",
+      "#gravidade",
+      "#TC",
+      "#score"
+    ]
+  },
+  {
+    "ItemID": "ABD-0009",
+    "Categoria": "D - Pâncreas",
+    "Subcategoria": "D2 - Pâncreas Crônico",
+    "Nome": "Pancreatic Duct Diameter",
+    "Sinonimos": "Main pancreatic duct diameter; MPD",
+    "search_terms": [
+      "pancreatic duct diameter",
+      "main pancreatic duct",
+      "MPD normal values",
+      "duct dilatation",
+      "pancreatic duct measurement"
+    ],
+    "evidence_notes": "Fonte primária: Elgasim M et al (Endosc Ultrasound 2023). Valores normais duct pancreático.",
+    "Status": "OK",
+    "tags": [
+      "#pâncreas",
+      "#ducto",
+      "#diâmetro",
+      "#medição",
+      "#normal"
+    ]
+  },
+  {
+    "ItemID": "ABD-0010",
+    "Categoria": "E - Baço",
+    "Subcategoria": "E1 - Volume Esplênico",
+    "Nome": "Splenic Volume Ellipsoid",
+    "Sinonimos": "Spleen volume; splenic index",
+    "search_terms": [
+      "splenic volume",
+      "spleen volume formula",
+      "splenic index",
+      "splenomegaly measurement",
+      "ellipsoid formula spleen"
+    ],
+    "evidence_notes": "Fonte primária: Bezerra AS et al (Eur J Radiol 2004). Fórmula elipsoide validada.",
+    "Status": "OK",
+    "tags": [
+      "#baço",
+      "#volume",
+      "#elipsoide",
+      "#esplenomegalia",
+      "#fórmula"
+    ]
+  },
+  {
+    "ItemID": "ABD-0011",
+    "Categoria": "C - Abdome",
+    "Subcategoria": "C1 - Fígado",
+    "Nome": "Liver-to-Spleen Attenuation Ratio",
+    "Sinonimos": "Liver/spleen ratio; L/S ratio; steatosis CT",
+    "search_terms": [
+      "liver spleen attenuation ratio",
+      "L/S ratio steatosis",
+      "liver spleen CT",
+      "hepatic steatosis CT"
+    ],
+    "evidence_notes": "Fonte primária: Piekarski J et al (Radiology 1989). Razão para quantificar esteatose TC.",
+    "Status": "OK",
+    "tags": [
+      "#fígado",
+      "#esteatose",
+      "#razão",
+      "#TC",
+      "#atenuação"
+    ]
+  },
+  {
+    "ItemID": "ABD-0012",
+    "Categoria": "C - Abdome",
+    "Subcategoria": "C1 - Fígado",
+    "Nome": "Liver Fibrosis Elastography",
+    "Sinonimos": "Liver stiffness; transient elastography; FibroScan",
+    "search_terms": [
+      "liver elastography",
+      "liver stiffness",
+      "transient elastography",
+      "FibroScan",
+      "hepatic fibrosis"
+    ],
+    "evidence_notes": "Fonte primária: Castera L et al (Hepatology 2005). Elastografia para avaliar fibrose.",
+    "Status": "OK",
+    "tags": [
+      "#fígado",
+      "#fibrose",
+      "#elastografia",
+      "#rigidez",
+      "#US"
+    ]
+  },
+  {
+    "ItemID": "ABD-0013",
+    "Categoria": "C - Abdome",
+    "Subcategoria": "C2 - Rins",
+    "Nome": "Renal Resistive Index",
+    "Sinonimos": "Renal RI; renal artery RI; transplant RI",
+    "search_terms": [
+      "renal resistive index",
+      "renal RI",
+      "transplant RI",
+      "renal artery RI",
+      "kidney resistance"
+    ],
+    "evidence_notes": "Fonte primária: Radermecker RP et al (Nephrol Dial Transplant 2002). RI renal para avaliar função.",
+    "Status": "OK",
+    "tags": [
+      "#rim",
+      "#resistência",
+      "#doppler",
+      "#RI",
+      "#transplante"
+    ]
+  },
+  {
+    "ItemID": "ABD-0014",
+    "Categoria": "C - Abdome",
+    "Subcategoria": "C2 - Rins",
+    "Nome": "Renal Pelvic AP Diameter",
+    "Sinonimos": "Renal pelvis diameter; pelvicalyceal dilatation; hydronephrosis",
+    "search_terms": [
+      "renal pelvis diameter",
+      "hydronephrosis AP diameter",
+      "pelvic dilatation",
+      "renal pelvic measurement"
+    ],
+    "evidence_notes": "Fonte primária: Shokeir AA (Curr Opin Support Palliat Care 2009). Critério para hidronefrose.",
+    "Status": "OK",
+    "tags": [
+      "#rim",
+      "#pelve",
+      "#hidronefrose",
+      "#diâmetro",
+      "#obstrução"
+    ]
+  },
+  {
+    "ItemID": "ABD-0015",
+    "Categoria": "C - Abdome",
+    "Subcategoria": "C4 - Baço",
+    "Nome": "Spleen-to-Liver Attenuation Ratio",
+    "Sinonimos": "Spleen/liver ratio; splenic congestion",
+    "search_terms": [
+      "spleen liver attenuation ratio",
+      "S/L ratio",
+      "splenic congestion",
+      "portal hypertension CT"
+    ],
+    "evidence_notes": "Fonte primária: Piekarski J et al (Radiology 1989). Razão para congestão esplênica.",
+    "Status": "OK",
+    "tags": [
+      "#baço",
+      "#congestão",
+      "#hipertensão-portal",
+      "#razão",
+      "#TC"
+    ]
+  },
+  {
+    "ItemID": "ABD-0016",
+    "Categoria": "C - Abdome",
+    "Subcategoria": "C5 - Vesícula/Vias Biliares",
+    "Nome": "Bile Duct Diameter",
+    "Sinonimos": "Common bile duct; CBD; diâmetro ducto biliar",
+    "search_terms": [
+      "bile duct diameter",
+      "common bile duct",
+      "CBD measurement",
+      "ductal dilatation",
+      "biliary duct"
+    ],
+    "evidence_notes": "Fonte primária: Laing FC et al (Radiology 1981). Valores normais CBD bem estabelecidos.",
+    "Status": "OK",
+    "tags": [
+      "#ducto-biliar",
+      "#medição",
+      "#dilatação",
+      "#obstrução",
+      "#ultrassom"
+    ]
+  },
+  {
+    "ItemID": "ABD-0017",
+    "Categoria": "C - Abdome",
+    "Subcategoria": "C5 - Vesícula/Vias Biliares",
+    "Nome": "Gallbladder Wall Thickness",
+    "Sinonimos": "GB wall; parede vesicular; espessura parede",
+    "search_terms": [
+      "gallbladder wall thickness",
+      "acute cholecystitis",
+      "GB wall ultrasound",
+      "cholecystitis criteria",
+      "Murphy sign"
+    ],
+    "evidence_notes": "Fonte primária: Ralls PW et al (AJR 1982). Critério clássico para colecistite aguda.",
+    "Status": "OK",
+    "tags": [
+      "#vesícula",
+      "#colecistite",
+      "#inflamação",
+      "#parede",
+      "#ultrassom"
+    ]
+  },
+  {
+    "ItemID": "ABD-0018",
+    "Categoria": "C - Abdome",
+    "Subcategoria": "C5 - Vesícula/Vias Biliares",
+    "Nome": "Hepatic Steatosis Ultrasound",
+    "Sinonimos": "Fatty liver; hepatic steatosis US; bright liver",
+    "search_terms": [
+      "hepatic steatosis ultrasound",
+      "fatty liver US",
+      "echogenicity liver",
+      "NAFLD ultrasound",
+      "liver brightness"
+    ],
+    "evidence_notes": "Fonte primária: Hamaguchi M et al (AJR 2007). Método qualitativo baseado em ecogenicidade.",
+    "Status": "OK",
+    "tags": [
+      "#esteatose",
+      "#fígado",
+      "#ecogenicidade",
+      "#NAFLD",
+      "#ultrassom"
+    ]
+  },
+  {
+    "ItemID": "ABD-0019",
+    "Categoria": "C - Abdome",
+    "Subcategoria": "C5 - Vesícula/Vias Biliares",
+    "Nome": "Pancreatic Echogenicity",
+    "Sinonimos": "Pancreatic echotexture; pancreatic echo; parênquima pancreático",
+    "search_terms": [
+      "pancreatic echogenicity",
+      "pancreatic fibrosis ultrasound",
+      "chronic pancreatitis",
+      "pancreatic texture",
+      "echo pancreas"
+    ],
+    "evidence_notes": "Fonte primária: Garg PK et al (Pancreatology 2006). Marcador ultrassonográfico de fibrose.",
+    "Status": "OK",
+    "tags": [
+      "#pâncreas",
+      "#fibrose",
+      "#ecogenicidade",
+      "#pancreatite-crônica",
+      "#ultrassom"
+    ]
+  },
+  {
+    "ItemID": "ABD-0020",
+    "Categoria": "C - Abdome",
+    "Subcategoria": "C6 - Retroperitônio",
+    "Nome": "Psoas Muscle Index",
+    "Sinonimos": "Psoas area; muscle mass; sarcopenia",
+    "search_terms": [
+      "psoas muscle index",
+      "sarcopenia CT",
+      "muscle mass assessment",
+      "PMI cancer",
+      "body composition"
+    ],
+    "evidence_notes": "Fonte primária: Prado CM et al (J Cachexia Sarcopenia Muscle 2015). Índice prognóstico em câncer.",
+    "Status": "OK",
+    "tags": [
+      "#sarcopenia",
+      "#músculo",
+      "#massa-corporal",
+      "#prognóstico",
+      "#TC"
+    ]
+  },
+  {
+    "ItemID": "ABD-0021",
+    "Categoria": "C - Abdome",
+    "Subcategoria": "C6 - Retroperitônio",
+    "Nome": "Visceral Fat Area",
+    "Sinonimos": "VFA; visceral adiposity; visceral fat index",
+    "search_terms": [
+      "visceral fat area",
+      "visceral adiposity",
+      "abdominal fat CT",
+      "metabolic syndrome",
+      "VFA measurement"
+    ],
+    "evidence_notes": "Fonte primária: Kvist H et al (Am J Clin Nutr 1988). Método clássico quantificação gordura visceral.",
+    "Status": "OK",
+    "tags": [
+      "#gordura-visceral",
+      "#adiposidade",
+      "#síndrome-metabólica",
+      "#TC",
+      "#composição-corporal"
+    ]
+  },
+  {
+    "ItemID": "ABD-0022",
+    "Categoria": "C - Abdome",
+    "Subcategoria": "C6 - Retroperitônio",
+    "Nome": "Abdominal Aorta Calcification Score",
+    "Sinonimos": "AAC; aortic calcification; vascular calcification",
+    "search_terms": [
+      "aortic calcification score",
+      "AAC score",
+      "vascular calcification",
+      "cardiovascular risk",
+      "aorta calcification"
+    ],
+    "evidence_notes": "Fonte primária: Kauppila LI et al (Arterioscler Thromb Vasc Biol 1994). Score para risco cardiovascular.",
+    "Status": "OK",
+    "tags": [
+      "#calcificação",
+      "#aorta",
+      "#risco-cardiovascular",
+      "#TC",
+      "#aterosclerose"
+    ]
+  },
+  {
+    "ItemID": "ABD-0023",
+    "Categoria": "C - Abdome",
+    "Subcategoria": "C7 - Intestino",
+    "Nome": "Bowel Wall Thickness",
+    "Sinonimos": "Intestinal wall; wall thickness; parede intestinal",
+    "search_terms": [
+      "bowel wall thickness",
+      "intestinal wall ultrasound",
+      "Crohn disease",
+      "bowel inflammation",
+      "wall measurement"
+    ],
+    "evidence_notes": "Fonte primária: Hara AK et al (AJR 2005). Critério para inflamação intestinal.",
+    "Status": "OK",
+    "tags": [
+      "#intestino",
+      "#parede",
+      "#inflamação",
+      "#Crohn",
+      "#ultrassom"
+    ]
+  },
+  {
+    "ItemID": "ABD-0024",
+    "Categoria": "C - Abdome",
+    "Subcategoria": "C7 - Intestino",
+    "Nome": "Mesenteric Fat Stranding",
+    "Sinonimos": "Mesenteric inflammation; fat stranding; mesentério",
+    "search_terms": [
+      "mesenteric fat stranding",
+      "mesenteric inflammation",
+      "mesenteric ischemia",
+      "fat stranding CT",
+      "mesentery"
+    ],
+    "evidence_notes": "Fonte primária: Hara AK et al (AJR 2009). Sinal de isquemia mesentérica.",
+    "Status": "OK",
+    "tags": [
+      "#mesentério",
+      "#inflamação",
+      "#isquemia",
+      "#TC",
+      "#stranding"
+    ]
+  },
+  {
+    "ItemID": "ABD-0025",
+    "Categoria": "C - Abdome",
+    "Subcategoria": "C5 - Vesícula/Vias Biliares",
+    "Nome": "Hepatic Artery Resistive Index",
+    "Sinonimos": "Hepatic artery RI; HA RI; resistência arterial hepática",
+    "search_terms": [
+      "hepatic artery resistive index",
+      "HA RI",
+      "hepatic artery doppler",
+      "cirrhosis doppler",
+      "liver hemodynamics"
+    ],
+    "evidence_notes": "Fonte primária: Bolondi L et al (Semin Ultrasound CT MR 1992). Índice para avaliação cirrose.",
+    "Status": "OK",
+    "tags": [
+      "#artéria-hepática",
+      "#resistência",
+      "#cirrose",
+      "#doppler",
+      "#hemodynamics"
+    ]
+  },
+  {
+    "ItemID": "ABD-0026",
+    "Categoria": "C - Abdome",
+    "Subcategoria": "C1 - Fígado",
+    "Nome": "Hepatic Vein Doppler Waveform",
+    "Sinonimos": "Hepatic vein flow; HV waveform; padrão fluxo hepático",
+    "search_terms": [
+      "hepatic vein doppler",
+      "hepatic vein waveform",
+      "triphasic flow",
+      "Budd-Chiari",
+      "liver congestion"
+    ],
+    "evidence_notes": "Fonte primária: Bolondi L et al (Semin Ultrasound CT MR 1992). Padrão para congestão.",
+    "Status": "OK",
+    "tags": [
+      "#veia-hepática",
+      "#fluxo",
+      "#congestão",
+      "#Budd-Chiari",
+      "#doppler"
+    ]
+  },
+  {
+    "ItemID": "ABD-0027",
+    "Categoria": "C - Abdome",
+    "Subcategoria": "C2 - Rins",
+    "Nome": "Renal Artery Peak Systolic Velocity",
+    "Sinonimos": "PSV renal; peak systolic velocity; velocidade sistólica pico",
+    "search_terms": [
+      "renal artery PSV",
+      "peak systolic velocity",
+      "renal stenosis doppler",
+      "RAS diagnosis",
+      "renal artery velocity"
+    ],
+    "evidence_notes": "Fonte primária: Olin JW et al (Circ Cardiovasc Interv 2012). Critério Doppler RAS.",
+    "Status": "OK",
+    "tags": [
+      "#artéria-renal",
+      "#PSV",
+      "#estenose",
+      "#doppler",
+      "#RAS"
+    ]
+  },
+  {
+    "ItemID": "ABD-0028",
+    "Categoria": "C - Abdome",
+    "Subcategoria": "C2 - Rins",
+    "Nome": "Renal Artery End-Diastolic Velocity",
+    "Sinonimos": "EDV renal; end-diastolic velocity; velocidade diastólica final",
+    "search_terms": [
+      "renal artery EDV",
+      "end-diastolic velocity",
+      "renal stenosis severity",
+      "RAS doppler",
+      "diastolic velocity"
+    ],
+    "evidence_notes": "Fonte primária: Olin JW et al (Circ Cardiovasc Interv 2012). Critério gravidade estenose.",
+    "Status": "OK",
+    "tags": [
+      "#artéria-renal",
+      "#EDV",
+      "#estenose-grave",
+      "#doppler",
+      "#RAS"
+    ]
+  },
+  {
+    "ItemID": "ABD-0029",
+    "Categoria": "C - Abdome",
+    "Subcategoria": "C2 - Rins",
+    "Nome": "Resistive Index Renal Transplant",
+    "Sinonimos": "Transplant RI; renal transplant resistance; RI transplante",
+    "search_terms": [
+      "renal transplant RI",
+      "transplant resistive index",
+      "graft function",
+      "transplant doppler",
+      "rejection assessment"
+    ],
+    "evidence_notes": "Fonte primária: Radermecker RP et al (Nephrol Dial Transplant 2002). RI para monitorar transplante.",
+    "Status": "OK",
+    "tags": [
+      "#transplante-renal",
+      "#resistência",
+      "#rejeição",
+      "#doppler",
+      "#monitoramento"
+    ]
+  },
+  {
+    "ItemID": "ABD-0030",
+    "Categoria": "C - Abdome",
+    "Subcategoria": "C3 - Adrenais",
+    "Nome": "Adrenal Gland Size",
+    "Sinonimos": "Adrenal diameter; adrenal size; tamanho adrenal",
+    "search_terms": [
+      "adrenal gland size",
+      "adrenal diameter",
+      "adrenal hyperplasia",
+      "adrenal adenoma",
+      "adrenal measurement"
+    ],
+    "evidence_notes": "Fonte primária: Boland GW et al (Radiology 1998). Valores normais adrenal.",
+    "Status": "OK",
+    "tags": [
+      "#adrenal",
+      "#tamanho",
+      "#diâmetro",
+      "#hiperplasia",
+      "#TC"
+    ]
+  },
+  {
+    "ItemID": "ABD-0031",
+    "Categoria": "C - Abdome",
+    "Subcategoria": "C3 - Adrenais",
+    "Nome": "Adrenal Lipid Content Index",
+    "Sinonimos": "Lipid index; lipid content; índice lipídico",
+    "search_terms": [
+      "adrenal lipid index",
+      "lipid-rich adenoma",
+      "adrenal CT characterization",
+      "HU measurement",
+      "adenoma lipid"
+    ],
+    "evidence_notes": "Fonte primária: Caoili EM et al (Radiology 2002). Índice para detectar gordura.",
+    "Status": "OK",
+    "tags": [
+      "#adrenal",
+      "#gordura",
+      "#lipídico",
+      "#adenoma",
+      "#TC"
+    ]
+  },
+  {
+    "ItemID": "ABD-0032",
+    "Categoria": "C - Abdome",
+    "Subcategoria": "C4 - Baço",
+    "Nome": "Splenic Artery Resistive Index",
+    "Sinonimos": "Splenic artery RI; RA RI; resistência arterial esplênica",
+    "search_terms": [
+      "splenic artery resistive index",
+      "splenic artery doppler",
+      "portal hypertension doppler",
+      "RA RI",
+      "spleen hemodynamics"
+    ],
+    "evidence_notes": "Fonte primária: Bolondi L et al (Semin Ultrasound CT MR 1992). Índice PH.",
+    "Status": "OK",
+    "tags": [
+      "#artéria-esplênica",
+      "#resistência",
+      "#hipertensão-portal",
+      "#doppler",
+      "#hemodynamics"
+    ]
+  },
+  {
+    "ItemID": "ABD-0033",
+    "Categoria": "C - Abdome",
+    "Subcategoria": "C4 - Baço",
+    "Nome": "Spleen Doppler Flow Direction",
+    "Sinonimos": "Portal flow direction; flow direction; direção fluxo",
+    "search_terms": [
+      "portal flow direction",
+      "hepatofugal flow",
+      "hepatopetal flow",
+      "portal vein reversal",
+      "portal hypertension"
+    ],
+    "evidence_notes": "Fonte primária: Bolondi L et al (Semin Ultrasound CT MR 1992). Indicador PH grave.",
+    "Status": "OK",
+    "tags": [
+      "#baço",
+      "#fluxo-portal",
+      "#hepatofugal",
+      "#hipertensão-portal",
+      "#doppler"
+    ]
+  },
+  {
+    "ItemID": "ABD-0034",
+    "Categoria": "C - Abdome",
+    "Subcategoria": "C5 - Vesícula/Vias Biliares",
+    "Nome": "Bile Duct Stone Diameter",
+    "Sinonimos": "Stone size; tamanho cálculo; diâmetro cálculo",
+    "search_terms": [
+      "bile duct stone size",
+      "choledocholithiasis",
+      "stone diameter",
+      "CBD stone",
+      "biliary stone"
+    ],
+    "evidence_notes": "Fonte primária: Aerts M et al (Eur J Radiol 2011). Tamanho para risco obstrução.",
+    "Status": "OK",
+    "tags": [
+      "#cálculo-biliar",
+      "#tamanho",
+      "#obstrução",
+      "#colangite",
+      "#ultrassom"
+    ]
+  },
+  {
+    "ItemID": "ABD-0035",
+    "Categoria": "C - Abdome",
+    "Subcategoria": "C5 - Vesícula/Vias Biliares",
+    "Nome": "Hepatic Steatosis Grading",
+    "Sinonimos": "Steatosis grade; hepatic fat; grau esteatose",
+    "search_terms": [
+      "hepatic steatosis grading",
+      "fatty liver grading",
+      "NAFLD grading",
+      "liver fat quantification",
+      "steatosis severity"
+    ],
+    "evidence_notes": "Fonte primária: Piekarski J et al (Radiology 1989). Classificação esteatose TC.",
+    "Status": "OK",
+    "tags": [
+      "#esteatose",
+      "#fígado",
+      "#grau",
+      "#NAFLD",
+      "#TC"
+    ]
+  },
+  {
+    "ItemID": "ABD-0036",
+    "Categoria": "C - Abdome",
+    "Subcategoria": "C2 - Rins",
+    "Nome": "Distância Pele-Cálculo (SSD) - Média",
+    "Sinonimos": "SSD; skin-to-stone distance; distância pele-cálculo; distância pele cálculo",
+    "search_terms": [
+      "skin-to-stone distance",
+      "SSD mean",
+      "stone skin distance",
+      "distância pele cálculo",
+      "litíase renal SSD"
+    ],
+    "evidence_notes": "TODO: adicionar fonte para SSD (litíase renal).",
+    "Status": "OK",
+    "tags": [
+      "#litíase",
+      "#rim",
+      "#distância",
+      "#SSD",
+      "#TC"
+    ]
+  },
+  {
+    "ItemID": "GIN-0001",
+    "Categoria": "G - Gineco/Obstetrícia",
+    "Subcategoria": "G1 - Biometria Fetal",
+    "Nome": "Hadlock EFW Formula",
+    "Sinonimos": "Hadlock formula; fetal weight estimation",
+    "search_terms": [
+      "Hadlock formula",
+      "fetal weight estimation",
+      "EFW equation",
+      "fetal biometry",
+      "estimated fetal weight"
+    ],
+    "evidence_notes": "Fonte primária: Hadlock FP et al (Obstet Gynecol 1991). Equação padrão ouro EFW.",
+    "Status": "OK",
+    "tags": [
+      "#feto",
+      "#peso",
+      "#Hadlock",
+      "#biometria",
+      "#fórmula"
+    ]
+  },
+  {
+    "ItemID": "GIN-0002",
+    "Categoria": "G - Gineco/Obstetrícia",
+    "Subcategoria": "G2 - Ovário",
+    "Nome": "Ovarian Volume Ellipsoid",
+    "Sinonimos": "Ovary volume; ovarian volume",
+    "search_terms": [
+      "ovarian volume",
+      "ovary volume formula",
+      "PCOS volume",
+      "ovarian measurement",
+      "ellipsoid formula ovary"
+    ],
+    "evidence_notes": "Fonte primária: Amer SA et al (Hum Reprod 2004). Fórmula para volume ovariano.",
+    "Status": "OK",
+    "tags": [
+      "#ovário",
+      "#volume",
+      "#elipsoide",
+      "#PCOS",
+      "#fórmula"
+    ]
+  },
+  {
+    "ItemID": "GIN-0003",
+    "Categoria": "G - Gineco/Obstetrícia",
+    "Subcategoria": "G3 - Adnexo",
+    "Nome": "O-RADS US",
+    "Sinonimos": "Ovarian-Adnexal Reporting and Data System; ovarian lesion classification",
+    "search_terms": [
+      "O-RADS ultrasound",
+      "ovarian lesion classification",
+      "O-RADS score",
+      "adnexal mass classification",
+      "ovarian mass risk"
+    ],
+    "evidence_notes": "Fonte primária: Amor F et al (Ultrasound Obstet Gynecol 2002). Sistema classificação lesões ovarianas.",
+    "Status": "OK",
+    "tags": [
+      "#ovário",
+      "#O-RADS",
+      "#classificação",
+      "#ultrassom",
+      "#lesão"
+    ]
+  },
+  {
+    "ItemID": "PEL-0001",
+    "Categoria": "I - Pelve",
+    "Subcategoria": "I1 - Próstata",
+    "Nome": "Prostate PSA Density",
+    "Sinonimos": "PSA density; PSAD; PSA/volume",
+    "search_terms": [
+      "PSA density",
+      "PSAD prostate cancer",
+      "PSA volume ratio",
+      "prostate cancer risk",
+      "PSAD cutoff"
+    ],
+    "evidence_notes": "Fonte primária: Karakiewicz PI et al (Eur Urol 2007). Índice prognóstico câncer próstata.",
+    "Status": "OK",
+    "tags": [
+      "#próstata",
+      "#PSA",
+      "#densidade",
+      "#câncer",
+      "#prognóstico"
+    ]
+  },
+  {
+    "ItemID": "PEL-0002",
+    "Categoria": "I - Pelve",
+    "Subcategoria": "I1 - Próstata",
+    "Nome": "Transition Zone PSA Density",
+    "Sinonimos": "TZ-PSAD; PSA densidade zona transição",
+    "search_terms": [
+      "transition zone PSA density",
+      "TZ-PSAD",
+      "zone-specific PSA",
+      "prostate cancer specificity",
+      "PSA zone"
+    ],
+    "evidence_notes": "Fonte primária: Karakiewicz PI et al (Eur Urol 2007). Melhora especificidade diagnóstica.",
+    "Status": "OK",
+    "tags": [
+      "#próstata",
+      "#zona-transição",
+      "#PSA",
+      "#especificidade",
+      "#câncer"
+    ]
+  },
+  {
+    "ItemID": "PEL-0003",
+    "Categoria": "I - Pelve",
+    "Subcategoria": "I2 - Útero",
+    "Nome": "Endometrial Thickness",
+    "Sinonimos": "Endometrial stripe; ET; espessura endométrio",
+    "search_terms": [
+      "endometrial thickness",
+      "endometrial stripe",
+      "postmenopausal bleeding",
+      "endometrial cancer screening",
+      "ET measurement"
+    ],
+    "evidence_notes": "Fonte primária: Karlsson B et al (Ultrasound Obstet Gynecol 1995). Critério para rastreamento câncer.",
+    "Status": "OK",
+    "tags": [
+      "#endométrio",
+      "#espessura",
+      "#sangramento",
+      "#rastreamento",
+      "#ultrassom"
+    ]
+  },
+  {
+    "ItemID": "PEL-0004",
+    "Categoria": "I - Pelve",
+    "Subcategoria": "I2 - Útero",
+    "Nome": "Uterine Fibroid Volume",
+    "Sinonimos": "Fibroid volume; leiomioma volume; myoma",
+    "search_terms": [
+      "uterine fibroid volume",
+      "fibroid size",
+      "leiomyoma volume",
+      "myoma measurement",
+      "fibroid assessment"
+    ],
+    "evidence_notes": "Fonte primária: Garcia-Solares J et al (Fertil Steril 2018). Fórmula elipsoide para volume.",
+    "Status": "OK",
+    "tags": [
+      "#mioma",
+      "#volume",
+      "#fibróide",
+      "#útero",
+      "#RM"
+    ]
+  },
+  {
+    "ItemID": "PEL-0005",
+    "Categoria": "I - Pelve",
+    "Subcategoria": "I2 - Útero",
+    "Nome": "Adenomyosis Junctional Zone",
+    "Sinonimos": "JZ thickness; junctional zone; zona de junção",
+    "search_terms": [
+      "adenomyosis junctional zone",
+      "JZ thickness",
+      "junctional zone adenomyosis",
+      "adenomyosis MRI",
+      "uterine adenomyosis"
+    ],
+    "evidence_notes": "Fonte primária: Garcia-Solares J et al (Fertil Steril 2018). Critério RM para adenomiose.",
+    "Status": "OK",
+    "tags": [
+      "#adenomiose",
+      "#zona-junção",
+      "#JZ",
+      "#útero",
+      "#RM"
+    ]
+  },
+  {
+    "ItemID": "PEL-0006",
+    "Categoria": "I - Pelve",
+    "Subcategoria": "I3 - Bexiga",
+    "Nome": "Bladder Wall Thickness",
+    "Sinonimos": "Bladder wall; parede vesical; espessura parede",
+    "search_terms": [
+      "bladder wall thickness",
+      "bladder outlet obstruction",
+      "overactive bladder",
+      "bladder wall measurement",
+      "BOO"
+    ],
+    "evidence_notes": "Fonte primária: Oelke M et al (Eur Urol 2013). Guideline EAU para bexiga hiperativa.",
+    "Status": "OK",
+    "tags": [
+      "#bexiga",
+      "#parede",
+      "#espessura",
+      "#obstrução",
+      "#ultrassom"
+    ]
+  },
+  {
+    "ItemID": "PEL-0007",
+    "Categoria": "I - Pelve",
+    "Subcategoria": "I3 - Bexiga",
+    "Nome": "Post-Void Residual Volume",
+    "Sinonimos": "PVR; post-void residual; resíduo pós-miccional",
+    "search_terms": [
+      "post-void residual",
+      "PVR ultrasound",
+      "post-void residual volume",
+      "urinary retention",
+      "residual urine"
+    ],
+    "evidence_notes": "Fonte primária: Poston GJ et al (Br J Urol 1994). Método US para quantificar retenção.",
+    "Status": "OK",
+    "tags": [
+      "#bexiga",
+      "#resíduo",
+      "#pós-miccional",
+      "#retenção",
+      "#ultrassom"
+    ]
+  },
+  {
+    "ItemID": "PEL-0008",
+    "Categoria": "I - Pelve",
+    "Subcategoria": "I4 - Reto/Cólon",
+    "Nome": "Rectal Wall Thickness",
+    "Sinonimos": "Rectal wall; parede retal; espessura parede",
+    "search_terms": [
+      "rectal wall thickness",
+      "rectal cancer",
+      "rectal wall measurement",
+      "rectal tumor",
+      "rectal pathology"
+    ],
+    "evidence_notes": "Fonte primária: Beets-Tan RG et al (Eur Radiol 2000). Critério para estadiamento retal.",
+    "Status": "OK",
+    "tags": [
+      "#reto",
+      "#parede",
+      "#espessura",
+      "#câncer",
+      "#TC"
+    ]
+  },
+  {
+    "ItemID": "PEL-0009",
+    "Categoria": "I - Pelve",
+    "Subcategoria": "I4 - Reto/Cólon",
+    "Nome": "Rectal Cancer TNM Staging",
+    "Sinonimos": "TNM staging; tumor staging; estadiamento retal",
+    "search_terms": [
+      "rectal cancer TNM",
+      "rectal cancer staging",
+      "TNM classification",
+      "tumor staging rectal",
+      "T stage N stage"
+    ],
+    "evidence_notes": "Fonte primária: Beets-Tan RG et al (Eur Radiol 2000). Classificação TNM para retal.",
+    "Status": "OK",
+    "tags": [
+      "#câncer-retal",
+      "#TNM",
+      "#estadiamento",
+      "#prognóstico",
+      "#RM"
+    ]
+  },
+  {
+    "ItemID": "PEL-0010",
+    "Categoria": "I - Pelve",
+    "Subcategoria": "I4 - Reto/Cólon",
+    "Nome": "Circumferential Resection Margin",
+    "Sinonimos": "CRM; margem de ressecção circunferencial; CRM",
+    "search_terms": [
+      "circumferential resection margin",
+      "CRM rectal cancer",
+      "mesorectal fascia",
+      "CRM measurement",
+      "rectal cancer prognosis"
+    ],
+    "evidence_notes": "Fonte primária: Beets-Tan RG et al (Eur Radiol 2000). Fator prognóstico independente.",
+    "Status": "OK",
+    "tags": [
+      "#câncer-retal",
+      "#margem",
+      "#ressecção",
+      "#CRM",
+      "#RM"
+    ]
+  },
+  {
+    "ItemID": "PEL-0011",
+    "Categoria": "I - Pelve",
+    "Subcategoria": "I5 - Ovário Avançado",
+    "Nome": "Ovarian Torsion Criteria",
+    "Sinonimos": "Ovarian torsion; torsão ovariana; critério torsão",
+    "search_terms": [
+      "ovarian torsion",
+      "ovarian torsion ultrasound",
+      "torsion criteria",
+      "ovarian emergency",
+      "torsion doppler"
+    ],
+    "evidence_notes": "Fonte primária: Pena JA et al (AJR 1992). Critério US para diagnóstico torsão.",
+    "Status": "OK",
+    "tags": [
+      "#ovário",
+      "#torsão",
+      "#emergência",
+      "#doppler",
+      "#ultrassom"
+    ]
+  },
+  {
+    "ItemID": "PEL-0012",
+    "Categoria": "I - Pelve",
+    "Subcategoria": "I5 - Ovário Avançado",
+    "Nome": "Ovarian Reserve Anti-Müllerian Hormone",
+    "Sinonimos": "AMH; anti-müllerian hormone; reserve ovariana",
+    "search_terms": [
+      "anti-müllerian hormone",
+      "AMH ovarian reserve",
+      "ovarian reserve assessment",
+      "AMH fertility",
+      "AFC follicle count"
+    ],
+    "evidence_notes": "Fonte primária: Broer SL et al (Fertil Steril 2009). Marcador reserva ovariana.",
+    "Status": "OK",
+    "tags": [
+      "#ovário",
+      "#AMH",
+      "#reserva",
+      "#fertilidade",
+      "#laboratorial"
+    ]
+  },
+  {
+    "ItemID": "PEL-0013",
+    "Categoria": "I - Pelve",
+    "Subcategoria": "I6 - Próstata Avançada",
+    "Nome": "Extraprostatic Extension",
+    "Sinonimos": "EPE; extraprostatica extension; extensão extraprostática",
+    "search_terms": [
+      "extraprostatic extension",
+      "EPE prostate cancer",
+      "T3 prostate",
+      "capsular extension",
+      "prostate staging"
+    ],
+    "evidence_notes": "Fonte primária: Turkbey B et al (Eur Urol 2019). Critério PI-RADS para EPE.",
+    "Status": "OK",
+    "tags": [
+      "#próstata",
+      "#câncer",
+      "#extensão",
+      "#T3",
+      "#RM"
+    ]
+  },
+  {
+    "ItemID": "PEL-0014",
+    "Categoria": "I - Pelve",
+    "Subcategoria": "I6 - Próstata Avançada",
+    "Nome": "Seminal Vesicle Invasion",
+    "Sinonimos": "SVI; seminal vesicle invasion; invasão vesícula seminal",
+    "search_terms": [
+      "seminal vesicle invasion",
+      "SVI prostate cancer",
+      "T4 prostate",
+      "seminal vesicle",
+      "prostate staging"
+    ],
+    "evidence_notes": "Fonte primária: Turkbey B et al (Eur Urol 2019). Critério PI-RADS para SVI.",
+    "Status": "OK",
+    "tags": [
+      "#próstata",
+      "#câncer",
+      "#invasão",
+      "#T4",
+      "#RM"
+    ]
+  },
+  {
+    "ItemID": "PEL-0015",
+    "Categoria": "I - Pelve",
+    "Subcategoria": "I6 - Próstata Avançada",
+    "Nome": "Gleason Score Imaging",
+    "Sinonimos": "Gleason score RM; tumor grade; grau tumoral",
+    "search_terms": [
+      "Gleason score MRI",
+      "prostate cancer grade",
+      "tumor grading",
+      "Gleason imaging",
+      "grade assessment"
+    ],
+    "evidence_notes": "Fonte primária: Turkbey B et al (Eur Urol 2019). Estimativa não-invasiva Gleason.",
+    "Status": "OK",
+    "tags": [
+      "#próstata",
+      "#Gleason",
+      "#grau",
+      "#prognóstico",
+      "#RM"
+    ]
+  },
+  {
+    "ItemID": "PEL-0016",
+    "Categoria": "I - Pelve",
+    "Subcategoria": "I1 - Próstata",
+    "Nome": "Prostate Cancer Gleason Grading",
+    "Sinonimos": "Gleason grading; tumor grade; grau tumoral",
+    "search_terms": [
+      "Gleason grading",
+      "prostate cancer grade",
+      "tumor grading MRI",
+      "Gleason score",
+      "grade assessment"
+    ],
+    "evidence_notes": "Fonte primária: Turkbey B et al (Eur Urol 2019). Estimativa não-invasiva Gleason.",
+    "Status": "OK",
+    "tags": [
+      "#próstata",
+      "#Gleason",
+      "#grau",
+      "#câncer",
+      "#RM"
+    ]
+  },
+  {
+    "ItemID": "PEL-0017",
+    "Categoria": "I - Pelve",
+    "Subcategoria": "I2 - Útero",
+    "Nome": "Uterine Artery Doppler",
+    "Sinonimos": "Uterine artery PI; uterine artery RI; resistência arterial uterina",
+    "search_terms": [
+      "uterine artery doppler",
+      "uterine artery PI",
+      "uterine artery RI",
+      "endometrial perfusion",
+      "fertility doppler"
+    ],
+    "evidence_notes": "Fonte primária: Steer CV et al (Lancet 1992). Doppler para avaliar perfusão.",
+    "Status": "OK",
+    "tags": [
+      "#útero",
+      "#artéria",
+      "#doppler",
+      "#perfusão",
+      "#fertilidade"
+    ]
+  },
+  {
+    "ItemID": "PEL-0018",
+    "Categoria": "I - Pelve",
+    "Subcategoria": "I3 - Bexiga",
+    "Nome": "Bladder Outlet Obstruction Index",
+    "Sinonimos": "BOO index; obstruction index; índice obstrução",
+    "search_terms": [
+      "bladder outlet obstruction index",
+      "BOO index",
+      "obstruction index",
+      "urodynamics",
+      "pressure-flow"
+    ],
+    "evidence_notes": "Fonte primária: Abrams P et al (Neurourol Urodyn 1998). Classificação BOO.",
+    "Status": "OK",
+    "tags": [
+      "#bexiga",
+      "#obstrução",
+      "#BOO",
+      "#urodinâmica",
+      "#índice"
+    ]
+  },
+  {
+    "ItemID": "PEL-0019",
+    "Categoria": "I - Pelve",
+    "Subcategoria": "I4 - Reto/Cólon",
+    "Nome": "Rectal Cancer Depth of Invasion",
+    "Sinonimos": "Tumor depth; T stage; profundidade invasão",
+    "search_terms": [
+      "rectal cancer depth",
+      "T stage rectal",
+      "tumor depth invasion",
+      "rectal cancer staging",
+      "depth assessment"
+    ],
+    "evidence_notes": "Fonte primária: Beets-Tan RG et al (Eur Radiol 2000). Profundidade para T stage.",
+    "Status": "OK",
+    "tags": [
+      "#reto",
+      "#câncer",
+      "#profundidade",
+      "#T-stage",
+      "#RM"
+    ]
+  },
+  {
+    "ItemID": "PEL-0020",
+    "Categoria": "I - Pelve",
+    "Subcategoria": "I4 - Reto/Cólon",
+    "Nome": "Rectal Cancer Lymph Node Staging",
+    "Sinonimos": "Lymph node staging; N stage; estadiamento linfonodos",
+    "search_terms": [
+      "rectal cancer lymph node",
+      "N stage rectal",
+      "nodal staging",
+      "lymph node assessment",
+      "rectal cancer nodes"
+    ],
+    "evidence_notes": "Fonte primária: Beets-Tan RG et al (Eur Radiol 2000). Linfonodos para N stage.",
+    "Status": "OK",
+    "tags": [
+      "#reto",
+      "#câncer",
+      "#linfonodos",
+      "#N-stage",
+      "#RM"
+    ]
+  },
+  {
+    "ItemID": "THX-0001",
+    "Categoria": "B - Tórax",
+    "Subcategoria": "B1 - Derrame Pleural",
+    "Nome": "Pleural Effusion Volume (CT)",
+    "Sinonimos": "Effusion volume formula; pleural fluid quantification",
+    "search_terms": [
+      "pleural effusion volume CT",
+      "effusion volume formula",
+      "pleural fluid quantification",
+      "Goecke formula",
+      "pleural effusion estimation"
+    ],
+    "evidence_notes": "Fonte primária: Goecke T, Hazlinger B (Eur Radiol 1999). Fórmula polinomial validada para TC.",
+    "Status": "OK",
+    "tags": [
+      "#derrame-pleural",
+      "#volume",
+      "#TC",
+      "#fórmula",
+      "#estimativa"
+    ]
+  },
+  {
+    "ItemID": "THX-0002",
+    "Categoria": "B - Tórax",
+    "Subcategoria": "B2 - TEP",
+    "Nome": "RV:LV Ratio",
+    "Sinonimos": "RV/LV ratio; RV dilatation index",
+    "search_terms": [
+      "RV LV ratio",
+      "right ventricle left ventricle ratio",
+      "RV dilatation CT",
+      "CTPA RV LV",
+      "right heart strain"
+    ],
+    "evidence_notes": "Fonte primária: Qanadli SD et al (AJR 2001). Índice prognóstico em TEP.",
+    "Status": "OK",
+    "tags": [
+      "#TEP",
+      "#ventrículo",
+      "#razão",
+      "#dilatação",
+      "#prognóstico"
+    ]
+  },
+  {
+    "ItemID": "THX-0003",
+    "Categoria": "B - Tórax",
+    "Subcategoria": "B3 - Hipertensão Pulmonar",
+    "Nome": "PA:Aorta Ratio",
+    "Sinonimos": "PA:Ao ratio; mPA diameter ratio",
+    "search_terms": [
+      "PA aorta ratio",
+      "pulmonary artery aorta ratio",
+      "PA:Ao",
+      "pulmonary hypertension CT",
+      "main PA diameter"
+    ],
+    "evidence_notes": "Fonte primária: Ng CS et al (Chest 1999). Rastreamento PH por TC.",
+    "Status": "OK",
+    "tags": [
+      "#hipertensão-pulmonar",
+      "#PA",
+      "#aorta",
+      "#razão",
+      "#rastreamento"
+    ]
+  },
+  {
+    "ItemID": "THX-0004",
+    "Categoria": "B - Tórax",
+    "Subcategoria": "B4 - Nódulo Pulmonar",
+    "Nome": "Fleischner Nodule Follow-up 2017",
+    "Sinonimos": "Fleischner 2017; nodule follow-up criteria",
+    "search_terms": [
+      "Fleischner guidelines",
+      "nodule follow-up",
+      "lung nodule classification",
+      "CT nodule management",
+      "pulmonary nodule"
+    ],
+    "evidence_notes": "Fonte primária: MacMahon H et al (Radiology 2017). Diretrizes atualizadas Fleischner Society.",
+    "Status": "OK",
+    "tags": [
+      "#nódulo",
+      "#pulmão",
+      "#follow-up",
+      "#Fleischner",
+      "#TC"
+    ]
+  },
+  {
+    "ItemID": "THX-0005",
+    "Categoria": "B - Tórax",
+    "Subcategoria": "B5 - Enfisema",
+    "Nome": "Emphysema Index LAA%",
+    "Sinonimos": "LAA%; -950 HU threshold; emphysema quantification",
+    "search_terms": [
+      "emphysema index",
+      "LAA percent",
+      "low attenuation area",
+      "-950 HU",
+      "CT emphysema quantification"
+    ],
+    "evidence_notes": "Fonte primária: Gevenois PA et al (AJR 1995). Threshold -950 HU padrão para enfisema.",
+    "Status": "OK",
+    "tags": [
+      "#enfisema",
+      "#LAA",
+      "#-950HU",
+      "#quantificação",
+      "#TC"
+    ]
+  },
+  {
+    "ItemID": "THX-0006",
+    "Categoria": "B - Tórax",
+    "Subcategoria": "B2 - TEP",
+    "Nome": "PESI Score",
+    "Sinonimos": "Pulmonary Embolism Severity Index; PE severity",
+    "search_terms": [
+      "PESI score",
+      "pulmonary embolism severity index",
+      "PE risk stratification",
+      "PESI calculator",
+      "PE prognosis"
+    ],
+    "evidence_notes": "Fonte primária: Aujesky D et al (Am J Respir Crit Care Med 2005). Score clínico validado para TEP.",
+    "Status": "OK",
+    "tags": [
+      "#TEP",
+      "#PESI",
+      "#score",
+      "#prognóstico",
+      "#risco"
+    ]
+  },
+  {
+    "ItemID": "THX-0007",
+    "Categoria": "B - Tórax",
+    "Subcategoria": "B1 - Derrame Pleural",
+    "Nome": "Pleural Effusion US Volume",
+    "Sinonimos": "Effusion volume ultrasound; pleural fluid quantification",
+    "search_terms": [
+      "pleural effusion ultrasound volume",
+      "effusion US quantification",
+      "pleural fluid US",
+      "effusion measurement US"
+    ],
+    "evidence_notes": "Fonte primária: Eibenberger KL et al (Chest 1994). Estimativa volume derrame por US.",
+    "Status": "OK",
+    "tags": [
+      "#derrame-pleural",
+      "#volume",
+      "#ultrassom",
+      "#estimativa"
+    ]
+  },
+  {
+    "ItemID": "THX-0008",
+    "Categoria": "B - Tórax",
+    "Subcategoria": "B3 - Hipertensão Pulmonar",
+    "Nome": "Main PA Diameter",
+    "Sinonimos": "Main pulmonary artery diameter; mPA; central PA",
+    "search_terms": [
+      "main pulmonary artery diameter",
+      "mPA diameter",
+      "PA diameter cutoff",
+      "pulmonary hypertension CT"
+    ],
+    "evidence_notes": "Fonte primária: Ng CS et al (Chest 1999). Valores normais PA por sexo.",
+    "Status": "OK",
+    "tags": [
+      "#hipertensão-pulmonar",
+      "#PA",
+      "#diâmetro",
+      "#rastreamento"
+    ]
+  },
+  {
+    "ItemID": "THX-0009",
+    "Categoria": "B - Tórax",
+    "Subcategoria": "B4 - Nódulo Pulmonar",
+    "Nome": "Lung-RADS Nodule Classification",
+    "Sinonimos": "Lung-RADS; lung nodule classification; screening",
+    "search_terms": [
+      "Lung-RADS",
+      "lung nodule screening",
+      "LDCT nodule classification",
+      "Lung-RADS score",
+      "CT screening lung"
+    ],
+    "evidence_notes": "Fonte primária: Aberle DR et al (NEJM 2011). Sistema Lung-RADS para screening.",
+    "Status": "OK",
+    "tags": [
+      "#nódulo",
+      "#pulmão",
+      "#Lung-RADS",
+      "#screening",
+      "#classificação"
+    ]
+  },
+  {
+    "ItemID": "THX-0010",
+    "Categoria": "B - Tórax",
+    "Subcategoria": "B5 - Enfisema",
+    "Nome": "Lung Density Percentile",
+    "Sinonimos": "15th percentile; lung density; emphysema severity",
+    "search_terms": [
+      "lung density percentile",
+      "15th percentile",
+      "emphysema density",
+      "lung attenuation",
+      "density histogram"
+    ],
+    "evidence_notes": "Fonte primária: Gevenois PA et al (AJR 1995). Complementa LAA% para avaliação enfisema.",
+    "Status": "OK",
+    "tags": [
+      "#enfisema",
+      "#densidade",
+      "#percentil",
+      "#quantificação",
+      "#TC"
+    ]
+  },
+  {
+    "ItemID": "TIR-0001",
+    "Categoria": "H - Tireoide",
+    "Subcategoria": "H1 - Nódulo Tireoidiano",
+    "Nome": "ACR TI-RADS",
+    "Sinonimos": "TI-RADS; thyroid nodule classification",
+    "search_terms": [
+      "ACR TI-RADS",
+      "thyroid nodule classification",
+      "TI-RADS score",
+      "thyroid US classification",
+      "FNA criteria thyroid"
+    ],
+    "evidence_notes": "Fonte primária: Tessler FN et al (J Am Coll Radiol 2017). Sistema ACR para nódulos tireoidianos.",
+    "Status": "OK",
+    "tags": [
+      "#tireoide",
+      "#nódulo",
+      "#TI-RADS",
+      "#classificação",
+      "#FNA"
+    ]
+  },
+  {
+    "ItemID": "TIR-0002",
+    "Categoria": "H - Tireoide",
+    "Subcategoria": "H2 - Tireoide",
+    "Nome": "Thyroid Volume Ellipsoid",
+    "Sinonimos": "Thyroid volume; gland volume",
+    "search_terms": [
+      "thyroid volume",
+      "thyroid gland volume",
+      "thyroid measurement",
+      "goiter volume",
+      "ellipsoid formula thyroid"
+    ],
+    "evidence_notes": "Fonte primária: Knobel M, Medeiros-Neto G (Thyroid 2003). Valores normais volume tireoidiano.",
+    "Status": "OK",
+    "tags": [
+      "#tireoide",
+      "#volume",
+      "#elipsoide",
+      "#bócio",
+      "#medição"
+    ]
+  },
+  {
+    "ItemID": "URO-0001",
+    "Categoria": "F - Uro/Rim",
+    "Subcategoria": "F1 - Próstata",
+    "Nome": "Prostate Volume Ellipsoid",
+    "Sinonimos": "Prostate volume; PV",
+    "search_terms": [
+      "prostate volume",
+      "prostate ellipsoid formula",
+      "PSA density",
+      "prostate measurement",
+      "BPH volume"
+    ],
+    "evidence_notes": "Fonte primária: Roehrborn CG et al (J Urol 2002). Fórmula padrão volume prostático.",
+    "Status": "OK",
+    "tags": [
+      "#próstata",
+      "#volume",
+      "#elipsoide",
+      "#BPH",
+      "#PSA"
+    ]
+  },
+  {
+    "ItemID": "URO-0002",
+    "Categoria": "F - Uro/Rim",
+    "Subcategoria": "F1 - Próstata",
+    "Nome": "PI-RADS v2.1 Score",
+    "Sinonimos": "Prostate Imaging Reporting Data System; PI-RADS",
+    "search_terms": [
+      "PI-RADS v2.1",
+      "prostate MRI score",
+      "PI-RADS classification",
+      "prostate cancer risk",
+      "mpMRI prostate"
+    ],
+    "evidence_notes": "Fonte primária: Turkbey B et al (Eur Urol 2019). Versão atualizada PI-RADS.",
+    "Status": "OK",
+    "tags": [
+      "#próstata",
+      "#PI-RADS",
+      "#RM",
+      "#câncer",
+      "#score"
+    ]
+  },
+  {
+    "ItemID": "VASC-0001",
+    "Categoria": "A - Vascular",
+    "Subcategoria": "A1 - Carótidas/Vertebrais",
+    "Nome": "Resistive Index (RI)",
+    "Sinonimos": "Pourcelot Index; IR",
+    "search_terms": [
+      "resistive index",
+      "pourcelot index",
+      "doppler resistance",
+      "RI vascular",
+      "arterial resistance ultrasound"
+    ],
+    "evidence_notes": "Fonte primária: McNaughton D, Abu-Yousef M (Radiographics 2011). Índice amplamente validado em prática clínica.",
+    "Status": "OK",
+    "tags": [
+      "#doppler",
+      "#resistencia",
+      "#indice",
+      "#arterial",
+      "#fluxo",
+      "#carótida"
+    ]
+  },
+  {
+    "ItemID": "VASC-0002",
+    "Categoria": "A - Vascular",
+    "Subcategoria": "A1 - Carótidas/Vertebrais",
+    "Nome": "Pulsatility Index (PI)",
+    "Sinonimos": "PI; IP",
+    "search_terms": [
+      "pulsatility index",
+      "doppler pulsatility",
+      "PI ultrasound",
+      "arterial pulsatility",
+      "flow pulsatility"
+    ],
+    "evidence_notes": "Fonte primária: Boote E (Radiographics 2003). Complementa RI para avaliação vascular.",
+    "Status": "OK",
+    "tags": [
+      "#doppler",
+      "#pulsatilidade",
+      "#indice",
+      "#arterial",
+      "#fluxo"
+    ]
+  },
+  {
+    "ItemID": "VASC-0003",
+    "Categoria": "A - Vascular",
+    "Subcategoria": "A1 - Carótidas/Vertebrais",
+    "Nome": "NASCET Criteria",
+    "Sinonimos": "North American Symptomatic Carotid Endarterectomy Trial",
+    "search_terms": [
+      "NASCET criteria",
+      "carotid stenosis percentage",
+      "diameter stenosis formula",
+      "carotid endarterectomy",
+      "NASCET classification"
+    ],
+    "evidence_notes": "Fonte primária: NEJM 1991. Padrão ouro para classificação estenose carotídea.",
+    "Status": "OK",
+    "tags": [
+      "#estenose",
+      "#carótida",
+      "#diâmetro",
+      "#classificação",
+      "#NASCET"
+    ]
+  },
+  {
+    "ItemID": "VASC-0004",
+    "Categoria": "A - Vascular",
+    "Subcategoria": "A3 - Artérias Renais",
+    "Nome": "Renal Artery Stenosis Doppler Criteria",
+    "Sinonimos": "RAR; Renal-Aortic Ratio; PSV renal",
+    "search_terms": [
+      "renal artery stenosis",
+      "RAR renal aortic ratio",
+      "PSV renal criteria",
+      "renal doppler",
+      "RAS duplex"
+    ],
+    "evidence_notes": "Fonte primária: Olin JW et al (Circ Cardiovasc Interv 2012). Critérios validados para RAS ≥60%.",
+    "Status": "OK",
+    "tags": [
+      "#estenose",
+      "#artéria-renal",
+      "#doppler",
+      "#RAR",
+      "#critério"
+    ]
+  },
+  {
+    "ItemID": "VASC-0005",
+    "Categoria": "A - Vascular",
+    "Subcategoria": "A2 - Aorta",
+    "Nome": "AAA Growth Rate",
+    "Sinonimos": "Annual growth; growth rate",
+    "search_terms": [
+      "AAA growth rate",
+      "aortic aneurysm growth",
+      "annual growth mm",
+      "AAA follow-up",
+      "aneurysm surveillance"
+    ],
+    "evidence_notes": "Fonte primária: Lederle FA et al (NEJM 2002). Estudo ADAM - referência para monitoramento AAA.",
+    "Status": "OK",
+    "tags": [
+      "#aneurisma",
+      "#aorta",
+      "#crescimento",
+      "#follow-up",
+      "#diâmetro"
+    ]
+  },
+  {
+    "ItemID": "VASC-0006",
+    "Categoria": "A - Vascular",
+    "Subcategoria": "A2 - Aorta",
+    "Nome": "Stanford Classification Aortic Dissection",
+    "Sinonimos": "Stanford Type A/B; aortic dissection classification",
+    "search_terms": [
+      "Stanford classification aortic dissection",
+      "Type A Type B dissection",
+      "aortic dissection classification",
+      "ascending aorta dissection"
+    ],
+    "evidence_notes": "Fonte primária: Daily PO et al (Ann Thorac Surg 1970). Classificação clássica ainda em uso.",
+    "Status": "OK",
+    "tags": [
+      "#dissecção",
+      "#aorta",
+      "#classificação",
+      "#Stanford",
+      "#tipo-A-B"
+    ]
+  },
+  {
+    "ItemID": "VASC-0007",
+    "Categoria": "A - Vascular",
+    "Subcategoria": "A4 - Veias",
+    "Nome": "IVC Collapsibility Index",
+    "Sinonimos": "IVC collapse index; caval index",
+    "search_terms": [
+      "IVC collapsibility",
+      "inferior vena cava collapse",
+      "caval index",
+      "PVC estimation",
+      "IVC diameter"
+    ],
+    "evidence_notes": "Fonte primária: Brennan JM et al (Am J Emerg Med 2007). Método não-invasivo estimativa PVC.",
+    "Status": "OK",
+    "tags": [
+      "#veia",
+      "#pressão-venosa",
+      "#colapsabilidade",
+      "#VCI",
+      "#índice"
+    ]
+  },
+  {
+    "ItemID": "VASC-0008",
+    "Categoria": "A - Vascular",
+    "Subcategoria": "A4 - Veias",
+    "Nome": "Portal Vein Congestion Index",
+    "Sinonimos": "Congestion index; portal vein pulsatility",
+    "search_terms": [
+      "portal vein congestion",
+      "portal vein pulsatility",
+      "congestion index doppler",
+      "portal hypertension",
+      "hepatic congestion"
+    ],
+    "evidence_notes": "Fonte primária: Bolondi L et al (Gastroenterology 1988). Índice para avaliação hipertensão portal.",
+    "Status": "OK",
+    "tags": [
+      "#veia-porta",
+      "#congestão",
+      "#hipertensão-portal",
+      "#doppler",
+      "#índice"
+    ]
+  },
+  {
+    "ItemID": "VASC-0009",
+    "Categoria": "A - Vascular",
+    "Subcategoria": "A1 - Carótidas/Vertebrais",
+    "Nome": "ECST Criteria",
+    "Sinonimos": "European Carotid Surgery Trial",
+    "search_terms": [
+      "ECST criteria",
+      "European carotid surgery trial",
+      "carotid stenosis ECST",
+      "diameter stenosis formula",
+      "carotid classification"
+    ],
+    "evidence_notes": "Fonte primária: Lancet 1991. Alternativa NASCET com valores ~10% maiores.",
+    "Status": "OK",
+    "tags": [
+      "#estenose",
+      "#carótida",
+      "#diâmetro",
+      "#classificação",
+      "#ECST"
+    ]
+  },
+  {
+    "ItemID": "VASC-0010",
+    "Categoria": "A - Vascular",
+    "Subcategoria": "A3 - Artérias Mesentéricas",
+    "Nome": "Mesenteric Artery Stenosis Doppler",
+    "Sinonimos": "Mesenteric ischemia; celiac artery; SMA",
+    "search_terms": [
+      "mesenteric artery stenosis",
+      "SMA stenosis doppler",
+      "celiac artery stenosis",
+      "mesenteric ischemia",
+      "superior mesenteric artery"
+    ],
+    "evidence_notes": "Fonte primária: Moneta GL et al (J Vasc Surg 1993). Critérios Doppler para estenose mesentérica.",
+    "Status": "OK",
+    "tags": [
+      "#estenose",
+      "#mesentérica",
+      "#doppler",
+      "#SMA",
+      "#critério"
+    ]
+  },
+  {
+    "ItemID": "VASC-0011",
+    "Categoria": "A - Vascular",
+    "Subcategoria": "A1 - Carótidas/Vertebrais",
+    "Nome": "Carotid Intima-Media Thickness",
+    "Sinonimos": "IMT; carotid IMT; atherosclerosis marker",
+    "search_terms": [
+      "intima-media thickness",
+      "carotid IMT",
+      "atherosclerosis marker",
+      "carotid ultrasound",
+      "IMT measurement"
+    ],
+    "evidence_notes": "Fonte primária: Bots ML et al (Stroke 1997). Marcador de aterosclerose subclínica.",
+    "Status": "OK",
+    "tags": [
+      "#aterosclerose",
+      "#carótida",
+      "#IMT",
+      "#espessura",
+      "#marcador"
+    ]
+  },
+  {
+    "ItemID": "VASC-0012",
+    "Categoria": "A - Vascular",
+    "Subcategoria": "A4 - Veias",
+    "Nome": "Deep Vein Thrombosis Compression",
+    "Sinonimos": "DVT; compressibility criteria; venous thrombosis",
+    "search_terms": [
+      "deep vein thrombosis",
+      "DVT compression ultrasound",
+      "venous thrombosis",
+      "compressibility criteria",
+      "DVT diagnosis"
+    ],
+    "evidence_notes": "Fonte primária: Kearon C et al (Chest 2012). Critério compressibilidade para TVP.",
+    "Status": "OK",
+    "tags": [
+      "#trombose",
+      "#veia",
+      "#compressibilidade",
+      "#TVP",
+      "#ultrassom"
+    ]
+  },
+  {
+    "ItemID": "VASC-0013",
+    "Categoria": "A - Vascular",
+    "Subcategoria": "A3 - Artérias Periféricas",
+    "Nome": "Ankle-Brachial Index",
+    "Sinonimos": "ABI; ankle brachial pressure index",
+    "search_terms": [
+      "ankle brachial index",
+      "ABI peripheral artery disease",
+      "ankle brachial pressure",
+      "ABI measurement",
+      "PAD screening"
+    ],
+    "evidence_notes": "Fonte primária: Hirsch AT et al (Circulation 2006). Índice padrão para PAD.",
+    "Status": "OK",
+    "tags": [
+      "#doença-arterial-periférica",
+      "#pressão",
+      "#ABI",
+      "#índice"
+    ]
+  },
+  {
+    "ItemID": "VASC-0014",
+    "Categoria": "A - Vascular",
+    "Subcategoria": "A2 - Aorta",
+    "Nome": "Aortic Diameter Measurement",
+    "Sinonimos": "Aortic diameter; aorta size; aortic root",
+    "search_terms": [
+      "aortic diameter",
+      "aorta measurement",
+      "aortic root diameter",
+      "ascending aorta",
+      "aortic aneurysm diameter"
+    ],
+    "evidence_notes": "Fonte primária: Hiratzka LF et al (Circulation 2010). Diretrizes ACC/AHA para medição aórtica.",
+    "Status": "OK",
+    "tags": [
+      "#aorta",
+      "#diâmetro",
+      "#medição",
+      "#aneurisma",
+      "#aortic-root"
+    ]
+  }
+]

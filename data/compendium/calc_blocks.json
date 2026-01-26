@@ -1,0 +1,5570 @@
+{
+  "VASC-0001": {
+    "ItemID": "VASC-0001",
+    "FunctionName": "calculate_resistive_index",
+    "inputs": [
+      {
+        "name": "PSV (Peak Systolic Velocity)",
+        "type": "number",
+        "unit": "m/s",
+        "required": "true",
+        "valid_range": "0-5",
+        "notes": "Velocidade sistólica máxima medida em Doppler pulsado"
+      },
+      {
+        "name": "EDV (End-Diastolic Velocity)",
+        "type": "number",
+        "unit": "m/s",
+        "required": "true",
+        "valid_range": "0-5",
+        "notes": "Velocidade diastólica final medida em Doppler pulsado"
+      }
+    ],
+    "preprocessing": [
+      "Validar PSV > 0 e EDV >= 0",
+      "Validar PSV >= EDV (sempre verdadeiro em fluxo arterial)",
+      "Se PSV == 0, retornar erro \"PSV inválido\""
+    ],
+    "formula": [
+      "RI = (PSV - EDV) / PSV",
+      "Passo 1: Calcular diferença = PSV - EDV",
+      "Passo 2: Dividir por PSV",
+      "Passo 3: Resultado é RI (0-1)"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: RI",
+        "unit: ratio (0-1)",
+        "precision: 2 casas decimais",
+        "derived_values:",
+        "- name: RI_percentage",
+        "value: RI × 100",
+        "unit: \"%\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: RI < 0.55",
+        "then: \"Normal (baixa resistência vascular)\"",
+        "- if: 0.55 <= RI <= 0.70",
+        "then: \"Borderline (resistência moderada)\"",
+        "- if: RI > 0.70",
+        "then: \"Aumentado (alta resistência; sugerir estenose ou doença vascular)\"",
+        "category: \"Resistência Vascular\"",
+        "clinical_context: \"Carótida, renal, hepática, esplênica, mesentérica\""
+      ]
+    },
+    "qa_checks": [
+      "Validar PSV > EDV (sempre em artérias)",
+      "Alertar se PSV < 0.1 m/s (possível erro de medição)",
+      "Alertar se RI > 1.0 (erro matemático ou medição invertida)",
+      "Verificar ângulo Doppler <60° (não validável por fórmula)",
+      "Alertar se EDV negativo (erro de medição)"
+    ],
+    "evidence": {
+      "primary_source": "McNaughton D, Abu-Yousef M. Doppler US of the Liver Made Simple. Radiographics. 2011;31(1):161-88.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/resistive-index-vascular-ultrasound",
+      "notes": "RI é independente de ângulo de insonação (razão adimensional). Validado em múltiplos territórios vasculares."
+    }
+  },
+  "VASC-0002": {
+    "ItemID": "VASC-0002",
+    "FunctionName": "calculate_pulsatility_index",
+    "inputs": [
+      {
+        "name": "PSV",
+        "type": "number",
+        "unit": "m/s",
+        "required": "true",
+        "valid_range": "0-5",
+        "notes": "Velocidade sistólica máxima"
+      },
+      {
+        "name": "EDV",
+        "type": "number",
+        "unit": "m/s",
+        "required": "true",
+        "valid_range": "0-5",
+        "notes": "Velocidade diastólica final"
+      },
+      {
+        "name": "V_mean",
+        "type": "number",
+        "unit": "m/s",
+        "required": "true",
+        "valid_range": "0-5",
+        "notes": "Velocidade média (calculada pelo Doppler ou manual)"
+      }
+    ],
+    "preprocessing": [
+      "Se V_mean não fornecido, calcular: V_mean ≈ (PSV + 2×EDV) / 3",
+      "Validar PSV > EDV >= 0",
+      "Validar V_mean > 0"
+    ],
+    "formula": [
+      "PI = (PSV - EDV) / V_mean",
+      "Passo 1: Calcular diferença = PSV - EDV",
+      "Passo 2: Dividir por V_mean",
+      "Passo 3: Resultado é PI"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: PI",
+        "unit: ratio",
+        "precision: 2 casas decimais"
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: PI < 1.0",
+        "then: \"Baixo (fluxo pouco pulsátil)\"",
+        "- if: 1.0 <= PI <= 2.0",
+        "then: \"Normal (pulsatilidade normal)\"",
+        "- if: PI > 2.0",
+        "then: \"Aumentado (alta pulsatilidade; sugerir estenose distal ou proximal)\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se PI < 0.5 (possível erro)",
+      "Alertar se PI > 5.0 (possível erro)",
+      "Validar V_mean coerente com PSV/EDV",
+      "Comparar com RI para consistência"
+    ],
+    "evidence": {
+      "primary_source": "Boote E. AAPM/RSNA Physics Tutorial. Radiographics. 2003;23(5):1315-27.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/pulsatility-index-ultrasound",
+      "notes": "PI menos específico que RI; complementar com RI para diagnóstico."
+    }
+  },
+  "VASC-0003": {
+    "ItemID": "VASC-0003",
+    "FunctionName": "calculate_nascet_stenosis",
+    "inputs": [
+      {
+        "name": "d_stenosis",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-10",
+        "notes": "Diâmetro mínimo na estenose"
+      },
+      {
+        "name": "d_distal",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-10",
+        "notes": "Diâmetro normal distal (ICA distal)"
+      }
+    ],
+    "preprocessing": [
+      "Validar d_stenosis > 0 e d_distal > 0",
+      "Validar d_stenosis <= d_distal",
+      "Se d_stenosis > d_distal, inverter valores com aviso"
+    ],
+    "formula": [
+      "% Estenose NASCET = (1 - d_stenosis / d_distal) × 100",
+      "Passo 1: Dividir d_stenosis por d_distal",
+      "Passo 2: Subtrair de 1",
+      "Passo 3: Multiplicar por 100"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: stenosis_percent",
+        "unit: \"%\"",
+        "precision: 0 casas decimais",
+        "derived_values:",
+        "- name: stenosis_category",
+        "value: Classificação (0-29% / 30-69% / ≥70%)"
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: stenosis_percent < 30",
+        "then: \"Sem estenose significativa\"",
+        "- if: 30 <= stenosis_percent <= 69",
+        "then: \"Estenose moderada (30-69%)\"",
+        "- if: stenosis_percent >= 70",
+        "then: \"Estenose grave (≥70%); indicação cirúrgica se sintomático\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se stenosis_percent > 100 (erro matemático)",
+      "Alertar se d_stenosis == d_distal (sem estenose)",
+      "Validar medições em mesmo plano (axial)",
+      "Verificar se medições evitam trombo mural"
+    ],
+    "evidence": {
+      "primary_source": "NASCET Collaborators. NEJM. 1991;325(7):445-453.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/nascet-criteria",
+      "notes": "Padrão ouro para classificação estenose carotídea. Valores NASCET ~10% menores que ECST."
+    }
+  },
+  "VASC-0004": {
+    "ItemID": "VASC-0004",
+    "FunctionName": "calculate_ras_doppler_criteria",
+    "inputs": [
+      {
+        "name": "PSV_renal",
+        "type": "number",
+        "unit": "cm/s",
+        "required": "true",
+        "valid_range": "0-400",
+        "notes": "PSV artéria renal"
+      },
+      {
+        "name": "PSV_aorta",
+        "type": "number",
+        "unit": "cm/s",
+        "required": "true",
+        "valid_range": "0-200",
+        "notes": "PSV aorta proximal"
+      }
+    ],
+    "preprocessing": [
+      "Converter m/s para cm/s se necessário (×100)",
+      "Validar PSV_renal > 0 e PSV_aorta > 0",
+      "Calcular RAR = PSV_renal / PSV_aorta"
+    ],
+    "formula": [
+      "Critério 1: PSV_renal (cm/s)",
+      "Critério 2: RAR = PSV_renal / PSV_aorta",
+      "Passo 1: Medir PSV renal proximal",
+      "Passo 2: Medir PSV aorta proximal",
+      "Passo 3: Calcular RAR",
+      "Passo 4: Comparar com cutoffs"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: RAS_probability",
+        "value: \"Sem estenose / Borderline / Provável estenose ≥60%\"",
+        "derived_values:",
+        "- name: PSV_renal_value",
+        "value: PSV_renal (cm/s)",
+        "- name: RAR_value",
+        "value: RAR (razão)"
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: PSV_renal < 180 AND RAR < 3.5",
+        "then: \"Sem estenose significativa\"",
+        "- if: (180 <= PSV_renal <= 200) OR (3.5 <= RAR <= 4.0)",
+        "then: \"Borderline; considerar confirmação por CTA/MRA\"",
+        "- if: PSV_renal > 200 OR RAR > 4.0",
+        "then: \"Provável estenose ≥60%; confirmar por CTA/MRA/angiografia\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se PSV_renal < 50 cm/s (possível erro)",
+      "Alertar se RAR < 1.0 (PSV aorta > PSV renal; erro)",
+      "Validar ângulo Doppler <60°",
+      "Verificar se medições em segmento proximal",
+      "Alertar se débito cardíaco muito baixo (afeta PSV)"
+    ],
+    "evidence": {
+      "primary_source": "Olin JW et al. USRFMD Registry. Circ Cardiovasc Interv. 2012;5(3):432-438.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/renal-artery-stenosis",
+      "notes": "Critérios validados para estenose ≥60%. PSV >180 ou RAR >3.5 para estenose significativa."
+    }
+  },
+  "VASC-0005": {
+    "ItemID": "VASC-0005",
+    "FunctionName": "calculate_aaa_growth_rate",
+    "inputs": [
+      {
+        "name": "d_atual",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-100",
+        "notes": "Diâmetro máximo AAA atual"
+      },
+      {
+        "name": "d_anterior",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-100",
+        "notes": "Diâmetro máximo AAA anterior"
+      },
+      {
+        "name": "intervalo_anos",
+        "type": "number",
+        "unit": "years",
+        "required": "true",
+        "valid_range": "0.1-10",
+        "notes": "Intervalo entre exames (em anos)"
+      }
+    ],
+    "preprocessing": [
+      "Validar d_atual > 0 e d_anterior > 0",
+      "Validar intervalo_anos > 0",
+      "Converter meses para anos se necessário (÷12)",
+      "Validar d_atual >= d_anterior (crescimento esperado)"
+    ],
+    "formula": [
+      "Taxa (mm/ano) = (d_atual - d_anterior) / intervalo_anos",
+      "Passo 1: Calcular diferença = d_atual - d_anterior",
+      "Passo 2: Dividir por intervalo_anos",
+      "Passo 3: Resultado é taxa de crescimento (mm/ano)"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: growth_rate",
+        "unit: mm/ano",
+        "precision: 1 casa decimal",
+        "derived_values:",
+        "- name: absolute_growth",
+        "value: d_atual - d_anterior",
+        "unit: mm",
+        "- name: percent_growth",
+        "value: ((d_atual - d_anterior) / d_anterior) × 100",
+        "unit: \"%\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: d_atual < 28",
+        "then: \"AAA pequeno; sem follow-up necessário\"",
+        "- if: 28 <= d_atual < 40",
+        "then: \"AAA moderado; follow-up anual recomendado\"",
+        "- if: 40 <= d_atual < 45",
+        "then: \"AAA grande; follow-up cada 3 meses\"",
+        "- if: 45 <= d_atual < 55",
+        "then: \"AAA muito grande; follow-up cada 1-2 meses; considerar cirurgia\"",
+        "- if: d_atual >= 55",
+        "then: \"AAA crítico; cirurgia recomendada\"",
+        "- if: growth_rate > 3.0",
+        "then: \"Crescimento rápido; considerar cirurgia mesmo se <55mm\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se d_atual < d_anterior (possível erro de medição)",
+      "Alertar se growth_rate < -2 (regressão; verificar técnica)",
+      "Validar intervalo_anos > 0.25 (mínimo 3 meses)",
+      "Alertar se growth_rate > 10 mm/ano (crescimento muito rápido; verificar)",
+      "Verificar se medições em eixo transversal (AP)"
+    ],
+    "evidence": {
+      "primary_source": "Lederle FA et al. ADAM Trial. NEJM. 2002;346(19):1437-1444.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/abdominal-aortic-aneurysm",
+      "notes": "Estudo ADAM: taxa média ~1.9 mm/ano (2.8-3.9 cm); ~2.7 mm/ano (4.0-4.5 cm)."
+    }
+  },
+  "VASC-0006": {
+    "ItemID": "VASC-0006",
+    "FunctionName": "classify_aortic_dissection_stanford",
+    "inputs": [
+      {
+        "name": "envolve_ascendente",
+        "type": "boolean",
+        "required": "true",
+        "notes": "Dissecção envolve aorta ascendente?"
+      },
+      {
+        "name": "localizacao_laceração",
+        "type": "enum",
+        "required": "true",
+        "valid_values": "[\"ascendente\", \"descendente\", \"ambas\"]",
+        "notes": "Localização da laceração intimal"
+      }
+    ],
+    "preprocessing": [
+      "Validar presença de laceração intimal em TC/RM",
+      "Confirmar flap intimal (critério diagnóstico)",
+      "Documentar extensão (proximal/distal)"
+    ],
+    "formula": [
+      "Classificação Stanford:",
+      "IF envolve_ascendente = true",
+      "THEN Tipo A",
+      "ELSE IF localizacao_laceração = \"descendente\"",
+      "THEN Tipo B",
+      "ELSE",
+      "THEN Tipo B (limitada descendente)"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: stanford_type",
+        "value: \"Type A\" ou \"Type B\"",
+        "derived_values:",
+        "- name: envolve_ascendente_flag",
+        "value: true/false",
+        "- name: localizacao_principal",
+        "value: string"
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: stanford_type = \"Type A\"",
+        "then: \"Envolve aorta ascendente; CIRURGIA URGENTE (mortalidade ~1%/hora não operada)\"",
+        "- if: stanford_type = \"Type B\"",
+        "then: \"Limitada descendente; MANEJO CLÍNICO (controle PA/FC); cirurgia se complicações\""
+      ]
+    },
+    "qa_checks": [
+      "Verificar presença de flap intimal",
+      "Confirmar laceração intimal (não confundir com artefato)",
+      "Documentar extensão (proximal/distal)",
+      "Verificar malperfusão (ramos aórticos)",
+      "Alertar se dissecção intramural sem laceração visível (possível AIAD)"
+    ],
+    "evidence": {
+      "primary_source": "Daily PO et al. Management acute aortic dissections. Ann Thorac Surg. 1970;10(3):237-247.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/stanford-classification-of-aortic-dissection-1",
+      "notes": "Classificação clássica; determina urgência cirúrgica. Type A = emergência cirúrgica."
+    }
+  },
+  "VASC-0007": {
+    "ItemID": "VASC-0007",
+    "FunctionName": "calculate_ivc_collapsibility_index",
+    "inputs": [
+      {
+        "name": "d_max_inspiracao",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-30",
+        "notes": "Diâmetro máximo VCI em inspiração"
+      },
+      {
+        "name": "d_min_expiração",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-30",
+        "notes": "Diâmetro mínimo VCI em expiração"
+      }
+    ],
+    "preprocessing": [
+      "Validar d_max_inspiracao > 0 e d_min_expiração > 0",
+      "Validar d_max_inspiracao >= d_min_expiração",
+      "Se d_max < d_min, inverter com aviso",
+      "Medir 2 cm abaixo confluência hepática"
+    ],
+    "formula": [
+      "CI (%) = (d_max - d_min) / d_max × 100",
+      "Passo 1: Calcular diferença = d_max - d_min",
+      "Passo 2: Dividir por d_max",
+      "Passo 3: Multiplicar por 100"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: collapsibility_index",
+        "unit: \"%\"",
+        "precision: 0 casas decimais",
+        "derived_values:",
+        "- name: pvc_estimate",
+        "value: \"Estimativa PVC (mmHg)\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: CI > 50",
+        "then: \"PVC baixa (<5 mmHg); colapsabilidade normal\"",
+        "- if: 25 <= CI <= 50",
+        "then: \"PVC normal (5-10 mmHg); colapsabilidade intermediária\"",
+        "- if: CI < 25",
+        "then: \"PVC elevada (>10 mmHg); colapsabilidade reduzida\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se CI < 0 ou > 100 (erro matemático)",
+      "Verificar se medições em respiração espontânea",
+      "Alertar se paciente em ventilação mecânica (CI pode estar falsamente baixo)",
+      "Validar medição 2 cm abaixo confluência hepática",
+      "Alertar se arritmia presente (afeta medições)"
+    ],
+    "evidence": {
+      "primary_source": "Brennan JM et al. Handcarried ultrasound IVC diameter. Am J Emerg Med. 2007;25(2):155-161.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/inferior-vena-cava",
+      "notes": "Método não-invasivo para estimativa PVC. Sensibilidade ~80% para PVC elevada."
+    }
+  },
+  "VASC-0008": {
+    "ItemID": "VASC-0008",
+    "FunctionName": "calculate_portal_vein_congestion_index",
+    "inputs": [
+      {
+        "name": "V_max_portal",
+        "type": "number",
+        "unit": "cm/s",
+        "required": "true",
+        "valid_range": "0-50",
+        "notes": "Velocidade máxima veia porta (pico sistólico)"
+      },
+      {
+        "name": "V_min_portal",
+        "type": "number",
+        "unit": "cm/s",
+        "required": "true",
+        "valid_range": "0-50",
+        "notes": "Velocidade mínima veia porta (pico diastólico)"
+      }
+    ],
+    "preprocessing": [
+      "Validar V_max > 0 e V_min >= 0",
+      "Validar V_max >= V_min",
+      "Converter m/s para cm/s se necessário (×100)"
+    ],
+    "formula": [
+      "CI = (V_max - V_min) / V_max",
+      "Passo 1: Calcular diferença = V_max - V_min",
+      "Passo 2: Dividir por V_max",
+      "Passo 3: Resultado é CI (0-1)"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: congestion_index",
+        "unit: ratio",
+        "precision: 2 casas decimais",
+        "derived_values:",
+        "- name: CI_percentage",
+        "value: CI × 100",
+        "unit: \"%\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: CI < 0.4",
+        "then: \"Normal; sem congestão portal\"",
+        "- if: 0.4 <= CI <= 0.6",
+        "then: \"Borderline; possível congestão leve\"",
+        "- if: CI > 0.6",
+        "then: \"Congestão portal; sugerir hipertensão portal avançada\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se CI < 0 ou > 1 (erro matemático)",
+      "Validar fluxo hepatopetal (não hepatofugal)",
+      "Verificar se medições em veia porta proximal",
+      "Alertar se V_max < 10 cm/s (possível fluxo lento/reverso)",
+      "Validar ângulo Doppler <60°"
+    ],
+    "evidence": {
+      "primary_source": "Bolondi L et al. Ultrasonographic study portal venous system. Gastroenterology. 1988;95(3):714-720.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/portal-hypertension",
+      "notes": "Índice para avaliação hipertensão portal. Complementa avaliação clínica."
+    }
+  },
+  "VASC-0009": {
+    "ItemID": "VASC-0009",
+    "FunctionName": "calculate_ecst_stenosis",
+    "inputs": [
+      {
+        "name": "d_estenose",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-10",
+        "notes": "Diâmetro mínimo na estenose"
+      },
+      {
+        "name": "d_proximal",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-10",
+        "notes": "Diâmetro normal proximal (CCA)"
+      }
+    ],
+    "preprocessing": [
+      "Validar d_estenose > 0 e d_proximal > 0",
+      "Validar d_estenose <= d_proximal",
+      "Se d_estenose > d_proximal, inverter com aviso"
+    ],
+    "formula": [
+      "% Estenose ECST = (1 - d_estenose / d_proximal) × 100",
+      "Passo 1: Dividir d_estenose por d_proximal",
+      "Passo 2: Subtrair de 1",
+      "Passo 3: Multiplicar por 100"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: stenosis_percent_ecst",
+        "unit: \"%\"",
+        "precision: 0 casas decimais",
+        "derived_values:",
+        "- name: stenosis_category",
+        "value: Classificação (0-29% / 30-69% / ≥70%)",
+        "- name: nascet_equivalent",
+        "value: \"Estimativa NASCET (aproximadamente -10%)\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: stenosis_percent_ecst < 30",
+        "then: \"Sem estenose significativa\"",
+        "- if: 30 <= stenosis_percent_ecst <= 69",
+        "then: \"Estenose moderada (30-69%)\"",
+        "- if: stenosis_percent_ecst >= 70",
+        "then: \"Estenose grave (≥70%); indicação cirúrgica se sintomático\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se stenosis_percent_ecst > 100 (erro)",
+      "Alertar se d_estenose == d_proximal (sem estenose)",
+      "Validar medições em mesmo plano",
+      "Verificar se medições evitam trombo mural",
+      "Notar que ECST ~10% maior que NASCET"
+    ],
+    "evidence": {
+      "primary_source": "European Carotid Surgery Trial. Lancet. 1991;337(8752):1235-1243.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/ecst-criteria",
+      "notes": "Alternativa NASCET; valores ECST ~10% maiores. Menos usado que NASCET atualmente."
+    }
+  },
+  "VASC-0010": {
+    "ItemID": "VASC-0010",
+    "FunctionName": "calculate_mesenteric_stenosis_doppler",
+    "inputs": [
+      {
+        "name": "PSV_SMA",
+        "type": "number",
+        "unit": "cm/s",
+        "required": "true",
+        "valid_range": "0-400",
+        "notes": "PSV artéria mesentérica superior"
+      },
+      {
+        "name": "PSV_celiaca",
+        "type": "number",
+        "unit": "number",
+        "required": "false",
+        "valid_range": "0-300",
+        "notes": "PSV artéria celíaca (opcional)"
+      }
+    ],
+    "preprocessing": [
+      "Converter m/s para cm/s se necessário (×100)",
+      "Validar PSV_SMA > 0",
+      "Jejum obrigatório (reduz gases intestinais)"
+    ],
+    "formula": [
+      "Critério SMA: PSV_SMA (cm/s)",
+      "Critério Celíaca: PSV_celiaca (cm/s)",
+      "Passo 1: Medir PSV SMA proximal",
+      "Passo 2: Medir PSV celíaca proximal (se possível)",
+      "Passo 3: Comparar com cutoffs"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: mesenteric_stenosis_probability",
+        "value: \"Sem estenose / Borderline / Provável estenose\"",
+        "derived_values:",
+        "- name: PSV_SMA_value",
+        "value: PSV_SMA (cm/s)",
+        "- name: PSV_celiaca_value",
+        "value: PSV_celiaca (cm/s) ou \"não medido\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: PSV_SMA < 275 AND PSV_celiaca < 200",
+        "then: \"Sem estenose significativa\"",
+        "- if: (275 <= PSV_SMA <= 400) OR (200 <= PSV_celiaca <= 250)",
+        "then: \"Borderline; considerar confirmação por CTA/MRA/angiografia\"",
+        "- if: PSV_SMA > 400 OR PSV_celiaca > 250",
+        "then: \"Provável estenose significativa; confirmar por CTA/MRA/angiografia\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se PSV_SMA < 50 cm/s (possível erro ou hipoperfusão)",
+      "Validar ângulo Doppler <60°",
+      "Verificar se medições em segmento proximal",
+      "Alertar se gases intestinais limitam visualização",
+      "Confirmar jejum do paciente",
+      "Considerar débito cardíaco baixo (afeta PSV)"
+    ],
+    "evidence": {
+      "primary_source": "Moneta GL et al. Screening for asymptomatic SMA stenosis. J Vasc Surg. 1993;17(1):143-150.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/mesenteric-artery-stenosis",
+      "notes": "Critérios Doppler para estenose mesentérica. Confirmação por CTA/MRA/angiografia recomendada."
+    }
+  },
+  "THX-0001": {
+    "ItemID": "THX-0001",
+    "FunctionName": "calculate_pleural_effusion_volume_ct",
+    "inputs": [
+      {
+        "name": "profundidade_max",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-200",
+        "notes": "Profundidade máxima derrame (eixo transversal)"
+      },
+      {
+        "name": "comprimento_max",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-300",
+        "notes": "Comprimento máximo derrame (eixo longitudinal)"
+      }
+    ],
+    "preprocessing": [
+      "Converter cm para mm se necessário (×10)",
+      "Validar profundidade_max > 0 e comprimento_max > 0",
+      "Usar fórmula Goecke/Hazlinger (polinomial)"
+    ],
+    "formula": [
+      "Convertendo para cm: d = profundidade_max / 10, l = comprimento_max / 10",
+      "V (mL) = 0.365×d³ - 4.529×d² + 159.723×d - 88.377",
+      "Passo 1: Converter profundidade de mm para cm",
+      "Passo 2: Aplicar fórmula polinomial",
+      "Passo 3: Resultado em mL"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: effusion_volume",
+        "unit: mL",
+        "precision: 0 casas decimais",
+        "derived_values:",
+        "- name: effusion_category",
+        "value: \"Pequeno / Moderado / Volumoso\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: effusion_volume < 500",
+        "then: \"Pequeno derrame (<500 mL)\"",
+        "- if: 500 <= effusion_volume <= 1000",
+        "then: \"Derrame moderado (500-1000 mL)\"",
+        "- if: effusion_volume > 1000",
+        "then: \"Derrame volumoso (>1000 mL)\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se effusion_volume < 0 (erro matemático)",
+      "Validar medições em corte axial",
+      "Verificar se derrame unilateral ou bilateral",
+      "Alertar se profundidade > 200 mm (possível erro)",
+      "Considerar trombo mural que pode superestimar volume"
+    ],
+    "evidence": {
+      "primary_source": "Goecke T, Hazlinger B. New formula quantification pleural effusions CT. Eur Radiol. 1999;9(8):1547-1549.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/pleural-effusion-volume-ultrasound",
+      "notes": "Fórmula polinomial validada. Mais acurada que fórmula simples V = d² × l."
+    }
+  },
+  "THX-0002": {
+    "ItemID": "THX-0002",
+    "FunctionName": "calculate_rv_lv_ratio",
+    "inputs": [
+      {
+        "name": "d_RV",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-100",
+        "notes": "Diâmetro RV (eixo transversal, nível 4 câmaras)"
+      },
+      {
+        "name": "d_LV",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-100",
+        "notes": "Diâmetro LV (eixo transversal, nível 4 câmaras)"
+      }
+    ],
+    "preprocessing": [
+      "Validar d_RV > 0 e d_LV > 0",
+      "Medir no corte axial nível átrio direito máximo",
+      "Usar eixo transversal (não reformatações)"
+    ],
+    "formula": [
+      "RV:LV = d_RV / d_LV",
+      "Passo 1: Medir diâmetro RV transversal",
+      "Passo 2: Medir diâmetro LV transversal",
+      "Passo 3: Dividir RV por LV"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: rv_lv_ratio",
+        "unit: ratio",
+        "precision: 2 casas decimais",
+        "derived_values:",
+        "- name: rv_dilatation_status",
+        "value: \"Normal / Borderline / Dilatado\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: rv_lv_ratio < 0.9",
+        "then: \"Normal; sem dilatação RV\"",
+        "- if: 0.9 <= rv_lv_ratio <= 1.0",
+        "then: \"Borderline; possível disfunção RV leve\"",
+        "- if: rv_lv_ratio > 1.0",
+        "then: \"Dilatação RV; disfunção RV presente (associado a pior prognóstico em TEP)\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se rv_lv_ratio < 0.5 (possível erro)",
+      "Alertar se rv_lv_ratio > 2.0 (possível erro)",
+      "Validar medições no corte correto (axial, nível 4 câmaras)",
+      "Verificar se não há artefato de movimento",
+      "Confirmar que medições são transversais (não sagitais)"
+    ],
+    "evidence": {
+      "primary_source": "Qanadli SD et al. New CT index quantify arterial obstruction PE. AJR. 2001;176(6):1415-1420.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/right-heart-strain",
+      "notes": "RV:LV >1.0 associado a disfunção RV e pior prognóstico em TEP. Não diagnóstico isoladamente."
+    }
+  },
+  "THX-0003": {
+    "ItemID": "THX-0003",
+    "FunctionName": "calculate_pa_aorta_ratio",
+    "inputs": [
+      {
+        "name": "d_PA",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-100",
+        "notes": "Diâmetro PA principal (nível bifurcação)"
+      },
+      {
+        "name": "d_Ao",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-100",
+        "notes": "Diâmetro aorta ascendente (mesmo nível)"
+      }
+    ],
+    "preprocessing": [
+      "Validar d_PA > 0 e d_Ao > 0",
+      "Medir no corte axial bifurcação PA",
+      "Medir aorta ascendente mesmo nível"
+    ],
+    "formula": [
+      "PA:Ao = d_PA / d_Ao",
+      "Passo 1: Medir diâmetro PA principal",
+      "Passo 2: Medir diâmetro aorta ascendente",
+      "Passo 3: Dividir PA por Ao"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: pa_aorta_ratio",
+        "unit: ratio",
+        "precision: 2 casas decimais",
+        "derived_values:",
+        "- name: ph_probability",
+        "value: \"Baixa / Intermediária / Alta\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: pa_aorta_ratio < 0.9",
+        "then: \"Normal; sem sugestão de PH\"",
+        "- if: 0.9 <= pa_aorta_ratio <= 1.0",
+        "then: \"Borderline; possível PH leve\"",
+        "- if: pa_aorta_ratio > 1.0",
+        "then: \"Sugestivo de PH; considerar ecocardiografia para confirmação\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se pa_aorta_ratio < 0.5 (possível erro)",
+      "Alertar se pa_aorta_ratio > 2.0 (possível erro)",
+      "Validar medições no corte correto (bifurcação PA)",
+      "Verificar se não há artefato de movimento",
+      "Complementar com avaliação clínica e ecocardiografia"
+    ],
+    "evidence": {
+      "primary_source": "Ng CS et al. Effect pulmonary hypertension PA diameter. Chest. 1999;115(3):646-651.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/pulmonary-hypertension-1",
+      "notes": "PA/Ao >0.9 é 90º percentil normal. Não diagnóstico isoladamente; complementar com ecocardiografia."
+    }
+  },
+  "THX-0004": {
+    "ItemID": "THX-0004",
+    "FunctionName": "classify_nodule_fleischner_2017",
+    "inputs": [
+      {
+        "name": "tamanho_mm",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-30",
+        "notes": "Maior diâmetro nódulo"
+      },
+      {
+        "name": "tipo_nodulo",
+        "type": "enum",
+        "required": "true",
+        "valid_values": "[\"sólido\", \"subssólido\", \"vidro_fosco_puro\"]",
+        "notes": "Classificação de densidade"
+      },
+      {
+        "name": "risco_paciente",
+        "type": "enum",
+        "required": "true",
+        "valid_values": "[\"baixo\", \"alto\"]",
+        "notes": "Risco clínico (idade, tabagismo, etc)"
+      }
+    ],
+    "preprocessing": [
+      "Validar tamanho_mm > 0",
+      "Classificar tipo_nodulo corretamente",
+      "Avaliar risco paciente (tabagismo, história familiar)"
+    ],
+    "formula": [
+      "Intervalo_follow_up = f(tamanho_mm, tipo_nodulo, risco_paciente)",
+      "Passo 1: Medir maior diâmetro nódulo",
+      "Passo 2: Classificar tipo (sólido/subssólido/vidro fosco)",
+      "Passo 3: Avaliar risco paciente",
+      "Passo 4: Aplicar tabela Fleischner 2017"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: follow_up_interval",
+        "value: \"Sem follow-up / 12 meses / 6-8 semanas / 3-6 meses / 18-24 meses / PET-CT\"",
+        "derived_values:",
+        "- name: nodule_category",
+        "value: \"Baixo risco / Intermediário / Alto risco\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: tamanho_mm < 4 AND tipo_nodulo = \"sólido\"",
+        "then: \"Sem follow-up necessário\"",
+        "- if: 4 <= tamanho_mm <= 6 AND tipo_nodulo = \"sólido\" AND risco_paciente = \"baixo\"",
+        "then: \"Follow-up 12 meses\"",
+        "- if: 4 <= tamanho_mm <= 6 AND tipo_nodulo = \"sólido\" AND risco_paciente = \"alto\"",
+        "then: \"Follow-up 6-8 semanas\"",
+        "- if: 6 < tamanho_mm <= 8",
+        "then: \"Follow-up 6-8 semanas depois 3-6 meses\"",
+        "- if: tamanho_mm > 8",
+        "then: \"PET-CT ou biópsia\"",
+        "- if: tipo_nodulo = \"subssólido\" AND tamanho_mm < 6",
+        "then: \"Sem follow-up\"",
+        "- if: tipo_nodulo = \"subssólido\" AND tamanho_mm >= 6",
+        "then: \"Follow-up 3-6 meses depois 18-24 meses\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se tamanho_mm > 30 (possível massa, não nódulo)",
+      "Validar classificação tipo_nodulo",
+      "Verificar se nódulo em pulmão (não mediastino/pleura)",
+      "Considerar história tabagismo para risco",
+      "Documentar localização exata (lobo, segmento)"
+    ],
+    "evidence": {
+      "primary_source": "MacMahon H et al. Guidelines Management Incidental Pulmonary Nodules CT. Radiology. 2017;284(1):228-243.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/fleischner-society-pulmonary-nodule-recommendations-1",
+      "notes": "Diretrizes Fleischner 2017 atualizadas. Baseadas em risco malignidade."
+    }
+  },
+  "THX-0005": {
+    "ItemID": "THX-0005",
+    "FunctionName": "calculate_emphysema_index_laa",
+    "inputs": [
+      {
+        "name": "voxels_950_HU",
+        "type": "number",
+        "unit": "count",
+        "required": "true",
+        "valid_range": "0-1000000",
+        "notes": "Número de voxels ≤-950 HU"
+      },
+      {
+        "name": "voxels_totais_pulmao",
+        "type": "number",
+        "unit": "count",
+        "required": "true",
+        "valid_range": "0-1000000",
+        "notes": "Número total de voxels pulmão"
+      }
+    ],
+    "preprocessing": [
+      "Validar voxels_950_HU > 0 e voxels_totais_pulmao > 0",
+      "Validar voxels_950_HU <= voxels_totais_pulmao",
+      "Usar TC baixa dose inspiração completa",
+      "Aplicar segmentação automática pulmão"
+    ],
+    "formula": [
+      "LAA% = (voxels ≤-950 HU / voxels totais pulmão) × 100",
+      "Passo 1: Contar voxels ≤-950 HU",
+      "Passo 2: Contar voxels totais pulmão",
+      "Passo 3: Dividir e multiplicar por 100"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: laa_percentage",
+        "unit: \"%\"",
+        "precision: 1 casa decimal",
+        "derived_values:",
+        "- name: emphysema_severity",
+        "value: \"Normal / Leve / Moderado / Grave\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: laa_percentage < 5",
+        "then: \"Normal; sem enfisema significativo\"",
+        "- if: 5 <= laa_percentage < 25",
+        "then: \"Enfisema leve\"",
+        "- if: 25 <= laa_percentage < 50",
+        "then: \"Enfisema moderado\"",
+        "- if: laa_percentage >= 50",
+        "then: \"Enfisema grave\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se laa_percentage < 0 ou > 100 (erro)",
+      "Validar TC baixa dose (não pode ser dose alta)",
+      "Verificar se inspiração completa (não expiração)",
+      "Confirmar segmentação pulmão correta",
+      "Alertar se outras doenças presentes (fibrose, aspergiloma)"
+    ],
+    "evidence": {
+      "primary_source": "Gevenois PA et al. Comparison computed density macroscopic morphometry emphysema. AJR. 1995;165(3):553-558.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/emphysema",
+      "notes": "Threshold -950 HU padrão para enfisema. Correlaciona com função pulmonar (FEV1)."
+    }
+  },
+  "THX-0006": {
+    "ItemID": "THX-0006",
+    "FunctionName": "calculate_pesi_score",
+    "inputs": [
+      {
+        "name": "idade",
+        "type": "number",
+        "unit": "years",
+        "required": "true",
+        "valid_range": "0-120",
+        "notes": "Idade do paciente"
+      },
+      {
+        "name": "sexo",
+        "type": "enum",
+        "required": "true",
+        "valid_values": "[\"M\", \"F\"]",
+        "notes": "Sexo (M=masculino, F=feminino)"
+      },
+      {
+        "name": "FC",
+        "type": "number",
+        "unit": "bpm",
+        "required": "true",
+        "valid_range": "0-200",
+        "notes": "Frequência cardíaca"
+      },
+      {
+        "name": "PAS",
+        "type": "number",
+        "unit": "mmHg",
+        "required": "true",
+        "valid_range": "0-300",
+        "notes": "Pressão arterial sistólica"
+      },
+      {
+        "name": "FR",
+        "type": "number",
+        "unit": "respiracoes/min",
+        "required": "true",
+        "valid_range": "0-100",
+        "notes": "Frequência respiratória"
+      },
+      {
+        "name": "temperatura",
+        "type": "number",
+        "unit": "°C",
+        "required": "true",
+        "valid_range": "30-45",
+        "notes": "Temperatura corporal"
+      },
+      {
+        "name": "consciencia_alterada",
+        "type": "boolean",
+        "required": "true",
+        "notes": "Consciência alterada?"
+      },
+      {
+        "name": "SaO2",
+        "type": "number",
+        "unit": "\"%\"",
+        "required": "true",
+        "valid_range": "0-100",
+        "notes": "Saturação O2"
+      },
+      {
+        "name": "ICC",
+        "type": "boolean",
+        "required": "true",
+        "notes": "Insuficiência cardíaca?"
+      },
+      {
+        "name": "DPOC",
+        "type": "boolean",
+        "required": "true",
+        "notes": "DPOC?"
+      }
+    ],
+    "preprocessing": [
+      "Validar todos os inputs > 0",
+      "Converter temperatura Fahrenheit para Celsius se necessário",
+      "Validar SaO2 <= 100%"
+    ],
+    "formula": [
+      "PESI = idade + (10 se sexo=M) + (30 se FC≥110) + (20 se PAS<100) + (20 se FR≥30) + (20 se T<36) + (60 se consciência alterada) + (20 se ICC) + (10 se DPOC)",
+      "Passo 1: Começar com idade",
+      "Passo 2: Adicionar pontos por sexo masculino (+10)",
+      "Passo 3: Adicionar pontos por FC≥110 (+30)",
+      "Passo 4: Adicionar pontos por PAS<100 (+20)",
+      "Passo 5: Adicionar pontos por FR≥30 (+20)",
+      "Passo 6: Adicionar pontos por T<36°C (+20)",
+      "Passo 7: Adicionar pontos por consciência alterada (+60)",
+      "Passo 8: Adicionar pontos por ICC (+20)",
+      "Passo 9: Adicionar pontos por DPOC (+10)"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: pesi_score",
+        "unit: points",
+        "precision: 0 casas decimais",
+        "derived_values:",
+        "- name: pesi_class",
+        "value: \"I / II / III / IV / V\"",
+        "- name: mortality_30days_percent",
+        "value: \"Percentual mortalidade 30 dias\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: pesi_score <= 65",
+        "then: \"Classe I; mortalidade <2%; candidato a tratamento ambulatorial\"",
+        "- if: 66 <= pesi_score <= 85",
+        "then: \"Classe II; mortalidade 2-7%; considerar internação\"",
+        "- if: 86 <= pesi_score <= 105",
+        "then: \"Classe III; mortalidade 3-7%; internação recomendada\"",
+        "- if: 106 <= pesi_score <= 125",
+        "then: \"Classe IV; mortalidade 4-11%; internação em unidade intensiva\"",
+        "- if: pesi_score > 125",
+        "then: \"Classe V; mortalidade >11%; internação em unidade intensiva\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se pesi_score < 0 (erro)",
+      "Validar FC entre 0-200 bpm",
+      "Validar PAS entre 0-300 mmHg",
+      "Validar FR entre 0-100 respirações/min",
+      "Validar temperatura entre 30-45°C",
+      "Validar SaO2 entre 0-100%"
+    ],
+    "evidence": {
+      "primary_source": "Aujesky D et al. Derivation validation prognostic model PE. Am J Respir Crit Care Med. 2005;172(8):1041-1046.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/pulmonary-embolism-severity-index-pesi",
+      "notes": "Score clínico validado para estratificar risco TEP. Existe sPESI (simplificada)."
+    }
+  },
+  "ABD-0001": {
+    "ItemID": "ABD-0001",
+    "FunctionName": "calculate_hepatorenal_index",
+    "inputs": [
+      {
+        "name": "atenuacao_figado",
+        "type": "number",
+        "unit": "dB/cm",
+        "required": "true",
+        "valid_range": "0-100",
+        "notes": "Atenuação fígado medida em US"
+      },
+      {
+        "name": "atenuacao_rim",
+        "type": "number",
+        "unit": "dB/cm",
+        "required": "true",
+        "valid_range": "0-100",
+        "notes": "Atenuação rim direito medida em US"
+      }
+    ],
+    "preprocessing": [
+      "Validar atenuacao_figado > 0 e atenuacao_rim > 0",
+      "Usar ROI ≥1 cm parênquima hepático",
+      "Usar ROI ≥1 cm cortex renal direita",
+      "Evitar vasos e estruturas adjacentes"
+    ],
+    "formula": [
+      "HRI = (A_fígado - A_rim) / A_rim",
+      "Passo 1: Medir atenuação fígado",
+      "Passo 2: Medir atenuação rim",
+      "Passo 3: Calcular diferença",
+      "Passo 4: Dividir por atenuação rim"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: hepatorenal_index",
+        "unit: ratio",
+        "precision: 2 casas decimais",
+        "derived_values:",
+        "- name: steatosis_grade",
+        "value: \"Sem / Leve / Moderada / Grave\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: hri < 0.5",
+        "then: \"Sem esteatose significativa\"",
+        "- if: 0.5 <= hri < 1.5",
+        "then: \"Esteatose leve\"",
+        "- if: 1.5 <= hri < 2.5",
+        "then: \"Esteatose moderada\"",
+        "- if: hri >= 2.5",
+        "then: \"Esteatose grave\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se hri < 0 (erro)",
+      "Validar ROI adequado (≥1 cm)",
+      "Verificar se evita vasos",
+      "Alertar se cirrose/fibrose presente (invalida índice)",
+      "Alertar se ferro hepático presente (aumenta atenuação)"
+    ],
+    "evidence": {
+      "primary_source": "Hamaguchi M et al. Severity ultrasonographic findings NAFLD. AJR. 2007;188(6):1490-1496.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/diffuse-hepatic-steatosis",
+      "notes": "Índice US para quantificar esteatose. HRI >1.5 sugere esteatose >5%."
+    }
+  },
+  "ABD-0002": {
+    "ItemID": "ABD-0002",
+    "FunctionName": "classify_renal_cyst_bosniak_2019",
+    "inputs": [
+      {
+        "name": "realce_HU",
+        "type": "number",
+        "unit": "HU",
+        "required": "true",
+        "valid_range": "-20-100",
+        "notes": "Realce em unidades Hounsfield (≥20 HU = realce)"
+      },
+      {
+        "name": "componentes_solidos",
+        "type": "boolean",
+        "required": "true",
+        "notes": "Presença de componentes sólidos?"
+      },
+      {
+        "name": "septos",
+        "type": "boolean",
+        "required": "true",
+        "notes": "Presença de septos?"
+      },
+      {
+        "name": "calcificacao",
+        "type": "boolean",
+        "required": "true",
+        "notes": "Presença de calcificação?"
+      },
+      {
+        "name": "numero_septos",
+        "type": "number",
+        "unit": "count",
+        "required": "false",
+        "valid_range": "0-10",
+        "notes": "Número de septos (se presentes)"
+      }
+    ],
+    "preprocessing": [
+      "Validar presença de realce (≥20 HU = realce)",
+      "Usar TC com contraste (NC + arterial + portal + tardia)",
+      "Classificar cada componente"
+    ],
+    "formula": [
+      "Categoria Bosniak = f(realce, sólido, septos, calcificação)",
+      "Passo 1: Avaliar realce (ausente/presente)",
+      "Passo 2: Avaliar componentes sólidos",
+      "Passo 3: Avaliar septos",
+      "Passo 4: Avaliar calcificação",
+      "Passo 5: Aplicar tabela Bosniak 2019"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: bosniak_category",
+        "value: \"I / II / IIF / III / IV / V\"",
+        "derived_values:",
+        "- name: malignancy_risk",
+        "value: \"Risco malignidade (%)\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: bosniak_category = \"I\"",
+        "then: \"Simples; sem risco malignidade; sem follow-up\"",
+        "- if: bosniak_category = \"II\"",
+        "then: \"Benigno; <5% risco; sem follow-up\"",
+        "- if: bosniak_category = \"IIF\"",
+        "then: \"Intermediário; 5-10% risco; follow-up 5 anos\"",
+        "- if: bosniak_category = \"III\"",
+        "then: \"Complexo ambíguo; 10-50% risco; follow-up ou biópsia\"",
+        "- if: bosniak_category = \"IV\"",
+        "then: \"Sólido com realce; >50% risco; considerar cirurgia\"",
+        "- if: bosniak_category = \"V\"",
+        "then: \"Completamente sólido; >90% risco; cirurgia recomendada\""
+      ]
+    },
+    "qa_checks": [
+      "Validar TC com contraste (NC + fases)",
+      "Verificar realce ≥20 HU",
+      "Alertar se realce <20 HU (não significativo)",
+      "Confirmar presença de septos (não confundir com artefato)",
+      "Documentar localização exata (rim D/E, pólo)"
+    ],
+    "evidence": {
+      "primary_source": "Silverman SG et al. Management incidental adrenal mass. Radiology. 2019;292(2):251-260.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/bosniak-classification-of-cystic-renal-masses-version-2019",
+      "notes": "Classificação Bosniak 2019 atualizada. Baseada em risco malignidade."
+    }
+  },
+  "ABD-0003": {
+    "ItemID": "ABD-0003",
+    "FunctionName": "calculate_renal_nephrometry_score",
+    "inputs": [
+      {
+        "name": "radius_cm",
+        "type": "number",
+        "unit": "cm",
+        "required": "true",
+        "valid_range": "0-10",
+        "notes": "Maior diâmetro lesão"
+      },
+      {
+        "name": "exophytic_percent",
+        "type": "number",
+        "unit": "\"%\"",
+        "required": "true",
+        "valid_range": "0-100",
+        "notes": "Percentual exofítico (0-25% / 26-50% / 51-100%)"
+      },
+      {
+        "name": "nearness_mm",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-100",
+        "notes": "Distância sistema coletor (mm)"
+      },
+      {
+        "name": "anterior_posterior",
+        "type": "enum",
+        "required": "true",
+        "valid_values": "[\"anterior\", \"posterior\", \"ambos\"]",
+        "notes": "Localização (anterior/posterior/ambos)"
+      },
+      {
+        "name": "location_polar",
+        "type": "enum",
+        "required": "true",
+        "valid_values": "[\"superior\", \"meio\", \"inferior\"]",
+        "notes": "Localização polar (superior/meio/inferior)"
+      }
+    ],
+    "preprocessing": [
+      "Validar radius_cm > 0",
+      "Validar exophytic_percent entre 0-100",
+      "Validar nearness_mm > 0",
+      "Medir em TC/RM"
+    ],
+    "formula": [
+      "RENAL = R + E + N + A + L",
+      "R (Radius):",
+      "- <4 cm = 1 ponto",
+      "- 4-7 cm = 2 pontos",
+      "- >7 cm = 3 pontos",
+      "E (Exophytic):",
+      "- 0-25% = 1 ponto",
+      "- 26-50% = 2 pontos",
+      "- 51-100% = 3 pontos",
+      "N (Nearness):",
+      "- ≥7 mm = 1 ponto",
+      "- 4-6 mm = 2 pontos",
+      "- <4 mm = 3 pontos",
+      "A (Anterior/Posterior):",
+      "- Anterior = 1 ponto",
+      "- Posterior = 1 ponto",
+      "- Ambos = 2 pontos",
+      "L (Location):",
+      "- Superior/Inferior = 1 ponto",
+      "- Meio = 2 pontos"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: renal_score",
+        "unit: points",
+        "precision: 0 casas decimais",
+        "derived_values:",
+        "- name: complexity_category",
+        "value: \"Baixa / Intermediária / Alta\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: renal_score <= 6",
+        "then: \"Baixa complexidade; cirurgia conservadora viável\"",
+        "- if: 7 <= renal_score <= 9",
+        "then: \"Complexidade intermediária; cirurgia parcial possível\"",
+        "- if: renal_score >= 10",
+        "then: \"Alta complexidade; considerar nefrectomia radical\""
+      ]
+    },
+    "qa_checks": [
+      "Validar medições em TC/RM",
+      "Verificar localização exata lesão",
+      "Confirmar distância sistema coletor",
+      "Documentar percentual exofítico",
+      "Alertar se lesão muito complexa (RENAL >12)"
+    ],
+    "evidence": {
+      "primary_source": "Kutikov A, Uzzo RG. R.E.N.A.L. nephrometry score. J Urol. 2009;182(3):844-853.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/renal-nephrometry-scoring-system-2",
+      "notes": "Score para estratificar complexidade anatômica massas renais. Guia decisão cirúrgica."
+    }
+  },
+  "ABD-0004": {
+    "ItemID": "ABD-0004",
+    "FunctionName": "calculate_height_adjusted_tkv",
+    "inputs": [
+      {
+        "name": "volume_renal_total",
+        "type": "number",
+        "unit": "mL",
+        "required": "true",
+        "valid_range": "0-5000",
+        "notes": "Volume renal total (ambos rins)"
+      },
+      {
+        "name": "altura",
+        "type": "number",
+        "unit": "m",
+        "required": "true",
+        "valid_range": "1.0-2.5",
+        "notes": "Altura do paciente em metros"
+      }
+    ],
+    "preprocessing": [
+      "Validar volume_renal_total > 0",
+      "Validar altura > 0",
+      "Usar segmentação manual/automática ambos rins",
+      "Usar TC/RM"
+    ],
+    "formula": [
+      "ht-TKV (mL/m) = volume renal total / altura",
+      "Passo 1: Segmentar ambos rins",
+      "Passo 2: Calcular volume total (soma)",
+      "Passo 3: Dividir por altura em metros"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: ht_tkv",
+        "unit: mL/m",
+        "precision: 1 casa decimal",
+        "derived_values:",
+        "- name: mayo_class",
+        "value: \"1A / 1B / 2 / 3 / 4\"",
+        "- name: progression_risk",
+        "value: \"Lenta / Intermediária / Rápida\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: ht_tkv < 1.5",
+        "then: \"Mayo Class 1A (idade 15-39); progressão lenta\"",
+        "- if: 1.5 <= ht_tkv < 2.2",
+        "then: \"Mayo Class 1B (idade 15-39); progressão lenta\"",
+        "- if: 2.2 <= ht_tkv < 2.6",
+        "then: \"Mayo Class 2; progressão intermediária\"",
+        "- if: 2.6 <= ht_tkv < 3.1",
+        "then: \"Mayo Class 3; progressão intermediária-rápida\"",
+        "- if: ht_tkv >= 3.1",
+        "then: \"Mayo Class 4; progressão rápida\""
+      ]
+    },
+    "qa_checks": [
+      "Validar segmentação renal correta",
+      "Alertar se volume < 100 mL (possível erro)",
+      "Alertar se volume > 3000 mL (possível erro)",
+      "Validar altura entre 1.0-2.5 m",
+      "Confirmar que volume é ambos rins (não unilateral)"
+    ],
+    "evidence": {
+      "primary_source": "Irazabal MV et al. Imaging classification ADPKD. J Am Soc Nephrol. 2015;26(1):160-172.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/adpkd-classification",
+      "notes": "Classificação Mayo para DRPAD. Prediz progressão doença e necessidade diálise."
+    }
+  },
+  "ABD-0005": {
+    "ItemID": "ABD-0005",
+    "FunctionName": "calculate_adrenal_absolute_washout",
+    "inputs": [
+      {
+        "name": "HU_nc",
+        "type": "number",
+        "unit": "HU",
+        "required": "true",
+        "valid_range": "-100-100",
+        "notes": "Atenuação fase NC (não contraste)"
+      },
+      {
+        "name": "HU_portal",
+        "type": "number",
+        "unit": "HU",
+        "required": "true",
+        "valid_range": "0-200",
+        "notes": "Atenuação fase portal (60-90 seg)"
+      },
+      {
+        "name": "HU_tardia",
+        "type": "number",
+        "unit": "HU",
+        "required": "true",
+        "valid_range": "-50-150",
+        "notes": "Atenuação fase tardia (15 min)"
+      }
+    ],
+    "preprocessing": [
+      "Validar HU_nc > -100 e HU_nc < 100",
+      "Validar HU_portal > 0",
+      "Validar HU_tardia > -50",
+      "Usar ROI ≥1 cm evitando necrose/vasos",
+      "Protocolo: NC + portal (60-90 seg) + tardia (15 min)"
+    ],
+    "formula": [
+      "AW (%) = (HU_portal - HU_tardia) / (HU_portal - HU_nc) × 100",
+      "Passo 1: Calcular washout = HU_portal - HU_tardia",
+      "Passo 2: Calcular denominador = HU_portal - HU_nc",
+      "Passo 3: Dividir e multiplicar por 100"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: absolute_washout",
+        "unit: \"%\"",
+        "precision: 0 casas decimais",
+        "derived_values:",
+        "- name: adenoma_probability",
+        "value: \"Baixa / Intermediária / Alta\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: absolute_washout > 60",
+        "then: \"Adenoma (alta especificidade ~98%)\"",
+        "- if: 40 <= absolute_washout <= 60",
+        "then: \"Borderline; considerar complementação (RM, follow-up)\"",
+        "- if: absolute_washout < 40",
+        "then: \"Sugestivo não-adenoma; considerar RM/follow-up\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se absolute_washout < 0 ou > 100 (erro)",
+      "Validar ROI ≥1 cm",
+      "Verificar se evita necrose/vasos",
+      "Alertar se insuficiência renal (afeta clearance contraste)",
+      "Confirmar protocolo TC correto (NC + portal + tardia)"
+    ],
+    "evidence": {
+      "primary_source": "Caoili EM et al. Adrenal masses characterization. Radiology. 2002;222(3):629-633.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/adrenal-washout",
+      "notes": "Protocolo TC para caracterização adenoma. Washout >60% = adenoma com alta especificidade."
+    }
+  },
+  "ABD-0006": {
+    "ItemID": "ABD-0006",
+    "FunctionName": "calculate_adrenal_signal_intensity_index",
+    "inputs": [
+      {
+        "name": "sinal_in_phase",
+        "type": "number",
+        "unit": "intensity",
+        "required": "true",
+        "valid_range": "0-1000",
+        "notes": "Sinal in-phase (TE ~2.3 ms em 1.5T)"
+      },
+      {
+        "name": "sinal_opposed_phase",
+        "type": "number",
+        "unit": "intensity",
+        "required": "true",
+        "valid_range": "0-1000",
+        "notes": "Sinal opposed-phase (TE ~4.6 ms em 1.5T)"
+      }
+    ],
+    "preprocessing": [
+      "Validar sinal_in_phase > 0 e sinal_opposed_phase > 0",
+      "Usar sequências T1 in-phase e opposed-phase",
+      "Usar ROI ≥1 cm evitando artefatos",
+      "Usar RM 1.5T ou 3T"
+    ],
+    "formula": [
+      "SII (%) = (S_in - S_opp) / S_in × 100",
+      "Passo 1: Calcular diferença = S_in - S_opp",
+      "Passo 2: Dividir por S_in",
+      "Passo 3: Multiplicar por 100"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: signal_intensity_index",
+        "unit: \"%\"",
+        "precision: 1 casa decimal",
+        "derived_values:",
+        "- name: adenoma_probability",
+        "value: \"Baixa / Intermediária / Alta\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: signal_intensity_index > 16.5",
+        "then: \"Adenoma (sensibilidade ~80%, especificidade ~95%)\"",
+        "- if: 10 <= signal_intensity_index <= 16.5",
+        "then: \"Borderline; considerar complementação\"",
+        "- if: signal_intensity_index < 10",
+        "then: \"Sugestivo não-adenoma\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se sii < 0 ou > 100 (erro)",
+      "Validar sequências corretas (in-phase e opposed-phase)",
+      "Verificar se ROI ≥1 cm",
+      "Alertar se artefatos presentes",
+      "Confirmar que é adenoma sem gordura (SII pode ser baixo)"
+    ],
+    "evidence": {
+      "primary_source": "Halefoglu AM, Baskan O. Diffusion-weighted MR imaging adrenal masses. Diagn Interv Radiol. 2012;18(1):99-105.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/adrenal-adenoma",
+      "notes": "Índice RM para detectar gordura em adenomas. SII >16.5% = adenoma lipídico."
+    }
+  },
+  "ABD-0007": {
+    "ItemID": "ABD-0007",
+    "FunctionName": "calculate_lirads_threshold_growth",
+    "inputs": [
+      {
+        "name": "d_anterior",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-200",
+        "notes": "Diâmetro nódulo anterior"
+      },
+      {
+        "name": "d_atual",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-200",
+        "notes": "Diâmetro nódulo atual"
+      },
+      {
+        "name": "intervalo_meses",
+        "type": "number",
+        "unit": "months",
+        "required": "true",
+        "valid_range": "0-24",
+        "notes": "Intervalo entre exames (meses)"
+      }
+    ],
+    "preprocessing": [
+      "Validar d_anterior > 0 e d_atual > 0",
+      "Validar intervalo_meses > 0",
+      "Usar mesmo plano em ambos exames quando possível",
+      "Medir maior diâmetro nódulo"
+    ],
+    "formula": [
+      "% Crescimento = (d_atual - d_anterior) / d_anterior × 100",
+      "Threshold Growth = % Crescimento ≥ 50% em ≤ 6 meses",
+      "Passo 1: Calcular diferença = d_atual - d_anterior",
+      "Passo 2: Dividir por d_anterior",
+      "Passo 3: Multiplicar por 100",
+      "Passo 4: Verificar se ≥50% e intervalo ≤6 meses"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: threshold_growth_present",
+        "value: true/false",
+        "derived_values:",
+        "- name: growth_percent",
+        "value: \"Percentual crescimento (%)\"",
+        "- name: lirads_major_feature",
+        "value: \"Sim/Não\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: (growth_percent >= 50) AND (intervalo_meses <= 6)",
+        "then: \"Threshold growth presente; major feature LI-RADS; contribui para LR-4 ou LR-5\"",
+        "- if: (growth_percent < 50) OR (intervalo_meses > 6)",
+        "then: \"Threshold growth ausente\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se d_atual < d_anterior (regressão; verificar medições)",
+      "Validar intervalo_meses > 0",
+      "Verificar se medições em mesmo plano",
+      "Alertar se intervalo > 6 meses (não qualifica como threshold)",
+      "Confirmar que nódulo em cirrose (contexto LI-RADS)"
+    ],
+    "evidence": {
+      "primary_source": "Chernyak V et al. Liver Imaging Reporting Data System v2018. Radiology. 2018;289(3):816-830.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/ctmri-li-rads",
+      "notes": "LI-RADS v2018: ≥50% aumento diâmetro em ≤6 meses = major feature."
+    }
+  },
+  "ABD-0008": {
+    "ItemID": "ABD-0008",
+    "FunctionName": "calculate_modified_ct_severity_index",
+    "inputs": [
+      {
+        "name": "grau_inflamacao",
+        "type": "enum",
+        "required": "true",
+        "valid_values": "[\"A\", \"B\", \"C\", \"D\", \"E\"]",
+        "notes": "Grau inflamação pancreática (Balthazar A-E)"
+      },
+      {
+        "name": "percentual_necrose",
+        "type": "number",
+        "unit": "\"%\"",
+        "required": "true",
+        "valid_range": "0-100",
+        "notes": "Percentual necrose pancreática"
+      }
+    ],
+    "preprocessing": [
+      "Validar grau_inflamacao entre A-E",
+      "Validar percentual_necrose entre 0-100",
+      "Usar TC com contraste fase portal"
+    ],
+    "formula": [
+      "Pontos Inflamação (Balthazar):",
+      "A = 0 pontos",
+      "B = 1 ponto",
+      "C = 2 pontos",
+      "D = 3 pontos",
+      "E = 4 pontos",
+      "Pontos Necrose:",
+      "0% = 0 pontos",
+      "1-30% = 2 pontos",
+      ">30% = 4 pontos",
+      "MCTSI = Pontos Inflamação + Pontos Necrose"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: mctsi_score",
+        "unit: points",
+        "precision: 0 casas decimais",
+        "derived_values:",
+        "- name: severity_category",
+        "value: \"Leve / Moderada / Grave\"",
+        "- name: mortality_estimate",
+        "value: \"Percentual mortalidade (%)\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: mctsi_score <= 2",
+        "then: \"Pancreatite leve; mortalidade ~0%\"",
+        "- if: 4 <= mctsi_score <= 6",
+        "then: \"Pancreatite moderada; mortalidade ~3%\"",
+        "- if: mctsi_score >= 8",
+        "then: \"Pancreatite grave; mortalidade ~17%\""
+      ]
+    },
+    "qa_checks": [
+      "Validar grau_inflamacao correto (A-E)",
+      "Verificar percentual_necrose entre 0-100",
+      "Confirmar TC com contraste",
+      "Alertar se pancreatite fulminante (mortalidade >30%)",
+      "Documentar complicações (pseudocisto, abscessos)"
+    ],
+    "evidence": {
+      "primary_source": "Mortele KJ et al. Modified Marshall score assessing severity acute pancreatitis. AJR. 2004;183(6):1519-1524.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/modified-ct-severity-index-pancreatitis",
+      "notes": "Score para avaliar gravidade pancreatite aguda. Prediz mortalidade e complicações."
+    }
+  },
+  "ABD-0009": {
+    "ItemID": "ABD-0009",
+    "FunctionName": "measure_pancreatic_duct_diameter",
+    "inputs": [
+      {
+        "name": "diametro_cabeca",
+        "type": "number",
+        "unit": "mm",
+        "required": "false",
+        "valid_range": "0-10",
+        "notes": "Diâmetro ducto pancreático na cabeça"
+      },
+      {
+        "name": "diametro_corpo",
+        "type": "number",
+        "unit": "mm",
+        "required": "false",
+        "valid_range": "0-10",
+        "notes": "Diâmetro ducto pancreático no corpo"
+      },
+      {
+        "name": "diametro_cauda",
+        "type": "number",
+        "unit": "mm",
+        "required": "false",
+        "valid_range": "0-10",
+        "notes": "Diâmetro ducto pancreático na cauda"
+      }
+    ],
+    "preprocessing": [
+      "Validar diâmetros > 0",
+      "Medir eixo transversal maior diâmetro",
+      "Usar RM (MRCP) para melhor visualização",
+      "Evitar medições em confluência"
+    ],
+    "formula": [
+      "Valores Normais por Localização:",
+      "Cabeça: 3-4 mm",
+      "Corpo: 2-3 mm",
+      "Cauda: 1-2 mm",
+      "Passo 1: Medir diâmetro cabeça",
+      "Passo 2: Medir diâmetro corpo",
+      "Passo 3: Medir diâmetro cauda",
+      "Passo 4: Comparar com valores normais"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: duct_diameter_status",
+        "value: \"Normal / Borderline / Dilatado\"",
+        "derived_values:",
+        "- name: dilatacao_localizacao",
+        "value: \"Localização da dilatação (se presente)\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: diametro_cabeca < 3 AND diametro_corpo < 2 AND diametro_cauda < 1",
+        "then: \"Normal\"",
+        "- if: (3 <= diametro_cabeca <= 5) OR (2 <= diametro_corpo <= 3) OR (1 <= diametro_cauda <= 2)",
+        "then: \"Borderline; considerar contexto clínico\"",
+        "- if: diametro_cabeca > 5 OR diametro_corpo > 3 OR diametro_cauda > 2",
+        "then: \"Dilatado; sugerir pancreatite crônica ou obstrução\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se diâmetro < 0.5 mm (possível erro)",
+      "Alertar se diâmetro > 10 mm (possível erro ou dilatação massiva)",
+      "Validar medições em eixo transversal",
+      "Verificar se evita confluência",
+      "Alertar se dilatação pós-prandial (fisiológica)"
+    ],
+    "evidence": {
+      "primary_source": "Elgasim M et al. Pancreatic duct imaging aging. Endosc Ultrasound. 2023;12(2):118-125.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/pancreatic-duct-diameter",
+      "notes": "Valores normais variam ligeiramente entre estudos (1-3.5 mm). RM (MRCP) mais sensível que TC."
+    }
+  },
+  "ABD-0010": {
+    "ItemID": "ABD-0010",
+    "FunctionName": "calculate_splenic_volume_ellipsoid",
+    "inputs": [
+      {
+        "name": "comprimento",
+        "type": "number",
+        "unit": "cm",
+        "required": "true",
+        "valid_range": "0-20",
+        "notes": "Comprimento baço (eixo longitudinal)"
+      },
+      {
+        "name": "largura",
+        "type": "number",
+        "unit": "cm",
+        "required": "true",
+        "valid_range": "0-15",
+        "notes": "Largura baço (eixo transversal)"
+      },
+      {
+        "name": "espessura",
+        "type": "number",
+        "unit": "cm",
+        "required": "true",
+        "valid_range": "0-15",
+        "notes": "Espessura baço (eixo ântero-posterior)"
+      }
+    ],
+    "preprocessing": [
+      "Validar comprimento > 0, largura > 0, espessura > 0",
+      "Usar maior diâmetro cada dimensão",
+      "Medir em TC/RM/US"
+    ],
+    "formula": [
+      "V (mL) = L × W × H × 0.52",
+      "Passo 1: Medir comprimento (L)",
+      "Passo 2: Medir largura (W)",
+      "Passo 3: Medir espessura (H)",
+      "Passo 4: Multiplicar por 0.52 (fator elipsoide)"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: splenic_volume",
+        "unit: mL",
+        "precision: 0 casas decimais",
+        "derived_values:",
+        "- name: splenomegaly_status",
+        "value: \"Normal / Borderline / Esplenomegalia\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: splenic_volume < 150",
+        "then: \"Normal\"",
+        "- if: 150 <= splenic_volume <= 200",
+        "then: \"Borderline\"",
+        "- if: 200 <= splenic_volume <= 400",
+        "then: \"Esplenomegalia leve\"",
+        "- if: splenic_volume > 400",
+        "then: \"Esplenomegalia moderada-grave\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se volume < 50 mL (possível erro)",
+      "Alertar se volume > 1000 mL (possível erro)",
+      "Validar medições em três planos perpendiculares",
+      "Verificar se fórmula elipsoide apropriada",
+      "Alertar se baço muito irregular (fórmula menos acurada)"
+    ],
+    "evidence": {
+      "primary_source": "Bezerra AS et al. Determination splenomegaly CT ultrasound volumetry. Eur J Radiol. 2004;53(2):268-274.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/splenomegaly",
+      "notes": "Fórmula elipsoide validada. Volume >200 mL sugere esplenomegalia."
+    }
+  },
+  "URO-0001": {
+    "ItemID": "URO-0001",
+    "FunctionName": "calculate_prostate_volume_ellipsoid",
+    "inputs": [
+      {
+        "name": "comprimento",
+        "type": "number",
+        "unit": "cm",
+        "required": "true",
+        "valid_range": "0-10",
+        "notes": "Comprimento próstata (eixo sagital)"
+      },
+      {
+        "name": "largura",
+        "type": "number",
+        "unit": "cm",
+        "required": "true",
+        "valid_range": "0-10",
+        "notes": "Largura próstata (eixo transversal)"
+      },
+      {
+        "name": "altura",
+        "type": "number",
+        "unit": "cm",
+        "required": "true",
+        "valid_range": "0-10",
+        "notes": "Altura próstata (eixo ântero-posterior)"
+      }
+    ],
+    "preprocessing": [
+      "Validar comprimento > 0, largura > 0, altura > 0",
+      "Usar maior diâmetro cada dimensão",
+      "TRUS: medir eixo transversal (W H) e sagital (L)",
+      "RM: T2 sagital e transversal"
+    ],
+    "formula": [
+      "V (mL) = L × W × H × π/6",
+      "Passo 1: Medir comprimento (L)",
+      "Passo 2: Medir largura (W)",
+      "Passo 3: Medir altura (H)",
+      "Passo 4: Multiplicar por π/6 (fator elipsoide)"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: prostate_volume",
+        "unit: mL",
+        "precision: 0 casas decimais",
+        "derived_values:",
+        "- name: bph_severity",
+        "value: \"Normal / Leve / Moderada / Grave\"",
+        "- name: psa_density",
+        "value: \"PSA (ng/mL) / Volume (mL)\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: prostate_volume < 25",
+        "then: \"Normal\"",
+        "- if: 25 <= prostate_volume <= 50",
+        "then: \"Hiperplasia leve\"",
+        "- if: 50 < prostate_volume <= 100",
+        "then: \"Hiperplasia moderada\"",
+        "- if: prostate_volume > 100",
+        "then: \"Hiperplasia grave\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se volume < 10 mL (possível erro)",
+      "Alertar se volume > 200 mL (possível erro)",
+      "Validar medições em três planos perpendiculares",
+      "Verificar se fórmula elipsoide apropriada",
+      "Alertar se próstata muito irregular (fórmula menos acurada)"
+    ],
+    "evidence": {
+      "primary_source": "Roehrborn CG et al. Efficacy safety dual inhibitor 5-alpha reductase. J Urol. 2002;169(6):2399-2405.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/benign-prostatic-hyperplasia",
+      "notes": "Fórmula padrão volume prostático. Importante para cálculo PSA density."
+    }
+  },
+  "URO-0002": {
+    "ItemID": "URO-0002",
+    "FunctionName": "classify_prostate_pirads_v2_1",
+    "inputs": [
+      {
+        "name": "t2_score",
+        "type": "number",
+        "unit": "points",
+        "required": "true",
+        "valid_range": "1-5",
+        "notes": "Score T2 (1-5)"
+      },
+      {
+        "name": "dwi_score",
+        "type": "number",
+        "unit": "points",
+        "required": "true",
+        "valid_range": "1-5",
+        "notes": "Score DWI (1-5)"
+      },
+      {
+        "name": "dce_score",
+        "type": "number",
+        "unit": "points",
+        "required": "true",
+        "valid_range": "0-3",
+        "notes": "Score DCE (0-3; 0=ausente)"
+      },
+      {
+        "name": "localizacao",
+        "type": "enum",
+        "required": "true",
+        "valid_values": "[\"zona_periferica\", \"zona_transicao\", \"zona_central\"]",
+        "notes": "Localização lesão"
+      }
+    ],
+    "preprocessing": [
+      "Validar T2 entre 1-5",
+      "Validar DWI entre 1-5",
+      "Validar DCE entre 0-3",
+      "Usar RM 1.5T ou 3T",
+      "Sequências: T2, DWI (b=0 800-1000), DCE"
+    ],
+    "formula": [
+      "PI-RADS v2.1 = f(T2, DWI, DCE, localização)",
+      "Zona Periférica:",
+      "- DWI é dominante",
+      "- T2 é secundário",
+      "- DCE complementar",
+      "Zona Transição/Central:",
+      "- T2 é dominante",
+      "- DWI é secundário",
+      "- DCE complementar"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: pirads_score",
+        "value: \"1 / 2 / 3 / 4 / 5\"",
+        "derived_values:",
+        "- name: cancer_probability",
+        "value: \"Percentual risco câncer clinicamente significativo (%)\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: pirads_score = 1",
+        "then: \"Muito baixo risco (<5%); sem biopsia\"",
+        "- if: pirads_score = 2",
+        "then: \"Baixo risco (5-10%); sem biopsia\"",
+        "- if: pirads_score = 3",
+        "then: \"Intermediário (10-25%); considerar biopsia\"",
+        "- if: pirads_score = 4",
+        "then: \"Alto risco (25-75%); biopsia recomendada\"",
+        "- if: pirads_score = 5",
+        "then: \"Muito alto risco (>75%); biopsia recomendada\""
+      ]
+    },
+    "qa_checks": [
+      "Validar scores T2, DWI, DCE corretos",
+      "Verificar se RM multiparamétrica completa",
+      "Confirmar localização lesão (zona)",
+      "Alertar se artefatos presentes",
+      "Documentar número e localização lesões"
+    ],
+    "evidence": {
+      "primary_source": "Turkbey B et al. Prostate Imaging Reporting Data System v2.1. Eur Urol. 2019;76(3):340-351.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/prostate-imaging-reporting-and-data-system-pi-rads-2",
+      "notes": "PI-RADS v2.1 versão atualizada. Guia decisão biopsia em câncer próstata."
+    }
+  },
+  "GIN-0001": {
+    "ItemID": "GIN-0001",
+    "FunctionName": "calculate_hadlock_efw",
+    "inputs": [
+      {
+        "name": "AC",
+        "type": "number",
+        "unit": "cm",
+        "required": "true",
+        "valid_range": "0-40",
+        "notes": "Circunferência abdominal"
+      },
+      {
+        "name": "FL",
+        "type": "number",
+        "unit": "cm",
+        "required": "true",
+        "valid_range": "0-10",
+        "notes": "Comprimento fêmur"
+      },
+      {
+        "name": "BPD",
+        "type": "number",
+        "unit": "cm",
+        "required": "false",
+        "valid_range": "0-12",
+        "notes": "Diâmetro biparietal (opcional)"
+      },
+      {
+        "name": "HC",
+        "type": "number",
+        "unit": "cm",
+        "required": "false",
+        "valid_range": "0-40",
+        "notes": "Circunferência cefálica (opcional)"
+      }
+    ],
+    "preprocessing": [
+      "Validar AC > 0 e FL > 0",
+      "Converter cm para cm se necessário",
+      "Usar medições padrão planos específicos",
+      "Usar US ou RM"
+    ],
+    "formula": [
+      "Hadlock 1 (AC + FL):",
+      "Log10(peso) = 1.304 + 0.05281×AC + 0.1938×FL - 0.004×AC×FL",
+      "Passo 1: Medir AC (circunferência abdominal)",
+      "Passo 2: Medir FL (comprimento fêmur)",
+      "Passo 3: Aplicar fórmula Hadlock 1",
+      "Passo 4: Calcular antilog10 para obter peso em gramas"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: estimated_fetal_weight",
+        "unit: g",
+        "precision: 0 casas decimais",
+        "derived_values:",
+        "- name: percentile",
+        "value: \"Percentil de peso para idade gestacional\"",
+        "- name: margin_error",
+        "value: \"±10-15% (margem de erro típica)\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: percentile < 10",
+        "then: \"Restrição crescimento intrauterino (RCIU)\"",
+        "- if: 10 <= percentile <= 90",
+        "then: \"Crescimento normal\"",
+        "- if: percentile > 90",
+        "then: \"Macrossomia fetal\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se peso < 500 g (possível erro)",
+      "Alertar se peso > 5000 g (possível erro)",
+      "Validar medições em planos corretos",
+      "Verificar se idade gestacional consistente",
+      "Alertar se múltiplas gestações (fórmula para singleton)"
+    ],
+    "evidence": {
+      "primary_source": "Hadlock FP et al. In utero analysis fetal weight estimation birth weight. Obstet Gynecol. 1991;77(5):662-667.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/fetal-biometry",
+      "notes": "Hadlock é equação padrão ouro EFW. Acurácia ±10-15% terceiro trimestre."
+    }
+  },
+  "GIN-0002": {
+    "ItemID": "GIN-0002",
+    "FunctionName": "calculate_ovarian_volume_ellipsoid",
+    "inputs": [
+      {
+        "name": "comprimento",
+        "type": "number",
+        "unit": "cm",
+        "required": "true",
+        "valid_range": "0-10",
+        "notes": "Comprimento ovário"
+      },
+      {
+        "name": "largura",
+        "type": "number",
+        "unit": "cm",
+        "required": "true",
+        "valid_range": "0-10",
+        "notes": "Largura ovário"
+      },
+      {
+        "name": "espessura",
+        "type": "number",
+        "unit": "cm",
+        "required": "true",
+        "valid_range": "0-10",
+        "notes": "Espessura ovário"
+      }
+    ],
+    "preprocessing": [
+      "Validar comprimento > 0, largura > 0, espessura > 0",
+      "Usar maior diâmetro cada dimensão",
+      "US transvaginal preferido",
+      "Medir ambos ovários"
+    ],
+    "formula": [
+      "V (mL) = L × W × H × 0.52",
+      "Passo 1: Medir comprimento (L)",
+      "Passo 2: Medir largura (W)",
+      "Passo 3: Medir espessura (H)",
+      "Passo 4: Multiplicar por 0.52 (fator elipsoide)"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: ovarian_volume",
+        "unit: mL",
+        "precision: 0 casas decimais",
+        "derived_values:",
+        "- name: pcos_status",
+        "value: \"Normal / Borderline / PCOS (se bilateral e múltiplos folículos)\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: ovarian_volume < 9",
+        "then: \"Normal\"",
+        "- if: 9 <= ovarian_volume <= 12",
+        "then: \"Borderline\"",
+        "- if: ovarian_volume > 12",
+        "then: \"Aumentado; considerar PCOS se bilateral + múltiplos folículos\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se volume < 3 mL (possível erro)",
+      "Alertar se volume > 50 mL (possível erro ou cisto)",
+      "Validar medições em três planos perpendiculares",
+      "Verificar se fórmula elipsoide apropriada",
+      "Medir ambos ovários para comparação"
+    ],
+    "evidence": {
+      "primary_source": "Amer SA et al. Ovarian volume women polycystic ovaries. Hum Reprod. 2004;19(1):122-126.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/polycystic-ovary-syndrome",
+      "notes": "Fórmula elipsoide para volume ovariano. Volume >12 mL sugere SOP se bilateral."
+    }
+  },
+  "GIN-0003": {
+    "ItemID": "GIN-0003",
+    "FunctionName": "classify_ovarian_lesion_orads_us",
+    "inputs": [
+      {
+        "name": "tamanho_mm",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-150",
+        "notes": "Maior diâmetro lesão"
+      },
+      {
+        "name": "composicao",
+        "type": "enum",
+        "required": "true",
+        "valid_values": "[\"cística_simples\", \"cística_complexa\", \"sólida\", \"mista\"]",
+        "notes": "Composição lesão"
+      },
+      {
+        "name": "vascularizacao",
+        "type": "enum",
+        "required": "true",
+        "valid_values": "[\"ausente\", \"presente\"]",
+        "notes": "Vascularização ao Doppler"
+      },
+      {
+        "name": "achados_adicionais",
+        "type": "string",
+        "required": "false",
+        "notes": "Outros achados (ex: ascite, derrame pleural)"
+      }
+    ],
+    "preprocessing": [
+      "Validar tamanho_mm > 0",
+      "Usar US transvaginal preferido",
+      "Avaliar composição e vascularização",
+      "Documentar achados adicionais"
+    ],
+    "formula": [
+      "O-RADS = f(tamanho, composição, vascularização, achados)",
+      "Passo 1: Avaliar tamanho",
+      "Passo 2: Avaliar composição",
+      "Passo 3: Avaliar vascularização",
+      "Passo 4: Aplicar tabela O-RADS"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: orads_category",
+        "value: \"1 / 2 / 3 / 4 / 5\"",
+        "derived_values:",
+        "- name: malignancy_risk",
+        "value: \"Risco malignidade (%)\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: orads_category = 1",
+        "then: \"Benigno (<1% risco); sem follow-up\"",
+        "- if: orads_category = 2",
+        "then: \"Benigno (1-2% risco); sem follow-up\"",
+        "- if: orads_category = 3",
+        "then: \"Benigno (2-5% risco); follow-up 1 ano\"",
+        "- if: orads_category = 4",
+        "then: \"Intermediário (5-50% risco); considerar RM/follow-up\"",
+        "- if: orads_category = 5",
+        "then: \"Maligno (>50% risco); considerar cirurgia\""
+      ]
+    },
+    "qa_checks": [
+      "Validar tamanho_mm > 0",
+      "Verificar composição correta",
+      "Confirmar vascularização ao Doppler",
+      "Documentar achados adicionais",
+      "Alertar se achados sugestivos malignidade (ascite, derrame)"
+    ],
+    "evidence": {
+      "primary_source": "Amor F et al. Differentiate benign malignant ovarian masses. Ultrasound Obstet Gynecol. 2002;20(5):467-472.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/ovarian-adnexal-reporting-and-data-system-ultrasound-o-rads-us",
+      "notes": "O-RADS US para classificação lesões ovarianas. Baseado em risco malignidade."
+    }
+  },
+  "TIR-0001": {
+    "ItemID": "TIR-0001",
+    "FunctionName": "classify_thyroid_nodule_tirads",
+    "inputs": [
+      {
+        "name": "composicao",
+        "type": "enum",
+        "required": "true",
+        "valid_values": "[\"cística\", \"cística_com_sólido\", \"sólida\", \"quase_completamente_cística\"]",
+        "notes": "Composição nódulo"
+      },
+      {
+        "name": "ecogenicidade",
+        "type": "enum",
+        "required": "true",
+        "valid_values": "[\"anecoica\", \"hipoecóica\", \"isoecóica\", \"hiperecóica\"]",
+        "notes": "Ecogenicidade relativa"
+      },
+      {
+        "name": "forma",
+        "type": "enum",
+        "required": "true",
+        "valid_values": "[\"mais_larga_que_alta\", \"tão_larga_quanto_alta\"]",
+        "notes": "Forma (wider-than-tall vs taller-than-wide)"
+      },
+      {
+        "name": "margens",
+        "type": "enum",
+        "required": "true",
+        "valid_values": "[\"bem_definidas\", \"mal_definidas\", \"lobuladas\", \"espiculadas\"]",
+        "notes": "Margens nódulo"
+      },
+      {
+        "name": "focos_ecogenicos",
+        "type": "enum",
+        "required": "true",
+        "valid_values": "[\"ausentes\", \"pontos_grandes\", \"pontos_pequenos_comet_tail\"]",
+        "notes": "Focos ecogênicos (calcificação)"
+      }
+    ],
+    "preprocessing": [
+      "Validar cada característica",
+      "Usar US tempo real",
+      "Avaliar cada componente",
+      "Documentar tamanho nódulo"
+    ],
+    "formula": [
+      "TI-RADS = soma pontos características",
+      "Composição (0-2 pontos)",
+      "Ecogenicidade (1-3 pontos)",
+      "Forma (0-3 pontos)",
+      "Margens (0-3 pontos)",
+      "Focos Ecogênicos (1-3 pontos)"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: tirads_level",
+        "value: \"TR1 / TR2 / TR3 / TR4 / TR5\"",
+        "derived_values:",
+        "- name: malignancy_risk",
+        "value: \"Risco malignidade (%)\"",
+        "- name: fna_recommendation",
+        "value: \"Recomendação PAAF (sim/não; tamanho cutoff)\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: tirads_level = \"TR1\"",
+        "then: \"Muito baixo risco (<1%); sem PAAF\"",
+        "- if: tirads_level = \"TR2\"",
+        "then: \"Baixo risco (1-3%); sem PAAF\"",
+        "- if: tirads_level = \"TR3\"",
+        "then: \"Intermediário (10-20%); PAAF se >2.5 cm\"",
+        "- if: tirads_level = \"TR4\"",
+        "then: \"Alto risco (20-50%); PAAF se >1.5 cm\"",
+        "- if: tirads_level = \"TR5\"",
+        "then: \"Muito alto risco (>50%); PAAF se >1.0 cm\""
+      ]
+    },
+    "qa_checks": [
+      "Validar cada característica",
+      "Verificar se avaliação completa",
+      "Documentar tamanho nódulo",
+      "Alertar se múltiplos nódulos",
+      "Confirmar que é nódulo tireoidiano (não linfonodo)"
+    ],
+    "evidence": {
+      "primary_source": "Tessler FN et al. ACR Thyroid Nodule Imaging Reporting Data System. J Am Coll Radiol. 2017;14(5):587-595.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/acr-thyroid-imaging-reporting-and-data-system-acr-ti-rads",
+      "notes": "ACR TI-RADS para classificação nódulos tireoidianos. Baseado em risco malignidade."
+    }
+  },
+  "TIR-0002": {
+    "ItemID": "TIR-0002",
+    "FunctionName": "calculate_thyroid_volume_ellipsoid",
+    "inputs": [
+      {
+        "name": "L_RD",
+        "type": "number",
+        "unit": "cm",
+        "required": "true",
+        "valid_range": "0-10",
+        "notes": "Comprimento lobo direito"
+      },
+      {
+        "name": "W_RD",
+        "type": "number",
+        "unit": "cm",
+        "required": "true",
+        "valid_range": "0-10",
+        "notes": "Largura lobo direito"
+      },
+      {
+        "name": "H_RD",
+        "type": "number",
+        "unit": "cm",
+        "required": "true",
+        "valid_range": "0-10",
+        "notes": "Espessura lobo direito"
+      },
+      {
+        "name": "L_LD",
+        "type": "number",
+        "unit": "cm",
+        "required": "true",
+        "valid_range": "0-10",
+        "notes": "Comprimento lobo esquerdo"
+      },
+      {
+        "name": "W_LD",
+        "type": "number",
+        "unit": "cm",
+        "required": "true",
+        "valid_range": "0-10",
+        "notes": "Largura lobo esquerdo"
+      },
+      {
+        "name": "H_LD",
+        "type": "number",
+        "unit": "cm",
+        "required": "true",
+        "valid_range": "0-10",
+        "notes": "Espessura lobo esquerdo"
+      },
+      {
+        "name": "V_istmo",
+        "type": "number",
+        "unit": "mL",
+        "required": "false",
+        "valid_range": "0-5",
+        "notes": "Volume istmo (opcional)"
+      }
+    ],
+    "preprocessing": [
+      "Validar todos os comprimentos > 0",
+      "Usar maior diâmetro cada dimensão",
+      "US: medir cada lobo eixo transversal e longitudinal",
+      "Incluir istmo se presente"
+    ],
+    "formula": [
+      "V_RD = L_RD × W_RD × H_RD × 0.52",
+      "V_LD = L_LD × W_LD × H_LD × 0.52",
+      "V_thyroid = V_RD + V_LD + V_istmo",
+      "Passo 1: Calcular volume lobo direito",
+      "Passo 2: Calcular volume lobo esquerdo",
+      "Passo 3: Adicionar volume istmo",
+      "Passo 4: Soma = volume tireoidiano total"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: thyroid_volume",
+        "unit: mL",
+        "precision: 0 casas decimais",
+        "derived_values:",
+        "- name: goiter_status",
+        "value: \"Normal / Borderline / Bócio\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: thyroid_volume < 18",
+        "then: \"Normal (mulher)\"",
+        "- if: 18 <= thyroid_volume <= 25",
+        "then: \"Borderline (mulher)\"",
+        "- if: thyroid_volume > 25",
+        "then: \"Bócio (mulher)\"",
+        "- if: thyroid_volume < 25",
+        "then: \"Normal (homem)\"",
+        "- if: 25 <= thyroid_volume <= 35",
+        "then: \"Borderline (homem)\"",
+        "- if: thyroid_volume > 35",
+        "then: \"Bócio (homem)\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se volume < 5 mL (possível erro)",
+      "Alertar se volume > 100 mL (possível erro)",
+      "Validar medições em três planos perpendiculares",
+      "Verificar se fórmula elipsoide apropriada",
+      "Considerar ingestão iodo e idade"
+    ],
+    "evidence": {
+      "primary_source": "Knobel M, Medeiros-Neto G. Outline inherited disorders thyroid hormone pathway. Thyroid. 2003;13(8):771-801.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/thyroid-volume",
+      "notes": "Fórmula elipsoide para volume tireoidiano. Valores variam por idade, sexo e ingestão iodo."
+    }
+  },
+  "VASC-0011": {
+    "ItemID": "VASC-0011",
+    "FunctionName": "measure_carotid_intima_media_thickness",
+    "inputs": [
+      {
+        "name": "imt_mm",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-3",
+        "notes": "Espessura íntima-média carotídea"
+      }
+    ],
+    "preprocessing": [
+      "Validar imt_mm > 0",
+      "Medir parede posterior carotida comum",
+      "1 cm antes bifurcação",
+      "Usar Doppler pulsado"
+    ],
+    "formula": [
+      "IMT = espessura máxima camada íntima-média",
+      "Passo 1: Localizar carotida comum distal",
+      "Passo 2: Medir parede posterior",
+      "Passo 3: Resultado é IMT (mm)"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: imt_value",
+        "unit: mm",
+        "precision: 2 casas decimais",
+        "derived_values:",
+        "- name: atherosclerosis_risk",
+        "value: \"Baixo / Intermediário / Alto\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: imt_mm < 0.7",
+        "then: \"Normal; sem aterosclerose subclínica\"",
+        "- if: 0.7 <= imt_mm <= 0.9",
+        "then: \"Borderline; possível aterosclerose leve\"",
+        "- if: imt_mm > 0.9",
+        "then: \"Aumentado; aterosclerose subclínica; risco cardiovascular aumentado\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se imt < 0.3 mm (possível erro)",
+      "Alertar se imt > 2.0 mm (possível erro ou placa)",
+      "Validar medição parede posterior",
+      "Verificar se 1 cm antes bifurcação",
+      "Alertar se placa presente (não é IMT puro)"
+    ],
+    "evidence": {
+      "primary_source": "Bots ML et al. Common carotid intima-media thickness. Stroke. 1997;28(10):1877-1882.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/carotid-intima-media-thickness",
+      "notes": "Marcador de aterosclerose subclínica. IMT >0.9 mm = risco cardiovascular aumentado."
+    }
+  },
+  "VASC-0012": {
+    "ItemID": "VASC-0012",
+    "FunctionName": "diagnose_dvt_compression_criteria",
+    "inputs": [
+      {
+        "name": "compressibilidade",
+        "type": "enum",
+        "required": "true",
+        "valid_values": "[\"compressível\", \"incompressível\"]",
+        "notes": "Veia comprime com transdutor?"
+      },
+      {
+        "name": "lado_contralateral",
+        "type": "enum",
+        "required": "true",
+        "valid_values": "[\"normal\", \"também_incompressível\"]",
+        "notes": "Lado contralateral normal?"
+      }
+    ],
+    "preprocessing": [
+      "Validar compressibilidade",
+      "Aplicar pressão transdutor gradualmente",
+      "Comparar com lado contralateral",
+      "Usar Doppler transversal e longitudinal"
+    ],
+    "formula": [
+      "Critério DVT:",
+      "IF compressibilidade = \"incompressível\" AND lado_contralateral = \"normal\"",
+      "THEN DVT presente",
+      "ELSE",
+      "THEN sem TVP"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: dvt_diagnosis",
+        "value: \"DVT presente / Sem DVT\"",
+        "derived_values:",
+        "- name: sensitivity_specificity",
+        "value: \"Sensibilidade >95% / Especificidade >95%\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: dvt_diagnosis = \"DVT presente\"",
+        "then: \"Trombose venosa profunda confirmada; iniciar anticoagulação; confirmação por venografia se dúvida\"",
+        "- if: dvt_diagnosis = \"Sem DVT\"",
+        "then: \"Sem evidência TVP; considerar outras causas sintomas\""
+      ]
+    },
+    "qa_checks": [
+      "Validar compressibilidade adequada",
+      "Verificar se comparação com lado contralateral",
+      "Alertar se TVP recanalizada (pode parecer compressível)",
+      "Considerar edema/cicatrizes que podem limitar compressão",
+      "Documentar localização exata (se TVP)"
+    ],
+    "evidence": {
+      "primary_source": "Kearon C et al. Antithrombotic therapy VTE disease. Chest. 2012;141(2 Suppl):e419S-e494S.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/deep-vein-thrombosis",
+      "notes": "Critério compressibilidade para TVP. Sensibilidade/especificidade >95%."
+    }
+  },
+  "VASC-0013": {
+    "ItemID": "VASC-0013",
+    "FunctionName": "calculate_ankle_brachial_index",
+    "inputs": [
+      {
+        "name": "P_tornozelo",
+        "type": "number",
+        "unit": "mmHg",
+        "required": "true",
+        "valid_range": "0-300",
+        "notes": "Pressão sistólica tornozelo (máxima)"
+      },
+      {
+        "name": "P_braquial",
+        "type": "number",
+        "unit": "mmHg",
+        "required": "true",
+        "valid_range": "0-300",
+        "notes": "Pressão sistólica braquial (máxima)"
+      }
+    ],
+    "preprocessing": [
+      "Validar P_tornozelo > 0 e P_braquial > 0",
+      "Usar Doppler pulsado artérias tibial anterior/posterior",
+      "Medir pressão sistólica máxima",
+      "Usar ambos lados (calcular ABI bilateral)"
+    ],
+    "formula": [
+      "ABI = P_tornozelo / P_braquial",
+      "Passo 1: Medir pressão sistólica máxima tornozelo",
+      "Passo 2: Medir pressão sistólica máxima braquial",
+      "Passo 3: Dividir tornozelo por braquial"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: abi_value",
+        "unit: ratio",
+        "precision: 2 casas decimais",
+        "derived_values:",
+        "- name: pad_severity",
+        "value: \"Normal / Borderline / Leve-Moderada / Moderada-Grave / Grave/Crítica\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: abi_value >= 1.0",
+        "then: \"Normal; sem estenose arterial significativa\"",
+        "- if: 0.91 <= abi_value < 1.0",
+        "then: \"Borderline; possível estenose leve\"",
+        "- if: 0.71 <= abi_value <= 0.90",
+        "then: \"PAD leve-moderada; estenose 50-69%\"",
+        "- if: 0.41 <= abi_value <= 0.70",
+        "then: \"PAD moderada-grave; estenose 70-99%\"",
+        "- if: abi_value <= 0.40",
+        "then: \"PAD grave/crítica; estenose crítica ou oclusão\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se abi < 0.5 (possível erro ou oclusão crítica)",
+      "Alertar se abi > 1.3 (possível calcificação arterial; falso elevado)",
+      "Validar medições em repouso",
+      "Comparar bilateral para assimetria",
+      "Considerar calcificação em diabetes (ABI falsamente elevado)"
+    ],
+    "evidence": {
+      "primary_source": "Hirsch AT et al. ACC/AHA Guidelines PAD. Circulation. 2006;113(11):e463-e654.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/ankle-brachial-index",
+      "notes": "Índice padrão para PAD. ABI <0.9 sugere estenose ≥50%."
+    }
+  },
+  "VASC-0014": {
+    "ItemID": "VASC-0014",
+    "FunctionName": "measure_aortic_diameter",
+    "inputs": [
+      {
+        "name": "d_aorta",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-100",
+        "notes": "Diâmetro máximo aorta"
+      },
+      {
+        "name": "localizacao",
+        "type": "enum",
+        "required": "true",
+        "valid_values": "[\"raiz\", \"ascendente\", \"descendente\", \"abdominal\"]",
+        "notes": "Localização medição"
+      }
+    ],
+    "preprocessing": [
+      "Validar d_aorta > 0",
+      "Medir eixo transversal maior diâmetro",
+      "Evitar incluir trombo mural",
+      "Usar TC/RM/US"
+    ],
+    "formula": [
+      "d_aorta = diâmetro máximo (mm)",
+      "Passo 1: Localizar segmento aórtico",
+      "Passo 2: Medir no eixo transversal",
+      "Passo 3: Resultado é diâmetro (mm)"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: aortic_diameter",
+        "unit: mm",
+        "precision: 0 casas decimais",
+        "derived_values:",
+        "- name: aneurysm_status",
+        "value: \"Normal / Borderline / Aneurisma\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: localizacao = \"raiz\" AND d_aorta < 40",
+        "then: \"Normal\"",
+        "- if: localizacao = \"raiz\" AND 40 <= d_aorta <= 50",
+        "then: \"Borderline\"",
+        "- if: localizacao = \"raiz\" AND d_aorta > 50",
+        "then: \"Aneurisma aórtico\"",
+        "- if: localizacao = \"ascendente\" AND d_aorta < 37",
+        "then: \"Normal\"",
+        "- if: localizacao = \"ascendente\" AND d_aorta > 50",
+        "then: \"Aneurisma aórtico\"",
+        "- if: localizacao = \"abdominal\" AND d_aorta < 30",
+        "then: \"Normal\"",
+        "- if: localizacao = \"abdominal\" AND 30 <= d_aorta <= 50",
+        "then: \"Aneurisma abdominal\"",
+        "- if: localizacao = \"abdominal\" AND d_aorta > 50",
+        "then: \"AAA grande; cirurgia recomendada\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se d_aorta < 10 mm (possível erro)",
+      "Alertar se d_aorta > 100 mm (possível erro)",
+      "Validar medição no eixo transversal",
+      "Verificar se evita trombo mural",
+      "Documentar localização exata"
+    ],
+    "evidence": {
+      "primary_source": "Hiratzka LF et al. 2010 ACCF/AHA Guidelines Aorta. Circulation. 2010;121(13):e266-e369.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/abdominal-aortic-aneurysm",
+      "notes": "Medições seriadas para avaliar crescimento. Cirurgia indicada se >55 mm ou crescimento rápido."
+    }
+  },
+  "ABD-0016": {
+    "ItemID": "ABD-0016",
+    "FunctionName": "measure_bile_duct_diameter",
+    "inputs": [
+      {
+        "name": "d_ducto_biliar",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-20",
+        "notes": "Diâmetro máximo ducto biliar"
+      }
+    ],
+    "preprocessing": [
+      "Validar d_ducto_biliar > 0",
+      "Medir eixo transversal máximo",
+      "Usar US ou TC",
+      "Evitar confundir com veia porta"
+    ],
+    "formula": [
+      "d_ducto = diâmetro máximo (mm)",
+      "Passo 1: Localizar ducto biliar",
+      "Passo 2: Medir no eixo transversal",
+      "Passo 3: Resultado é diâmetro (mm)"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: bile_duct_diameter",
+        "unit: mm",
+        "precision: 1 casa decimal",
+        "derived_values:",
+        "- name: dilatation_status",
+        "value: \"Normal / Borderline / Dilatado\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: d_ducto < 6",
+        "then: \"Normal\"",
+        "- if: 6 <= d_ducto <= 7",
+        "then: \"Borderline; considerar contexto clínico\"",
+        "- if: 7 < d_ducto <= 10",
+        "then: \"Dilatado leve; investigar causa (obstrução, pós-colecistectomia)\"",
+        "- if: d_ducto > 10",
+        "then: \"Dilatado moderado-grave; sugerir obstrução\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se d_ducto < 2 mm (possível erro)",
+      "Alertar se d_ducto > 20 mm (possível erro)",
+      "Validar medição em eixo transversal",
+      "Verificar se não confunde com veia porta",
+      "Considerar idade (aumenta ligeiramente com idade)"
+    ],
+    "evidence": {
+      "primary_source": "Laing FC, Jacobs RP. Ultrasonic evaluation common bile duct. Radiology. 1981;139(1):161-165.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/common-bile-duct-diameter",
+      "notes": "Valor normal <6 mm. Aumenta ligeiramente com idade (até 8 mm em >60 anos)."
+    }
+  },
+  "ABD-0017": {
+    "ItemID": "ABD-0017",
+    "FunctionName": "measure_gallbladder_wall_thickness",
+    "inputs": [
+      {
+        "name": "espessura_parede",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-10",
+        "notes": "Espessura máxima parede vesicular"
+      }
+    ],
+    "preprocessing": [
+      "Validar espessura > 0",
+      "Medir parede anterior ou posterior",
+      "Usar US em jejum",
+      "Evitar artefatos de reverberação"
+    ],
+    "formula": [
+      "espessura = medição máxima parede (mm)",
+      "Passo 1: Localizar vesícula biliar",
+      "Passo 2: Medir parede anterior ou posterior",
+      "Passo 3: Resultado é espessura (mm)"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: gb_wall_thickness",
+        "unit: mm",
+        "precision: 1 casa decimal",
+        "derived_values:",
+        "- name: cholecystitis_likelihood",
+        "value: \"Normal / Borderline / Sugestivo colecistite\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: espessura < 3",
+        "then: \"Normal\"",
+        "- if: 3 <= espessura <= 3.5",
+        "then: \"Borderline; considerar contexto clínico\"",
+        "- if: 3.5 < espessura <= 5",
+        "then: \"Espessado; sugerir colecistite aguda\"",
+        "- if: espessura > 5",
+        "then: \"Muito espessado; colecistite aguda provável\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se espessura < 1 mm (possível erro)",
+      "Alertar se espessura > 10 mm (possível erro)",
+      "Validar medição em parede anterior/posterior",
+      "Verificar se não confunde com artefato",
+      "Considerar contexto clínico (febre, Murphy positivo)"
+    ],
+    "evidence": {
+      "primary_source": "Ralls PW et al. Real-time sonography suspected acute cholecystitis. AJR. 1982;139(1):75-79.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/gallbladder-wall-thickness",
+      "notes": "Valor normal <3 mm. Espessura >3.5 mm sugerir colecistite aguda."
+    }
+  },
+  "ABD-0018": {
+    "ItemID": "ABD-0018",
+    "FunctionName": "grade_hepatic_steatosis_ultrasound",
+    "inputs": [
+      {
+        "name": "ecogenicidade_figado",
+        "type": "enum",
+        "required": "true",
+        "valid_values": "[\"normal\", \"levemente_aumentada\", \"moderadamente_aumentada\", \"acentuadamente_aumentada\"]",
+        "notes": "Ecogenicidade fígado"
+      },
+      {
+        "name": "visibilidade_diafragma",
+        "type": "enum",
+        "required": "true",
+        "valid_values": "[\"normal\", \"reduzida\", \"ausente\"]",
+        "notes": "Visualização diafragma"
+      },
+      {
+        "name": "atenuacao_posterior",
+        "type": "enum",
+        "required": "true",
+        "valid_values": "[\"ausente\", \"leve\", \"moderada\", \"acentuada\"]",
+        "notes": "Atenuação posterior"
+      }
+    ],
+    "preprocessing": [
+      "Validar cada parâmetro",
+      "Usar US em jejum",
+      "Medir em ROI ≥1 cm",
+      "Comparar com rim direito"
+    ],
+    "formula": [
+      "Grau = f(ecogenicidade, diafragma, atenuação)",
+      "Passo 1: Avaliar ecogenicidade",
+      "Passo 2: Avaliar visibilidade diafragma",
+      "Passo 3: Avaliar atenuação posterior",
+      "Passo 4: Aplicar tabela grau esteatose"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: steatosis_grade",
+        "value: \"0 (Normal) / 1 (Leve) / 2 (Moderada) / 3 (Grave)\"",
+        "derived_values:",
+        "- name: steatosis_percent_estimate",
+        "value: \"Estimativa percentual gordura (%)\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: steatosis_grade = 0",
+        "then: \"Sem esteatose\"",
+        "- if: steatosis_grade = 1",
+        "then: \"Esteatose leve (<30% gordura)\"",
+        "- if: steatosis_grade = 2",
+        "then: \"Esteatose moderada (30-60% gordura)\"",
+        "- if: steatosis_grade = 3",
+        "then: \"Esteatose grave (>60% gordura)\""
+      ]
+    },
+    "qa_checks": [
+      "Validar cada parâmetro",
+      "Verificar se US em jejum",
+      "Alertar se cirrose presente (invalida grau)",
+      "Alertar se ferro hepático presente",
+      "Considerar contexto clínico (obesidade, diabetes)"
+    ],
+    "evidence": {
+      "primary_source": "Hamaguchi M et al. Severity ultrasonographic findings NAFLD. AJR. 2007;188(6):1490-1496.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/diffuse-hepatic-steatosis",
+      "notes": "Grau US para esteatose. Correlaciona com biópsia e RM."
+    }
+  },
+  "ABD-0019": {
+    "ItemID": "ABD-0019",
+    "FunctionName": "grade_pancreatic_echogenicity",
+    "inputs": [
+      {
+        "name": "ecogenicidade_pancreas",
+        "type": "enum",
+        "required": "true",
+        "valid_values": "[\"normal\", \"levemente_aumentada\", \"moderadamente_aumentada\", \"acentuadamente_aumentada\"]",
+        "notes": "Ecogenicidade pâncreas"
+      },
+      {
+        "name": "comparacao_figado",
+        "type": "enum",
+        "required": "true",
+        "valid_values": "[\"hipoecóica\", \"isoecóica\", \"hiperecóica\"]",
+        "notes": "Comparação com fígado"
+      }
+    ],
+    "preprocessing": [
+      "Validar cada parâmetro",
+      "Usar US em jejum",
+      "Medir em ROI ≥1 cm",
+      "Comparar com fígado e rim"
+    ],
+    "formula": [
+      "Grau = f(ecogenicidade, comparação)",
+      "Passo 1: Avaliar ecogenicidade pâncreas",
+      "Passo 2: Comparar com fígado",
+      "Passo 3: Aplicar tabela grau"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: pancreatic_echogenicity_grade",
+        "value: \"Normal / Leve / Moderada / Grave\"",
+        "derived_values:",
+        "- name: chronic_pancreatitis_likelihood",
+        "value: \"Baixa / Intermediária / Alta\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: ecogenicidade = \"normal\"",
+        "then: \"Normal; sem fibrose significativa\"",
+        "- if: ecogenicidade = \"levemente_aumentada\"",
+        "then: \"Pancreatite crônica leve\"",
+        "- if: ecogenicidade = \"moderadamente_aumentada\"",
+        "then: \"Pancreatite crônica moderada\"",
+        "- if: ecogenicidade = \"acentuadamente_aumentada\"",
+        "then: \"Pancreatite crônica grave\""
+      ]
+    },
+    "qa_checks": [
+      "Validar cada parâmetro",
+      "Verificar se US em jejum",
+      "Alertar se gases intestinais limitam visualização",
+      "Considerar contexto clínico (álcool, tabagismo)",
+      "Documentar dilatação ductal se presente"
+    ],
+    "evidence": {
+      "primary_source": "Garg PK et al. Pancreatic echogenicity marker chronic pancreatitis. Pancreatology. 2006;6(4):334-341.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/chronic-pancreatitis",
+      "notes": "Ecogenicidade aumentada sugerir fibrose pancreática."
+    }
+  },
+  "ABD-0020": {
+    "ItemID": "ABD-0020",
+    "FunctionName": "calculate_psoas_muscle_index",
+    "inputs": [
+      {
+        "name": "area_psoas",
+        "type": "number",
+        "unit": "cm²",
+        "required": "true",
+        "valid_range": "0-100",
+        "notes": "Área total músculo psoas (ambos lados)"
+      },
+      {
+        "name": "altura",
+        "type": "number",
+        "unit": "m",
+        "required": "true",
+        "valid_range": "1.0-2.5",
+        "notes": "Altura do paciente em metros"
+      }
+    ],
+    "preprocessing": [
+      "Validar area_psoas > 0",
+      "Validar altura > 0",
+      "Usar TC nível L3",
+      "Segmentar ambos psoas"
+    ],
+    "formula": [
+      "PMI (cm²/m²) = area_psoas / altura²",
+      "Passo 1: Segmentar ambos psoas em L3",
+      "Passo 2: Calcular área total",
+      "Passo 3: Dividir por altura²"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: psoas_muscle_index",
+        "unit: cm²/m²",
+        "precision: 1 casa decimal",
+        "derived_values:",
+        "- name: sarcopenia_status",
+        "value: \"Normal / Borderline / Sarcopenia\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: pmi >= 8.4 (homem) OR pmi >= 5.5 (mulher)",
+        "then: \"Normal\"",
+        "- if: pmi < 8.4 (homem) OR pmi < 5.5 (mulher)",
+        "then: \"Sarcopenia; associado com pior prognóstico\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se area_psoas < 10 cm² (possível erro)",
+      "Alertar se area_psoas > 100 cm² (possível erro)",
+      "Validar segmentação em L3",
+      "Verificar se ambos psoas inclusos",
+      "Considerar sexo para interpretação"
+    ],
+    "evidence": {
+      "primary_source": "Prado CM et al. Prevalence clinical implications sarcopenia cancer. J Cachexia Sarcopenia Muscle. 2015;6(1):9-17.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/sarcopenia",
+      "notes": "Índice para detectar sarcopenia. Prediz prognóstico em câncer."
+    }
+  },
+  "ABD-0021": {
+    "ItemID": "ABD-0021",
+    "FunctionName": "measure_visceral_fat_area",
+    "inputs": [
+      {
+        "name": "vfa_cm2",
+        "type": "number",
+        "unit": "cm²",
+        "required": "true",
+        "valid_range": "0-500",
+        "notes": "Área gordura visceral em TC"
+      }
+    ],
+    "preprocessing": [
+      "Validar vfa_cm2 > 0",
+      "Usar TC nível L4-L5",
+      "Segmentar gordura visceral (HU -150 a -50)",
+      "Usar threshold automático"
+    ],
+    "formula": [
+      "VFA = área gordura visceral (cm²)",
+      "Passo 1: Localizar nível L4-L5",
+      "Passo 2: Segmentar gordura visceral",
+      "Passo 3: Resultado é VFA (cm²)"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: visceral_fat_area",
+        "unit: cm²",
+        "precision: 0 casas decimais",
+        "derived_values:",
+        "- name: metabolic_risk",
+        "value: \"Baixo / Intermediário / Alto\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: vfa_cm2 < 100",
+        "then: \"Normal\"",
+        "- if: 100 <= vfa_cm2 <= 150",
+        "then: \"Aumentado; risco metabólico intermediário\"",
+        "- if: vfa_cm2 > 150",
+        "then: \"Muito aumentado; risco metabólico alto\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se vfa < 20 cm² (possível erro)",
+      "Alertar se vfa > 500 cm² (possível erro)",
+      "Validar segmentação em L4-L5",
+      "Verificar se threshold correto",
+      "Considerar sexo e idade"
+    ],
+    "evidence": {
+      "primary_source": "Kvist H et al. Total visceral adipose-tissue volumes healthy adults. Am J Clin Nutr. 1988;48(5):1351-1361.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/visceral-fat",
+      "notes": "VFA >150 cm² associado com síndrome metabólica."
+    }
+  },
+  "ABD-0022": {
+    "ItemID": "ABD-0022",
+    "FunctionName": "calculate_aorta_calcification_score",
+    "inputs": [
+      {
+        "name": "grau_calcificacao",
+        "type": "enum",
+        "required": "true",
+        "valid_values": "[\"0\", \"1\", \"2\", \"3\", \"4\"]",
+        "notes": "Grau calcificação (0-4 escala visual)"
+      }
+    ],
+    "preprocessing": [
+      "Validar grau entre 0-4",
+      "Usar TC sem contraste",
+      "Avaliar segmento abdominal",
+      "Usar escala visual ou automática"
+    ],
+    "formula": [
+      "AAC Score = grau calcificação (0-4)",
+      "Passo 1: Localizar aorta abdominal",
+      "Passo 2: Avaliar calcificação visual",
+      "Passo 3: Atribuir grau (0-4)"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: aac_score",
+        "value: \"0 / 1 / 2 / 3 / 4\"",
+        "derived_values:",
+        "- name: cardiovascular_risk",
+        "value: \"Baixo / Intermediário / Alto\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: aac_score = 0",
+        "then: \"Sem calcificação; risco cardiovascular baixo\"",
+        "- if: aac_score = 1",
+        "then: \"Calcificação leve; risco intermediário\"",
+        "- if: aac_score = 2",
+        "then: \"Calcificação moderada; risco intermediário-alto\"",
+        "- if: aac_score = 3 OR aac_score = 4",
+        "then: \"Calcificação grave; risco cardiovascular alto\""
+      ]
+    },
+    "qa_checks": [
+      "Validar grau entre 0-4",
+      "Verificar se TC sem contraste",
+      "Alertar se calcificação em outros vasos",
+      "Considerar idade e comorbidades",
+      "Documentar localização calcificação"
+    ],
+    "evidence": {
+      "primary_source": "Kauppila LI et al. New indices quantify calcific atherosclerosis. Arterioscler Thromb Vasc Biol. 1994;14(7):1080-1087.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/vascular-calcification",
+      "notes": "AAC Score prediz risco cardiovascular. Score >2 = risco alto."
+    }
+  },
+  "ABD-0023": {
+    "ItemID": "ABD-0023",
+    "FunctionName": "measure_bowel_wall_thickness",
+    "inputs": [
+      {
+        "name": "espessura_parede",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-10",
+        "notes": "Espessura máxima parede intestinal"
+      }
+    ],
+    "preprocessing": [
+      "Validar espessura > 0",
+      "Medir em segmento inflamado",
+      "Usar TC ou US",
+      "Evitar confundir com contraste luminal"
+    ],
+    "formula": [
+      "espessura = medição máxima parede (mm)",
+      "Passo 1: Localizar segmento intestinal",
+      "Passo 2: Medir parede máxima",
+      "Passo 3: Resultado é espessura (mm)"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: bowel_wall_thickness",
+        "unit: mm",
+        "precision: 1 casa decimal",
+        "derived_values:",
+        "- name: inflammation_likelihood",
+        "value: \"Normal / Borderline / Inflamado\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: espessura < 2",
+        "then: \"Normal\"",
+        "- if: 2 <= espessura <= 3",
+        "then: \"Borderline; considerar contexto clínico\"",
+        "- if: 3 < espessura <= 5",
+        "then: \"Espessado; sugerir inflamação (Crohn, colite)\"",
+        "- if: espessura > 5",
+        "then: \"Muito espessado; inflamação grave ou neoplasia\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se espessura < 1 mm (possível erro)",
+      "Alertar se espessura > 10 mm (possível erro)",
+      "Validar medição em parede máxima",
+      "Verificar se não confunde com contraste",
+      "Documentar localização e extensão"
+    ],
+    "evidence": {
+      "primary_source": "Hara AK et al. Diagnosis treatment mesenteric ischemia. AJR. 2009;192(2):408-416.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/bowel-wall-thickness",
+      "notes": "Espessura normal <2 mm. >3 mm sugerir inflamação."
+    }
+  },
+  "ABD-0024": {
+    "ItemID": "ABD-0024",
+    "FunctionName": "grade_mesenteric_fat_stranding",
+    "inputs": [
+      {
+        "name": "grau_stranding",
+        "type": "enum",
+        "required": "true",
+        "valid_values": "[\"ausente\", \"leve\", \"moderado\", \"acentuado\"]",
+        "notes": "Grau estriamento gordura mesentérica"
+      }
+    ],
+    "preprocessing": [
+      "Validar grau_stranding",
+      "Usar TC com contraste",
+      "Avaliar gordura mesentérica",
+      "Usar escala visual"
+    ],
+    "formula": [
+      "Grau = avaliação visual estriamento",
+      "Passo 1: Localizar gordura mesentérica",
+      "Passo 2: Avaliar estriamento visual",
+      "Passo 3: Atribuir grau (ausente/leve/moderado/acentuado)"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: mesenteric_stranding_grade",
+        "value: \"Ausente / Leve / Moderado / Acentuado\"",
+        "derived_values:",
+        "- name: pathology_likelihood",
+        "value: \"Normal / Inflamação / Isquemia\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: grau_stranding = \"ausente\"",
+        "then: \"Normal\"",
+        "- if: grau_stranding = \"leve\"",
+        "then: \"Borderline; considerar contexto clínico\"",
+        "- if: grau_stranding = \"moderado\"",
+        "then: \"Inflamação mesentérica; considerar isquemia, diverticulite\"",
+        "- if: grau_stranding = \"acentuado\"",
+        "then: \"Inflamação acentuada; sugerir isquemia mesentérica aguda\""
+      ]
+    },
+    "qa_checks": [
+      "Validar grau_stranding",
+      "Verificar se TC com contraste",
+      "Alertar se isquemia mesentérica (emergência)",
+      "Documentar localização",
+      "Considerar contexto clínico"
+    ],
+    "evidence": {
+      "primary_source": "Hara AK et al. Diagnosis treatment mesenteric ischemia. AJR. 2009;192(2):408-416.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/acute-mesenteric-ischemia",
+      "notes": "Estriamento moderado-acentuado sugerir isquemia mesentérica."
+    }
+  },
+  "ABD-0025": {
+    "ItemID": "ABD-0025",
+    "FunctionName": "calculate_hepatic_artery_ri",
+    "inputs": [
+      {
+        "name": "PSV",
+        "type": "number",
+        "unit": "m/s",
+        "required": "true",
+        "valid_range": "0-2",
+        "notes": "Velocidade sistólica pico artéria hepática"
+      },
+      {
+        "name": "EDV",
+        "type": "number",
+        "unit": "m/s",
+        "required": "true",
+        "valid_range": "0-2",
+        "notes": "Velocidade diastólica final artéria hepática"
+      }
+    ],
+    "preprocessing": [
+      "Validar PSV > 0 e EDV >= 0",
+      "Validar PSV >= EDV",
+      "Usar Doppler pulsado",
+      "Medir em segmento proximal"
+    ],
+    "formula": [
+      "RI = (PSV - EDV) / PSV",
+      "Passo 1: Medir PSV artéria hepática",
+      "Passo 2: Medir EDV artéria hepática",
+      "Passo 3: Calcular RI"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: hepatic_artery_ri",
+        "unit: ratio (0-1)",
+        "precision: 2 casas decimais",
+        "derived_values:",
+        "- name: cirrhosis_likelihood",
+        "value: \"Baixa / Intermediária / Alta\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: ri < 0.55",
+        "then: \"Normal; sem cirrose\"",
+        "- if: 0.55 <= ri <= 0.70",
+        "then: \"Borderline; possível cirrose leve\"",
+        "- if: ri > 0.70",
+        "then: \"Aumentado; sugerir cirrose avançada\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se RI < 0.3 (possível erro)",
+      "Alertar se RI > 1.0 (erro matemático)",
+      "Validar ângulo Doppler <60°",
+      "Verificar se medições em segmento proximal",
+      "Considerar contexto clínico"
+    ],
+    "evidence": {
+      "primary_source": "McNaughton D, Abu-Yousef M. Doppler US Liver. Radiographics. 2011;31(1):161-188.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/resistive-index-vascular-ultrasound",
+      "notes": "RI >0.70 sugerir cirrose. Complementar com outros índices."
+    }
+  },
+  "ABD-0026": {
+    "ItemID": "ABD-0026",
+    "FunctionName": "classify_hepatic_vein_doppler",
+    "inputs": [
+      {
+        "name": "padrão_fluxo",
+        "type": "enum",
+        "required": "true",
+        "valid_values": "[\"normal_trifásico\", \"bifásico\", \"monofásico\", \"reverso\"]",
+        "notes": "Padrão fluxo veia hepática"
+      }
+    ],
+    "preprocessing": [
+      "Validar padrão_fluxo",
+      "Usar Doppler pulsado",
+      "Medir em veia hepática proximal",
+      "Avaliar durante respiração"
+    ],
+    "formula": [
+      "Padrão = classificação visual fluxo",
+      "Passo 1: Localizar veia hepática",
+      "Passo 2: Avaliar padrão Doppler",
+      "Passo 3: Classificar padrão"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: hepatic_vein_pattern",
+        "value: \"Normal / Alterado / Reverso\"",
+        "derived_values:",
+        "- name: portal_hypertension_likelihood",
+        "value: \"Baixa / Intermediária / Alta\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: padrão_fluxo = \"normal_trifásico\"",
+        "then: \"Normal; sem hipertensão portal\"",
+        "- if: padrão_fluxo = \"bifásico\"",
+        "then: \"Borderline; possível hipertensão portal leve\"",
+        "- if: padrão_fluxo = \"monofásico\"",
+        "then: \"Alterado; sugerir hipertensão portal\"",
+        "- if: padrão_fluxo = \"reverso\"",
+        "then: \"Reverso; hipertensão portal avançada\""
+      ]
+    },
+    "qa_checks": [
+      "Validar padrão_fluxo",
+      "Verificar se medições em veia proximal",
+      "Alertar se fluxo reverso (emergência)",
+      "Documentar padrão durante respiração",
+      "Considerar contexto clínico"
+    ],
+    "evidence": {
+      "primary_source": "Bolondi L et al. Sonographic assessment hepatic hemodynamics. Semin Ultrasound CT MR. 1992;13(1):40-56.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/portal-hypertension",
+      "notes": "Padrão monofásico/reverso sugerir hipertensão portal."
+    }
+  },
+  "ABD-0027": {
+    "ItemID": "ABD-0027",
+    "FunctionName": "measure_renal_artery_psv",
+    "inputs": [
+      {
+        "name": "PSV_cm_s",
+        "type": "number",
+        "unit": "cm/s",
+        "required": "true",
+        "valid_range": "0-400",
+        "notes": "Velocidade sistólica pico artéria renal"
+      }
+    ],
+    "preprocessing": [
+      "Validar PSV > 0",
+      "Usar Doppler pulsado",
+      "Medir em segmento proximal",
+      "Converter m/s para cm/s se necessário"
+    ],
+    "formula": [
+      "PSV = velocidade sistólica pico (cm/s)",
+      "Passo 1: Localizar artéria renal proximal",
+      "Passo 2: Medir PSV",
+      "Passo 3: Resultado é PSV (cm/s)"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: renal_artery_psv",
+        "unit: cm/s",
+        "precision: 0 casas decimais",
+        "derived_values:",
+        "- name: stenosis_likelihood",
+        "value: \"Sem estenose / Borderline / Provável estenose\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: PSV < 180",
+        "then: \"Normal; sem estenose significativa\"",
+        "- if: 180 <= PSV <= 200",
+        "then: \"Borderline; considerar RAR\"",
+        "- if: PSV > 200",
+        "then: \"Aumentado; sugerir estenose ≥60%\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se PSV < 50 cm/s (possível erro)",
+      "Alertar se PSV > 400 cm/s (possível erro)",
+      "Validar ângulo Doppler <60°",
+      "Verificar se medições em segmento proximal",
+      "Considerar débito cardíaco"
+    ],
+    "evidence": {
+      "primary_source": "Olin JW et al. USRFMD Registry. Circ Cardiovasc Interv. 2012;5(3):432-438.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/renal-artery-stenosis",
+      "notes": "PSV >180 cm/s sugerir estenose. Complementar com RAR."
+    }
+  },
+  "ABD-0028": {
+    "ItemID": "ABD-0028",
+    "FunctionName": "measure_renal_artery_edv",
+    "inputs": [
+      {
+        "name": "EDV_cm_s",
+        "type": "number",
+        "unit": "cm/s",
+        "required": "true",
+        "valid_range": "0-200",
+        "notes": "Velocidade diastólica final artéria renal"
+      }
+    ],
+    "preprocessing": [
+      "Validar EDV >= 0",
+      "Usar Doppler pulsado",
+      "Medir em segmento proximal",
+      "Converter m/s para cm/s se necessário"
+    ],
+    "formula": [
+      "EDV = velocidade diastólica final (cm/s)",
+      "Passo 1: Localizar artéria renal proximal",
+      "Passo 2: Medir EDV",
+      "Passo 3: Resultado é EDV (cm/s)"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: renal_artery_edv",
+        "unit: cm/s",
+        "precision: 0 casas decimais",
+        "derived_values:",
+        "- name: severe_stenosis_likelihood",
+        "value: \"Baixa / Intermediária / Alta\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: EDV > 45",
+        "then: \"Normal; sem estenose grave\"",
+        "- if: 20 <= EDV <= 45",
+        "then: \"Borderline; possível estenose moderada\"",
+        "- if: EDV < 20",
+        "then: \"Reduzido; sugerir estenose grave (>80%)\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se EDV < 0 cm/s (erro)",
+      "Alertar se EDV > 200 cm/s (possível erro)",
+      "Validar ângulo Doppler <60°",
+      "Verificar se medições em segmento proximal",
+      "Considerar débito cardíaco"
+    ],
+    "evidence": {
+      "primary_source": "Olin JW et al. USRFMD Registry. Circ Cardiovasc Interv. 2012;5(3):432-438.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/renal-artery-stenosis",
+      "notes": "EDV <20 cm/s sugerir estenose grave. Complementar com PSV/RAR."
+    }
+  },
+  "ABD-0029": {
+    "ItemID": "ABD-0029",
+    "FunctionName": "calculate_renal_transplant_ri",
+    "inputs": [
+      {
+        "name": "PSV",
+        "type": "number",
+        "unit": "m/s",
+        "required": "true",
+        "valid_range": "0-2",
+        "notes": "Velocidade sistólica pico artéria renal transplante"
+      },
+      {
+        "name": "EDV",
+        "type": "number",
+        "unit": "m/s",
+        "required": "true",
+        "valid_range": "0-2",
+        "notes": "Velocidade diastólica final artéria renal transplante"
+      }
+    ],
+    "preprocessing": [
+      "Validar PSV > 0 e EDV >= 0",
+      "Validar PSV >= EDV",
+      "Usar Doppler pulsado",
+      "Medir em segmento proximal"
+    ],
+    "formula": [
+      "RI = (PSV - EDV) / PSV",
+      "Passo 1: Medir PSV artéria renal transplante",
+      "Passo 2: Medir EDV artéria renal transplante",
+      "Passo 3: Calcular RI"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: transplant_ri",
+        "unit: ratio (0-1)",
+        "precision: 2 casas decimais",
+        "derived_values:",
+        "- name: rejection_likelihood",
+        "value: \"Baixa / Intermediária / Alta\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: ri < 0.70",
+        "then: \"Normal; sem rejeição\"",
+        "- if: 0.70 <= ri <= 0.80",
+        "then: \"Borderline; considerar contexto clínico\"",
+        "- if: ri > 0.80",
+        "then: \"Aumentado; sugerir rejeição ou disfunção\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se RI < 0.3 (possível erro)",
+      "Alertar se RI > 1.0 (erro matemático)",
+      "Validar ângulo Doppler <60°",
+      "Verificar se medições em segmento proximal",
+      "Considerar creatinina sérica"
+    ],
+    "evidence": {
+      "primary_source": "Radermecker RP et al. Renal resistive index assessment renal transplant. Nephrol Dial Transplant. 2002;17(8):1409-1417.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/renal-transplant-doppler",
+      "notes": "RI >0.80 sugerir rejeição. Complementar com creatinina."
+    }
+  },
+  "ABD-0030": {
+    "ItemID": "ABD-0030",
+    "FunctionName": "measure_adrenal_size",
+    "inputs": [
+      {
+        "name": "diametro_max",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-50",
+        "notes": "Maior diâmetro glândula adrenal"
+      }
+    ],
+    "preprocessing": [
+      "Validar diametro_max > 0",
+      "Medir eixo transversal máximo",
+      "Usar TC ou RM",
+      "Medir ambas adrenais"
+    ],
+    "formula": [
+      "d_adrenal = diâmetro máximo (mm)",
+      "Passo 1: Localizar glândula adrenal",
+      "Passo 2: Medir no eixo transversal",
+      "Passo 3: Resultado é diâmetro (mm)"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: adrenal_diameter",
+        "unit: mm",
+        "precision: 0 casas decimais",
+        "derived_values:",
+        "- name: hyperplasia_status",
+        "value: \"Normal / Borderline / Hiperplasia\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: diametro_max < 10",
+        "then: \"Normal\"",
+        "- if: 10 <= diametro_max <= 12",
+        "then: \"Borderline; considerar contexto clínico\"",
+        "- if: 12 < diametro_max <= 15",
+        "then: \"Aumentado; sugerir hiperplasia\"",
+        "- if: diametro_max > 15",
+        "then: \"Muito aumentado; hiperplasia provável\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se diametro < 5 mm (possível erro)",
+      "Alertar se diametro > 50 mm (possível erro ou massa)",
+      "Validar medição em eixo transversal",
+      "Medir ambas adrenais para comparação",
+      "Considerar contexto clínico (Cushing, Addison)"
+    ],
+    "evidence": {
+      "primary_source": "Boland GW et al. Characterization adrenal masses. Radiology. 1998;209(1):131-138.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/adrenal-gland-size",
+      "notes": "Tamanho normal <10 mm. >12 mm sugerir hiperplasia."
+    }
+  },
+  "ABD-0031": {
+    "ItemID": "ABD-0031",
+    "FunctionName": "calculate_adrenal_lipid_index",
+    "inputs": [
+      {
+        "name": "HU_nc",
+        "type": "number",
+        "unit": "HU",
+        "required": "true",
+        "valid_range": "-100-100",
+        "notes": "Atenuação fase NC (não contraste)"
+      },
+      {
+        "name": "HU_portal",
+        "type": "number",
+        "unit": "HU",
+        "required": "true",
+        "valid_range": "0-200",
+        "notes": "Atenuação fase portal"
+      }
+    ],
+    "preprocessing": [
+      "Validar HU_nc entre -100 e 100",
+      "Validar HU_portal > 0",
+      "Usar ROI ≥1 cm",
+      "Protocolo: NC + portal"
+    ],
+    "formula": [
+      "Lipid Index = HU_nc",
+      "Passo 1: Medir HU fase NC",
+      "Passo 2: Se HU_nc < 0, sugere gordura (lipídico)",
+      "Passo 3: Resultado é índice lipídico"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: lipid_index",
+        "unit: HU",
+        "precision: 0 casas decimais",
+        "derived_values:",
+        "- name: adenoma_probability",
+        "value: \"Baixa / Intermediária / Alta\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: lipid_index < -10",
+        "then: \"Muito lipídico; adenoma (alta especificidade)\"",
+        "- if: -10 <= lipid_index <= 10",
+        "then: \"Borderline; considerar complementação\"",
+        "- if: lipid_index > 10",
+        "then: \"Pouco lipídico; considerar não-adenoma\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se lipid_index < -100 (possível erro)",
+      "Alertar se lipid_index > 100 (possível erro)",
+      "Validar ROI ≥1 cm",
+      "Verificar se evita necrose/vasos",
+      "Considerar insuficiência renal"
+    ],
+    "evidence": {
+      "primary_source": "Caoili EM et al. Adrenal masses characterization. Radiology. 2002;222(3):629-633.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/adrenal-adenoma",
+      "notes": "HU <-10 = adenoma lipídico com alta especificidade."
+    }
+  },
+  "ABD-0032": {
+    "ItemID": "ABD-0032",
+    "FunctionName": "calculate_splenic_artery_ri",
+    "inputs": [
+      {
+        "name": "PSV",
+        "type": "number",
+        "unit": "m/s",
+        "required": "true",
+        "valid_range": "0-2",
+        "notes": "Velocidade sistólica pico artéria esplênica"
+      },
+      {
+        "name": "EDV",
+        "type": "number",
+        "unit": "m/s",
+        "required": "true",
+        "valid_range": "0-2",
+        "notes": "Velocidade diastólica final artéria esplênica"
+      }
+    ],
+    "preprocessing": [
+      "Validar PSV > 0 e EDV >= 0",
+      "Validar PSV >= EDV",
+      "Usar Doppler pulsado",
+      "Medir em segmento proximal"
+    ],
+    "formula": [
+      "RI = (PSV - EDV) / PSV",
+      "Passo 1: Medir PSV artéria esplênica",
+      "Passo 2: Medir EDV artéria esplênica",
+      "Passo 3: Calcular RI"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: splenic_artery_ri",
+        "unit: ratio (0-1)",
+        "precision: 2 casas decimais",
+        "derived_values:",
+        "- name: portal_hypertension_likelihood",
+        "value: \"Baixa / Intermediária / Alta\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: ri < 0.55",
+        "then: \"Normal; sem hipertensão portal\"",
+        "- if: 0.55 <= ri <= 0.70",
+        "then: \"Borderline; possível hipertensão portal leve\"",
+        "- if: ri > 0.70",
+        "then: \"Aumentado; sugerir hipertensão portal\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se RI < 0.3 (possível erro)",
+      "Alertar se RI > 1.0 (erro matemático)",
+      "Validar ângulo Doppler <60°",
+      "Verificar se medições em segmento proximal",
+      "Considerar contexto clínico"
+    ],
+    "evidence": {
+      "primary_source": "Bolondi L et al. Sonographic assessment hepatic hemodynamics. Semin Ultrasound CT MR. 1992;13(1):40-56.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/portal-hypertension",
+      "notes": "RI >0.70 sugerir hipertensão portal."
+    }
+  },
+  "ABD-0033": {
+    "ItemID": "ABD-0033",
+    "FunctionName": "classify_spleen_doppler_flow",
+    "inputs": [
+      {
+        "name": "direcao_fluxo",
+        "type": "enum",
+        "required": "true",
+        "valid_values": "[\"hepatopetal\", \"hepatofugal\", \"bifásico\"]",
+        "notes": "Direção fluxo veia porta/esplênica"
+      }
+    ],
+    "preprocessing": [
+      "Validar direcao_fluxo",
+      "Usar Doppler pulsado",
+      "Medir em veia esplênica/porta",
+      "Avaliar durante respiração"
+    ],
+    "formula": [
+      "Direção = classificação visual fluxo",
+      "Passo 1: Localizar veia esplênica/porta",
+      "Passo 2: Avaliar direção Doppler",
+      "Passo 3: Classificar direção"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: spleen_flow_direction",
+        "value: \"Hepatopetal / Hepatofugal / Bifásico\"",
+        "derived_values:",
+        "- name: portal_hypertension_severity",
+        "value: \"Ausente / Leve / Grave\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: direcao_fluxo = \"hepatopetal\"",
+        "then: \"Normal; sem hipertensão portal\"",
+        "- if: direcao_fluxo = \"bifásico\"",
+        "then: \"Borderline; possível hipertensão portal leve\"",
+        "- if: direcao_fluxo = \"hepatofugal\"",
+        "then: \"Reverso; hipertensão portal avançada\""
+      ]
+    },
+    "qa_checks": [
+      "Validar direcao_fluxo",
+      "Verificar se medições em veia esplênica/porta",
+      "Alertar se fluxo reverso (emergência)",
+      "Documentar padrão durante respiração",
+      "Considerar contexto clínico"
+    ],
+    "evidence": {
+      "primary_source": "Bolondi L et al. Sonographic assessment hepatic hemodynamics. Semin Ultrasound CT MR. 1992;13(1):40-56.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/portal-hypertension",
+      "notes": "Fluxo hepatofugal = hipertensão portal avançada."
+    }
+  },
+  "ABD-0034": {
+    "ItemID": "ABD-0034",
+    "FunctionName": "measure_bile_duct_stone_diameter",
+    "inputs": [
+      {
+        "name": "d_calcul",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-50",
+        "notes": "Maior diâmetro cálculo biliar"
+      }
+    ],
+    "preprocessing": [
+      "Validar d_calcul > 0",
+      "Medir eixo transversal máximo",
+      "Usar US ou TC",
+      "Documentar localização (CBD, vesícula)"
+    ],
+    "formula": [
+      "d_calcul = diâmetro máximo (mm)",
+      "Passo 1: Localizar cálculo",
+      "Passo 2: Medir no eixo transversal",
+      "Passo 3: Resultado é diâmetro (mm)"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: stone_diameter",
+        "unit: mm",
+        "precision: 0 casas decimais",
+        "derived_values:",
+        "- name: obstruction_likelihood",
+        "value: \"Baixa / Intermediária / Alta\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: d_calcul < 5",
+        "then: \"Pequeno; risco obstrução baixo\"",
+        "- if: 5 <= d_calcul <= 10",
+        "then: \"Moderado; risco obstrução intermediário\"",
+        "- if: d_calcul > 10",
+        "then: \"Grande; risco obstrução alto\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se d_calcul < 2 mm (possível erro)",
+      "Alertar se d_calcul > 50 mm (possível erro)",
+      "Validar medição em eixo transversal",
+      "Documentar localização (CBD vs vesícula)",
+      "Considerar número de cálculos"
+    ],
+    "evidence": {
+      "primary_source": "Aerts M et al. Bile duct stones. Eur J Radiol. 2011;80(2):441-450.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/choledocholithiasis",
+      "notes": "Cálculos >10 mm = risco obstrução aumentado."
+    }
+  },
+  "ABD-0035": {
+    "ItemID": "ABD-0035",
+    "FunctionName": "grade_hepatic_steatosis_ct",
+    "inputs": [
+      {
+        "name": "HU_figado",
+        "type": "number",
+        "unit": "HU",
+        "required": "true",
+        "valid_range": "-200-100",
+        "notes": "Atenuação fígado em TC"
+      },
+      {
+        "name": "HU_rim",
+        "type": "number",
+        "unit": "HU",
+        "required": "true",
+        "valid_range": "0-100",
+        "notes": "Atenuação rim direito em TC"
+      }
+    ],
+    "preprocessing": [
+      "Validar HU_figado > -200 e HU_figado < 100",
+      "Validar HU_rim > 0",
+      "Usar TC fase portal",
+      "Usar ROI ≥1 cm"
+    ],
+    "formula": [
+      "Diferença = HU_figado - HU_rim",
+      "Passo 1: Medir HU fígado",
+      "Passo 2: Medir HU rim",
+      "Passo 3: Calcular diferença",
+      "Passo 4: Aplicar tabela grau"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: steatosis_grade_ct",
+        "value: \"0 (Normal) / 1 (Leve) / 2 (Moderada) / 3 (Grave)\"",
+        "derived_values:",
+        "- name: steatosis_percent_estimate",
+        "value: \"Estimativa percentual gordura (%)\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: diferenca > -10",
+        "then: \"Sem esteatose\"",
+        "- if: -10 >= diferenca > -20",
+        "then: \"Esteatose leve (<30%)\"",
+        "- if: -20 >= diferenca > -30",
+        "then: \"Esteatose moderada (30-60%)\"",
+        "- if: diferenca <= -30",
+        "then: \"Esteatose grave (>60%)\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se HU_figado < -200 (possível erro)",
+      "Alertar se HU_figado > 100 (possível erro)",
+      "Validar fase portal (não arterial)",
+      "Verificar se ROI ≥1 cm",
+      "Considerar cirrose/fibrose"
+    ],
+    "evidence": {
+      "primary_source": "Piekarski J et al. Difference liver spleen CT numbers. Radiology. 1989;171(1):149-151.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/diffuse-hepatic-steatosis",
+      "notes": "Diferença HU fígado-rim para grau esteatose. Correlaciona com biópsia."
+    }
+  },
+  "PEL-0001": {
+    "ItemID": "PEL-0001",
+    "FunctionName": "calculate_prostate_psa_density",
+    "inputs": [
+      {
+        "name": "PSA",
+        "type": "number",
+        "unit": "ng/mL",
+        "required": "true",
+        "valid_range": "0-100",
+        "notes": "Nível PSA sérico"
+      },
+      {
+        "name": "volume_prostata",
+        "type": "number",
+        "unit": "mL",
+        "required": "true",
+        "valid_range": "0-200",
+        "notes": "Volume próstata (TC/RM/US)"
+      }
+    ],
+    "preprocessing": [
+      "Validar PSA > 0 e volume > 0",
+      "PSA deve ser recente (<3 meses)",
+      "Volume deve ser recente (<3 meses)"
+    ],
+    "formula": [
+      "PSAD (ng/mL²) = PSA / volume",
+      "Passo 1: Obter PSA sérico",
+      "Passo 2: Medir volume próstata",
+      "Passo 3: Dividir PSA por volume"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: psa_density",
+        "unit: ng/mL²",
+        "precision: 2 casas decimais",
+        "derived_values:",
+        "- name: cancer_likelihood",
+        "value: \"Baixa / Intermediária / Alta\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: psad < 0.15",
+        "then: \"Normal; risco câncer baixo\"",
+        "- if: 0.15 <= psad <= 0.25",
+        "then: \"Borderline; considerar biopsia\"",
+        "- if: psad > 0.25",
+        "then: \"Aumentado; biopsia recomendada\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se PSA < 0 ou > 100 (possível erro)",
+      "Alertar se volume < 10 mL (possível erro)",
+      "Validar que PSA e volume são recentes",
+      "Considerar história familiar",
+      "Documentar idade"
+    ],
+    "evidence": {
+      "primary_source": "Karakiewicz PI et al. Prognostic role PSA density. Eur Urol. 2007;51(2):352-359.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/prostate-specific-antigen-density",
+      "notes": "PSAD >0.25 ng/mL² aumenta risco câncer clinicamente significativo."
+    }
+  },
+  "PEL-0002": {
+    "ItemID": "PEL-0002",
+    "FunctionName": "calculate_transition_zone_psa_density",
+    "inputs": [
+      {
+        "name": "PSA",
+        "type": "number",
+        "unit": "ng/mL",
+        "required": "true",
+        "valid_range": "0-100",
+        "notes": "Nível PSA sérico"
+      },
+      {
+        "name": "volume_tz",
+        "type": "number",
+        "unit": "mL",
+        "required": "true",
+        "valid_range": "0-100",
+        "notes": "Volume zona transição (RM)"
+      }
+    ],
+    "preprocessing": [
+      "Validar PSA > 0 e volume_tz > 0",
+      "PSA deve ser recente (<3 meses)",
+      "Volume TZ deve ser de RM multiparamétrica"
+    ],
+    "formula": [
+      "TZ-PSAD (ng/mL²) = PSA / volume_tz",
+      "Passo 1: Obter PSA sérico",
+      "Passo 2: Medir volume zona transição",
+      "Passo 3: Dividir PSA por volume TZ"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: tz_psa_density",
+        "unit: ng/mL²",
+        "precision: 2 casas decimais",
+        "derived_values:",
+        "- name: cancer_likelihood",
+        "value: \"Baixa / Intermediária / Alta\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: tz_psad < 0.10",
+        "then: \"Normal; risco câncer baixo\"",
+        "- if: 0.10 <= tz_psad <= 0.20",
+        "then: \"Borderline; considerar biopsia\"",
+        "- if: tz_psad > 0.20",
+        "then: \"Aumentado; biopsia recomendada\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se PSA < 0 ou > 100 (possível erro)",
+      "Alertar se volume_tz < 5 mL (possível erro)",
+      "Validar que PSA e volume são recentes",
+      "Confirmar que volume é zona transição (não total)",
+      "Considerar história familiar"
+    ],
+    "evidence": {
+      "primary_source": "Karakiewicz PI et al. Prognostic role PSA density. Eur Urol. 2007;51(2):352-359.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/prostate-specific-antigen-density",
+      "notes": "TZ-PSAD >0.20 ng/mL² aumenta especificidade para câncer."
+    }
+  },
+  "PEL-0003": {
+    "ItemID": "PEL-0003",
+    "FunctionName": "measure_endometrial_thickness",
+    "inputs": [
+      {
+        "name": "espessura_endometrio",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-30",
+        "notes": "Espessura máxima endométrio"
+      },
+      {
+        "name": "fase_ciclo",
+        "type": "enum",
+        "required": "true",
+        "valid_values": "[\"proliferativa\", \"secretória\", \"menstrual\"]",
+        "notes": "Fase do ciclo menstrual"
+      }
+    ],
+    "preprocessing": [
+      "Validar espessura > 0",
+      "Usar US transvaginal",
+      "Documentar fase ciclo",
+      "Medir em corte sagital"
+    ],
+    "formula": [
+      "espessura = medição máxima endométrio (mm)",
+      "Passo 1: Localizar endométrio",
+      "Passo 2: Medir em corte sagital",
+      "Passo 3: Resultado é espessura (mm)"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: endometrial_thickness",
+        "unit: mm",
+        "precision: 1 casa decimal",
+        "derived_values:",
+        "- name: pathology_likelihood",
+        "value: \"Normal / Borderline / Sugestivo patologia\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: fase_ciclo = \"proliferativa\" AND espessura < 8",
+        "then: \"Normal\"",
+        "- if: fase_ciclo = \"secretória\" AND espessura < 14",
+        "then: \"Normal\"",
+        "- if: espessura > 16 AND fase_ciclo != \"menstrual\"",
+        "then: \"Espessado; considerar hiperplasia/carcinoma\"",
+        "- if: espessura > 20",
+        "then: \"Muito espessado; carcinoma provável\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se espessura < 1 mm (possível erro)",
+      "Alertar se espessura > 30 mm (possível erro)",
+      "Validar medição em corte sagital",
+      "Documentar fase ciclo",
+      "Considerar sangramento pós-menopausa"
+    ],
+    "evidence": {
+      "primary_source": "Karlsson B et al. Transvaginal ultrasonography endometrium postmenopausal bleeding. Ultrasound Obstet Gynecol. 1995;6(3):160-164.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/endometrial-thickness",
+      "notes": "Espessura >16 mm pós-menopausa = investigar. Valor cutoff 5 mm em sangramento pós-menopausa."
+    }
+  },
+  "PEL-0004": {
+    "ItemID": "PEL-0004",
+    "FunctionName": "calculate_uterine_fibroid_volume",
+    "inputs": [
+      {
+        "name": "comprimento",
+        "type": "number",
+        "unit": "cm",
+        "required": "true",
+        "valid_range": "0-20",
+        "notes": "Comprimento mioma"
+      },
+      {
+        "name": "largura",
+        "type": "number",
+        "unit": "cm",
+        "required": "true",
+        "valid_range": "0-20",
+        "notes": "Largura mioma"
+      },
+      {
+        "name": "altura",
+        "type": "number",
+        "unit": "cm",
+        "required": "true",
+        "valid_range": "0-20",
+        "notes": "Altura mioma"
+      }
+    ],
+    "preprocessing": [
+      "Validar comprimento > 0, largura > 0, altura > 0",
+      "Usar RM T2",
+      "Medir maior diâmetro cada dimensão"
+    ],
+    "formula": [
+      "V (mL) = L × W × H × 0.52",
+      "Passo 1: Medir comprimento",
+      "Passo 2: Medir largura",
+      "Passo 3: Medir altura",
+      "Passo 4: Multiplicar por 0.52"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: fibroid_volume",
+        "unit: mL",
+        "precision: 0 casas decimais",
+        "derived_values:",
+        "- name: treatment_indication",
+        "value: \"Conservador / Intervenção\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: fibroid_volume < 100",
+        "then: \"Pequeno; observação\"",
+        "- if: 100 <= fibroid_volume <= 500",
+        "then: \"Moderado; considerar tratamento\"",
+        "- if: fibroid_volume > 500",
+        "then: \"Grande; tratamento recomendado\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se volume < 10 mL (possível erro)",
+      "Alertar se volume > 2000 mL (possível erro)",
+      "Validar medições em três planos",
+      "Documentar localização (submucoso/intramural/subseroso)",
+      "Considerar sintomas"
+    ],
+    "evidence": {
+      "primary_source": "Garcia-Solares J et al. Pathogenesis uterine adenomyosis. Fertil Steril. 2018;109(3):371-387.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/uterine-fibroids",
+      "notes": "Volume >500 mL = indicação tratamento. Fórmula elipsoide validada."
+    }
+  },
+  "PEL-0005": {
+    "ItemID": "PEL-0005",
+    "FunctionName": "measure_adenomyosis_junctional_zone",
+    "inputs": [
+      {
+        "name": "espessura_jz",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-30",
+        "notes": "Espessura máxima zona de junção"
+      },
+      {
+        "name": "irregularidade_jz",
+        "type": "boolean",
+        "required": "true",
+        "notes": "Zona de junção irregular?"
+      }
+    ],
+    "preprocessing": [
+      "Validar espessura_jz > 0",
+      "Usar RM T2",
+      "Medir em corte sagital",
+      "Avaliar regularidade"
+    ],
+    "formula": [
+      "espessura = medição máxima zona junção (mm)",
+      "Passo 1: Localizar zona de junção",
+      "Passo 2: Medir em corte sagital",
+      "Passo 3: Avaliar regularidade",
+      "Passo 4: Resultado é espessura (mm)"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: junctional_zone_thickness",
+        "unit: mm",
+        "precision: 1 casa decimal",
+        "derived_values:",
+        "- name: adenomyosis_likelihood",
+        "value: \"Ausente / Leve / Moderada / Grave\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: espessura_jz < 8 AND NOT irregularidade_jz",
+        "then: \"Normal; sem adenomiose\"",
+        "- if: 8 <= espessura_jz <= 12 AND irregularidade_jz",
+        "then: \"Adenomiose leve\"",
+        "- if: 12 < espessura_jz <= 16 AND irregularidade_jz",
+        "then: \"Adenomiose moderada\"",
+        "- if: espessura_jz > 16 AND irregularidade_jz",
+        "then: \"Adenomiose grave\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se espessura < 2 mm (possível erro)",
+      "Alertar se espessura > 30 mm (possível erro)",
+      "Validar medição em corte sagital",
+      "Avaliar regularidade JZ",
+      "Considerar fase ciclo"
+    ],
+    "evidence": {
+      "primary_source": "Garcia-Solares J et al. Pathogenesis uterine adenomyosis. Fertil Steril. 2018;109(3):371-387.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/adenomyosis",
+      "notes": "Espessura JZ >12 mm + irregularidade = adenomiose. Afeta fertilidade."
+    }
+  },
+  "PEL-0006": {
+    "ItemID": "PEL-0006",
+    "FunctionName": "measure_bladder_wall_thickness",
+    "inputs": [
+      {
+        "name": "espessura_parede",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-10",
+        "notes": "Espessura máxima parede vesical"
+      },
+      {
+        "name": "volume_bexiga",
+        "type": "number",
+        "unit": "mL",
+        "required": "true",
+        "valid_range": "0-500",
+        "notes": "Volume bexiga (mL)"
+      }
+    ],
+    "preprocessing": [
+      "Validar espessura > 0 e volume > 0",
+      "Usar US ou TC",
+      "Medir em bexiga cheia",
+      "Evitar artefatos"
+    ],
+    "formula": [
+      "espessura = medição máxima parede (mm)",
+      "Passo 1: Medir espessura parede",
+      "Passo 2: Medir volume bexiga",
+      "Passo 3: Resultado é espessura (mm)"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: bladder_wall_thickness",
+        "unit: mm",
+        "precision: 1 casa decimal",
+        "derived_values:",
+        "- name: obstruction_likelihood",
+        "value: \"Normal / Borderline / Obstruído\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: espessura < 3 AND volume > 300",
+        "then: \"Normal\"",
+        "- if: 3 <= espessura <= 5",
+        "then: \"Borderline; considerar contexto\"",
+        "- if: espessura > 5",
+        "then: \"Espessado; sugerir obstrução\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se espessura < 1 mm (possível erro)",
+      "Alertar se espessura > 10 mm (possível erro)",
+      "Validar medição em bexiga cheia",
+      "Verificar se não confunde com artefato",
+      "Considerar volume bexiga"
+    ],
+    "evidence": {
+      "primary_source": "Oelke M et al. EAU Guidelines Management Overactive Bladder. Eur Urol. 2013;63(3):405-426.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/bladder-wall-thickness",
+      "notes": "Espessura >5 mm sugerir obstrução. Correlaciona com sintomas."
+    }
+  },
+  "PEL-0007": {
+    "ItemID": "PEL-0007",
+    "FunctionName": "measure_post_void_residual_volume",
+    "inputs": [
+      {
+        "name": "volume_residuo",
+        "type": "number",
+        "unit": "mL",
+        "required": "true",
+        "valid_range": "0-500",
+        "notes": "Volume urina residual pós-miccional"
+      }
+    ],
+    "preprocessing": [
+      "Validar volume_residuo >= 0",
+      "Usar US ou TC",
+      "Medir imediatamente após micção",
+      "Usar fórmula elipsoide ou planimetria"
+    ],
+    "formula": [
+      "V_residuo = volume medido (mL)",
+      "Passo 1: Medir bexiga pós-miccional",
+      "Passo 2: Calcular volume (elipsoide ou planimetria)",
+      "Passo 3: Resultado é volume residual (mL)"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: post_void_residual",
+        "unit: mL",
+        "precision: 0 casas decimais",
+        "derived_values:",
+        "- name: retention_status",
+        "value: \"Normal / Borderline / Retenção\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: volume_residuo < 50",
+        "then: \"Normal; sem retenção\"",
+        "- if: 50 <= volume_residuo <= 100",
+        "then: \"Borderline; considerar contexto\"",
+        "- if: volume_residuo > 100",
+        "then: \"Retenção; investigar causa\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se volume < 0 mL (erro)",
+      "Alertar se volume > 500 mL (possível erro ou retenção massiva)",
+      "Validar medição pós-miccional",
+      "Confirmar que paciente esvaziou bexiga",
+      "Repetir medição se resultado inesperado"
+    ],
+    "evidence": {
+      "primary_source": "Poston GJ et al. Ultrasound measurement post-void residual volume. Br J Urol. 1994;73(3):294-298.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/post-void-residual-volume",
+      "notes": "PVR >100 mL = retenção. Valor normal <50 mL."
+    }
+  },
+  "PEL-0008": {
+    "ItemID": "PEL-0008",
+    "FunctionName": "measure_rectal_wall_thickness",
+    "inputs": [
+      {
+        "name": "espessura_parede",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-10",
+        "notes": "Espessura máxima parede retal"
+      }
+    ],
+    "preprocessing": [
+      "Validar espessura > 0",
+      "Usar TC ou RM",
+      "Medir em segmento tumor",
+      "Evitar confundir com artefato"
+    ],
+    "formula": [
+      "espessura = medição máxima parede (mm)",
+      "Passo 1: Localizar tumor retal",
+      "Passo 2: Medir parede máxima",
+      "Passo 3: Resultado é espessura (mm)"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: rectal_wall_thickness",
+        "unit: mm",
+        "precision: 1 casa decimal",
+        "derived_values:",
+        "- name: tumor_stage",
+        "value: \"T1 / T2 / T3 / T4\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: espessura < 5",
+        "then: \"T1 (submucosa)\"",
+        "- if: 5 <= espessura <= 10",
+        "then: \"T2 (muscular própria)\"",
+        "- if: espessura > 10",
+        "then: \"T3-T4 (além muscular própria)\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se espessura < 2 mm (possível erro)",
+      "Alertar se espessura > 15 mm (possível erro)",
+      "Validar medição em segmento tumor",
+      "Documentar localização exata",
+      "Considerar estadiamento TNM completo"
+    ],
+    "evidence": {
+      "primary_source": "Beets-Tan RG et al. Magnetic resonance imaging rectum staging. Eur Radiol. 2000;10(12):1886-1895.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/rectal-cancer-staging",
+      "notes": "Espessura parede correlaciona com T-stage. Importante para prognóstico."
+    }
+  },
+  "PEL-0009": {
+    "ItemID": "PEL-0009",
+    "FunctionName": "classify_rectal_cancer_tnm",
+    "inputs": [
+      {
+        "name": "t_stage",
+        "type": "enum",
+        "required": "true",
+        "valid_values": "[\"T0\", \"T1\", \"T2\", \"T3\", \"T4a\", \"T4b\"]",
+        "notes": "T-stage (profundidade invasão)"
+      },
+      {
+        "name": "n_stage",
+        "type": "enum",
+        "required": "true",
+        "valid_values": "[\"N0\", \"N1a\", \"N1b\", \"N1c\", \"N2a\", \"N2b\"]",
+        "notes": "N-stage (linfonodos)"
+      },
+      {
+        "name": "m_stage",
+        "type": "enum",
+        "required": "true",
+        "valid_values": "[\"M0\", \"M1a\", \"M1b\", \"M1c\"]",
+        "notes": "M-stage (metástases)"
+      }
+    ],
+    "preprocessing": [
+      "Validar cada stage",
+      "Usar RM ou TC",
+      "Avaliar profundidade, linfonodos, metástases"
+    ],
+    "formula": [
+      "TNM = combinação T + N + M",
+      "Passo 1: Determinar T-stage",
+      "Passo 2: Determinar N-stage",
+      "Passo 3: Determinar M-stage",
+      "Passo 4: Combinar para TNM"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: tnm_stage",
+        "value: \"Stage I / II / III / IV\"",
+        "derived_values:",
+        "- name: prognosis",
+        "value: \"5-year survival (%)\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: t_stage = \"T1\" AND n_stage = \"N0\" AND m_stage = \"M0\"",
+        "then: \"Stage I; prognóstico bom\"",
+        "- if: (t_stage in [\"T2\",\"T3\",\"T4\"]) AND n_stage = \"N0\" AND m_stage = \"M0\"",
+        "then: \"Stage II; prognóstico intermediário\"",
+        "- if: n_stage in [\"N1\",\"N2\"] AND m_stage = \"M0\"",
+        "then: \"Stage III; prognóstico reservado\"",
+        "- if: m_stage != \"M0\"",
+        "then: \"Stage IV; prognóstico ruim\""
+      ]
+    },
+    "qa_checks": [
+      "Validar cada stage",
+      "Confirmar estadiamento completo",
+      "Documentar critérios para cada stage",
+      "Considerar terapia neoadjuvante",
+      "Correlacionar com patologia"
+    ],
+    "evidence": {
+      "primary_source": "Beets-Tan RG et al. Magnetic resonance imaging rectum staging. Eur Radiol. 2000;10(12):1886-1895.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/rectal-cancer-staging",
+      "notes": "TNM 8ª edição (2017). Importante para decisão terapêutica."
+    }
+  },
+  "PEL-0010": {
+    "ItemID": "PEL-0010",
+    "FunctionName": "measure_circumferential_resection_margin",
+    "inputs": [
+      {
+        "name": "distancia_crm",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-50",
+        "notes": "Distância tumor até margem circunferencial"
+      }
+    ],
+    "preprocessing": [
+      "Validar distancia_crm >= 0",
+      "Usar RM",
+      "Medir distância mínima",
+      "Usar cortes axiais"
+    ],
+    "formula": [
+      "CRM = distância mínima tumor até margem (mm)",
+      "Passo 1: Localizar tumor retal",
+      "Passo 2: Medir distância até margem circunferencial",
+      "Passo 3: Resultado é CRM (mm)"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: circumferential_margin",
+        "unit: mm",
+        "precision: 0 casas decimais",
+        "derived_values:",
+        "- name: margin_status",
+        "value: \"Negativo / Borderline / Positivo\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: distancia_crm >= 2",
+        "then: \"Negativo; margem adequada\"",
+        "- if: 1 <= distancia_crm < 2",
+        "then: \"Borderline; risco recorrência\"",
+        "- if: distancia_crm < 1",
+        "then: \"Positivo; alto risco recorrência\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se distancia < 0 mm (erro)",
+      "Alertar se distancia > 50 mm (possível erro)",
+      "Validar medição em cortes axiais",
+      "Documentar localização mínima",
+      "Considerar terapia neoadjuvante"
+    ],
+    "evidence": {
+      "primary_source": "Beets-Tan RG et al. Magnetic resonance imaging rectum staging. Eur Radiol. 2000;10(12):1886-1895.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/circumferential-resection-margin",
+      "notes": "CRM <2 mm = risco recorrência. Importante para decisão terapêutica."
+    }
+  },
+  "PEL-0011": {
+    "ItemID": "PEL-0011",
+    "FunctionName": "diagnose_ovarian_torsion",
+    "inputs": [
+      {
+        "name": "doppler_fluxo",
+        "type": "enum",
+        "required": "true",
+        "valid_values": "[\"presente\", \"ausente\", \"reduzido\"]",
+        "notes": "Fluxo Doppler ovariano"
+      },
+      {
+        "name": "volume_ovario",
+        "type": "number",
+        "unit": "mL",
+        "required": "true",
+        "valid_range": "0-100",
+        "notes": "Volume ovário"
+      },
+      {
+        "name": "edema_estroma",
+        "type": "boolean",
+        "required": "true",
+        "notes": "Edema estromal presente?"
+      }
+    ],
+    "preprocessing": [
+      "Validar cada parâmetro",
+      "Usar US Doppler",
+      "Comparar com lado contralateral",
+      "Avaliar contexto clínico"
+    ],
+    "formula": [
+      "Diagnóstico = f(doppler, volume, edema)",
+      "Passo 1: Avaliar fluxo Doppler",
+      "Passo 2: Medir volume",
+      "Passo 3: Avaliar edema estromal",
+      "Passo 4: Aplicar critérios diagnósticos"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: torsion_diagnosis",
+        "value: \"Provável torsão / Não torsão\"",
+        "derived_values:",
+        "- name: urgency",
+        "value: \"Emergência / Urgência\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: doppler_fluxo = \"ausente\" AND volume > 20 AND edema_estroma",
+        "then: \"Provável torsão; EMERGÊNCIA CIRÚRGICA\"",
+        "- if: doppler_fluxo = \"reduzido\" AND edema_estroma",
+        "then: \"Possível torsão; considerar cirurgia\"",
+        "- if: doppler_fluxo = \"presente\" AND NOT edema_estroma",
+        "then: \"Não torsão\""
+      ]
+    },
+    "qa_checks": [
+      "Validar fluxo Doppler bilateral",
+      "Confirmar edema estromal",
+      "Documentar volume",
+      "Considerar contexto clínico (dor aguda)",
+      "Alertar se torsão provável (emergência)"
+    ],
+    "evidence": {
+      "primary_source": "Pena JA et al. Sonography ovarian torsion. AJR. 1992;159(3):539-541.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/ovarian-torsion",
+      "notes": "Ausência fluxo Doppler + edema = torsão. Emergência cirúrgica."
+    }
+  },
+  "PEL-0012": {
+    "ItemID": "PEL-0012",
+    "FunctionName": "assess_ovarian_reserve_amh",
+    "inputs": [
+      {
+        "name": "AMH_ng_mL",
+        "type": "number",
+        "unit": "ng/mL",
+        "required": "true",
+        "valid_range": "0-15",
+        "notes": "Hormônio Anti-Mülleriano (laboratorial)"
+      }
+    ],
+    "preprocessing": [
+      "Validar AMH >= 0",
+      "Usar teste laboratorial padrão",
+      "Coletar em dia 3 ciclo (ideal)",
+      "Considerar idade"
+    ],
+    "formula": [
+      "AMH = nível sérico (ng/mL)",
+      "Passo 1: Obter nível AMH",
+      "Passo 2: Comparar com valores normais por idade",
+      "Passo 3: Resultado é AMH (ng/mL)"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: amh_level",
+        "unit: ng/mL",
+        "precision: 2 casas decimais",
+        "derived_values:",
+        "- name: ovarian_reserve_status",
+        "value: \"Normal / Reduzido / Muito reduzido\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: AMH_ng_mL >= 1.0",
+        "then: \"Normal; boa reserva ovariana\"",
+        "- if: 0.5 <= AMH_ng_mL < 1.0",
+        "then: \"Reduzido; possível dificuldade fertilidade\"",
+        "- if: AMH_ng_mL < 0.5",
+        "then: \"Muito reduzido; reserva ovariana baixa\""
+      ]
+    },
+    "qa_checks": [
+      "Alertar se AMH < 0 (erro)",
+      "Alertar se AMH > 15 (possível erro ou SOP)",
+      "Validar que coleta em dia 3 ciclo",
+      "Considerar idade",
+      "Correlacionar com contagem folículos antrais"
+    ],
+    "evidence": {
+      "primary_source": "Broer SL et al. Anti-Müllerian hormone predicts ovarian response. Fertil Steril. 2009;92(6):1868-1874.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/anti-mullerian-hormone",
+      "notes": "AMH prediz resposta ovariana. Valores variam por idade e laboratório."
+    }
+  },
+  "PEL-0013": {
+    "ItemID": "PEL-0013",
+    "FunctionName": "diagnose_extraprostatic_extension",
+    "inputs": [
+      {
+        "name": "epe_presente",
+        "type": "boolean",
+        "required": "true",
+        "notes": "Extensão extraprostática presente?"
+      },
+      {
+        "name": "lateralidade",
+        "type": "enum",
+        "required": "true",
+        "valid_values": "[\"unilateral\", \"bilateral\"]",
+        "notes": "Lateralidade EPE"
+      }
+    ],
+    "preprocessing": [
+      "Validar cada parâmetro",
+      "Usar RM multiparamétrica",
+      "Avaliar em T2 e DWI",
+      "Documentar localização"
+    ],
+    "formula": [
+      "EPE = presença extensão além cápsula",
+      "Passo 1: Avaliar integridade cápsula",
+      "Passo 2: Avaliar extensão tumor",
+      "Passo 3: Documentar lateralidade"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: epe_status",
+        "value: \"Ausente / Presente (unilateral/bilateral)\"",
+        "derived_values:",
+        "- name: t_stage_impact",
+        "value: \"T2 / T3a\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: NOT epe_presente",
+        "then: \"Sem EPE; T2\"",
+        "- if: epe_presente AND lateralidade = \"unilateral\"",
+        "then: \"EPE unilateral; T3a\"",
+        "- if: epe_presente AND lateralidade = \"bilateral\"",
+        "then: \"EPE bilateral; T3a\""
+      ]
+    },
+    "qa_checks": [
+      "Validar presença EPE",
+      "Documentar lateralidade",
+      "Confirmar em T2 e DWI",
+      "Considerar estadiamento completo",
+      "Correlacionar com PSA/Gleason"
+    ],
+    "evidence": {
+      "primary_source": "Turkbey B et al. Prostate Imaging Reporting Data System v2.1. Eur Urol. 2019;76(3):340-351.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/prostate-cancer-staging",
+      "notes": "EPE = T3a. Importante para decisão terapêutica (cirurgia vs radiação)."
+    }
+  },
+  "PEL-0014": {
+    "ItemID": "PEL-0014",
+    "FunctionName": "diagnose_seminal_vesicle_invasion",
+    "inputs": [
+      {
+        "name": "svi_presente",
+        "type": "boolean",
+        "required": "true",
+        "notes": "Invasão vesícula seminal presente?"
+      },
+      {
+        "name": "lateralidade",
+        "type": "enum",
+        "required": "true",
+        "valid_values": "[\"unilateral\", \"bilateral\"]",
+        "notes": "Lateralidade SVI"
+      }
+    ],
+    "preprocessing": [
+      "Validar cada parâmetro",
+      "Usar RM multiparamétrica",
+      "Avaliar em T2 e DWI",
+      "Documentar localização"
+    ],
+    "formula": [
+      "SVI = presença invasão vesícula seminal",
+      "Passo 1: Avaliar integridade vesícula seminal",
+      "Passo 2: Avaliar invasão tumor",
+      "Passo 3: Documentar lateralidade"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: svi_status",
+        "value: \"Ausente / Presente (unilateral/bilateral)\"",
+        "derived_values:",
+        "- name: t_stage_impact",
+        "value: \"T2 / T3b\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: NOT svi_presente",
+        "then: \"Sem SVI; T2-T3a\"",
+        "- if: svi_presente AND lateralidade = \"unilateral\"",
+        "then: \"SVI unilateral; T3b\"",
+        "- if: svi_presente AND lateralidade = \"bilateral\"",
+        "then: \"SVI bilateral; T3b\""
+      ]
+    },
+    "qa_checks": [
+      "Validar presença SVI",
+      "Documentar lateralidade",
+      "Confirmar em T2 e DWI",
+      "Considerar estadiamento completo",
+      "Correlacionar com PSA/Gleason"
+    ],
+    "evidence": {
+      "primary_source": "Turkbey B et al. Prostate Imaging Reporting Data System v2.1. Eur Urol. 2019;76(3):340-351.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/prostate-cancer-staging",
+      "notes": "SVI = T3b. Pior prognóstico que EPE. Importante para decisão terapêutica."
+    }
+  },
+  "PEL-0015": {
+    "ItemID": "PEL-0015",
+    "FunctionName": "estimate_gleason_score_mri",
+    "inputs": [
+      {
+        "name": "dwi_score",
+        "type": "number",
+        "unit": "points",
+        "required": "true",
+        "valid_range": "1-5",
+        "notes": "Score DWI (1-5)"
+      },
+      {
+        "name": "dce_score",
+        "type": "number",
+        "unit": "points",
+        "required": "true",
+        "valid_range": "0-3",
+        "notes": "Score DCE (0-3)"
+      },
+      {
+        "name": "t2_score",
+        "type": "number",
+        "unit": "points",
+        "required": "true",
+        "valid_range": "1-5",
+        "notes": "Score T2 (1-5)"
+      }
+    ],
+    "preprocessing": [
+      "Validar cada score",
+      "Usar RM multiparamétrica",
+      "Avaliar DWI, DCE, T2",
+      "Documentar localização"
+    ],
+    "formula": [
+      "Gleason = f(DWI, DCE, T2)",
+      "Passo 1: Avaliar DWI",
+      "Passo 2: Avaliar DCE",
+      "Passo 3: Avaliar T2",
+      "Passo 4: Estimar Gleason"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: estimated_gleason",
+        "value: \"Gleason 6 / 7 / 8 / 9 / 10\"",
+        "derived_values:",
+        "- name: gleason_group",
+        "value: \"Grupo 1-5\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: dwi_score <= 2 AND dce_score <= 1",
+        "then: \"Gleason 6-7; baixo-intermediário risco\"",
+        "- if: dwi_score = 3 OR dce_score = 2",
+        "then: \"Gleason 7; intermediário risco\"",
+        "- if: dwi_score >= 4 OR dce_score = 3",
+        "then: \"Gleason 8-10; alto risco\""
+      ]
+    },
+    "qa_checks": [
+      "Validar cada score",
+      "Confirmar em DWI, DCE, T2",
+      "Documentar localização",
+      "Considerar PI-RADS score",
+      "Correlacionar com PSA/biópsia"
+    ],
+    "evidence": {
+      "primary_source": "Turkbey B et al. Prostate Imaging Reporting Data System v2.1. Eur Urol. 2019;76(3):340-351.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/prostate-cancer-gleason-grading",
+      "notes": "Estimativa Gleason por RM. Correlaciona com biópsia ~70-80%."
+    }
+  },
+  "PEL-0016": {
+    "ItemID": "PEL-0016",
+    "FunctionName": "grade_prostate_cancer_gleason",
+    "inputs": [
+      {
+        "name": "gleason_primary",
+        "type": "number",
+        "unit": "points",
+        "required": "true",
+        "valid_range": "3-5",
+        "notes": "Padrão primário Gleason (3-5)"
+      },
+      {
+        "name": "gleason_secondary",
+        "type": "number",
+        "unit": "points",
+        "required": "true",
+        "valid_range": "3-5",
+        "notes": "Padrão secundário Gleason (3-5)"
+      }
+    ],
+    "preprocessing": [
+      "Validar gleason_primary entre 3-5",
+      "Validar gleason_secondary entre 3-5",
+      "Usar resultado biópsia/prostatectomia"
+    ],
+    "formula": [
+      "Gleason Score = gleason_primary + gleason_secondary",
+      "Passo 1: Identificar padrão primário",
+      "Passo 2: Identificar padrão secundário",
+      "Passo 3: Somar para obter score"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: gleason_score",
+        "unit: points",
+        "precision: 0 casas decimais",
+        "derived_values:",
+        "- name: gleason_group",
+        "value: \"Grupo 1-5\"",
+        "- name: risk_stratification",
+        "value: \"Baixo / Intermediário / Alto\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: gleason_score <= 6",
+        "then: \"Grupo 1; baixo risco\"",
+        "- if: gleason_score = 7",
+        "then: \"Grupo 2-3; intermediário risco\"",
+        "- if: gleason_score = 8",
+        "then: \"Grupo 4; alto risco\"",
+        "- if: gleason_score >= 9",
+        "then: \"Grupo 5; muito alto risco\""
+      ]
+    },
+    "qa_checks": [
+      "Validar padrões entre 3-5",
+      "Confirmar que primário >= secundário",
+      "Documentar localização",
+      "Considerar número fragmentos",
+      "Correlacionar com PSA/estadiamento"
+    ],
+    "evidence": {
+      "primary_source": "Turkbey B et al. Prostate Imaging Reporting Data System v2.1. Eur Urol. 2019;76(3):340-351.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/prostate-cancer-gleason-grading",
+      "notes": "Gleason 2017 (grupos 1-5). Importante para prognóstico e decisão terapêutica."
+    }
+  },
+  "PEL-0017": {
+    "ItemID": "PEL-0017",
+    "FunctionName": "measure_uterine_artery_doppler",
+    "inputs": [
+      {
+        "name": "RI_arteria_uterina",
+        "type": "number",
+        "unit": "ratio",
+        "required": "true",
+        "valid_range": "0-1",
+        "notes": "Índice resistência artéria uterina"
+      },
+      {
+        "name": "notch_diastolico",
+        "type": "boolean",
+        "required": "true",
+        "notes": "Notch diastólico presente?"
+      }
+    ],
+    "preprocessing": [
+      "Validar RI entre 0-1",
+      "Usar Doppler pulsado",
+      "Medir em artéria uterina proximal",
+      "Avaliar bilateralmente"
+    ],
+    "formula": [
+      "RI = (PSV - EDV) / PSV",
+      "Passo 1: Medir PSV artéria uterina",
+      "Passo 2: Medir EDV artéria uterina",
+      "Passo 3: Calcular RI",
+      "Passo 4: Avaliar notch diastólico"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: uterine_artery_ri",
+        "unit: ratio (0-1)",
+        "precision: 2 casas decimais",
+        "derived_values:",
+        "- name: placental_insufficiency_risk",
+        "value: \"Baixo / Intermediário / Alto\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: ri < 0.58 AND NOT notch_diastolico",
+        "then: \"Normal; sem risco insuficiência placentária\"",
+        "- if: ri >= 0.58 OR notch_diastolico",
+        "then: \"Aumentado; risco insuficiência placentária\""
+      ]
+    },
+    "qa_checks": [
+      "Validar RI entre 0-1",
+      "Confirmar medições bilaterais",
+      "Documentar presença/ausência notch",
+      "Considerar idade gestacional",
+      "Correlacionar com sintomas"
+    ],
+    "evidence": {
+      "primary_source": "Steer CV et al. Transvaginal color flow doppler ultrasound oocyte retrieval. Lancet. 1992;339(8788):213-216.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/uterine-artery-doppler",
+      "notes": "RI >0.58 ou notch = risco insuficiência placentária."
+    }
+  },
+  "PEL-0018": {
+    "ItemID": "PEL-0018",
+    "FunctionName": "calculate_bladder_outlet_obstruction_index",
+    "inputs": [
+      {
+        "name": "pressao_detrusor_max",
+        "type": "number",
+        "unit": "cmH2O",
+        "required": "true",
+        "valid_range": "0-200",
+        "notes": "Pressão detrusor máxima (urodinâmica)"
+      },
+      {
+        "name": "fluxo_urinario_max",
+        "type": "number",
+        "unit": "mL/s",
+        "required": "true",
+        "valid_range": "0-50",
+        "notes": "Fluxo urinário máximo"
+      }
+    ],
+    "preprocessing": [
+      "Validar pressao > 0 e fluxo > 0",
+      "Usar estudo urodinâmico",
+      "Medir durante micção"
+    ],
+    "formula": [
+      "BOO Index = Pdet(Qmax) - 2×Qmax",
+      "Passo 1: Obter pressão detrusor máxima",
+      "Passo 2: Obter fluxo urinário máximo",
+      "Passo 3: Calcular BOO Index"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: boo_index",
+        "unit: cmH2O",
+        "precision: 0 casas decimais",
+        "derived_values:",
+        "- name: obstruction_grade",
+        "value: \"Sem obstrução / Borderline / Obstruído\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: boo_index < 20",
+        "then: \"Sem obstrução\"",
+        "- if: 20 <= boo_index <= 40",
+        "then: \"Borderline; possível obstrução leve\"",
+        "- if: boo_index > 40",
+        "then: \"Obstruído; obstrução moderada-grave\""
+      ]
+    },
+    "qa_checks": [
+      "Validar pressao > 0 cmH2O",
+      "Validar fluxo > 0 mL/s",
+      "Confirmar estudo urodinâmico completo",
+      "Considerar sintomas (LUTS)",
+      "Documentar contexto clínico"
+    ],
+    "evidence": {
+      "primary_source": "Abrams P et al. Standardisation terminology lower urinary tract function. Neurourol Urodynam. 1998;17(5):443-447.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/bladder-outlet-obstruction",
+      "notes": "BOO Index >40 = obstrução. Padrão ICS para diagnóstico urodinâmico."
+    }
+  },
+  "PEL-0019": {
+    "ItemID": "PEL-0019",
+    "FunctionName": "measure_rectal_cancer_depth",
+    "inputs": [
+      {
+        "name": "profundidade_invasao",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-50",
+        "notes": "Profundidade invasão tumor além muscular própria"
+      }
+    ],
+    "preprocessing": [
+      "Validar profundidade >= 0",
+      "Usar RM",
+      "Medir em cortes axiais",
+      "Documentar localização"
+    ],
+    "formula": [
+      "Profundidade = distância invasão (mm)",
+      "Passo 1: Localizar tumor retal",
+      "Passo 2: Medir profundidade além muscular própria",
+      "Passo 3: Resultado é profundidade (mm)"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: invasion_depth",
+        "unit: mm",
+        "precision: 0 casas decimais",
+        "derived_values:",
+        "- name: t_stage_impact",
+        "value: \"T3 / T4\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: profundidade_invasao <= 5",
+        "then: \"T3a (≤5 mm)\"",
+        "- if: 5 < profundidade_invasao <= 10",
+        "then: \"T3b (5-10 mm)\"",
+        "- if: 10 < profundidade_invasao <= 15",
+        "then: \"T3c (10-15 mm)\"",
+        "- if: profundidade_invasao > 15",
+        "then: \"T3d (>15 mm) ou T4\""
+      ]
+    },
+    "qa_checks": [
+      "Validar profundidade >= 0 mm",
+      "Validar medição em cortes axiais",
+      "Documentar localização exata",
+      "Considerar estadiamento completo",
+      "Correlacionar com CRM"
+    ],
+    "evidence": {
+      "primary_source": "Beets-Tan RG et al. Magnetic resonance imaging rectum staging. Eur Radiol. 2000;10(12):1886-1895.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/rectal-cancer-staging",
+      "notes": "Profundidade >5 mm = T3. Importante para decisão terapêutica."
+    }
+  },
+  "PEL-0020": {
+    "ItemID": "PEL-0020",
+    "FunctionName": "classify_lymph_node_staging",
+    "inputs": [
+      {
+        "name": "numero_linfonodos",
+        "type": "number",
+        "unit": "count",
+        "required": "true",
+        "valid_range": "0-50",
+        "notes": "Número linfonodos regionais envolvidos"
+      },
+      {
+        "name": "diametro_max",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-50",
+        "notes": "Maior diâmetro linfonodo (eixo curto)"
+      }
+    ],
+    "preprocessing": [
+      "Validar numero_linfonodos >= 0",
+      "Validar diametro_max > 0",
+      "Usar RM ou TC",
+      "Documentar localização"
+    ],
+    "formula": [
+      "N-stage = f(número, localização, tamanho)",
+      "Passo 1: Contar linfonodos envolvidos",
+      "Passo 2: Medir maior diâmetro",
+      "Passo 3: Documentar localização",
+      "Passo 4: Aplicar critérios N-stage"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: n_stage",
+        "value: \"N0 / N1 / N2\"",
+        "derived_values:",
+        "- name: lymph_node_count",
+        "value: \"Número linfonodos envolvidos\""
+      ]
+    },
+    "interpretation": {
+      "raw": [
+        "rules:",
+        "- if: numero_linfonodos = 0",
+        "then: \"N0; sem linfonodos regionais\"",
+        "- if: 1 <= numero_linfonodos <= 3",
+        "then: \"N1; 1-3 linfonodos regionais\"",
+        "- if: numero_linfonodos >= 4",
+        "then: \"N2; ≥4 linfonodos regionais\""
+      ]
+    },
+    "qa_checks": [
+      "Validar contagem linfonodos",
+      "Documentar localização",
+      "Confirmar critérios tamanho (>9 mm eixo curto)",
+      "Considerar estadiamento completo",
+      "Correlacionar com T-stage"
+    ],
+    "evidence": {
+      "primary_source": "Beets-Tan RG et al. Magnetic resonance imaging rectum staging. Eur Radiol. 2000;10(12):1886-1895.",
+      "radiopaedia_link": "https://radiopaedia.org/articles/rectal-cancer-staging",
+      "notes": "N-stage baseado em número linfonodos. Importante para prognóstico."
+    }
+  },
+  "ABD-0036": {
+    "ItemID": "ABD-0036",
+    "FunctionName": "calculate_stone_skin_distance_mean",
+    "inputs": [
+      {
+        "name": "SSD 1",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-300",
+        "notes": "Distância pele-cálculo medida 1"
+      },
+      {
+        "name": "SSD 2",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-300",
+        "notes": "Distância pele-cálculo medida 2"
+      },
+      {
+        "name": "SSD 3",
+        "type": "number",
+        "unit": "mm",
+        "required": "true",
+        "valid_range": "0-300",
+        "notes": "Distância pele-cálculo medida 3"
+      }
+    ],
+    "preprocessing": [
+      "Validar distâncias > 0",
+      "Validar valores numéricos"
+    ],
+    "formula": [
+      "SSD_mean = (SSD1 + SSD2 + SSD3) / 3",
+      "Passo 1: Somar as 3 distâncias",
+      "Passo 2: Dividir por 3"
+    ],
+    "output": {
+      "raw": [
+        "primary_value:",
+        "name: SSD_mean",
+        "unit: mm",
+        "precision: 1 casa decimal"
+      ]
+    },
+    "qa_checks": [
+      "Alertar se SSD_mean < 10 mm (possível erro)",
+      "Alertar se SSD_mean > 300 mm (possível erro)",
+      "Validar que as 3 medidas foram fornecidas"
+    ],
+    "evidence": {
+      "notes": "TODO: adicionar fonte para SSD (litíase renal)."
+    }
+  }
+}

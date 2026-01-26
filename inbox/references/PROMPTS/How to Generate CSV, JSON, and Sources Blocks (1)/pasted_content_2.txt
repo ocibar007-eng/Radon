@@ -1,0 +1,202 @@
+1) Dicionário de sinônimos PT/EN por subárea (para busca brutal)
+
+Como usar: a IA deve usar esses termos como query templates e combinar com formula OR equation OR index OR ratio OR score OR cutoff OR threshold OR criteria OR measurement
+e com CT OR MRI OR ultrasound OR Doppler OR radiography.
+
+A. Vascular (arterial/venoso – geral)
+
+PT: estenose, oclusão, aneurisma, dissecção, trombose, trombo, embolia, tromboembolismo, perfusão, fluxo, velocidade, gradiente, calibre, diâmetro, área luminal, área de secção, índice, razão, critério, cutoff, limiar, classificação, reestenose, endoleak, pós-EVAR, stent, bypass, trombose venosa profunda, TVP, trombose portal, hipertensão portal, shunt, TIPS, colaterais, varizes, congestão venosa.
+EN: stenosis, occlusion, aneurysm, dissection, thrombosis, thrombus, embolism, thromboembolism, perfusion, flow, velocity, gradient, caliber, diameter, lumen area, cross-sectional area, index, ratio, criteria, cutoff, threshold, classification, restenosis, endoleak, post-EVAR, stent, bypass, deep vein thrombosis (DVT), portal vein thrombosis, portal hypertension, shunt, TIPS, collaterals, varices, venous congestion.
+
+Termos “garra”:
+
+EN: “velocity criteria”, “PSV”, “EDV”, “RAR renal-aortic ratio”, “NASCET”, “ECST”, “peak systolic velocity”, “diameter stenosis percentage formula”, “area stenosis”, “pulsatility index”, “resistive index”, “congestion index”
+
+PT: “critérios por velocidade”, “VPS”, “VDF”, “razão renal-aorta”, “percentual de estenose”, “estenose por área”, “índice de pulsatilidade”, “índice de resistência”, “índice de congestão”.
+
+A1. Carótidas/vertebrais
+
+PT: NASCET, ECST, estenose carotídea, placa, critério Doppler carótida, VPS, VDF, razão ICA/CCA, estenose vertebral.
+EN: NASCET, ECST, carotid stenosis, plaque, carotid Doppler criteria, PSV, EDV, ICA/CCA ratio, vertebral stenosis.
+
+A2. Aorta (aneurisma/dissecção)
+
+PT: diâmetro aórtico, crescimento anual, taxa de crescimento, aneurisma abdominal/torácico, zona de aterrissagem, endoleak tipo I–V, índice de tortuosidade, ângulo do colo.
+EN: aortic diameter, annual growth, growth rate, AAA, TAA, landing zone, endoleak type I–V, tortuosity index, neck angulation.
+
+A3. Artérias renais/mesentéricas/periféricas
+
+PT: estenose artéria renal, critério Doppler renal, RAR, tempo de aceleração, índice de aceleração, tardus-parvus, estenose mesentérica, isquemia mesentérica, membros inferiores, ABI (se entrar), critérios por velocidade.
+EN: renal artery stenosis, renal Doppler criteria, RAR, acceleration time, acceleration index, tardus-parvus, mesenteric stenosis, mesenteric ischemia, lower limb arterial, velocity criteria.
+
+A4. Veias (TVP/portal/hepática/IVC)
+
+PT: TVP, compressibilidade, trombose portal, fluxo portal hepatopetal/hepatofugal, veias hepáticas, índice de congestão portal, índice de colapsabilidade da VCI.
+EN: DVT, compressibility, portal vein thrombosis, hepatopetal/hepatofugal flow, hepatic veins, portal congestion index, IVC collapsibility index.
+
+B. Tórax (TC/RX/US)
+
+PT: derrame pleural, volume do derrame, estimativa volumétrica, atelectasia compressiva, consolidação, enfisema, índice de enfisema, LAA (área de baixa atenuação), densitometria, TEP, carga trombótica, índice de obstrução, RV/LV ratio, tronco pulmonar, PA:Aorta ratio, hipertensão pulmonar, edema pulmonar, cardiomegalia, CTR, razão AP/diâmetro, bronquiectasias, escore de gravidade.
+EN: pleural effusion, effusion volume, volumetric estimation, compressive atelectasis, consolidation, emphysema, emphysema index, LAA (low attenuation area), densitometry, pulmonary embolism (PE), clot burden, obstruction index, RV/LV ratio, main pulmonary artery, PA:Aorta ratio, pulmonary hypertension, pulmonary edema, cardiomegaly, cardiothoracic ratio (CTR), AP diameter ratio, bronchiectasis, severity score.
+
+Termos “fora do comum” (tórax):
+
+“pleural effusion CT volume estimation formula”
+
+“interpleural distance method”
+
+“Goecke / Hazlinger” (às vezes aparece em estimativas; sempre validar)
+
+“CT pulmonary artery diameter cutoff pulmonary hypertension”
+
+“PA to aorta ratio threshold”
+
+“CT RV/LV ratio prognosis PE”
+
+“emphysema percentage -950 HU threshold”
+
+“low attenuation area percent formula”
+
+C. Abdome – Fígado / portal / VB
+
+PT: esteatose hepática, índice hepatorrenal, hepatorenal index, atenuação fígado/baço, razão fígado/baço, fração de gordura, Dixon, PDFF, elastografia (se tiver fórmula), hipertensão portal, diâmetro da veia porta, congestão portal, varizes, TIPS, gradiente (quando descrito), LI-RADS crescimento limiar, washout, cápsula.
+EN: hepatic steatosis, hepatorenal index (HRI), liver-to-kidney ratio, liver-to-spleen attenuation ratio, fat fraction, Dixon, PDFF, elastography (if formula exists), portal hypertension, portal vein diameter, portal congestion, varices, TIPS, gradient, LI-RADS threshold growth, washout, capsule.
+
+Termos “garra”:
+
+“hepatorenal index ultrasound formula”
+
+“liver spleen attenuation ratio CT cutoff steatosis”
+
+“PDFF equation MRI Dixon”
+
+“threshold growth LI-RADS definition”
+
+D. Pâncreas
+
+PT: pancreatite, CT severity index, modified CT severity index, necrose percentual, coleções, ducto pancreático diâmetro cutoff, gordura pancreática, fração de gordura pancreática RM, atrofia, índice (se existir), pancreatite crônica critérios mensuráveis.
+EN: pancreatitis, CT severity index, modified CT severity index, necrosis percent, collections, pancreatic duct diameter cutoff, pancreatic fat, pancreatic fat fraction MRI, atrophy, index (if exists), chronic pancreatitis measurable criteria.
+
+Termos “fora do comum”:
+
+“pancreatic fat fraction Dixon formula”
+
+“pancreatic duct diameter normal values CT MRI cutoff”
+
+“necrosis percentage scoring pancreatitis”
+
+E. Baço
+
+PT: volume esplênico, índice esplênico, esplenomegalia critérios, relação baço/fígado, congestão, hipertensão portal, trauma esplênico (escore se mensurável), densidade/atenuação.
+EN: splenic volume, splenic index, splenomegaly criteria, spleen-to-liver ratio, congestion, portal hypertension, splenic trauma score (if quantitative), attenuation.
+
+Termos “garra”:
+
+“splenic index formula”
+
+“spleen volume ellipsoid formula CT”
+
+“normal spleen volume cutoff”
+
+F. Uro/Rim (inclui DRPAD)
+
+PT: Bosniak 2019, nefrometria RENAL, PADUA, cistos, volume renal total, volume renal total ajustado pela altura (ht-TKV/ht-VRT), DRPAD/ADPKD, Mayo imaging classification, TKV, eGFR (se usado em protocolo), hidronefrose diâmetro ântero-posterior, estenose artéria renal Doppler, RI renal transplante, índice parenquimatoso, razão córtico-medular (se existir).
+EN: Bosniak 2019, RENAL nephrometry, PADUA, cysts, total kidney volume (TKV), height-adjusted TKV (ht-TKV), ADPKD, Mayo imaging classification, hydronephrosis anteroposterior diameter, renal artery stenosis Doppler, transplant renal resistive index, parenchymal index, corticomedullary ratio (if exists).
+
+Termos “fora do comum”:
+
+“height adjusted total kidney volume ht-TKV mL/m”
+
+“Mayo imaging classification ADPKD htTKV age”
+
+“TKV ellipsoid formula MRI CT”
+
+“renal pelvis AP diameter cutoff adults”
+
+G. Adrenais
+
+PT: washout absoluto, washout relativo, adenoma, HU sem contraste, fase portal/tardia, chemical shift, índice de intensidade de sinal, SII, razão fora/fase, razão adrenal/baço, CSI ratio.
+EN: absolute washout, relative washout, adenoma, unenhanced HU, portal venous/delayed phase, chemical shift, signal intensity index (SII), opposed/in-phase ratio, adrenal-to-spleen ratio, CSI ratio.
+
+Termos “garra”:
+
+“adrenal absolute washout formula”
+
+“relative washout equation adrenal”
+
+“signal intensity index chemical shift adrenal formula”
+
+“adrenal-to-spleen ratio opposed in-phase”
+
+H. Próstata e pelve masculina
+
+PT: volume prostático (elipsoide), densidade de PSA, PI-RADS, pós-radioterapia, PI-RR, pós-prostatectomia (recidiva local – critérios mensuráveis), ADC (se aplicável em paper; com cautela), relação lesão/zonas.
+EN: prostate volume (ellipsoid), PSA density, PI-RADS, post-radiotherapy, PI-RR, post-prostatectomy (local recurrence measurable criteria), ADC (paper-specific; careful), lesion-to-zone metrics.
+
+Termos “fora do comum”:
+
+“PI-RR prostate MRI recurrence score”
+
+“post-radiotherapy prostate MRI scoring system”
+
+“PSA density cutoff MRI”
+
+“prostate volume ellipsoid formula TRUS MRI”
+
+I. Gineco/Ob
+
+PT: O-RADS US, O-RADS RM, tamanho/crescimento, biometria fetal, CRL, MSD, Hadlock, peso fetal estimado, volume ovariano, volume uterino, índices Doppler uterino/umbilical (se entrar), PUL (se houver regra mensurável).
+EN: O-RADS US, O-RADS MRI, size/growth, fetal biometry, CRL, MSD, Hadlock, estimated fetal weight, ovarian volume, uterine volume, uterine/umbilical Doppler indices.
+
+Termos “garra”:
+
+“CRL gestational age equation”
+
+“MSD gestational age formula”
+
+“Hadlock EFW equation”
+
+“ovarian volume ellipsoid formula”
+
+J. Tireoide
+
+PT: TI-RADS ACR, EU-TIRADS, volume tireoidiano, volume lobar, critérios por pontos, cutoffs por tamanho para PAAF.
+EN: ACR TI-RADS, EU-TIRADS, thyroid volume, lobe volume, point-based criteria, FNA size thresholds.
+
+Termos “garra”:
+
+“thyroid volume formula ellipsoid”
+
+“ACR TI-RADS FNA size cutoff”
+
+K. Doppler (geral e avançado por território)
+
+PT: índice de resistência (IR/RI), índice de pulsatilidade (IP/PI), razão sistólica (S/D), velocidade sistólica de pico (VPS/PSV), velocidade diastólica final (VDF/EDV), razão PSV (ICA/CCA), RAR renal-aorta, tempo de aceleração (AT), índice de aceleração (AI), congestão portal (congestion index), VCI colapsabilidade, fluxo hepatopetal/hepatofugal, onda trifásica/bifásica (se mensurável), TIPS velocidades.
+EN: resistive index (RI), pulsatility index (PI), systolic/diastolic ratio (S/D), peak systolic velocity (PSV), end-diastolic velocity (EDV), PSV ratios (ICA/CCA), renal-aortic ratio (RAR), acceleration time (AT), acceleration index (AI), portal congestion index, IVC collapsibility, hepatopetal/hepatofugal, triphasic/biphasic waveform (if measurable), TIPS velocity thresholds.
+
+Termos “fora do comum”:
+
+“portal vein congestion index Doppler formula”
+
+“IVC collapsibility index equation”
+
+“TIPS Doppler velocity criteria threshold”
+
+“renal transplant resistive index cutoff prognosis”
+
+L. “Clássicos de plantão” (quantificação universal)
+
+PT: fórmula do elipsoide, ABC/2, variação percentual, taxa de crescimento anual, densidade (HU), razão estrutura/referência, normalização por altura/SC, estimativa de volume por segmentos, área/volume por ROI, atenuação média, desvio padrão, limiar -950 HU (enfisema), -190 a -30 HU (gordura; contexto), etc.
+EN: ellipsoid formula, ABC/2, percent change, annual growth rate, density (HU), structure/reference ratio, height/BSA normalization, ROI-based area/volume, mean attenuation, standard deviation, -950 HU threshold (emphysema), -190 to -30 HU fat (context).
+
+Templates de busca universais (use sempre):
+
+“<organ/system> volume formula CT MRI ellipsoid”
+
+“<finding> severity index score CT”
+
+“<vessel/territory> Doppler criteria PSV EDV ratio cutoff”
+
+“<condition> classification imaging quantitative criteria”
+
+“<index name> formula original paper”

@@ -21,6 +21,12 @@ import {
     PdfGroupSchema,
     ImageGroupSchema
 } from '../adapters/schemas';
+import {
+    CaseBundleSchema,
+    CaseMetadataSchema,
+    ComparisonModeSchema,
+    ProtocolTypeSchema,
+} from './case-bundle';
 
 // --- TIPOS INFERIDOS DO ZOD (CORE DATA) ---
 
@@ -53,6 +59,12 @@ export type PdfGlobalGroupingResult = z.infer<typeof PdfGlobalGroupingSchema>;
 export type ImagesGlobalGroupingResult = z.infer<typeof ImagesGlobalGroupingSchema>;
 export type PdfGroup = z.infer<typeof PdfGroupSchema>;
 export type ImageGroup = z.infer<typeof ImageGroupSchema>;
+
+// Case bundle (input normalizado)
+export type CaseBundle = z.infer<typeof CaseBundleSchema>;
+export type CaseMetadata = z.infer<typeof CaseMetadataSchema>;
+export type ComparisonMode = z.infer<typeof ComparisonModeSchema>;
+export type ProtocolType = z.infer<typeof ProtocolTypeSchema>;
 
 // --- TIPOS DE APLICAÇÃO / UI (MANUAIS) ---
 // Estes tipos não vêm diretamente da IA, mas controlam o estado da interface

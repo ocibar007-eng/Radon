@@ -1,0 +1,68 @@
+# CADASTRO DO ATENDIMENTO
+- **Paciente:** PACIENTE_P8
+- **OS:** [REDACTED_OS]
+- **Exame:** TCURO
+- **Data:**
+
+# RESUMO CLÍNICO (DADOS ADMINISTRATIVOS E ASSISTENCIAIS)
+Resumo Clínico Estruturado
+
+Paciente: PACIENTE_P8
+ID/Prontuário: [REDACTED_ID]
+Idade/Sexo: 53 anos, Feminino
+Convênio: [REDACTED_CONVENIO]
+Tipo de exame: TCURO (Tomografia de Vias Urinárias)
+Data/Hora: [REDACTED_DATETIME]
+Local/Serviço: [REDACTED_LOCAL]
+Médico: [REDACTED_MEDICO]
+
+1. RESUMO EXECUTIVO
+• Paciente com histórico de nefrolitíase e litotripsia prévia realiza TC para controle. Exame conduzido sem contraste iodado devido a historico alergico grave relatado.
+
+2. PERGUNTA CLÍNICA
+• Dúvida principal: Controle de cálculos renais e avaliação de hematúria.
+• Indicação literal: Tomografia Computadorizada Rins e Vias Urinárias - Nefrolitíase. CID: N20.
+• Sintoma principal + tempo: Hematúria esporádica.
+
+3. HISTÓRIA DA DOENÇA ATUAL
+• Início/evolução/intensidade: Acompanhamento crônico de nefrolitíase.
+• Sinais/sintomas-chave: Hematúria esporádica.
+• Hipóteses consideradas: Nefrolitíase recidivante / Cálculo coraliforme ou obstrutivo.
+
+4. CIRURGIA E PROCEDIMENTOS PRÉVIOS
+• Litotripsia realizada em 2024.
+• Miomectomia e cirurgia para aderências de endometriose.
+• Cesárea.
+
+5. ANTECEDENTES E COMORBIDADES
+• Oncologia: Nega histórico de neoplasias.
+• Doenças crônicas: Endometriose.
+• Histórico familiar/gineco-obstétrico: Menopausa.
+
+6. MEDICAÇÕES E CONDIÇÕES QUE MUDAM CONDUTA
+• Uso de Venlafaxina e Minoxidil.
+
+7. ALERGIA E SEGURANÇA
+• Alergia a contraste iodado: Sim, relatada pela paciente e anotada pela técnica.
+• Outras alergia: Sulfa e Camarão.
+• Gestação: Não (Menopausa).
+
+8. LABORATÓRIO RELEVANTE
+• Solicitados em 17/12/25: Creatinina, Urina 24h (Cálcio, Citrato, Oxalato), Paratormônio (resultados não disponíveis no prontuário).
+
+9. EXAMES PRÉVIOS E COMPARATIVOS
+• Exames anteriores: Relatado histórico de exames anteriores na mesma instituição.
+
+10. STATUS OPERACIONAL
+• Contraste: Realizado SEM CONTRASTE por opção de segurança da paciente devido à alergia
+• Peso: 69 kg | Altura: 1,67 m.
+• Intercorrências: Nenhuma relatada durante a aquisição sem contraste.
+
+11. TEXTO DO PEDIDO (LEGÍVEL)
+• Tomografia Computadorizada Rins e Vias Urinárias. Sust- Nefrolitíase. CID: N20.
+
+# LAUDOS PRÉVIOS NA ÍNTEGRA (DOCUMENTO ORIGINAL)
+
+# TRANSCRIÇÕES DE DITADO
+- [00:00] Certo, então aqui feito um exame sem contraste também, tá? Vamos começar aqui pela relação dos rins e vias urinárias, tá? É... identificado aí múltiplos cálculos renais aí bilaterais, tá? De variadas dimensões, sendo pelo menos identificados aí [00:15] entre até aproximadamente quase 10 cálculos no rim direito, tá? E pelo menos outros [00:30] seis cálculos no rim esquerdo, tá? Lembrar que cálculos podem se fragmentar então pode aumentar em quantidade, não necessariamente atribuir a uma piora ou aumento do quadro, tá? Destacando-se aí um cálculo aí de maiores dimensões, tá? Localizado aí no polo inferior do rim direito, tá? Medindo aí [00:45] cerca de 7,7 mm, tá? Densidade média aí estimada em 954, tá? Cuja distância até a pele é de 10,6, 11,2 e 10,2 cm, tá? Somente colocar a média. Aí destaque para um outro cálculo também aí no polo inferior, tá? Com cerca de 5,8 mm, tá certo? Sendo que este cálculo aí exibe uma densidade média, tá? De aproximadamente aí 463, tá? [01:00] distando esse cálculo aí... fazendo a remedia desse cálculo, ele é um pouco maior, tá? Medida de até 6,0 mm e a distância média desse cálculo até a pele, tá? É de aproximadamente aí 7,0 cm, 7,8 cm e 8,7 cm da pele. Outros pequenos cálculos aí também, tá? Com até, por exemplo, 4,0 mm no terço médio do rim direito, os outros com dimensões ainda menores do que estas, tá? E no rim [01:15] esquerdo, tá? Destaque para cálculo aí entre o terço médio e polo inferior, com cerca de 5,0 mm, com cerca de 844 unidades Hounsfield, tá? [01:30] distando ele aí, fazendo a remedia desse cálculo, ele é um pouco maior, tá? Medida de até 6,0 mm e a distância média desse cálculo até a pele, tá? É de aproximadamente aí 7,0 cm, 7,8 cm e 8,7 cm da pele, tá? [01:45] Aquele aí a gente nota um outro cálculo também de maiores dimensões ali no polo inferior, tá? Do rim esquerdo, tá? Sendo as medida dele ali estimada em cerca aí de 4,9 mm, tá? [02:00] Medida da densidade não foi feito devido a essas pequenas dimensões e efeito de volume parcial. Os outros todos medindo menos do que este último cálculo que foi medido, tá certo? Aí na análise comparativa com estudo anterior aparentemente, no visual, a gente observa aí um no rim esquerdo um os cálculos aparentemente, relativamente, tá? [02:15] estáveis, tá? Com o mínimo aumento aí das dimensões, mas de difícil mensuração por conta de efeito de volume parcial e das pequenas dimensões, tá? E um leve aumento das dimensões aparentes, tá? E possível no cálculo nos rins no rim direito com uma possível leve migração dos cálculos intrarrenais, tá? [02:30] e um aumento sobretudo do cálculo daquele maior medido, tá? Esse cálculo foi o que exibiu maior aumento das dimensões, tá? O comparativo foi feito aqui com uma reanálise das imagens, tá? No tenho acesso embora eu tenha acesso ao ao laudo anterior de 22 de maio de 2023, preferi fazer a reanálise das imagens do próprio radiologista para não inferir em erro técnico, tá? Comparativo. [03:00] Sem dilatação do sistema coletor, sem outras alterações renais perceptíveis ao estudo sem contraste, tá? Sem cálculos ureterais nos trajetos visíveis, bexiga parcialmente repleta, avaliação parcialmente limitada, mas sem evidência de cálculos, [03:15] um pequeno flebólitos ali na região da escavação pélvica, sobretudo à esquerda. Bexiga parcialmente repleta, avaliação limitada, né? Sem dilatação do sistema coletor, planos adiposos perirrenais preservados. [03:30] Agora em relação ao restante aqui, né? Fígado aparentemente normal, avaliação de lesões focais limitada, sem evidência de cirrose aparente, tá? Veias hepáticas com calibre preservado e veia porta também, [03:45] e a aorta e veias cavas mais avaliação da perviedade limitada, aterosclerose aórtica sem constituir aneurisma. Hmm... O estômago estendido por conteúdo líquido mais avaliação limitada, sem outras alterações, [04:00] alçada duodenal colapsada, vesícula biliar aparentemente OK, possível variante anatômica com aspecto em barrete frígio, sem outras alterações ao método sem contraste, sem dilatação significativa das vias biliares, [04:15] pâncreas aparentemente OK, baço também sem alterações significativas, as adrenais também preservadas, é... sem aparentes linfonodomegalias aqui abdominais e no retroperitônio, tá? Leve coprostasia retal, leve redundância do cólon sigmoide com algum esboçando alguns pequenos divertículos sem [04:30] acometimento inflamatório em atividade, tá? [04:45] Avaliação também intestinal levemente limitada, apêndice cecal OK, junção ileocecal também sem alterações significativas, disposição normal das alças ileais e jejunais, [05:00] sem outras alterações significativas, órgãos pélvicos de avaliação limitada, sem evidências de massas ou outras alterações significativas, tá? E uma [05:15] cicatriz umbilical levemente proeminente com sinais de possível manipulação na sua topografia, pode ter sido manipulada ou não, não dá para ter certeza, tá? Coloque isto, [05:30] é... não dá para descartar hérnia umbilical ou proeminência da de conteúdo gorduroso na região da cicatriz umbilical, redução difusa da textura mineral óssea, leves alterações degenerativas incipientes sem fraturas, [05:45] sem outras alterações significativas, tá? É... implantes mamários parcialmente visualizados, atelectasias laminares no lobo médio, língula e segmentos basais dos lobos inferiores, [06:00] possibilidade de um pequeno nódulo de aspecto poligonal na projeção do segmento basal lateral e segmento basal posterior do lobo inferior direito, subpleural, tá? Medindo ali cerca de 7,0 mm, tá? [06:15] inespecífico, mas e que também não é bem avaliado por aqui, é... no subcutâneo granulomas calcificados residuais aí esparsos bilaterais, tá? [06:30] e basicamente é isto, tá? Um nódulo de Schmorl ao nível de na porção superior do platô superior de T12, tá? E basicamente é estes são estes os achados então aí de mayor relevância, tá? [06:45] linfonodos inguinais superficiais de aspecto aparentemente reacional.
+- [00:00] [barulho] [00:11] Então, feito uma fase única aqui sem contraste, tá? As dimensões hepáticas aí ligeiramente aumentadas, 15,8 centímetros lobo hepático direito, lobo esquerdo 11,2 no eixo longitudinal, tá? Contornos regulares. [00:29] Coeficiente de atenuação de 49 unidades, tá? Visualizado uma lesão de natureza aparentemente hipoatenuante, possivelmente cística, tá? Na projeção do segmento hepático dois barra quatro, medindo 4,1 centímetros, tá? Atenuação de 11,8 unidades Hounsfield, tá? [00:57] Outras alterações mais difíceis de serem visualizadas, ainda mais ao estudo sem contraste, sem evidência aparente de cirrose, ressalva para a limitação ao estudo sem contraste. Vesícula biliar ok, vias biliares ok, pâncreas ok, tá? Baço ok, algumas pequenas imagens hipoatenuantes focais aí esparsas pelo baço inespecíficas, tá? Coeficiente de atenuação variável, por vezes até mesmo esboçando conteúdo gorduroso, tá? Mas inespecíficas embora aparentemente sem aparente significado patológico, tá? [01:38] Adrenais ok, tá? Os vasos avaliação da perviedade limitada, tá? Embora sem evidência de aneurismas detectáveis, sem aparentes linfonodomegalias aí pélvicas e no abdome, né? Exceto ali tem um leve aumento da quantidade de linfonodos no mesentério jejunal à esquerda, um linfonodo mais proeminente em topografia ali pericecal à direita, tá? No menor eixo com até 1,1 centímetro, no maior eixo com 1,7 centímetro. [02:16] Apêndice vermiforme ok, junção ileocecal ali ok, tá? Os demais segmentos cólicos aí levemente colapsados com pequenos divertículos, sem acometimento inflamatório em atividade, tá? Órgãos pélvicos avaliação limitada, bexiga parcialmente repleta, sem alterações significativas, tá? [02:47] Um diminuto focos cáusticos aí esparsos por ambos os rins, muito pequenos para serem bem avaliados e medidos, com menos de, por exemplo, dois milímetros, podem representar são inespecíficos mas podem representar microcálculos incipientes diante do contexto clínico, tá? Sem dilatação significativa aí do sistema coletor, tá? Presença de um cálculo [incerto: proximal UV] à direita, tá? Imagem chave figura um A B C, reconstrução nos eixos axial, coronal e sagital, no cruzamento das linhas de referência em verde, demonstrando esse cálculo que não determina dilatação significativa do sistema coletor a montante, tá? E mede cerca de 4,0 milímetros no maior eixo, tá? [03:59] Sem outros cálculos ureterais visualizados, sem dilatação do sistema coletor, tá? A gente nota imagens císticas, tá? Esparsas aí pelo rim esquerdo, tá? No podem ser cistos mas não dá para ter certeza, ainda mais ao estudo sem contraste, um deles aí no terço médio lateral do rim esquerdo com uma possível calcificação periférica medindo cerca de 2,0 centímetros. Existe a possibilidade de ser um cisto Bosniak dois, mas o estudo com contraste seria melhor para avaliação e classificação Bosniak, tá? Mas é o mais provável, é um cisto e o mais provável é a classificação Bosniak dois. [04:44] Uma protuberância aí da gordura na região da cicatriz umbilical, não dá para diferenciar entre hérnia e lipomatose focal. A bexiga pouco repleta, sem outras alterações ali relevantes. Alterações leves aí esparsas pela coluna vertebral, tá? Sem evidência de fraturas. [05:08] Granulomas subcutâneos calcificados residuais esparsos pelo subcutâneo, mais evidente à direita. O estômago distendido por resíduos alimentares, avaliação bem limitada, arcada duodenal ali colapsada, as alças ileais e jejunais bem distribuídas, embora esta avaliação seja parcialmente limitada. Aí lembrar que eu te falei também daquela leve hepatomegalia e no arcabouço torácico não vejo alterações significativas dignas de nota. Linfonodos inguinais superficiais de aspecto aparentemente reacional.

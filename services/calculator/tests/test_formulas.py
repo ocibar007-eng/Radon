@@ -1,26 +1,57 @@
 import pytest
-from ..formulas import *
+from ..formulas import (
+    calculate_resistive_index,
+    calculate_adrenal_absolute_washout,
+    grade_hepatic_steatosis_ct,
+    calculate_ankle_brachial_index,
+    calculate_nascet_stenosis,
+    calculate_stone_skin_distance_mean,
+    classify_nodule_fleischner_2017,
+    measure_bile_duct_diameter,
+)
 
-def test_volume_ellipsoid():
-    assert volume_ellipsoid(5, 4, 3) == 31.2  # 0.52 * 5 * 4 * 3
 
-def test_resistive_index():
-    assert resistive_index(100, 30) == 0.7
-    assert resistive_index(0, 30) is None  # divisao por zero
+def test_calculate_resistive_index():
+    result = calculate_resistive_index(100, 30)
+    assert result["value"] == 0.7
+    assert "Borderline" in result["category"]
 
-def test_adrenal_washout_abs():
-    # Pre=10, Portal=100, Delayed=40 -> 66.7%
-    result = adrenal_washout_abs(10, 100, 40)
-    assert result == 66.7
 
-def test_steatosis_grade():
-    assert steatosis_grade(30, 50) == "moderada a acentuada"
-    assert steatosis_grade(45, 50) == "leve"
-    assert steatosis_grade(55, 50) == "ausente"
+def test_calculate_adrenal_absolute_washout():
+    result = calculate_adrenal_absolute_washout(10, 100, 40)
+    assert result["value"] == 66.7
+    assert result["category"] == "Adenoma"
 
-def test_percent_change():
-    assert percent_change(15, 10) == 50.0  # +50%
-    assert percent_change(8, 10) == -20.0  # -20%
 
-def test_sum_target_lesions():
-    assert sum_target_lesions([10.0, 15.5, 8.3]) == 33.8
+def test_grade_hepatic_steatosis_ct():
+    result = grade_hepatic_steatosis_ct(30, 50)
+    assert result["value"] == -20.0
+    assert result["category"] == "Esteatose moderada"
+
+
+def test_calculate_ankle_brachial_index():
+    result = calculate_ankle_brachial_index(90, 100)
+    assert result["value"] == 0.9
+    assert result["category"] == "PAD leve-moderada"
+
+
+def test_calculate_nascet_stenosis():
+    result = calculate_nascet_stenosis(2, 4)
+    assert result["value"] == 50.0
+    assert "moderada" in result["category"]
+
+
+def test_calculate_stone_skin_distance_mean():
+    result = calculate_stone_skin_distance_mean(100, 110, 90)
+    assert result["value"] == 100.0
+
+
+def test_classify_nodule_fleischner_2017():
+    result = classify_nodule_fleischner_2017(5, "solido", "baixo")
+    assert result["value"] == "Follow-up 12 meses"
+
+
+def test_measure_bile_duct_diameter():
+    result = measure_bile_duct_diameter(8)
+    assert result["value"] == 8.0
+    assert result["category"] == "Dilatado leve"

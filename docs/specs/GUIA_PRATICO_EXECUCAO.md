@@ -766,9 +766,16 @@ Para cada caso, criar:
 - `tests/golden-set/cases/case_001/input.json` (CaseBundle anonimizado)
 - `tests/golden-set/cases/case_001/expected_output.md` (laudo esperado)
 
+Se voce ja tiver um bundle de pre-laudo em Markdown, pode usar o layout abaixo (o script detecta automaticamente):
+- `tests/golden-set/golden_test/p1/input.md`
+- `tests/golden-set/golden_test/p1/expected_output.md`
+- `tests/golden-set/golden_test/p1/laudo_*.md` (fallback)
+
+O script `./scripts/run_golden_tests.sh` gera `input.json` automaticamente a partir de `input.md`.
+
 **Checklist:**
 - [ ] 10 casos coletados e anonimizados
-- [ ] Cada caso tem input.json e expected_output.md
+- [ ] Cada caso tem input.json + expected_output.md, ou laudo_*.md + expected output
 
 ## 5.2 Script de testes
 
@@ -778,33 +785,72 @@ Criar `scripts/run_golden_tests.sh`:
 #!/usr/bin/env bash
 set -euo pipefail
 
+shopt -s nullglob
+
 echo "=== Golden Set Tests ==="
 echo "Data: $(date)"
 echo ""
 
-CASES_DIR="tests/golden-set/cases"
 PASSED=0
 FAILED=0
+TOTAL=0
 
-for case_dir in "$CASES_DIR"/case_*; do
-  if [ -d "$case_dir" ]; then
-    case_id=$(basename "$case_dir")
-    echo "Testing $case_id..."
+CASE_DIRS=("tests/golden-set/cases" "tests/golden-set/golden_test")
 
-    # Aqui você chama o pipeline e compara
-    # Por enquanto, placeholder:
-    if [ -f "$case_dir/expected_output.md" ]; then
-      echo "  ✓ Input e expected existem"
-      ((PASSED++))
-    else
-      echo "  ✗ Faltando expected_output.md"
-      ((FAILED++))
-    fi
+for base_dir in "${CASE_DIRS[@]}"; do
+  if [ ! -d "$base_dir" ]; then
+    continue
   fi
+
+  for case_dir in "$base_dir"/case_* "$base_dir"/p*; do
+    if [ -d "$case_dir" ]; then
+      case_id=$(basename "$case_dir")
+      echo "Testing $case_id..."
+      ((TOTAL++))
+
+      input_file=""
+      expected_file=""
+
+      if [ -f "$case_dir/input.json" ]; then
+        input_file="$case_dir/input.json"
+      elif [ -f "$case_dir/input.md" ]; then
+        input_file="$case_dir/input.md"
+      fi
+
+      if [ -f "$case_dir/expected_output.md" ]; then
+        expected_file="$case_dir/expected_output.md"
+      fi
+
+      if [ -z "$input_file" ] || [ -z "$expected_file" ]; then
+        md_files=("$case_dir"/*.md)
+        if [ ${#md_files[@]} -ge 2 ]; then
+          for f in "${md_files[@]}"; do
+            base_name=$(basename "$f")
+            if [[ "$base_name" == laudo_* ]]; then
+              input_file="$f"
+            else
+              expected_file="$f"
+            fi
+          done
+        fi
+      fi
+
+      # Aqui voce chama o pipeline e compara
+      # Por enquanto, placeholder:
+      if [ -n "$input_file" ] && [ -n "$expected_file" ]; then
+        echo "  OK input and expected exist"
+        ((PASSED++))
+      else
+        echo "  FAIL missing input or expected"
+        ((FAILED++))
+      fi
+    fi
+  done
 done
 
 echo ""
 echo "=== Resultado ==="
+echo "Total: $TOTAL"
 echo "Passed: $PASSED"
 echo "Failed: $FAILED"
 
@@ -816,6 +862,8 @@ fi
 ```bash
 chmod +x scripts/run_golden_tests.sh
 ```
+
+Nota: o script real no repo faz a conversao `input.md` -> `input.json`, roda o pipeline (via `RADON_PIPELINE_CMD`) e compara com `expected_output.md`.
 
 **Checklist:**
 - [ ] Script criado e executável
@@ -1027,6 +1075,7 @@ chmod +x scripts/export_metrics_csv.sh
 # PRÓXIMOS BLOCOS (após completar 1-6)
 
 ## BLOCO 7: Agentes Core
+⚠️ Aviso: so iniciar apos concluir os Blocos 1-6; depende de CaseBundle normalizado e Calculator funcionando.
 - Clinical Agent
 - Technical Agent
 - Findings Agent

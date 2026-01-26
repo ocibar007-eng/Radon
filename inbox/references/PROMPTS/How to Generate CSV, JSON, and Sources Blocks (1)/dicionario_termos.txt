@@ -1,0 +1,48 @@
+DICIONÁRIO DE SINÔNIMOS PT/EN - RADIOLOGIA QUANTITATIVA
+==========================================================
+
+A. Vascular (arterial/venoso – geral)
+PT: estenose, oclusão, aneurisma, dissecção, trombose, trombo, embolia, tromboembolismo, perfusão, fluxo, velocidade, gradiente, calibre, diâmetro, área luminal, área de secção, índice, razão, critério, cutoff, limiar, classificação, reestenose, endoleak, pós-EVAR, stent, bypass, trombose venosa profunda, TVP, trombose portal, hipertensão portal, shunt, TIPS, colaterais, varizes, congestão venosa.
+EN: stenosis, occlusion, aneurysm, dissection, thrombosis, thrombus, embolism, thromboembolism, perfusion, flow, velocity, gradient, caliber, diameter, lumen area, cross-sectional area, index, ratio, criteria, cutoff, threshold, classification, restenosis, endoleak, post-EVAR, stent, bypass, deep vein thrombosis (DVT), portal vein thrombosis, portal hypertension, shunt, TIPS, collaterals, varices, venous congestion.
+
+Termos "garra":
+EN: "velocity criteria", "PSV", "EDV", "RAR renal-aortic ratio", "NASCET", "ECST", "peak systolic velocity", "diameter stenosis percentage formula", "area stenosis", "pulsatility index", "resistive index", "congestion index"
+PT: "critérios por velocidade", "VPS", "VDF", "razão renal-aorta", "percentual de estenose", "estenose por área", "índice de pulsatilidade", "índice de resistência", "índice de congestão".
+
+A1. Carótidas/vertebrais
+PT: NASCET, ECST, estenose carotídea, placa, critério Doppler carótida, VPS, VDF, razão ICA/CCA, estenose vertebral.
+EN: NASCET, ECST, carotid stenosis, plaque, carotid Doppler criteria, PSV, EDV, ICA/CCA ratio, vertebral stenosis.
+
+A2. Aorta (aneurisma/dissecção)
+PT: diâmetro aórtico, crescimento anual, taxa de crescimento, aneurisma abdominal/torácico, zona de aterrissagem, endoleak tipo I–V, índice de tortuosidade, ângulo do colo.
+EN: aortic diameter, annual growth, growth rate, AAA, TAA, landing zone, endoleak type I–V, tortuosity index, neck angulation.
+
+A3. Artérias renais/mesentéricas/periféricas
+PT: estenose artéria renal, critério Doppler renal, RAR, tempo de aceleração, índice de aceleração, tardus-parvus, estenose mesentérica, isquemia mesentérica, membros inferiores, ABI (se entrar), critérios por velocidade.
+EN: renal artery stenosis, renal Doppler criteria, RAR, acceleration time, acceleration index, tardus-parvus, mesenteric stenosis, mesenteric ischemia, lower limb arterial, velocity criteria.
+
+A4. Veias (TVP/portal/hepática/IVC)
+PT: TVP, compressibilidade, trombose portal, fluxo portal hepatopetal/hepatofugal, veias hepáticas, índice de congestão portal, índice de colapsabilidade da VCI.
+EN: DVT, compressibility, portal vein thrombosis, hepatopetal/hepatofugal flow, hepatic veins, portal congestion index, IVC collapsibility index.
+
+B. Tórax (TC/RX/US)
+PT: derrame pleural, volume do derrame, estimativa volumétrica, atelectasia compressiva, consolidação, enfisema, índice de enfisema, LAA (área de baixa atenuação), densitometria, TEP, carga trombótica, índice de obstrução, RV/LV ratio, tronco pulmonar, PA:Aorta ratio, hipertensão pulmonar, edema pulmonar, cardiomegalia, CTR, razão AP/diâmetro, bronquiectasias, escore de gravidade.
+EN: pleural effusion, effusion volume, volumetric estimation, compressive atelectasis, consolidation, emphysema, emphysema index, LAA (low attenuation area), densitometry, pulmonary embolism (PE), clot burden, obstruction index, RV/LV ratio, main pulmonary artery, PA:Aorta ratio, pulmonary hypertension, pulmonary edema, cardiomegaly, cardiothoracic ratio (CTR), AP diameter ratio, bronchiectasis, severity score.
+
+Termos "fora do comum" (tórax):
+- "pleural effusion CT volume estimation formula"
+- "interpleural distance method"
+- "Goecke / Hazlinger"
+- "CT pulmonary artery diameter cutoff pulmonary hypertension"
+- "PA to aorta ratio threshold"
+- "CT RV/LV ratio prognosis PE"
+- "emphysema percentage -950 HU threshold"
+- "low attenuation area percent formula"
+
+K. Doppler (geral e avançado por território)
+PT: índice de resistência (IR/RI), índice de pulsatilidade (IP/PI), razão sistólica (S/D), velocidade sistólica de pico (VPS/PSV), velocidade diastólica final (VDF/EDV), razão PSV (ICA/CCA), RAR renal-aorta, tempo de aceleração (AT), índice de aceleração (AI), congestão portal (congestion index), VCI colapsabilidade, fluxo hepatopetal/hepatofugal, onda trifásica/bifásica (se mensurável), TIPS velocidades.
+EN: resistive index (RI), pulsatility index (PI), systolic/diastolic ratio (S/D), peak systolic velocity (PSV), end-diastolic velocity (EDV), PSV ratios (ICA/CCA), renal-aortic ratio (RAR), acceleration time (AT), acceleration index (AI), portal congestion index, IVC collapsibility, hepatopetal/hepatofugal, triphasic/biphasic waveform (if measurable), TIPS velocity thresholds.
+
+L. "Clássicos de plantão" (quantificação universal)
+PT: fórmula do elipsoide, ABC/2, variação percentual, taxa de crescimento anual, densidade (HU), razão estrutura/referência, normalização por altura/SC, estimativa de volume por segmentos, área/volume por ROI, atenuação média, desvio padrão, limiar -950 HU (enfisema), -190 a -30 HU (gordura; contexto), etc.
+EN: ellipsoid formula, ABC/2, percent change, annual growth rate, density (HU), structure/reference ratio, height/BSA normalization, ROI-based area/volume, mean attenuation, standard deviation, -950 HU threshold (emphysema), -190 to -30 HU fat (context).
