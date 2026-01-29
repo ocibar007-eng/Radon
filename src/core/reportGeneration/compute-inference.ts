@@ -118,6 +118,21 @@ function inferBosniak(
 ): void {
   const isKidney = normalizedOrgan.includes('RIM') || normalizedOrgan.includes('RENAL');
   const simpleCyst = isKidney && normalizedDesc.includes('CISTO SIMPLES');
+  const declaredMatch = normalizedDesc.match(/BOSNIAK\s*(IIF|IV|III|II|I|1|2F|2)/);
+  if (declaredMatch) {
+    const raw = declaredMatch[1];
+    const normalized = raw === '2F' ? 'IIF' : raw;
+    const mapped = normalized === '1' ? 'I' : normalized === '2' ? 'II' : normalized;
+    setIfMissing(inputs, 'categoria_declarada', mapped, 'categoria declarada no ditado', inferred);
+  } else if (normalizedDesc.match(/\bB1\b|\bB2\b|\bB2F\b/)) {
+    if (normalizedDesc.includes('B1')) {
+      setIfMissing(inputs, 'categoria_declarada', 'I', 'categoria declarada no ditado', inferred);
+    } else if (normalizedDesc.includes('B2F')) {
+      setIfMissing(inputs, 'categoria_declarada', 'IIF', 'categoria declarada no ditado', inferred);
+    } else if (normalizedDesc.includes('B2')) {
+      setIfMissing(inputs, 'categoria_declarada', 'II', 'categoria declarada no ditado', inferred);
+    }
+  }
 
   if (simpleCyst) {
     setIfMissing(inputs, 'realce_hu', 0, 'cisto simples informado', inferred);
@@ -126,6 +141,7 @@ function inferBosniak(
     setIfMissing(inputs, 'calcificacao', false, 'cisto simples informado', inferred);
     setIfMissing(inputs, 'fluido_simples', true, 'cisto simples informado', inferred);
     setIfMissing(inputs, 'homogeneo', true, 'cisto simples informado', inferred);
+    setIfMissing(inputs, 'categoria_declarada', 'I', 'cisto simples -> Bosniak I', inferred);
   }
 
   if (includesAny(normalizedDesc, [
@@ -138,6 +154,7 @@ function inferBosniak(
     'VOLUME PARCIAL',
   ])) {
     setIfMissing(inputs, 'muito_pequeno_caracterizar', true, 'tstc/limitacao descrita', inferred);
+    setIfMissing(inputs, 'categoria_declarada', 'II', 'TSTC -> Bosniak II', inferred);
   }
 
   const noEnhancement = includesAny(normalizedDesc, [
@@ -179,6 +196,9 @@ function inferBosniak(
   );
   if (calc !== undefined) {
     setIfMissing(inputs, 'calcificacao', calc, 'descricao do laudo', inferred);
+    if (calc && includesAny(normalizedDesc, ['CALCIFICACAO PERIFERICA', 'CALCIFICACAO FINA', 'CALCIFICACAO PERIFERICA FINA'])) {
+      setIfMissing(inputs, 'categoria_declarada', 'II', 'calcificacao fina -> Bosniak II', inferred);
+    }
   }
 
   if (normalizedDesc.includes('HOMOGENEO') || normalizedDesc.includes('HOMOGÊNEO')) {
@@ -202,9 +222,11 @@ function inferBosniak(
   }
   if (includesAny(normalizedDesc, ['ESPESSAMENTO MINIMO', 'ESPESSAMENTO MÍNIMO', 'LEVEMENTE ESPESSADA'])) {
     setIfMissing(inputs, 'parede_espessura_mm', 3, 'espessamento minimo descrito', inferred);
+    setIfMissing(inputs, 'categoria_declarada', 'IIF', 'espessamento minimo -> IIF', inferred);
   }
   if (includesAny(normalizedDesc, ['PAREDE ESPESSADA', 'ESPESSAMENTO PARIETAL'])) {
     setIfMissing(inputs, 'parede_espessura_mm', 4, 'parede espessada descrita', inferred);
+    setIfMissing(inputs, 'categoria_declarada', 'III', 'parede espessa -> III', inferred);
   }
   if (includesAny(normalizedDesc, ['PAREDE IRREGULAR', 'IRREGULARIDADE PARIETAL'])) {
     setIfMissing(inputs, 'parede_irregular', true, 'parede irregular descrita', inferred);
@@ -216,14 +238,17 @@ function inferBosniak(
   if (includesAny(normalizedDesc, ['SEPTOS FINOS', 'SEPTOS DELGADOS'])) {
     setIfMissing(inputs, 'septos', true, 'septos finos descritos', inferred);
     setIfMissing(inputs, 'septos_espessura_mm', 2, 'septos finos descritos', inferred);
+    setIfMissing(inputs, 'categoria_declarada', 'II', 'septo fino -> Bosniak II', inferred);
   }
   if (includesAny(normalizedDesc, ['SEPTOS MINIMAMENTE ESPESSADOS', 'ESPESSAMENTO MINIMO DOS SEPTOS'])) {
     setIfMissing(inputs, 'septos', true, 'septos minimamente espessados', inferred);
     setIfMissing(inputs, 'septos_espessura_mm', 3, 'septos minimamente espessados', inferred);
+    setIfMissing(inputs, 'categoria_declarada', 'IIF', 'septo minimamente espessado -> IIF', inferred);
   }
   if (includesAny(normalizedDesc, ['SEPTOS ESPESSADOS', 'SEPTOS GROSSOS'])) {
     setIfMissing(inputs, 'septos', true, 'septos espessados descritos', inferred);
     setIfMissing(inputs, 'septos_espessura_mm', 4, 'septos espessados descritos', inferred);
+    setIfMissing(inputs, 'categoria_declarada', 'III', 'septo espesso -> III', inferred);
   }
   if (includesAny(normalizedDesc, ['SEPTOS IRREGULARES', 'IRREGULARIDADE DOS SEPTOS'])) {
     setIfMissing(inputs, 'septos_irregulares', true, 'septos irregulares descritos', inferred);
@@ -234,6 +259,12 @@ function inferBosniak(
   const septaCount = inferSeptaCount(normalizedDesc);
   if (septaCount !== null) {
     setIfMissing(inputs, 'numero_septos', septaCount, 'quantidade de septos descrita', inferred);
+    if (septaCount >= 4) {
+      const septosMm = (inputs.septos_espessura_mm as number | undefined) ?? 2;
+      if (septosMm <= 2) {
+        setIfMissing(inputs, 'categoria_declarada', 'IIF', '>=4 septos finos -> IIF', inferred);
+      }
+    }
   } else if (includesAny(normalizedDesc, ['POUCOS SEPTOS', 'ALGUNS SEPTOS'])) {
     setIfMissing(inputs, 'numero_septos', 2, 'poucos septos descritos', inferred);
   }
@@ -248,9 +279,29 @@ function inferBosniak(
   const hu = extractHuValues(normalizedDesc);
   if (hu.pre !== undefined) {
     setIfMissing(inputs, 'atenuacao_hu_pre', hu.pre, 'atenuacao HU descrita', inferred);
+    if (hu.pre >= 70) {
+      setIfMissing(inputs, 'categoria_declarada', 'II', 'hiperatenuacao >=70 HU -> II', inferred);
+    } else if (hu.pre > 20) {
+      setIfMissing(inputs, 'categoria_declarada', 'II', 'hiperatenuacao >20 HU -> II', inferred);
+    }
   }
   if (hu.portal !== undefined) {
     setIfMissing(inputs, 'atenuacao_hu_portal', hu.portal, 'atenuacao HU fase portal descrita', inferred);
+    if (hu.portal >= 21 && hu.portal <= 30) {
+      setIfMissing(inputs, 'categoria_declarada', 'II', 'portal 21-30 HU -> II', inferred);
+    }
+  }
+
+  if (includesAny(normalizedDesc, ['HIPERDENSO', 'HIPERDENSIDADE']) && includesAny(normalizedDesc, ['SEM CONTRASTE', 'PRE-CONTRASTE', 'PRE CONTRASTE'])) {
+    setIfMissing(inputs, 'categoria_declarada', 'II', 'hiperdenso sem contraste -> II', inferred);
+  }
+  if (includesAny(normalizedDesc, ['MAIOR DO QUE 20', 'ACIMA DE 20']) && includesAny(normalizedDesc, ['SEM CONTRASTE', 'PRE-CONTRASTE', 'PRE CONTRASTE'])) {
+    setIfMissing(inputs, 'atenuacao_hu_pre', 25, 'densidade >20 sem contraste', inferred);
+    setIfMissing(inputs, 'categoria_declarada', 'II', 'densidade >20 sem contraste -> II', inferred);
+  }
+  if (includesAny(normalizedDesc, ['ENTRE 21 E 30', '21 A 30']) && includesAny(normalizedDesc, ['PORTAL', 'VENOSA', 'FASE PORTAL'])) {
+    setIfMissing(inputs, 'atenuacao_hu_portal', 25, 'densidade portal 21-30', inferred);
+    setIfMissing(inputs, 'categoria_declarada', 'II', 'portal 21-30 HU -> II', inferred);
   }
 
   const paredeEsp = extractNumberWithUnitNear(normalizedDesc, 'PAREDE', 'MM');
@@ -265,6 +316,7 @@ function inferBosniak(
 
 function getBosniakMissing(inputs: Record<string, unknown>): string[] {
   const hasSignal = [
+    'categoria_declarada',
     'fluido_simples',
     'muito_pequeno_caracterizar',
     'atenuacao_hu_pre',

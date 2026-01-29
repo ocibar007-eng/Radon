@@ -413,7 +413,23 @@ def classify_renal_cyst_bosniak_2019(
     hiperintenso_t1_heterogeneo_fs: Optional[bool] = None,
     muito_pequeno_caracterizar: Optional[bool] = None,
     fluido_simples: Optional[bool] = None,
+    categoria_declarada: Optional[str] = None,
 ):
+    if categoria_declarada:
+        declared = _normalize_text(categoria_declarada).replace('bosniak', '').replace('categoria', '').replace(' ', '')
+        if declared.startswith('b'):
+            declared = declared[1:]
+        if declared in {"i", "1"}:
+            return _result("I")
+        if declared in {"ii", "2"}:
+            return _result("II")
+        if declared in {"iif", "2f", "2f", "2f"}:
+            return _result("IIF")
+        if declared in {"iii", "3"}:
+            return _result("III")
+        if declared in {"iv", "4"}:
+            return _result("IV")
+
     modality = _normalize_text(modalidade)
     is_mri = modality in {"rm", "mri", "ressonancia", "ressonancia_magnetica"}
     is_ct = not is_mri

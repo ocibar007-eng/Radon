@@ -92,3 +92,10 @@ def test_classify_bosniak_nodule():
         nodulo_tamanho_mm=5,
     )
     assert result["value"] == "IV"
+
+
+def test_classify_bosniak_declared():
+    result = classify_renal_cyst_bosniak_2019(
+        categoria_declarada="B2F",
+    )
+    assert result["value"] == "IIF"

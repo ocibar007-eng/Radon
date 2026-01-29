@@ -1427,6 +1427,12 @@
         "type": "boolean",
         "required": "false",
         "notes": "Fluido simples (cisto simples)"
+      },
+      {
+        "name": "categoria_declarada",
+        "type": "string",
+        "required": "false",
+        "notes": "Categoria Bosniak declarada (I, II, IIF, III, IV)"
       }
     ],
     "preprocessing": [

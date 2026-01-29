@@ -970,6 +970,7 @@ export const FormulaInputSchemaMap = {
   "atenuacao_hu_portal": z.number().min(-20).max(200).optional(),
   "atenuacao_hu_pre": z.number().min(-20).max(200).optional(),
   "calcificacao": z.boolean().optional(),
+  "categoria_declarada": z.string().optional(),
   "componentes_solidos": z.boolean().optional(),
   "fluido_simples": z.boolean().optional(),
   "hiperintenso_t1_heterogeneo_fs": z.boolean().optional(),
@@ -1614,6 +1615,13 @@ export const FormulaMetaMap = {
         "type": "boolean",
         "required": false,
         "notes": "Fluido simples (cisto simples)"
+      },
+      {
+        "key": "categoria_declarada",
+        "label": "categoria_declarada",
+        "type": "string",
+        "required": false,
+        "notes": "Categoria Bosniak declarada (I, II, IIF, III, IV)"
       }
     ]
   },

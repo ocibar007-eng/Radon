@@ -154,4 +154,49 @@ describe('applyCautiousInference', () => {
     expect(inputs.septos_espessura_mm).toBe(3);
     expect(inputs.atenuacao_hu_pre).toBe(75);
   });
+
+  it('accepts explicit Bosniak class in dictation', () => {
+    const findings: FindingsOutput = {
+      findings: [
+        {
+          organ: 'Rim esquerdo',
+          description: 'Cisto simples Bosniak 1 no polo superior.',
+          compute_requests: [
+            {
+              formula: 'ABD-0002',
+              inputs: {},
+              ref_id: 'bosniak-5',
+            },
+          ],
+        },
+      ],
+    };
+
+    const result = applyCautiousInference(findings, 'CT');
+    expect(result.requests).toHaveLength(1);
+    const inputs = result.requests[0].inputs as Record<string, unknown>;
+    expect(inputs.categoria_declarada).toBe('I');
+  });
+
+  it('maps hyperdense non-contrast cue to Bosniak II', () => {
+    const findings: FindingsOutput = {
+      findings: [
+        {
+          organ: 'Rim direito',
+          description: 'Cisto hiperdenso no sem contraste, densidade maior do que 20.',
+          compute_requests: [
+            {
+              formula: 'ABD-0002',
+              inputs: {},
+              ref_id: 'bosniak-6',
+            },
+          ],
+        },
+      ],
+    };
+
+    const result = applyCautiousInference(findings, 'CT');
+    const inputs = result.requests[0].inputs as Record<string, unknown>;
+    expect(inputs.categoria_declarada).toBe('II');
+  });
 });
