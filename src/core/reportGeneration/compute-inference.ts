@@ -19,6 +19,56 @@ function normalizeText(value: string): string {
     .toUpperCase();
 }
 
+function normalizeNumber(raw: string): number | null {
+  const cleaned = raw.replace(',', '.');
+  const value = Number(cleaned);
+  return Number.isFinite(value) ? value : null;
+}
+
+function extractNumberNear(text: string, keyword: string): number | null {
+  const index = text.indexOf(keyword);
+  if (index === -1) return null;
+  const window = text.slice(Math.max(0, index - 30), Math.min(text.length, index + 40));
+  const match = window.match(/(\d+(?:[.,]\d+)?)/);
+  if (!match) return null;
+  return normalizeNumber(match[1]);
+}
+
+function extractNumberWithUnitNear(text: string, keyword: string, unit: string): number | null {
+  const index = text.indexOf(keyword);
+  if (index === -1) return null;
+  const window = text.slice(Math.max(0, index - 30), Math.min(text.length, index + 60));
+  const regex = new RegExp(`(\\d+(?:[.,]\\d+)?)\\s*${unit}`);
+  const match = window.match(regex);
+  if (!match) return null;
+  return normalizeNumber(match[1]);
+}
+
+function extractHuValues(normalizedDesc: string): { pre?: number; portal?: number } {
+  const huMatch = normalizedDesc.match(/(\d+(?:[.,]\d+)?)\s*HU/);
+  if (!huMatch) return {};
+  const value = normalizeNumber(huMatch[1]);
+  if (value === null) return {};
+
+  if (includesAny(normalizedDesc, ['PORTAL', 'VENOSA', 'FASE PORTAL'])) {
+    return { portal: value };
+  }
+  if (includesAny(normalizedDesc, ['SEM CONTRASTE', 'PRE-CONTRASTE', 'PRE CONTRASTE', 'NATIVO'])) {
+    return { pre: value };
+  }
+  return { pre: value };
+}
+
+function inferSeptaCount(normalizedDesc: string): number | null {
+  if (includesAny(normalizedDesc, ['4 OU MAIS SEPTOS', 'QUATRO OU MAIS SEPTOS', '>=4 SEPTOS', 'MUITOS SEPTOS', 'DIVERSOS SEPTOS'])) {
+    return 4;
+  }
+  if (includesAny(normalizedDesc, ['1-3 SEPTOS', 'UM A TRES SEPTOS', '1 A 3 SEPTOS'])) {
+    return 2;
+  }
+  return null;
+}
+
 function includesAny(text: string, needles: string[]): boolean {
   return needles.some((needle) => text.includes(needle));
 }
@@ -129,6 +179,87 @@ function inferBosniak(
   );
   if (calc !== undefined) {
     setIfMissing(inputs, 'calcificacao', calc, 'descricao do laudo', inferred);
+  }
+
+  if (normalizedDesc.includes('HOMOGENEO') || normalizedDesc.includes('HOMOGÊNEO')) {
+    setIfMissing(inputs, 'homogeneo', true, 'descricao de lesao homogenea', inferred);
+  }
+
+  if (includesAny(normalizedDesc, ['T2 MUITO HIPERINTENSO', 'T2 SEMELHANTE A LCR', 'T2 COMO LCR'])) {
+    setIfMissing(inputs, 'hiperintenso_t2_csf', true, 'descricao RM T2 compatível LCR', inferred);
+  }
+
+  if (includesAny(normalizedDesc, ['T1 MUITO HIPERINTENSO', 'T1 HIPERINTENSO MARCADO', 'T1 INTENSO'])) {
+    setIfMissing(inputs, 'hiperintenso_t1_marcado', true, 'descricao RM T1 muito hiperintenso', inferred);
+  }
+
+  if (includesAny(normalizedDesc, ['T1 HIPERINTENSO HETEROGENEO', 'T1 HIPERINTENSO HETEROGÊNEO', 'FAT-SAT HETEROGENEO'])) {
+    setIfMissing(inputs, 'hiperintenso_t1_heterogeneo_fs', true, 'descricao RM T1 heterogeneo em fat-sat', inferred);
+  }
+
+  if (includesAny(normalizedDesc, ['PAREDE DELGADA', 'PAREDE FINA', 'PAREDE LISA'])) {
+    setIfMissing(inputs, 'parede_espessura_mm', 2, 'parede fina descrita', inferred);
+  }
+  if (includesAny(normalizedDesc, ['ESPESSAMENTO MINIMO', 'ESPESSAMENTO MÍNIMO', 'LEVEMENTE ESPESSADA'])) {
+    setIfMissing(inputs, 'parede_espessura_mm', 3, 'espessamento minimo descrito', inferred);
+  }
+  if (includesAny(normalizedDesc, ['PAREDE ESPESSADA', 'ESPESSAMENTO PARIETAL'])) {
+    setIfMissing(inputs, 'parede_espessura_mm', 4, 'parede espessada descrita', inferred);
+  }
+  if (includesAny(normalizedDesc, ['PAREDE IRREGULAR', 'IRREGULARIDADE PARIETAL'])) {
+    setIfMissing(inputs, 'parede_irregular', true, 'parede irregular descrita', inferred);
+  }
+  if (includesAny(normalizedDesc, ['REALCE PARIETAL', 'REALCE DA PAREDE'])) {
+    setIfMissing(inputs, 'parede_realce', true, 'realce parietal descrito', inferred);
+  }
+
+  if (includesAny(normalizedDesc, ['SEPTOS FINOS', 'SEPTOS DELGADOS'])) {
+    setIfMissing(inputs, 'septos', true, 'septos finos descritos', inferred);
+    setIfMissing(inputs, 'septos_espessura_mm', 2, 'septos finos descritos', inferred);
+  }
+  if (includesAny(normalizedDesc, ['SEPTOS MINIMAMENTE ESPESSADOS', 'ESPESSAMENTO MINIMO DOS SEPTOS'])) {
+    setIfMissing(inputs, 'septos', true, 'septos minimamente espessados', inferred);
+    setIfMissing(inputs, 'septos_espessura_mm', 3, 'septos minimamente espessados', inferred);
+  }
+  if (includesAny(normalizedDesc, ['SEPTOS ESPESSADOS', 'SEPTOS GROSSOS'])) {
+    setIfMissing(inputs, 'septos', true, 'septos espessados descritos', inferred);
+    setIfMissing(inputs, 'septos_espessura_mm', 4, 'septos espessados descritos', inferred);
+  }
+  if (includesAny(normalizedDesc, ['SEPTOS IRREGULARES', 'IRREGULARIDADE DOS SEPTOS'])) {
+    setIfMissing(inputs, 'septos_irregulares', true, 'septos irregulares descritos', inferred);
+  }
+  if (includesAny(normalizedDesc, ['REALCE SEPTAL', 'REALCE DOS SEPTOS'])) {
+    setIfMissing(inputs, 'septos_realce', true, 'realce septal descrito', inferred);
+  }
+  const septaCount = inferSeptaCount(normalizedDesc);
+  if (septaCount !== null) {
+    setIfMissing(inputs, 'numero_septos', septaCount, 'quantidade de septos descrita', inferred);
+  } else if (includesAny(normalizedDesc, ['POUCOS SEPTOS', 'ALGUNS SEPTOS'])) {
+    setIfMissing(inputs, 'numero_septos', 2, 'poucos septos descritos', inferred);
+  }
+
+  if (includesAny(normalizedDesc, ['NODULO MURAL REALCANTE', 'NODULO REALCANTE'])) {
+    setIfMissing(inputs, 'nodulo_realce', true, 'nodulo mural realcante descrito', inferred);
+    setIfMissing(inputs, 'componentes_solidos', true, 'nodulo mural descrito', inferred);
+  } else if (normalizedDesc.includes('NODULO MURAL')) {
+    setIfMissing(inputs, 'componentes_solidos', true, 'nodulo mural descrito', inferred);
+  }
+
+  const hu = extractHuValues(normalizedDesc);
+  if (hu.pre !== undefined) {
+    setIfMissing(inputs, 'atenuacao_hu_pre', hu.pre, 'atenuacao HU descrita', inferred);
+  }
+  if (hu.portal !== undefined) {
+    setIfMissing(inputs, 'atenuacao_hu_portal', hu.portal, 'atenuacao HU fase portal descrita', inferred);
+  }
+
+  const paredeEsp = extractNumberWithUnitNear(normalizedDesc, 'PAREDE', 'MM');
+  if (paredeEsp !== null && paredeEsp <= 6) {
+    setIfMissing(inputs, 'parede_espessura_mm', paredeEsp, 'espessura parietal numerica', inferred);
+  }
+  const septoEsp = extractNumberWithUnitNear(normalizedDesc, 'SEPTO', 'MM');
+  if (septoEsp !== null && septoEsp <= 6) {
+    setIfMissing(inputs, 'septos_espessura_mm', septoEsp, 'espessura septal numerica', inferred);
   }
 }
 
