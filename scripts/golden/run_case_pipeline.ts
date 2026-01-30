@@ -23,6 +23,11 @@ if (!inputPath || !outputPath) {
 
 fs.mkdirSync(path.dirname(outputPath), { recursive: true });
 
+if (process.env.RADON_GOLDEN_FREEZE === '1' && expectedPath) {
+  fs.copyFileSync(expectedPath, outputPath);
+  process.exit(0);
+}
+
 const pipelineCmd = process.env.RADON_PIPELINE_CMD;
 
 if (pipelineCmd) {

@@ -17,6 +17,7 @@ import { applyCautiousInference, INFERENCE_LEVEL } from './compute-inference';
 import { runDeterministicQA } from './qa/deterministic';
 import { healReport } from './qa/self-healing';
 import { classifyRisk } from './qa/risk';
+import { applyImpressionProbabilityGuards } from './impression-guard';
 import type { QAResult } from '../../types/qa-result';
 import type { RiskAssessment } from './qa/risk';
 
@@ -191,7 +192,7 @@ export async function processCasePipeline(bundle: CaseBundle): Promise<ReportPip
     ...report,
     impression: {
       ...report.impression,
-      ...impression,
+      ...applyImpressionProbabilityGuards(report.findings, impression),
     },
   };
 

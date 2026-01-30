@@ -41,6 +41,40 @@ function extractJsonPayload(text: string): string | null {
   return text.slice(start, end + 1).trim();
 }
 
+function extractBalancedJson(text: string): string | null {
+  if (!text) return null;
+  const firstBrace = text.indexOf('{');
+  const firstBracket = text.indexOf('[');
+  if (firstBrace === -1 && firstBracket === -1) return null;
+
+  let start = -1;
+  let stack: string[] = [];
+  if (firstBrace !== -1 && (firstBracket === -1 || firstBrace < firstBracket)) {
+    start = firstBrace;
+  } else {
+    start = firstBracket;
+  }
+  if (start === -1) return null;
+
+  for (let i = start; i < text.length; i += 1) {
+    const ch = text[i];
+    if (ch === '{' || ch === '[') {
+      stack.push(ch);
+    } else if (ch === '}' || ch === ']') {
+      const last = stack.pop();
+      if (!last) continue;
+      if ((last === '{' && ch !== '}') || (last === '[' && ch !== ']')) {
+        continue;
+      }
+      if (stack.length === 0) {
+        return text.slice(start, i + 1).trim();
+      }
+    }
+  }
+
+  return null;
+}
+
 /**
  * Tenta fazer parse do JSON e validar com Schema Zod.
  * Retorna o fallback em caso de falha grave, ou dados parciais se o Zod conseguir recuperar defaults.
@@ -55,11 +89,16 @@ export function safeJsonParse<T>(text: string, fallback: T, schema?: ZodType<T, 
     try {
       parsed = JSON.parse(cleaned);
     } catch (parseError) {
+      const balanced = extractBalancedJson(cleaned);
+      if (balanced) {
+        parsed = JSON.parse(balanced);
+      } else {
       const extracted = extractJsonPayload(cleaned);
       if (!extracted || extracted === cleaned) {
         throw parseError;
       }
       parsed = JSON.parse(extracted);
+      }
     }
 
     // CORREÇÃO: Se a IA retornou um array quando esperávamos um objeto, tenta achar o primeiro item válido

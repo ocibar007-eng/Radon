@@ -42,7 +42,7 @@ export async function generateComparisonSummary(
     model: OPENAI_MODELS.comparison,
     input: prompt,
     responseFormat: { type: 'json_object' },
-    temperature: 0.2,
+    temperature: 0,
     maxOutputTokens: 800,
   });
 

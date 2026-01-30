@@ -18,7 +18,20 @@ export function canonicalizeMarkdown(text: string): CanonicalizeResult {
   if (!text) return { text: '', corrections: [] };
 
   const normalized = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-  const rawLines = normalized.split('\n');
+  const normalizedFixes = [
+    [/conforessonância magnéticae/gi, 'conforme'],
+    [/foressonância magnéticaa/gi, 'forma'],
+    [/noressonância magnéticaais/gi, 'normais'],
+    [/alaressonância magnéticae/gi, 'alarme'],
+    [/veressonância magnéticaiforessonância magnéticae/gi, 'vermiforme'],
+    [/deforessonância magnéticaidade/gi, 'deformidade'],
+  ] as const;
+
+  let normalizedText = normalized;
+  for (const [pattern, replacement] of normalizedFixes) {
+    normalizedText = normalizedText.replace(pattern, replacement);
+  }
+  const rawLines = normalizedText.split('\n');
 
   const cleanedLines: string[] = [];
   let lastNonEmpty = '';

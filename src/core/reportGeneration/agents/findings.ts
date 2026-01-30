@@ -13,7 +13,7 @@ const ComputeRequestSchema = z.object({
 
 const FindingSchema = z.object({
   finding_id: z.string().optional(),
-  organ: z.string(),
+  organ: z.string().optional(),
   description: z.string(),
   measurements: z.array(z.object({
     label: z.string(),
@@ -60,10 +60,17 @@ export async function generateFindings(
     contents: { role: 'user', parts: [{ text: prompt }] },
     config: {
       responseMimeType: 'application/json',
+      temperature: 0,
       thinkingConfig: { thinkingBudget: CONFIG.FULL_MODE_THINKING_BUDGET },
     },
   });
 
   const fallback: FindingsOutput = { findings: [] };
-  return safeJsonParse(response.text || '{}', fallback, FindingsOutputSchema);
+  const parsed = safeJsonParse(response.text || '{}', fallback, FindingsOutputSchema);
+  return {
+    findings: parsed.findings.map((finding) => ({
+      ...finding,
+      organ: finding.organ && finding.organ.trim().length > 0 ? finding.organ : 'Achados gerais',
+    })),
+  };
 }

@@ -61,7 +61,9 @@ export async function generateOpenAIResponse(params: OpenAIResponseParams): Prom
     input,
   };
 
-  if (responseFormat) body.response_format = responseFormat;
+  if (responseFormat) {
+    body.text = { format: responseFormat };
+  }
   if (typeof maxOutputTokens === 'number') body.max_output_tokens = maxOutputTokens;
   if (typeof temperature === 'number') body.temperature = temperature;
 

@@ -44,7 +44,9 @@ export function applyBlacklist(text: string): BlacklistResult {
   const corrections: BlacklistResult['corrections'] = [];
 
   for (const [wrong, correct] of Object.entries(BLACKLIST_CORRECTIONS)) {
-    const regex = new RegExp(wrong, 'gi');
+    const isAbbrev = /^[A-Z]{2,}$/.test(wrong);
+    const pattern = isAbbrev ? `\\b${wrong}\\b` : wrong;
+    const regex = new RegExp(pattern, 'gi');
     const matches = result.match(regex);
     if (matches) {
       result = result.replace(regex, correct);

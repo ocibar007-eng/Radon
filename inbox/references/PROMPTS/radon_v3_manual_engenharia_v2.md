@@ -1,3 +1,4 @@
+[REDACTED_OPENAI_KEY]
 # Dossiê Técnico Mestre: Radon V3 "Industrial Evolution"
 **Versão:** 2.0.0 (Ultra-Detailed / Developer Manual)
 **Data:** 20 de Janeiro de 2026

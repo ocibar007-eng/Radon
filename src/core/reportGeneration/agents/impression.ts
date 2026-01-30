@@ -41,7 +41,7 @@ export async function synthesizeImpression(
     model: OPENAI_MODELS.impression,
     input: prompt,
     responseFormat: { type: 'json_object' },
-    temperature: 0.2,
+    temperature: 0,
     maxOutputTokens: 1200,
   });
 

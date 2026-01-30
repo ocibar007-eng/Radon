@@ -11,8 +11,8 @@ const TechnicalOutputSchema = z.object({
   contrast: z.object({
     used: z.boolean(),
     type: z.string().optional(),
-    volume_ml: z.number().optional(),
-    phases: z.array(z.string()).optional(),
+    volume_ml: z.union([z.number(), z.string()]).nullable().optional(),
+    phases: z.union([z.array(z.string()), z.string(), z.null()]).optional(),
   }),
 });
 
@@ -47,6 +47,7 @@ export async function generateTechniqueSection(input: CaseBundle): Promise<Techn
     contents: { role: 'user', parts: [{ text: prompt }] },
     config: {
       responseMimeType: 'application/json',
+      temperature: 0,
       thinkingConfig: { thinkingBudget: CONFIG.FULL_MODE_THINKING_BUDGET },
     },
   });
@@ -57,5 +58,28 @@ export async function generateTechniqueSection(input: CaseBundle): Promise<Techn
     contrast: { used: false },
   };
 
-  return safeJsonParse(response.text || '{}', fallback, TechnicalOutputSchema);
+  const parsed = safeJsonParse(response.text || '{}', fallback, TechnicalOutputSchema);
+  if (parsed.contrast && parsed.contrast.volume_ml === null) {
+    delete (parsed.contrast as { volume_ml?: number | null }).volume_ml;
+  }
+  if (parsed.contrast && typeof parsed.contrast.volume_ml === 'string') {
+    const normalized = parsed.contrast.volume_ml.replace(',', '.').replace(/[^\d.]/g, '');
+    const value = Number.parseFloat(normalized);
+    if (Number.isFinite(value)) {
+      parsed.contrast.volume_ml = value;
+    } else {
+      delete (parsed.contrast as { volume_ml?: number | string | null }).volume_ml;
+    }
+  }
+  if (parsed.contrast && parsed.contrast.phases === null) {
+    delete (parsed.contrast as { phases?: string[] | string | null }).phases;
+  }
+  if (parsed.contrast && typeof parsed.contrast.phases === 'string') {
+    const phases = parsed.contrast.phases
+      .split(/[,;]+/)
+      .map((phase) => phase.trim())
+      .filter(Boolean);
+    parsed.contrast.phases = phases;
+  }
+  return parsed;
 }

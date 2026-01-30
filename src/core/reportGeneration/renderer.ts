@@ -19,6 +19,15 @@ const BASE_RENDER_RULES = [
   '- Proibido usar listas automaticas (-, *, •).',
 ].join('\n');
 
+const RENDER_TEXT_FIXES: Array<[RegExp, string]> = [
+  [/conforessonância magnéticae/gi, 'conforme'],
+  [/foressonância magnéticaa/gi, 'forma'],
+  [/noressonância magnéticaais/gi, 'normais'],
+  [/alaressonância magnéticae/gi, 'alarme'],
+  [/veressonância magnéticaiforessonância magnéticae/gi, 'vermiforme'],
+  [/deforessonância magnéticaidade/gi, 'deformidade'],
+];
+
 function buildRendererPrompt(report: ReportJSON, feedback?: string): string {
   const payload = {
     report,
@@ -39,9 +48,13 @@ export async function renderReportMarkdown(report: ReportJSON, feedback?: string
   const response = await generateOpenAIResponse({
     model: OPENAI_MODELS.renderer,
     input: prompt,
-    temperature: 0.2,
+    temperature: 0,
     maxOutputTokens: 3000,
   });
 
-  return (response.text || '').trim();
+  let output = (response.text || '').trim();
+  for (const [pattern, replacement] of RENDER_TEXT_FIXES) {
+    output = output.replace(pattern, replacement);
+  }
+  return output;
 }
