@@ -17,7 +17,7 @@ import {
   filterSearchResultsByAllowlist,
   performWebSearch,
 } from './web-search-integration';
-import { BLOCKLIST, getAllowlistDomains } from './web-evidence-sources';
+import { BLOCKLIST, getAllowlistDomains, isSourceAllowed } from './web-evidence-sources';
 
 export {
   PRIMARY_SOURCES,

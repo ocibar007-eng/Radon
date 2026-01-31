@@ -43,24 +43,31 @@ function resolveSearchProvider(): {
   cx?: string;
 } | null {
   const explicit = (process.env.SEARCH_API_PROVIDER || '').toLowerCase().trim();
-  const serpKey = process.env.SERPAPI_API_KEY || process.env.SEARCH_API_KEY || '';
-  const bingKey = process.env.BING_SEARCH_KEY || process.env.SEARCH_API_KEY || '';
-  const googleKey = process.env.GOOGLE_CSE_API_KEY || process.env.SEARCH_API_KEY || '';
-  const braveKey = process.env.BRAVE_SEARCH_API_KEY || process.env.SEARCH_API_KEY || '';
+  const sharedKey = process.env.SEARCH_API_KEY || '';
+  const serpKey = process.env.SERPAPI_API_KEY || '';
+  const bingKey = process.env.BING_SEARCH_KEY || '';
+  const googleKey = process.env.GOOGLE_CSE_API_KEY || '';
+  const braveKey = process.env.BRAVE_SEARCH_API_KEY || '';
+  const googleCx = process.env.GOOGLE_CSE_CX || '';
 
   const fromExplicit = (provider: SearchProvider) => {
+    const apiKey = (provider === 'serpapi' ? serpKey
+      : provider === 'bing' ? bingKey
+      : provider === 'google_cse' ? googleKey
+      : provider === 'brave' ? braveKey
+      : '') || sharedKey;
+
     switch (provider) {
       case 'serpapi':
-        return serpKey ? { provider, apiKey: serpKey, endpoint: process.env.SERPAPI_ENDPOINT } : null;
+        return apiKey ? { provider, apiKey, endpoint: process.env.SERPAPI_ENDPOINT } : null;
       case 'bing':
-        return bingKey ? { provider, apiKey: bingKey, endpoint: process.env.BING_SEARCH_ENDPOINT } : null;
+        return apiKey ? { provider, apiKey, endpoint: process.env.BING_SEARCH_ENDPOINT } : null;
       case 'google_cse': {
-        const cx = process.env.GOOGLE_CSE_CX || '';
-        if (!googleKey || !cx) return null;
-        return { provider, apiKey: googleKey, endpoint: process.env.GOOGLE_CSE_ENDPOINT, cx };
+        if (!apiKey || !googleCx) return null;
+        return { provider, apiKey, endpoint: process.env.GOOGLE_CSE_ENDPOINT, cx: googleCx };
       }
       case 'brave':
-        return braveKey ? { provider, apiKey: braveKey, endpoint: process.env.BRAVE_SEARCH_ENDPOINT } : null;
+        return apiKey ? { provider, apiKey, endpoint: process.env.BRAVE_SEARCH_ENDPOINT } : null;
       default:
         return null;
     }
@@ -71,16 +78,16 @@ function resolveSearchProvider(): {
     return fromExplicit(normalized);
   }
 
-  if (serpKey) return { provider: 'serpapi', apiKey: serpKey, endpoint: process.env.SERPAPI_ENDPOINT };
-  if (bingKey) return { provider: 'bing', apiKey: bingKey, endpoint: process.env.BING_SEARCH_ENDPOINT };
-  if (googleKey && process.env.GOOGLE_CSE_CX) {
+  if (googleCx && (googleKey || sharedKey)) {
     return {
       provider: 'google_cse',
-      apiKey: googleKey,
+      apiKey: googleKey || sharedKey,
       endpoint: process.env.GOOGLE_CSE_ENDPOINT,
-      cx: process.env.GOOGLE_CSE_CX
+      cx: googleCx
     };
   }
+  if (serpKey) return { provider: 'serpapi', apiKey: serpKey, endpoint: process.env.SERPAPI_ENDPOINT };
+  if (bingKey) return { provider: 'bing', apiKey: bingKey, endpoint: process.env.BING_SEARCH_ENDPOINT };
   if (braveKey) return { provider: 'brave', apiKey: braveKey, endpoint: process.env.BRAVE_SEARCH_ENDPOINT };
 
   return null;
