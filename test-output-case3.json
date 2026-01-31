@@ -1,0 +1,12 @@
+{
+  "case_id": "TEST_NO_LIBRARY",
+  "findings": [
+    {
+      "label": "Achado genérico não catalogado na biblioteca interna.",
+      "organ": "desconhecido"
+    }
+  ],
+  "recommendations": [],
+  "references": [],
+  "_libraryPayloads": {}
+}

@@ -11,6 +11,8 @@
 
 import { queryRecommendations, QueryParams, QueryResponse, RecommendationResult } from '../../../../services/recommendations/query_api';
 import { recordQuery } from '../recommendations-observability';
+import { searchWebEvidence, getKnownEvidenceForFindingType } from './web-evidence';
+import type { ConsultAssistEntry, LibraryIngestionCandidate } from '../../../types/report-json';
 
 // ============================================================================
 // TYPES (seguindo spec da IA Gerente)
@@ -58,6 +60,10 @@ export interface ReportJSON {
     // Novos campos adicionados por este Agent
     recommendations?: RecommendationEntry[];
     references?: ReferenceEntry[];
+
+    // NEW: 3 TRILHAS SEPARADAS
+    consult_assist?: ConsultAssistEntry[];
+    library_ingestion_candidates?: LibraryIngestionCandidate[];
 }
 
 export interface AgentContext {
@@ -139,18 +145,27 @@ export async function runRecommendationsAgent(
     report: ReportJSON
 ): Promise<ReportJSON> {
 
-    console.log("🔍 [RecommendationsAgent] Starting...");
+    console.log("🔍 [RecommendationsAgent] Starting (3-TRACK MODE)...");
 
+    // === TRILHA 1: LAUDO (somente biblioteca) ===
     const recommendations: RecommendationEntry[] = [];
     const referencesMap = new Map<string, ReferenceEntry>();
     const libraryPayloadsMap = new Map<string, any>(); // For Guard validation
+
+    // === TRILHA 2: CONSULTA (web evidence permitida) ===
+    const consultAssist: ConsultAssistEntry[] = [];
+
+    // === TRILHA 3: CURADORIA (candidatos para biblioteca) ===
+    const ingestionCandidates: LibraryIngestionCandidate[] = [];
 
     // Extract findings from report (adapter para diferentes formatos)
     const findings = extractFindings(report, ctx);
 
     console.log(`   Found ${findings.length} findings to process`);
 
-    for (const finding of findings) {
+    for (let i = 0; i < findings.length; i++) {
+        const finding = findings[i];
+        const findingId = `F${i + 1}`;
         const findingType = detectFindingType(finding.label);
 
         if (!findingType) {
@@ -174,7 +189,7 @@ export async function runRecommendationsAgent(
             constraints: buildConstraints(finding, ctx)
         };
 
-        // Query library
+        // === GATE B: BIBLIOTECA INTERNA ===
         const result = queryRecommendations(params);
 
         // ** PAYLOAD TRACKING FOR GUARD **
@@ -201,6 +216,7 @@ export async function runRecommendationsAgent(
             guard_sanitized: false
         });
 
+        // === TRILHA 1: LAUDO ===
         if (entry) {
             recommendations.push(entry);
 
@@ -215,10 +231,56 @@ export async function runRecommendationsAgent(
                 }
             }
         }
+
+        // === TRILHAS 2 & 3: WEB EVIDENCE ===
+        // Disparar SOMENTE quando:
+        // - NO_LIBRARY_HITS ou NO_APPLICABLE_CANDIDATE ou MISSING_INPUTS
+        // - E achado for clinicamente acionável
+        const shouldTriggerWeb = (
+            !result.success ||
+            result.results.length === 0 ||
+            (entry && entry.conditional) ||
+            (result.missing_inputs && result.missing_inputs.length > 0)
+        );
+
+        if (shouldTriggerWeb) {
+            console.log(`   🌐 Triggering web evidence for ${findingType}...`);
+
+            try {
+                // Try web search first (se flag habilitada)
+                const webResult = await searchWebEvidence({
+                    finding_type: findingType,
+                    finding_description: finding.label,
+                    size_mm: finding.size_mm,
+                    morphology: finding.morphology,
+                    patient_age: finding.patient?.age || ctx.patient_age,
+                    risk_category: finding.patient?.risk_category || ctx.risk_category
+                });
+
+                // Fallback: usar evidências conhecidas
+                const knownEvidence = getKnownEvidenceForFindingType(findingType, finding.size_mm);
+
+                if (webResult?.consult_assist) {
+                    consultAssist.push({ ...webResult.consult_assist, finding_id: findingId });
+                } else if (knownEvidence) {
+                    consultAssist.push({ ...knownEvidence, finding_id: findingId });
+                }
+
+                if (webResult?.library_candidate) {
+                    ingestionCandidates.push(webResult.library_candidate);
+                }
+
+            } catch (error) {
+                console.error(`   ❌ Web evidence error:`, error);
+                // Graceful degradation - não quebrar pipeline
+            }
+        }
     }
 
-    console.log(`   ✅ Generated ${recommendations.length} recommendations`);
+    console.log(`   ✅ TRILHA 1 (LAUDO): ${recommendations.length} recommendations`);
     console.log(`   📚 References: ${referencesMap.size}`);
+    console.log(`   🩺 TRILHA 2 (CONSULTA): ${consultAssist.length} consult assist entries`);
+    console.log(`   📥 TRILHA 3 (CURADORIA): ${ingestionCandidates.length} ingestion candidates`);
     console.log(`   🗂️  Payloads tracked: ${libraryPayloadsMap.size}`);
 
     // Return enriched report WITH payload map for Guard
@@ -226,6 +288,8 @@ export async function runRecommendationsAgent(
         ...report,
         recommendations,
         references: Array.from(referencesMap.values()),
+        consult_assist: consultAssist.length > 0 ? consultAssist : undefined,
+        library_ingestion_candidates: ingestionCandidates.length > 0 ? ingestionCandidates : undefined,
         // Internal: payload map for Guard validation (not rendered)
         _libraryPayloads: libraryPayloadsMap
     } as ReportJSON & { _libraryPayloads: Map<string, any> };

@@ -1,0 +1,30 @@
+{
+  "case_id": "TEST_PULM_001",
+  "findings": [
+    {
+      "label": "Nódulo sólido pulmonar no lobo superior direito medindo 8 mm.",
+      "organ": "pulmão",
+      "size_mm": 8,
+      "morphology": "solid",
+      "count": "single"
+    }
+  ],
+  "recommendations": [
+    {
+      "finding_type": "pulmonary_nodule",
+      "text": "For nodules 6-8 mm in low-risk patients, initial follow-up CT at 6–12 months then at 18–24 months if no change.",
+      "applicability": "Adultos",
+      "conditional": false,
+      "source_id": "fleischner_2005",
+      "guideline_id": "FLEISCHNER_2005",
+      "reference_key": "FLEISCHNER_2005"
+    }
+  ],
+  "references": [
+    {
+      "key": "FLEISCHNER_2005",
+      "citation": "Heber MacMahon et al.. Guidelines for Management of Small Pulmonary Nodules Detected on CT Scans: A Statement from the Fleischner Society. Radiology. 2005."
+    }
+  ],
+  "_libraryPayloads": {}
+}

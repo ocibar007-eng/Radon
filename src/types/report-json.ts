@@ -41,6 +41,56 @@ export const ReferenceEntrySchema = z.object({
   citation: z.string(),
 });
 
+// NEW: Consult Assist (Pacote de Consulta - NÃO vai pro laudo)
+export const ConsultAssistSourceSchema = z.object({
+  source_type: z.enum(['guideline', 'journal', 'society', 'government', 'secondary']),
+  organization_or_journal: z.string(),
+  title: z.string(),
+  year: z.string(), // "YYYY" ou "unknown"
+  url: z.string(),
+  doi: z.string().optional(),
+  accessed_at: z.string(), // ISO date
+  relevance: z.enum(['high', 'medium', 'low']),
+});
+
+export const ConsultAssistEntrySchema = z.object({
+  finding_id: z.string(),
+  title: z.string(),
+  summary: z.string(),
+  suggested_actions: z.array(z.string()),
+  copy_ready_note: z.string(),
+  sources: z.array(ConsultAssistSourceSchema),
+  evidence_quality: z.enum(['high', 'moderate', 'low']),
+  conflicts_or_caveats: z.array(z.string()),
+  numeric_safety: z.object({
+    numbers_included: z.boolean(),
+    rule: z.string(),
+  }),
+});
+
+// NEW: Library Ingestion Candidates (Curadoria/Staging)
+export const LibraryIngestionCandidateSchema = z.object({
+  finding_type: z.string(),
+  trigger_terms: z.array(z.string()),
+  candidate_recommendation_text: z.string(),
+  applicability_rules: z.object({
+    requires: z.array(z.string()),
+    size_brackets: z.array(z.string()).optional(),
+    exclusions: z.array(z.string()).optional(),
+  }),
+  citations: z.array(z.object({
+    organization_or_journal: z.string(),
+    title: z.string(),
+    year: z.string(),
+    url: z.string(),
+    doi: z.string().optional(),
+    accessed_at: z.string(),
+  })),
+  extracted_verbatim_snippet: z.string().optional(),
+  confidence_for_ingestion: z.enum(['high', 'medium', 'low']),
+  review_required: z.boolean(),
+});
+
 export const ReportJSONSchema = z.object({
   case_id: z.string(),
   modality: z.string(),
@@ -74,10 +124,14 @@ export const ReportJSONSchema = z.object({
   findings: z.array(FindingSchema),
   compute_results: z.record(ComputeResultSchema).optional(),
   audit: ReportAuditSchema.optional(),
-  // NEW: Evidence-based recommendations from library
+  // NEW: Evidence-based recommendations from library (SOMENTE pro LAUDO)
   evidence_recommendations: z.array(EvidenceRecommendationSchema).optional(),
-  // NEW: References for citations
+  // NEW: References for citations (SOMENTE da biblioteca)
   references: z.array(ReferenceEntrySchema).optional(),
+  // NEW: Consult Assist - Pacote de consulta para médico (NÃO vai pro laudo)
+  consult_assist: z.array(ConsultAssistEntrySchema).optional(),
+  // NEW: Library Ingestion Candidates - Curadoria para alimentar biblioteca
+  library_ingestion_candidates: z.array(LibraryIngestionCandidateSchema).optional(),
   impression: z.object({
     primary_diagnosis: z.string(),
     differentials: z.array(z.string()).optional(),
@@ -104,3 +158,8 @@ export type ReportJSON = z.infer<typeof ReportJSONSchema>;
 export type Finding = z.infer<typeof FindingSchema>;
 export type ReportAudit = z.infer<typeof ReportAuditSchema>;
 export type ReportAuditEntry = z.infer<typeof ReportAuditEntrySchema>;
+export type EvidenceRecommendation = z.infer<typeof EvidenceRecommendationSchema>;
+export type ReferenceEntry = z.infer<typeof ReferenceEntrySchema>;
+export type ConsultAssistEntry = z.infer<typeof ConsultAssistEntrySchema>;
+export type ConsultAssistSource = z.infer<typeof ConsultAssistSourceSchema>;
+export type LibraryIngestionCandidate = z.infer<typeof LibraryIngestionCandidateSchema>;

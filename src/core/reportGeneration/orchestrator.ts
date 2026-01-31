@@ -244,11 +244,16 @@ export async function processCasePipeline(bundle: CaseBundle): Promise<ReportPip
       recordGuardSanitization();
     }
 
-    // Apply validated recommendations
+    // Apply validated recommendations (3 trilhas separadas)
     report = {
       ...report,
+      // TRILHA 1: LAUDO (somente biblioteca + guard)
       evidence_recommendations: guardResult.sanitized_recommendations as any,
       references: enrichedReport.references as any,
+      // TRILHA 2: CONSULTA (web evidence - NÃO vai pro laudo)
+      consult_assist: enrichedReport.consult_assist as any,
+      // TRILHA 3: CURADORIA (candidatos staging)
+      library_ingestion_candidates: enrichedReport.library_ingestion_candidates as any,
     };
   } catch (error) {
     console.error('[Orchestrator] RecommendationsAgent error:', error);

@@ -17,6 +17,7 @@ const BASE_RENDER_RULES = [
   '- Nao usar "►" na secao TECNICA E PROTOCOLO.',
   '- <VERIFICAR> sempre depois do ponto final.',
   '- Proibido usar listas automaticas (-, *, •).',
+  '- IMPORTANTE: Ignorar campos "consult_assist" e "library_ingestion_candidates" - esses NÃO entram no laudo.',
 ].join('\n');
 
 const RENDER_TEXT_FIXES: Array<[RegExp, string]> = [
