@@ -1,0 +1,161 @@
+English_Term,Suggested_PT,Source,Status
+abdomen,abdome,Manual_Gold,Verified
+abdominal,abdominal,Manual_Gold,Verified
+abdominals,abdominais,Manual_Gold,Verified
+access,acesso,Manual_Gold,Verified
+anechoic,anecóico,Manual_Gold,Verified
+ante,ante,Manual_Gold,Verified
+arthropneumoradiography,artropneumorradiografia,Manual_Gold,Verified
+attenuation,atenuação,Manual_Gold,Verified
+axial,axial,Manual_Gold,Verified
+beam,Tomografia Computadorizada de Feixe Cônico,Review_Verbose,Verified
+com,Tomografia por Emissão de Pósitrons combinada à Tomografia Computadorizada,Review_Verbose,Verified
+computed,computadorizada,Manual_Gold,Verified
+contrast,contraste,Manual_Gold,Verified
+ct,TC,Manual_Gold,Verified
+cyst,cisto,Manual_Gold,Verified
+cystauchenitis,cistauchenite,Morpho_Fix,Verified
+cystectomy,cistectomia,Morpho_Fix,Verified
+cystelcosis,cistelcose,Morpho_Fix,Verified
+cysthypersarcosis,cistipersarcose,Morpho_Fix,Verified
+cysticerciasis,cisticercíase,Morpho_Fix,Verified
+cysticercosis,cisticercose,Morpho_Fix,Verified
+cysticolithectomy,cisticolitectomia,Morpho_Fix,Verified
+cysticolithotripsy,cisticolitotripsia,Morpho_Fix,Verified
+cysticorrhaphy,cisticorrafia,Morpho_Fix,Verified
+cystinosis,cistinose,Morpho_Fix,Verified
+cystochromoscopy,cistochromoscopia,Morpho_Fix,Verified
+cystocolostomy,cistocolostomia,Morpho_Fix,Verified
+cystodiaphanoscopy,cistodiafanoscopia,Morpho_Fix,Verified
+cystoduodenostomy,cistoduodenostomia,Morpho_Fix,Verified
+cystoelytroplasty,cistoelitroplastia,Morpho_Fix,Verified
+cystogastrostomy,cistogastrostomia,Morpho_Fix,Verified
+cystography,cistografia,Morpho_Fix,Verified
+cystojejunostomy,cistojejunostomia,Morpho_Fix,Verified
+cystolithectomy,cistolitectomia,Morpho_Fix,Verified
+cystolithiasis,cistolitíase,Morpho_Fix,Verified
+cystometrography,cistometrografia,Morpho_Fix,Verified
+cystonephrosis,cistonefrose,Morpho_Fix,Verified
+cystopexy,cistopexia,Morpho_Fix,Verified
+cystophotography,cistofotografia,Morpho_Fix,Verified
+cystoplasty,cistoplastia,Morpho_Fix,Verified
+cystoproctostomy,cistoproctostomia,Morpho_Fix,Verified
+cystoprostatectomy,cistoprostatectomia,Morpho_Fix,Verified
+cystoptosis,cistoptose,Morpho_Fix,Verified
+cystopyelitis,cistopielite,Morpho_Fix,Verified
+cystopyelography,cistopielografia,Morpho_Fix,Verified
+cystopyelonephritis,cistopielonefrite,Morpho_Fix,Verified
+cystoradiography,cistoradiografia,Morpho_Fix,Verified
+cystorectostomy,cistorectostomia,Morpho_Fix,Verified
+cystorrhaphy,cistorrafia,Morpho_Fix,Verified
+cystosclerosis,cistosclerose,Morpho_Fix,Verified
+cystoscopy,cistoscopia,Morpho_Fix,Verified
+cystospermitis,cistospermite,Morpho_Fix,Verified
+cystostomy,cistostomia,Morpho_Fix,Verified
+cystoureteritis,cistoureterite,Morpho_Fix,Verified
+cystoureteropyelitis,cistoureteropielite,Morpho_Fix,Verified
+cystoureteropyelonephritis,cistoureteropielonefrite,Morpho_Fix,Verified
+cystourethritis,cistouretrite,Morpho_Fix,Verified
+cystourethrography,cistouretrografia,Morpho_Fix,Verified
+cystourethropexy,cistouretropexia,Morpho_Fix,Verified
+cystourethroscopy,cistouretroscopia,Morpho_Fix,Verified
+density,densidade,Manual_Gold,Verified
+dicom,DICOM,Manual_Gold,Verified
+doppler,doppler,Manual_Gold,Verified
+emission,Tomografia por Emissão de Pósitrons combinada à Tomografia Computadorizada,Review_Verbose,Verified
+fracture,fratura,Manual_Gold,Verified
+image,imagem,Manual_Gold,Verified
+imaging,imageamento,Manual_Gold,Verified
+lesion,lesão,Manual_Gold,Verified
+lucency,transparência,Manual_Gold,Verified
+magnetic,magnética,Manual_Gold,Verified
+mammography,mamografia,Manual_Gold,Verified
+microscope,Tomografia com Microscopia Eletrônica,Review_Verbose,Verified
+model,modelo,Manual_Gold,Verified
+mouse,camundongo,Manual_Gold,Verified
+mri,RM,Manual_Gold,Verified
+narrow,estreito,Manual_Gold,Verified
+neuroradiology,neurorradiologia,Manual_Gold,Verified
+oligonucleotide,Análise de Sequência com Séries de Oligonucleotídeos,Review_Verbose,Verified
+opacity,opacidade,Manual_Gold,Verified
+pacs,PACS,Manual_Gold,Verified
+pet,PET,Manual_Gold,Verified
+photon,Tomografia Computadorizada com Tomografia Computadorizada de Emissão de Fóton Único,Review_Verbose,Verified
+pixel,pixel,Manual_Gold,Verified
+positron,Tomografia por Emissão de Pósitrons combinada à Tomografia Computadorizada,Review_Verbose,Verified
+post,pós,Manual_Gold,Verified
+pre,pré,Manual_Gold,Verified
+protein,proteína,Manual_Gold,Verified
+pulsed,Ultrassonografia Doppler de Pulso,Review_Verbose,Verified
+radiosurgery,radiocirurgia,Manual_Gold,Verified
+radiotherapy,radioterapia,Manual_Gold,Verified
+resonance,ressonância,Manual_Gold,Verified
+rest,repouso,Manual_Gold,Verified
+roentgenography,radiografia,Manual_Gold,Verified
+roentgenoscopy,radioscopia,Manual_Gold,Verified
+scan,varredura,Manual_Gold,Verified
+scanography,escanografia,Manual_Gold,Verified
+scintiangiography,cintiangiografia,Manual_Gold,Verified
+scintigraphy,cintilografia,Manual_Gold,Verified
+scintimammography,cintilomamografia,Manual_Gold,Verified
+setup,configuração,Manual_Gold,Verified
+shadow,sombra,Manual_Gold,Verified
+single,Tomografia Computadorizada com Tomografia Computadorizada de Emissão de Fóton Único,Review_Verbose,Verified
+spect,SPECT,Manual_Gold,Verified
+spectrum,espectro,Manual_Gold,Verified
+stereoroentgenography,estereorradiografia,Manual_Gold,Verified
+subject,sujeito,Manual_Gold,Verified
+teleradiology,telerradiologia,Manual_Gold,Verified
+tomography,tomografia,Manual_Gold,Verified
+tumor,tumor,Manual_Gold,Verified
+tumors,Tumores de Células Gigantes,Review_Verbose,Verified
+ultrasonography,ultrassonografia,Manual_Gold,Verified
+ultrasound,ultrassom,Manual_Gold,Verified
+voxel,voxel,Manual_Gold,Verified
+x-ray,raio-x,Manual_Gold,Verified
+xeromammography,xeromamografia,Manual_Gold,Verified
+xeroradiography,xerorradiografia,Manual_Gold,Verified
+alignment,Alinhamento de Sequência,DeCS,Verified
+angiography,angiografia,DeCS,Verified
+bitewing,Radiografia Interproximal,DeCS,Verified
+cistern,Cisternas,DeCS,Verified
+cisterna,Cisterna Magna,DeCS,Verified
+cisternography,cisternografia,DeCS,Verified
+cisterns,Cisternas,DeCS,Verified
+conserved,Sequência Conservada,DeCS,Verified
+cystadenocarcinoma,Cistadenocarcinoma,DeCS,Verified
+cystadenofibroma,Cistoadenofibroma,DeCS,Verified
+cystadenoma,Cistadenoma,DeCS,Verified
+cystamine,Cistamina,DeCS,Verified
+cystaphos,Cistafos,DeCS,Verified
+cystathionine,Cistationina,DeCS,Verified
+cystatin,Cistatina A,DeCS,Verified
+cystatins,Cistatinas,DeCS,Verified
+cysteamine,Cisteamina,DeCS,Verified
+cysteine,Cisteína,DeCS,Verified
+cysteinyldopa,Cisteinildopa,DeCS,Verified
+cystine,Cistina,DeCS,Verified
+cystinuria,Cistinúria,DeCS,Verified
+cystitis,cistite,DeCS,Verified
+cystocele,Cistocele,DeCS,Verified
+cystoides,Pneumatose Cistoide Intestinal,DeCS,Verified
+cystoscope,Cistoscópios,DeCS,Verified
+cystotomy,Cistotomia,DeCS,Verified
+cysts,Cistos,DeCS,Verified
+digital,Angiografia Digital,DeCS,Verified
+duplex,Ultrassonografia Doppler Dupla,DeCS,Verified
+effect,Efeito Doppler,DeCS,Verified
+enhancement,realce,DeCS,Verified
+flowmetry,Fluxometria por Laser-Doppler,DeCS,Verified
+interventional,Ultrassonografia de Intervenção,DeCS,Verified
+multidetector,Tomografia Computadorizada Multidetectores,DeCS,Verified
+radiograph,radiografia,DeCS,Verified
+radiography,radiografia,DeCS,Verified
+radiological,Vigilância Radiológica,DeCS,Verified
+radiologist,Radiologistas,DeCS,Verified
+radiology,Radiologia,DeCS,Verified
+radionuclide,Angiografia Cintilográfica,DeCS,Verified
+sagittal,sagital,DeCS,Verified
+sequence,sequência,DeCS,Verified
+sonography,sonografia,DeCS,Verified
+transcranial,Ultrassonografia Doppler Transcraniana,DeCS,Verified

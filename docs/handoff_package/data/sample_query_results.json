@@ -1,0 +1,63 @@
+{
+    "query": {
+        "finding_type": "pulmonary_nodule",
+        "morphology": "solid",
+        "size_mm": 8,
+        "count": "single",
+        "risk_category": "low",
+        "context": "incidental",
+        "constraints": [
+            "adult",
+            "non-immunosuppressed"
+        ]
+    },
+    "success": true,
+    "results": [
+        {
+            "guideline_id": "FLEISCHNER_2017",
+            "source_id": "fleischner_2017__pdf",
+            "finding_type": "pulmonary_nodule",
+            "applicability": {
+                "age_group": "adult",
+                "immunosuppressed_excluded": true,
+                "oncologic_context_required": false
+            },
+            "inputs_required": [
+                "size_mm",
+                "risk_category",
+                "count"
+            ],
+            "recommendation_text": "CT at 6-12 months; then consider CT at 18-24 months",
+            "numerical_rules": [
+                {
+                    "parameter": "size",
+                    "operator": ">=",
+                    "value": 6,
+                    "unit": "mm"
+                },
+                {
+                    "parameter": "size",
+                    "operator": "<=",
+                    "value": 8,
+                    "unit": "mm"
+                },
+                {
+                    "parameter": "followup",
+                    "operator": "range",
+                    "value": [
+                        6,
+                        12
+                    ],
+                    "unit": "months"
+                }
+            ],
+            "citation": "MacMahon H, et al. Guidelines for Management of Incidental Pulmonary Nodules Detected on CT Images: From the Fleischner Society 2017. Radiology. 2017;284(1):228-243.",
+            "evidence_grade": "Strong",
+            "version_date": "2017",
+            "confidence": 0.95,
+            "match_score": 0.85
+        }
+    ],
+    "warnings": [],
+    "missing_inputs": []
+}

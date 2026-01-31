@@ -26,5 +26,12 @@
     "baseUrl": ".",
     "allowImportingTsExtensions": true,
     "noEmit": true
-  }
+  },
+  "exclude": [
+    "node_modules",
+    "scripts/recommendations/**",
+    "services/recommendations/llm_*.ts",
+    "tests/**",
+    "inbox/**"
+  ]
 }

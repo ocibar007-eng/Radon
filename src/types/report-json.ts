@@ -25,6 +25,22 @@ export const ReportAuditSchema = z.object({
   entries: z.array(ReportAuditEntrySchema),
 });
 
+// Schema for evidence-based recommendations from the library
+export const EvidenceRecommendationSchema = z.object({
+  finding_type: z.string(),
+  text: z.string(),
+  applicability: z.string().optional(),
+  conditional: z.boolean(),
+  source_id: z.string().optional(),
+  guideline_id: z.string().optional(),
+  reference_key: z.string().optional(),
+});
+
+export const ReferenceEntrySchema = z.object({
+  key: z.string(),
+  citation: z.string(),
+});
+
 export const ReportJSONSchema = z.object({
   case_id: z.string(),
   modality: z.string(),
@@ -58,6 +74,10 @@ export const ReportJSONSchema = z.object({
   findings: z.array(FindingSchema),
   compute_results: z.record(ComputeResultSchema).optional(),
   audit: ReportAuditSchema.optional(),
+  // NEW: Evidence-based recommendations from library
+  evidence_recommendations: z.array(EvidenceRecommendationSchema).optional(),
+  // NEW: References for citations
+  references: z.array(ReferenceEntrySchema).optional(),
   impression: z.object({
     primary_diagnosis: z.string(),
     differentials: z.array(z.string()).optional(),

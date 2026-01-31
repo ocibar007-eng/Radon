@@ -1,0 +1,2069 @@
+[
+  {
+    "concept_key": "LOCAL:b726bcd8",
+    "preferred_en": "angiograph",
+    "preferred_pt": "",
+    "synonyms_en": [
+      "angiographs"
+    ],
+    "synonyms_pt": [],
+    "tags": [
+      "angio"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:d4c96f65",
+    "preferred_en": "angiographers",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "angio"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:092e9f85",
+    "preferred_en": "angiographic",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "angio"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:fee1b1d8",
+    "preferred_en": "angiographically",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "angio"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:35dc68bf",
+    "preferred_en": "angiographies",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "angio"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:b085fd0b",
+    "preferred_en": "angiography",
+    "preferred_pt": "angiografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "angio",
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:dba9c5b8",
+    "preferred_en": "arthropneumoradiography",
+    "preferred_pt": "arthropneumoradiografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica",
+      "RX"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:87736d02",
+    "preferred_en": "arthroscintigraphy",
+    "preferred_pt": "arthroscintigrafia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:18c046c5",
+    "preferred_en": "autofluoroscope",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:2f88691c",
+    "preferred_en": "autohistoradiograph",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "RX"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:b31ccc84",
+    "preferred_en": "autoradiograph",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "RX"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:2b511873",
+    "preferred_en": "autoradiographic",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "RX"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:b8914322",
+    "preferred_en": "autoradiographies",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "RX"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:b2d215d0",
+    "preferred_en": "autoradiography",
+    "preferred_pt": "autoradiografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica",
+      "RX"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:e3190995",
+    "preferred_en": "autotomographic",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "TC"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:f3df62ea",
+    "preferred_en": "autotomography",
+    "preferred_pt": "autotomografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica",
+      "TC"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:055a4225",
+    "preferred_en": "bioradiography",
+    "preferred_pt": "bioradiografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica",
+      "RX"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:12c3bcec",
+    "preferred_en": "bronchoradiography",
+    "preferred_pt": "bronchoradiografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica",
+      "RX"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:146727be",
+    "preferred_en": "cardioangiography",
+    "preferred_pt": "cardioangiografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "angio",
+      "tecnica",
+      "cardiovascular"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:fc6f73ed",
+    "preferred_en": "cholangiographic",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "angio"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:98ed86f8",
+    "preferred_en": "cholangiographies",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "angio"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:331dc193",
+    "preferred_en": "cholangiography",
+    "preferred_pt": "cholangiografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "angio",
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:ccc1d87f",
+    "preferred_en": "cholescintigraphy",
+    "preferred_pt": "cholescintigrafia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:fd16257a",
+    "preferred_en": "cineangiograph",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "angio"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:56f2ab62",
+    "preferred_en": "cineangiographic",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "angio"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:a379be7e",
+    "preferred_en": "cineangiographies",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "angio"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:4ac8d9b9",
+    "preferred_en": "cineangiography",
+    "preferred_pt": "cineangiografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "angio",
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:b2d5a29c",
+    "preferred_en": "cinefluoroscopy",
+    "preferred_pt": "cinefluoroscopia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:77ef2cce",
+    "preferred_en": "cinematoradiography",
+    "preferred_pt": "cinematoradiografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica",
+      "RX"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:35cda7d6",
+    "preferred_en": "cineradiographic",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "RX"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:2cc03f16",
+    "preferred_en": "cineradiographies",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "RX"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:001a200a",
+    "preferred_en": "cineradiography",
+    "preferred_pt": "cineradiografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica",
+      "RX"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:d6536ae3",
+    "preferred_en": "cineroentgenographies",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:2c0c5364",
+    "preferred_en": "cineroentgenography",
+    "preferred_pt": "cineroentgenografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:e30abbc9",
+    "preferred_en": "cystoradiography",
+    "preferred_pt": "cystoradiografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica",
+      "RX",
+      "achado"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:8e95ec3e",
+    "preferred_en": "dacryocystorhinostenosis",
+    "preferred_pt": "dacryocystorhinostenose",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "achado",
+      "patologia"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:775a2ad0",
+    "preferred_en": "dacryocystostenosis",
+    "preferred_pt": "dacryocystostenose",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "achado",
+      "patologia"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:edbb8eff",
+    "preferred_en": "dacryoscintigraphy",
+    "preferred_pt": "dacryoscintigrafia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:ef3e19d2",
+    "preferred_en": "doppler",
+    "preferred_pt": "",
+    "synonyms_en": [
+      "Dopplers"
+    ],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:fe4ec858",
+    "preferred_en": "endoradiography",
+    "preferred_pt": "endoradiografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica",
+      "RX"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:76a0cb7b",
+    "preferred_en": "endosonography",
+    "preferred_pt": "endosonografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "US",
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:5f273695",
+    "preferred_en": "fluororadiography",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica",
+      "RX"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "keep_en"
+  },
+  {
+    "concept_key": "LOCAL:ddef8d2b",
+    "preferred_en": "fluororoentgenographies",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "keep_en"
+  },
+  {
+    "concept_key": "LOCAL:29e32372",
+    "preferred_en": "fluororoentgenography",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "keep_en"
+  },
+  {
+    "concept_key": "LOCAL:34da2195",
+    "preferred_en": "fluoroscope",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "keep_en"
+  },
+  {
+    "concept_key": "LOCAL:7141bf49",
+    "preferred_en": "fluoroscoped",
+    "preferred_pt": "",
+    "synonyms_en": [
+      "fluoroscoping"
+    ],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "keep_en"
+  },
+  {
+    "concept_key": "LOCAL:dcedfe1a",
+    "preferred_en": "fluoroscopic",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "keep_en"
+  },
+  {
+    "concept_key": "LOCAL:9fee89ea",
+    "preferred_en": "fluoroscopical",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "keep_en"
+  },
+  {
+    "concept_key": "LOCAL:a83a0f4f",
+    "preferred_en": "fluoroscopically",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "keep_en"
+  },
+  {
+    "concept_key": "LOCAL:6db95db8",
+    "preferred_en": "fluoroscopies",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "keep_en"
+  },
+  {
+    "concept_key": "LOCAL:fe03c091",
+    "preferred_en": "fluoroscopist",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "keep_en"
+  },
+  {
+    "concept_key": "LOCAL:8fc99b46",
+    "preferred_en": "fluoroscopy",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "keep_en"
+  },
+  {
+    "concept_key": "LOCAL:bb0b2045",
+    "preferred_en": "historadiographic",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "RX"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:8d1f5b08",
+    "preferred_en": "historadiographies",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "RX"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:be48a621",
+    "preferred_en": "historadiography",
+    "preferred_pt": "historadiografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica",
+      "RX"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:0cbdfc34",
+    "preferred_en": "Hounsfield",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:6b290422",
+    "preferred_en": "hyperstereoradiography",
+    "preferred_pt": "hyperstereoradiografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica",
+      "RX"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:5d6e5020",
+    "preferred_en": "hysterosonography",
+    "preferred_pt": "hysterosonografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "US",
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:54060084",
+    "preferred_en": "immunolymphoscintigraphy",
+    "preferred_pt": "immunolymphoscintigrafia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:5c639c15",
+    "preferred_en": "immunoscintigraphy",
+    "preferred_pt": "immunoscintigrafia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:42f5f1b1",
+    "preferred_en": "lymphangiography",
+    "preferred_pt": "lymphangiografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "angio",
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:18f9aa8b",
+    "preferred_en": "lymphoscintigraphy",
+    "preferred_pt": "lymphoscintigrafia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:aa6d2310",
+    "preferred_en": "mammographic",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:c7f5b11a",
+    "preferred_en": "mammographically",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:f109af57",
+    "preferred_en": "mammography",
+    "preferred_pt": "mamografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:05b9bf91",
+    "preferred_en": "microradiography",
+    "preferred_pt": "microradiografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica",
+      "RX"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:5ee94764",
+    "preferred_en": "microroentgen",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:146e451a",
+    "preferred_en": "milliroentgen",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:9249e082",
+    "preferred_en": "mri",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "RM"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:95166d4b",
+    "preferred_en": "nephrosonography",
+    "preferred_pt": "nephrosonografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "US",
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:6a60d1a5",
+    "preferred_en": "nephrotomography",
+    "preferred_pt": "nephrotomografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica",
+      "TC"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:4fe34a63",
+    "preferred_en": "neuroangiography",
+    "preferred_pt": "neuroangiografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "angio",
+      "neuro",
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:5d60cc71",
+    "preferred_en": "neuroradiography",
+    "preferred_pt": "neuroradiografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "neuro",
+      "RX",
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:24d2c4a2",
+    "preferred_en": "neuroradiologist",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "neuro"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:d12a218d",
+    "preferred_en": "neuroradiology",
+    "preferred_pt": "neurorradiologia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "neuro"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:8086a564",
+    "preferred_en": "neuroroentgenography",
+    "preferred_pt": "neuroroentgenografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "neuro",
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:f74112bd",
+    "preferred_en": "neurotomography",
+    "preferred_pt": "neurotomografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "neuro",
+      "tecnica",
+      "TC"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:762c71bf",
+    "preferred_en": "odontoradiograph",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "RX"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:ec26906a",
+    "preferred_en": "Orthopantomograph",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "TC"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:39b594d5",
+    "preferred_en": "pantomographic",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "TC"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:1a3a5a6e",
+    "preferred_en": "pantomography",
+    "preferred_pt": "pantomografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica",
+      "TC"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:96c5bfeb",
+    "preferred_en": "pelvioradiography",
+    "preferred_pt": "pelvioradiografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica",
+      "RX"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:8749b193",
+    "preferred_en": "pelviradiography",
+    "preferred_pt": "pelviradiografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica",
+      "RX"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:a968f8e4",
+    "preferred_en": "pelviureteroradiography",
+    "preferred_pt": "pelviureteroradiografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica",
+      "RX"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:6c43c0a8",
+    "preferred_en": "PET",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "keep_en"
+  },
+  {
+    "concept_key": "LOCAL:db26949c",
+    "preferred_en": "pharmacoangiography",
+    "preferred_pt": "pharmacoangiografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "angio",
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:2f4e10ea",
+    "preferred_en": "pharmacoradiography",
+    "preferred_pt": "pharmacoradiografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica",
+      "RX"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:cabe89c4",
+    "preferred_en": "phonoangiography",
+    "preferred_pt": "phonoangiografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "angio",
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:117a79bb",
+    "preferred_en": "photofluoroscope",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:74518b31",
+    "preferred_en": "pneumoangiography",
+    "preferred_pt": "pneumoangiografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "angio",
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:78f8cb91",
+    "preferred_en": "pneumocystotomograph",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "achado",
+      "TC"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:a52e92b8",
+    "preferred_en": "pneumocystotomography",
+    "preferred_pt": "pneumocystotomografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "achado",
+      "tecnica",
+      "TC"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:b5664989",
+    "preferred_en": "pneumoradiography",
+    "preferred_pt": "pneumoradiografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica",
+      "RX"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:81ec3676",
+    "preferred_en": "pneumotomography",
+    "preferred_pt": "pneumotomografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica",
+      "TC"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:347108e4",
+    "preferred_en": "polytomographic",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "TC"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "keep_en"
+  },
+  {
+    "concept_key": "LOCAL:132bf164",
+    "preferred_en": "polytomography",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica",
+      "TC"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "keep_en"
+  },
+  {
+    "concept_key": "LOCAL:39a54036",
+    "preferred_en": "pyelofluoroscopy",
+    "preferred_pt": "pyelofluoroscopia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:990708d9",
+    "preferred_en": "radiograph",
+    "preferred_pt": "radiografia",
+    "synonyms_en": [
+      "radiographed"
+    ],
+    "synonyms_pt": [],
+    "tags": [
+      "RX"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:364e130c",
+    "preferred_en": "radiographic",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "RX"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:f7f81d3a",
+    "preferred_en": "radiographically",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "RX"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:dfa132dd",
+    "preferred_en": "radiography",
+    "preferred_pt": "radiografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica",
+      "RX"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:e3b58ddc",
+    "preferred_en": "radioimmunoscintigraphy",
+    "preferred_pt": "radioimmunoscintigrafia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:ed2d337b",
+    "preferred_en": "radiologic",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:746ff6f7",
+    "preferred_en": "radiological",
+    "preferred_pt": "Vigilância Radiológica",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:b6e11614",
+    "preferred_en": "radiologically",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:7b5e1882",
+    "preferred_en": "radiologist",
+    "preferred_pt": "Radiologistas",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:a3cf6696",
+    "preferred_en": "radiology",
+    "preferred_pt": "Radiologia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:cad93ecf",
+    "preferred_en": "roentgen",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:576e4df4",
+    "preferred_en": "roentgenkymogram",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:5f6e388e",
+    "preferred_en": "roentgenkymograph",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:a2576f36",
+    "preferred_en": "roentgenkymography",
+    "preferred_pt": "roentgenkymografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:b75e92ea",
+    "preferred_en": "roentgenograph",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:7f6ab509",
+    "preferred_en": "roentgenographic",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:c840d7fe",
+    "preferred_en": "roentgenography",
+    "preferred_pt": "roentgenografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:a4a98280",
+    "preferred_en": "roentgenologist",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:79a9fe30",
+    "preferred_en": "Roentgenology",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:49471f0f",
+    "preferred_en": "roentgenometer",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:f1b8cacc",
+    "preferred_en": "roentgenometry",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:6b167069",
+    "preferred_en": "roentgenoscope",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:b54c66aa",
+    "preferred_en": "roentgenoscopy",
+    "preferred_pt": "roentgenoscopia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:f549ae3e",
+    "preferred_en": "roentgenotherapy",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:4c301b8d",
+    "preferred_en": "scintiangiography",
+    "preferred_pt": "scintiangiografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "angio",
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:5ea8fe63",
+    "preferred_en": "scintigraphic",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:fbe95683",
+    "preferred_en": "scintigraphically",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:78afc4bb",
+    "preferred_en": "scintigraphs",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:9b050fdf",
+    "preferred_en": "scintigraphy",
+    "preferred_pt": "cintilografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:115b7320",
+    "preferred_en": "Scintimammography",
+    "preferred_pt": "scintimammografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:da82b6ca",
+    "preferred_en": "sialoangiography",
+    "preferred_pt": "sialoangiografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "angio",
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:45f55321",
+    "preferred_en": "sonograph",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "US"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:2de66996",
+    "preferred_en": "sonographer",
+    "preferred_pt": "",
+    "synonyms_en": [
+      "Sonographers"
+    ],
+    "synonyms_pt": [],
+    "tags": [
+      "US"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:ca954186",
+    "preferred_en": "sonographic",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "US"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:0c130b7b",
+    "preferred_en": "sonographically",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "US"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:277a5397",
+    "preferred_en": "sonography",
+    "preferred_pt": "sonografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "US",
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:e222b294",
+    "preferred_en": "SPECT",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "keep_en"
+  },
+  {
+    "concept_key": "LOCAL:face3c70",
+    "preferred_en": "stereofluoroscopy",
+    "preferred_pt": "stereofluoroscopia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:1398eb07",
+    "preferred_en": "stereoradiography",
+    "preferred_pt": "stereoradiografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica",
+      "RX"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:835f464a",
+    "preferred_en": "stereoroentgenograph",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:ce78c1d5",
+    "preferred_en": "stereoroentgenography",
+    "preferred_pt": "stereoroentgenografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:7118732b",
+    "preferred_en": "telefluoroscopy",
+    "preferred_pt": "telefluoroscopia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:03dbe143",
+    "preferred_en": "teleradiography",
+    "preferred_pt": "teleradiografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica",
+      "RX"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:7cafbb9c",
+    "preferred_en": "teleradiology",
+    "preferred_pt": "Telerradiologia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:9da70783",
+    "preferred_en": "teleroentgenography",
+    "preferred_pt": "teleroentgenografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:bb16a997",
+    "preferred_en": "teleroentgentherapy",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:74061961",
+    "preferred_en": "Tomograph",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "TC"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:4f530fa3",
+    "preferred_en": "tomographic",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "TC"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:6e9500d7",
+    "preferred_en": "tomographically",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "TC"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:8fae1cd4",
+    "preferred_en": "tomographies",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "TC"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:d6a9af9f",
+    "preferred_en": "tomography",
+    "preferred_pt": "tomografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica",
+      "TC"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:33474e3f",
+    "preferred_en": "ultrasonograph",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "US"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:0dee5628",
+    "preferred_en": "ultrasonographer",
+    "preferred_pt": "",
+    "synonyms_en": [
+      "ultrasonographers"
+    ],
+    "synonyms_pt": [],
+    "tags": [
+      "US"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:deca14cd",
+    "preferred_en": "ultrasonographic",
+    "preferred_pt": "",
+    "synonyms_en": [
+      "Ultrasonographic"
+    ],
+    "synonyms_pt": [],
+    "tags": [
+      "US"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:87afdf64",
+    "preferred_en": "ultrasonographically",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "US"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:bf3b9de3",
+    "preferred_en": "ultrasonography",
+    "preferred_pt": "ultrassonografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "US",
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:d86b731d",
+    "preferred_en": "ultrasound",
+    "preferred_pt": "ultrassom",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "US"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:1fd15f56",
+    "preferred_en": "uroradiology",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:c17d6e0b",
+    "preferred_en": "videofluoroscopy",
+    "preferred_pt": "videofluoroscopia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:f1b16eb2",
+    "preferred_en": "Xeromammography",
+    "preferred_pt": "xeromammografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:dc414c56",
+    "preferred_en": "Xeroradiograph",
+    "preferred_pt": "",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "RX"
+    ],
+    "do_not_use_pt": [],
+    "notes": "missing_pt",
+    "status": "needs_review"
+  },
+  {
+    "concept_key": "LOCAL:a5ad7c5e",
+    "preferred_en": "xeroradiography",
+    "preferred_pt": "xeroradiografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica",
+      "RX"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  },
+  {
+    "concept_key": "LOCAL:62993183",
+    "preferred_en": "xerotomography",
+    "preferred_pt": "xerotomografia",
+    "synonyms_en": [],
+    "synonyms_pt": [],
+    "tags": [
+      "tecnica",
+      "TC"
+    ],
+    "do_not_use_pt": [],
+    "notes": "",
+    "status": "ok"
+  }
+]

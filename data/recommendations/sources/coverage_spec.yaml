@@ -1,0 +1,542 @@
+# Coverage Specification - Radon Evidence-Based Recommendations Database
+# Este arquivo define COMPLETUDE OBRIGATÓRIA (anti-esquecimento)
+# Build FALHA se tópicos P0 estiverem abaixo dos mínimos
+
+version: "1.0"
+last_updated: "2026-01-30"
+
+# ==============================================================================
+# ESTRUTURA: dominio → topico → must_have_sources → queries → minimums
+# ==============================================================================
+
+coverage_domains:
+  
+  # ============================================================================
+  # DOMÍNIO 1: TÓRAX
+  # ============================================================================
+  torax:
+    priority: P0
+    min_docs: 15
+    min_recs: 80
+    
+    topics:
+      
+      # --- Nódulos Pulmonares ---
+      nodulos_pulmonares:
+        priority: P0
+        rec_types: [recommendation, classification]
+        must_have_sources:
+          - fleischner_2017
+          - fleischner_2005
+          - lung_rads_v1_1
+        queries:
+          - "Fleischner Society pulmonary nodule guidelines"
+          - "Lung-RADS screening nodule management"
+          - "British Thoracic Society nodule guidelines"
+        min_docs: 4
+        min_recs: 15
+        
+      # --- Achados Incidentais Torácicos ---
+      incidental_findings_chest:
+        priority: P0
+        rec_types: [recommendation]
+        must_have_sources:
+          - acr_incidental_thoracic
+        queries:
+          - "ACR incidental thoracic findings white paper"
+          - "STR incidental pulmonary findings"
+        min_docs: 2
+        min_recs: 10
+        
+      # --- Embolia Pulmonar ---
+      pulmonary_embolism:
+        priority: P0
+        rec_types: [recommendation, reporting_standard]
+        must_have_sources:
+          - esc_acute_pe_2019
+        queries:
+          - "ESC pulmonary embolism guidelines"
+          - "ACR appropriateness suspected PE"
+        min_docs: 2
+        min_recs: 8
+
+  # ============================================================================
+  # DOMÍNIO 2: ABDOME/GASTRO
+  # ============================================================================
+  abdome:
+    priority: P0
+    min_docs: 15
+    min_recs: 80
+    
+    topics:
+      
+      # --- Lesões Hepáticas (HCC) ---
+      lesoes_hepaticas:
+        priority: P0
+        rec_types: [classification, recommendation]
+        must_have_sources:
+          - li_rads_v2018
+          - li_rads_ct_mri_v2018
+        queries:
+          - "LI-RADS CT MRI v2018"
+          - "LI-RADS update 2024"
+          - "SAR consensus incidental liver lesions"
+        min_docs: 3
+        min_recs: 12
+        
+      # --- Esteatose Hepática ---
+      hepatic_steatosis:
+        priority: P0
+        rec_types: [recommendation, reporting_standard]
+        must_have_sources:
+          - aasld_nafld_guidelines
+        queries:
+          - "AASLD NAFLD NASH guidelines"
+          - "EASL fatty liver disease"
+          - "hepatic steatosis quantification QIBA"
+          - "ACR incidental hepatic steatosis"
+        min_docs: 3
+        min_recs: 8
+        
+      # --- Lesões Císticas Pancreáticas ---
+      pancreatic_cystic_lesions:
+        priority: P0
+        rec_types: [recommendation, classification]
+        must_have_sources:
+          - fukuoka_guidelines_2017
+          - acr_pancreatic_cysts
+        queries:
+          - "Fukuoka guidelines IPMN"
+          - "European guidelines IPMN 2018"
+          - "ACR white paper pancreatic cystic lesions"
+        min_docs: 3
+        min_recs: 10
+        
+      # --- Pólipos Vesiculares ---
+      gallbladder_polyps:
+        priority: P0
+        rec_types: [recommendation]
+        must_have_sources:
+          - esge_gallbladder_polyp
+        queries:
+          - "ESGE gallbladder polyp guidelines"
+          - "ESGAR gallbladder polyp management"
+          - "gallbladder polyp surgical indications"
+        min_docs: 2
+        min_recs: 5
+        
+      # --- Apendicite Aguda ---
+      appendicitis:
+        priority: P0
+        rec_types: [recommendation, classification]
+        must_have_sources:
+          - wses_appendicitis_2020
+        queries:
+          - "WSES appendicitis guidelines"
+          - "ACR appropriateness acute appendicitis"
+          - "appendicitis scoring CT imaging"
+        min_docs: 2
+        min_recs: 6
+        
+      # --- Diverticulite ---
+      diverticulitis:
+        priority: P0
+        rec_types: [recommendation, classification]
+        must_have_sources:
+          - wses_diverticulitis
+        queries:
+          - "WSES acute diverticulitis guidelines"
+          - "ACR appropriateness diverticulitis"
+          - "Hinchey classification"
+        min_docs: 2
+        min_recs: 6
+
+  # ============================================================================
+  # DOMÍNIO 3: GENITURINÁRIO
+  # ============================================================================
+  gu:
+    priority: P0
+    min_docs: 15
+    min_recs: 60
+    
+    topics:
+      
+      # --- Cistos Renais ---
+      renal_cysts:
+        priority: P0
+        rec_types: [classification, recommendation]
+        must_have_sources:
+          - bosniak_v2019
+          - bosniak_v2005
+        queries:
+          - "Bosniak classification 2019"
+          - "Bosniak renal cyst CT MRI"
+        min_docs: 2
+        min_recs: 8
+        
+      # --- Achados Incidentais Renais ---
+      incidental_renal:
+        priority: P0
+        rec_types: [recommendation]
+        must_have_sources:
+          - acr_incidental_renal
+          - aua_renal_mass
+        queries:
+          - "ACR white paper incidental renal findings"
+          - "AUA renal mass guidelines"
+          - "EAU renal cell carcinoma"
+        min_docs: 3
+        min_recs: 10
+        
+      # --- Achados Incidentais Adrenais ---
+      incidental_adrenal:
+        priority: P0
+        rec_types: [recommendation]
+        must_have_sources:
+          - acr_incidental_adrenal
+        queries:
+          - "ACR white paper incidental adrenal findings"
+          - "ACR appropriateness adrenal mass"
+        min_docs: 2
+        min_recs: 8
+        
+      # --- Próstata (PI-RADS) ---
+      prostate:
+        priority: P0
+        rec_types: [classification, reporting_standard]
+        must_have_sources:
+          - pi_rads_v2_1
+          - pi_rads_v2_0
+        queries:
+          - "PI-RADS v2.1 prostate MRI"
+          - "PI-RADS updated 2024"
+        min_docs: 2
+        min_recs: 10
+        
+      # --- Urolitíase ---
+      urolithiasis:
+        priority: P1
+        rec_types: [recommendation, reporting_standard]
+        must_have_sources: []
+        queries:
+          - "AUA urolithiasis guidelines imaging"
+          - "EAU urinary stone disease"
+        min_docs: 1
+        min_recs: 5
+
+  # ============================================================================
+  # DOMÍNIO 4: PELVE/GINECOLÓGICO
+  # ============================================================================
+  pelve:
+    priority: P0
+    min_docs: 10
+    min_recs: 40
+    
+    topics:
+      
+      # --- Massas Anexiais (O-RADS) ---
+      adnexal_masses:
+        priority: P0
+        rec_types: [classification, reporting_standard]
+        must_have_sources:
+          - o_rads_us_v2020
+          - o_rads_mri_v2022
+        queries:
+          - "O-RADS ultrasound v2020"
+          - "O-RADS MRI v2022"
+          - "ESUR adnexal masses MRI"
+        min_docs: 3
+        min_recs: 12
+        
+      # --- Espessamento Endometrial ---
+      endometrial_thickness:
+        priority: P1
+        rec_types: [recommendation]
+        must_have_sources:
+          - sru_endometrial
+        queries:
+          - "SRU consensus endometrial thickness"
+          - "ACR-SRU pelvic ultrasound guidelines"
+        min_docs: 2
+        min_recs: 6
+
+  # ============================================================================
+  # DOMÍNIO 5: VASCULAR
+  # ============================================================================
+  vascular:
+    priority: P0
+    min_docs: 8
+    min_recs: 30
+    
+    topics:
+      
+      # --- Aneurisma de Aorta Abdominal ---
+      aaa:
+        priority: P0
+        rec_types: [recommendation]
+        must_have_sources:
+          - svs_aaa_2018
+          - esvs_aaa_2019
+        queries:
+          - "SVS abdominal aortic aneurysm guidelines 2018"
+          - "ESVS AAA guidelines 2019"
+        min_docs: 2
+        min_recs: 8
+        
+      # --- Trombose Venosa Profunda ---
+      dvt:
+        priority: P0
+        rec_types: [recommendation, reporting_standard]
+        must_have_sources:
+          - sru_dvt_consensus
+        queries:
+          - "SRU consensus DVT diagnosis"
+          - "ACR appropriateness suspected DVT"
+        min_docs: 2
+        min_recs: 6
+
+  # ============================================================================
+  # DOMÍNIO 6: PEDIATRIA
+  # ============================================================================
+  peds:
+    priority: P1
+    min_docs: 5
+    min_recs: 20
+    
+    topics:
+      
+      # --- Protocolos CT (ALARA) ---
+      ct_protocols_alara:
+        priority: P0
+        rec_types: [reporting_standard]
+        must_have_sources:
+          - image_gently_spr
+        queries:
+          - "Image Gently SPR pediatric CT protocols"
+          - "ALARA pediatric imaging"
+        min_docs: 2
+        min_recs: 6
+        
+      # --- Trauma Abdominal Pediátrico ---
+      pediatric_trauma:
+        priority: P1
+        rec_types: [recommendation, classification]
+        must_have_sources:
+          - spr_abdominal_trauma
+        queries:
+          - "SPR guidelines pediatric abdominal trauma"
+          - "ACR appropriateness pediatric blunt abdominal trauma"
+        min_docs: 2
+        min_recs: 6
+
+  # ============================================================================
+  # DOMÍNIO 7: EMERGÊNCIA/TRAUMA
+  # ============================================================================
+  emergencia:
+    priority: P0
+    min_docs: 8
+    min_recs: 30
+    
+    topics:
+      
+      # --- Trauma Abdominal (AAST) ---
+      abdominal_trauma:
+        priority: P0
+        rec_types: [classification, recommendation]
+        must_have_sources:
+          - aast_organ_injury_scales
+        queries:
+          - "AAST organ injury scale"
+          - "AAST renal trauma grading"
+          - "AAST liver trauma grading"
+          - "AAST splenic trauma grading"
+        min_docs: 2
+        min_recs: 10
+        
+      # --- Obstrução Intestinal ---
+      bowel_obstruction:
+        priority: P1
+        rec_types: [recommendation]
+        must_have_sources: []
+        queries:
+          - "bowel obstruction imaging guidelines"
+          - "ACR appropriateness suspected bowel obstruction"
+        min_docs: 1
+        min_recs: 4
+        
+      # --- Isquemia Mesentérica ---
+      mesenteric_ischemia:
+        priority: P1
+        rec_types: [recommendation]
+        must_have_sources: []
+        queries:
+          - "mesenteric ischemia imaging criteria"
+          - "ACR appropriateness suspected mesenteric ischemia"
+        min_docs: 1
+        min_recs: 4
+
+  # ============================================================================
+  # DOMÍNIO 8: ONCOLOGIA (TNM + RECIST)
+  # ============================================================================
+  oncologia:
+    priority: P0
+    min_docs: 12
+    min_recs: 60
+    
+    topics:
+      
+      # --- TNM Estadiamento ---
+      tnm_lung:
+        priority: P0
+        rec_types: [staging]
+        must_have_sources:
+          - ajcc_tnm_8_lung
+        queries:
+          - "AJCC TNM 8th edition lung cancer"
+          - "UICC TNM staging lung"
+        min_docs: 1
+        min_recs: 6
+        
+      tnm_liver:
+        priority: P0
+        rec_types: [staging]
+        must_have_sources:
+          - ajcc_tnm_8_liver
+        queries:
+          - "AJCC TNM 8th edition hepatocellular carcinoma"
+        min_docs: 1
+        min_recs: 5
+        
+      tnm_pancreas:
+        priority: P0
+        rec_types: [staging]
+        must_have_sources:
+          - ajcc_tnm_8_pancreas
+        queries:
+          - "AJCC TNM 8th edition pancreatic cancer"
+        min_docs: 1
+        min_recs: 5
+        
+      tnm_kidney:
+        priority: P0
+        rec_types: [staging]
+        must_have_sources:
+          - ajcc_tnm_8_kidney
+        queries:
+          - "AJCC TNM 8th edition renal cell carcinoma"
+        min_docs: 1
+        min_recs: 5
+        
+      tnm_bladder:
+        priority: P0
+        rec_types: [staging]
+        must_have_sources:
+          - ajcc_tnm_8_bladder
+        queries:
+          - "AJCC TNM 8th edition bladder cancer"
+        min_docs: 1
+        min_recs: 5
+        
+      tnm_colorectal:
+        priority: P0
+        rec_types: [staging]
+        must_have_sources:
+          - ajcc_tnm_8_colorectal
+        queries:
+          - "AJCC TNM 8th edition colorectal cancer"
+          - "rectal cancer MRI staging MERCURY"
+        min_docs: 2
+        min_recs: 8
+        
+      # --- Critérios de Resposta Tumoral ---
+      recist_1_1:
+        priority: P0
+        rec_types: [response_criteria]
+        must_have_sources:
+          - recist_1_1_original
+        queries:
+          - "RECIST 1.1 criteria original paper"
+          - "RECIST 1.1 guidelines tumor response"
+        min_docs: 2
+        min_recs: 8
+        
+      irecist:
+        priority: P0
+        rec_types: [response_criteria]
+        must_have_sources:
+          - irecist_immunotherapy
+        queries:
+          - "iRECIST immunotherapy response criteria"
+        min_docs: 1
+        min_recs: 6
+        
+      mrecist:
+        priority: P0
+        rec_types: [response_criteria]
+        must_have_sources:
+          - mrecist_hcc
+        queries:
+          - "mRECIST hepatocellular carcinoma"
+          - "modified RECIST HCC criteria"
+        min_docs: 1
+        min_recs: 5
+        
+      choi_criteria:
+        priority: P1
+        rec_types: [response_criteria]
+        must_have_sources:
+          - choi_gist
+        queries:
+          - "Choi criteria GIST response"
+          - "Choi tumor response assessment"
+        min_docs: 1
+        min_recs: 4
+
+# ==============================================================================
+# COMPLETENESS GATES (Quality Assurance)
+# ==============================================================================
+completeness_gates:
+  
+  # Gate 1: Todos os tópicos P0 devem atingir mínimos
+  p0_topics_minimum:
+    enabled: true
+    fail_on_missing: true
+    description: "Falha se qualquer tópico P0 não atingir min_docs ou min_recs"
+  
+  # Gate 2: Must-have sources obrigatórios
+  must_have_sources:
+    enabled: true
+    fail_on_missing: true
+    description: "Falha se qualquer must_have_source estiver ausente do registry"
+  
+  # Gate 3: Cobertura balanceada entre domínios
+  domain_balance:
+    enabled: true
+    fail_on_imbalance: true
+    max_std_dev: 0.15  # Desvio padrão máximo de % entre domínios
+    description: "Falha se algum domínio P0 tiver < 10% do total"
+  
+  # Gate 4: Cobertura por rec_type
+  rec_type_coverage:
+    enabled: true
+    min_per_type:
+      recommendation: 150
+      classification: 30
+      staging: 30
+      response_criteria: 20
+      reporting_standard: 20
+    description: "Falha se qualquer rec_type estiver abaixo do mínimo"
+
+# ==============================================================================
+# SATURATION CRITERIA (quando parar a coleta)
+# ==============================================================================
+saturation_criteria:
+  
+  consecutive_duplicates_threshold: 20
+  min_unique_sources_per_query: 2
+  
+  # Parar coleta de domínio quando:
+  stop_conditions:
+    - "min_docs atingido AND saturação documentada"
+    - "OR 50 queries executadas sem novos únicos"
+    - "OR 100% dos must_have_sources coletados AND 2x min_recs"

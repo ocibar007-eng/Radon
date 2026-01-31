@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-01-31T15:53:53.661Z",
+  "sample_sources": [
+    "fleischner_2017__pdf",
+    "LI-RADS-CT-MRI-2018-Core__2_",
+    "PI-RADS-v2_1-2019",
+    "O-RADS-US-v2020-MRI-v2022",
+    "lung_rads_v1_1_2022__pdf",
+    "disaverio2020",
+    "InjuryScoringTables-3",
+    "esgar_consensus_rectal_mri_2016",
+    "tanaka2017",
+    "TNM-Classification-of-Malignant-Tumours-8th-edition"
+  ],
+  "total_candidates": 0,
+  "candidates": []
+}

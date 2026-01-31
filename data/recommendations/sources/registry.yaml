@@ -1,0 +1,80 @@
+sources:
+  - id: fleischner_2017
+    entidade: Fleischner Society
+    titulo: "Guidelines for Management of Incidental Pulmonary Nodules Detected on CT Images: From the Fleischner Society 2017"
+    ano: 2017
+    doi: "10.1148/radiol.2017161659"
+    url_oficial: "https://pubs.rsna.org/doi/10.1148/radiol.2017161659"
+    status_acesso: open
+    
+  - id: fleischner_2005
+    entidade: Fleischner Society
+    titulo: "Guidelines for Management of Small Pulmonary Nodules Detected on CT Scans: A Statement from the Fleischner Society"
+    ano: 2005
+    doi: "10.1148/radiol.2372041887"
+    url_oficial: "https://pubs.rsna.org/doi/full/10.1148/radiol.2372041887"
+    status_acesso: open
+
+  - id: bosniak_v2019
+    entidade: Society of Abdominal Radiology (SAR)
+    titulo: "The Bosniak Classification of Cystic Renal Masses, Version 2019: An Update Proposal and Needs Assessment"
+    ano: 2019
+    doi: "10.1148/radiol.2019182646"
+    url_oficial: "https://pubs.rsna.org/doi/10.1148/radiol.2019182646"
+    status_acesso: open
+
+  - id: li_rads_v2018
+    entidade: ACR (American College of Radiology)
+    titulo: "CT/MRI LI-RADS v2018"
+    ano: 2018
+    doi: ""
+    url_oficial: "https://www.acr.org/Clinical-Resources/Reporting-and-Data-Systems/LI-RADS/CT-MRI-LI-RADS-v2018"
+    status_acesso: open
+
+  - id: pi_rads_v2_1
+    entidade: ACR (American College of Radiology)
+    titulo: "PI-RADS v2.1"
+    ano: 2019
+    doi: ""
+    url_oficial: "https://www.acr.org/Clinical-Resources/Reporting-and-Data-Systems/PI-RADS"
+    status_acesso: open
+
+  - id: o_rads_us_v2020
+    entidade: ACR (American College of Radiology)
+    titulo: "O-RADS US v2020"
+    ano: 2020
+    doi: "10.1148/radiol.2019191144"
+    url_oficial: "https://pubs.rsna.org/doi/10.1148/radiol.2019191144"
+    status_acesso: open
+
+  - id: o_rads_mri_v2022
+    entidade: ACR (American College of Radiology)
+    titulo: "O-RADS MRI v2022"
+    ano: 2022
+    doi: "10.1148/radiol.211667"
+    url_oficial: "https://pubs.rsna.org/doi/10.1148/radiol.211667"
+    status_acesso: open
+
+  - id: recist_1_1_original
+    entidade: EORTC/NCI/NCIC
+    titulo: "New response evaluation criteria in solid tumours: Revised RECIST guideline (version 1.1)"
+    ano: 2009
+    doi: "10.1016/j.ejca.2008.10.026"
+    url_oficial: "https://recist.eortc.org/wp-content/uploads/2015/03/RECISTGuidelines.pdf"
+    status_acesso: open
+
+  - id: irecist_immunotherapy
+    entidade: RECIST Working Group
+    titulo: "iRECIST: guidelines for response criteria for use in trials testing immunotherapeutics"
+    ano: 2017
+    doi: "10.1016/S1470-2045(17)30074-8"
+    url_oficial: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5648181/pdf/nihms911090.pdf"
+    status_acesso: open
+
+  - id: svs_aaa_2018
+    entidade: Society for Vascular Surgery
+    titulo: "The Society for Vascular Surgery practice guidelines on the care of patients with an abdominal aortic aneurysm"
+    ano: 2018
+    doi: "10.1016/j.jvs.2017.10.044"
+    url_oficial: "https://www.jvascsurg.org/article/S0741-5214(17)32373-6/fulltext"
+    status_acesso: open

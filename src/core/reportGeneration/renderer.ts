@@ -56,5 +56,47 @@ export async function renderReportMarkdown(report: ReportJSON, feedback?: string
   for (const [pattern, replacement] of RENDER_TEXT_FIXES) {
     output = output.replace(pattern, replacement);
   }
+
+  // Append REFERÊNCIAS section if evidence recommendations have references
+  output = appendReferencesSection(output, report);
+
   return output;
+}
+
+/**
+ * Appends REFERÊNCIAS section to the markdown output if references exist.
+ * References come from the evidence-based recommendations system.
+ */
+function appendReferencesSection(markdown: string, report: ReportJSON): string {
+  // Access references from the report (added by RecommendationsAgent)
+  const references = (report as any).references;
+
+  if (!references || !Array.isArray(references) || references.length === 0) {
+    return markdown;
+  }
+
+  // Deduplicate by key
+  const uniqueRefs = Array.from(
+    new Map(references.map((r: any) => [r.key, r])).values()
+  );
+
+  if (uniqueRefs.length === 0) {
+    return markdown;
+  }
+
+  // Build references section
+  const refsSection = [
+    '',
+    '---',
+    '',
+    '**REFERÊNCIAS**',
+    '',
+  ];
+
+  uniqueRefs.forEach((ref: any, index: number) => {
+    refsSection.push(`${index + 1}. ${ref.citation}`);
+    refsSection.push('');
+  });
+
+  return markdown + refsSection.join('\n');
 }

@@ -1,0 +1,1091 @@
+{
+  "timestamp": "2026-01-30T17:09:04.656Z",
+  "total_documents": 162,
+  "successful": 135,
+  "failed": 17,
+  "skipped": 10,
+  "total_recommendations": 2631,
+  "logs": [
+    {
+      "doc_id": "2b99d9ebfe6eb66b895f78482ae30391",
+      "source_id": "1-s2_0-S2211568414001569-main",
+      "status": "failed",
+      "recommendations_count": 0,
+      "error": "Bad control character in string literal in JSON at position 5553 (line 133 column 211)",
+      "timestamp": "2026-01-30T16:24:22.527Z"
+    },
+    {
+      "doc_id": "1c5673ba9a52de6a1e1b1245080653b2",
+      "source_id": "ACR_AIUM_SPR_SRU_PRACTICE_PARAMETER_FOR_THE_PERFORMANCE_OF_SCROTAL_ULTRASOUND_EXAMINATIONS",
+      "status": "success",
+      "recommendations_count": 45,
+      "timestamp": "2026-01-30T16:24:53.577Z"
+    },
+    {
+      "doc_id": "1e492d1c2644b782c117efa80e48e41a",
+      "source_id": "ACR_Appropriateness_Criteria__Abnormal_Uterine_Bleeding",
+      "status": "failed",
+      "recommendations_count": 0,
+      "error": "Bad control character in string literal in JSON at position 2944 (line 60 column 74)",
+      "timestamp": "2026-01-30T16:25:07.496Z"
+    },
+    {
+      "doc_id": "195cc4c5a0a5e5cd89173fd3c8dba022",
+      "source_id": "ACR_Appropriateness_Criteria__Prostate_Cancer_Pretreatment_Detection__Surveillance__and_Staging",
+      "status": "failed",
+      "recommendations_count": 0,
+      "error": "Bad control character in string literal in JSON at position 3531 (line 85 column 66)",
+      "timestamp": "2026-01-30T16:25:25.756Z"
+    },
+    {
+      "doc_id": "e93b4e7b60fe4f9ff89bdc154b3adf33",
+      "source_id": "ACR_Appropriateness_Criteria__Radiologic_Management_of_Iliofemoral_Venous_Thrombosis",
+      "status": "success",
+      "recommendations_count": 7,
+      "timestamp": "2026-01-30T16:25:34.945Z"
+    },
+    {
+      "doc_id": "13933398c0fa8b0cebc1e252ee13f303",
+      "source_id": "Acute_Pelvic_Pain_in_the_Reproductive_Age_Group",
+      "status": "success",
+      "recommendations_count": 31,
+      "timestamp": "2026-01-30T16:25:57.008Z"
+    },
+    {
+      "doc_id": "86f6bd60c3891fe765c5130bfa91ee58",
+      "source_id": "American_College_of_Radiology_ACR_Appropriateness_Criteria__Endometriosis",
+      "status": "success",
+      "recommendations_count": 14,
+      "timestamp": "2026-01-30T16:26:09.599Z"
+    },
+    {
+      "doc_id": "5119e4b493eaf9fa2626615b9573d4de",
+      "source_id": "American_College_of_Radiology_ACR_Appropriateness_Criteria__Hernia",
+      "status": "success",
+      "recommendations_count": 4,
+      "timestamp": "2026-01-30T16:26:17.573Z"
+    },
+    {
+      "doc_id": "9c7649cead92f1f1e7ae09a4525bb32f",
+      "source_id": "American_College_of_Radiology_ACR_Appropriateness_Criteria__Management_of_Uterine_Fibroids",
+      "status": "success",
+      "recommendations_count": 32,
+      "timestamp": "2026-01-30T16:26:41.628Z"
+    },
+    {
+      "doc_id": "86c124a406de2ef54b73acc6e8a4d7fd",
+      "source_id": "American_College_of_Radiology_ACR_Appropriateness_Criteria__Pelvic_Floor_Dysfunction_in_Females",
+      "status": "success",
+      "recommendations_count": 9,
+      "timestamp": "2026-01-30T16:26:52.957Z"
+    },
+    {
+      "doc_id": "0c7a530657c5ce82d9564ba0d5aa773d",
+      "source_id": "American_College_of_Radiology_ACR_Appropriateness_Criteria__Postmenopausal_Subacute_or_Chronic_Pelvic_Pain",
+      "status": "success",
+      "recommendations_count": 35,
+      "timestamp": "2026-01-30T16:27:23.862Z"
+    },
+    {
+      "doc_id": "1cdcbbe9ef82dfc0820f1eb3b782cdb0",
+      "source_id": "American_College_of_Radiology_ACR_Appropriateness_Criteria__Pretreatment_Detection__Surveillance__and_Staging_of_Prostate_Cancer",
+      "status": "success",
+      "recommendations_count": 30,
+      "timestamp": "2026-01-30T16:27:46.066Z"
+    },
+    {
+      "doc_id": "e3f91b5fd5ccb131a67070ecdcab7153",
+      "source_id": "CEUS-LI-RADS-2017-Core",
+      "status": "success",
+      "recommendations_count": 39,
+      "timestamp": "2026-01-30T16:28:12.285Z"
+    },
+    {
+      "doc_id": "c86d83221bcd366f14b94be9bd6ab50a",
+      "source_id": "CPP_Unabridged_2025",
+      "status": "success",
+      "recommendations_count": 18,
+      "timestamp": "2026-01-30T16:28:30.685Z"
+    },
+    {
+      "doc_id": "060955f27749d824ff22ec02581e943a",
+      "source_id": "Clinically_Suspected_Adnexal_Mass-ET",
+      "status": "success",
+      "recommendations_count": 7,
+      "timestamp": "2026-01-30T16:28:39.884Z"
+    },
+    {
+      "doc_id": "c8b42d005fb6d8c5a76ed0f99fda5f97",
+      "source_id": "EAU-EANM-ESTRO-ESUR-ISUP-SIOG-Guidelines-on-Prostate-Cancer-2025_2025-03-24-120144_rinw",
+      "status": "success",
+      "recommendations_count": 10,
+      "timestamp": "2026-01-30T16:28:52.204Z"
+    },
+    {
+      "doc_id": "168ad58acbbebe1fffafe265007c8dda",
+      "source_id": "EAU-Guidelines-on-Chronic-Pelvic-Pain-2024",
+      "status": "success",
+      "recommendations_count": 9,
+      "timestamp": "2026-01-30T16:29:02.850Z"
+    },
+    {
+      "doc_id": "893f176a2cbf403fb9a452ed97bbc0bd",
+      "source_id": "EAU-Guidelines-on-Sexual-and-Reproductive-Health-2025",
+      "status": "success",
+      "recommendations_count": 21,
+      "timestamp": "2026-01-30T16:29:20.371Z"
+    },
+    {
+      "doc_id": "a40503b797741b3940cdb6e8114219b6",
+      "source_id": "EGT-2710_v1_Download",
+      "status": "success",
+      "recommendations_count": 6,
+      "timestamp": "2026-01-30T16:29:27.937Z"
+    },
+    {
+      "doc_id": "2321807316822cb1acfb4b54d425d905",
+      "source_id": "ESGO-ESTRO-ESP-Guidelines-for-EC_-LO-July-2025",
+      "status": "failed",
+      "recommendations_count": 0,
+      "error": "Unterminated string in JSON at position 30443 (line 588 column 41)",
+      "timestamp": "2026-01-30T16:30:19.200Z"
+    },
+    {
+      "doc_id": "fe19c15838d168c7ae5e6a36a022b92e",
+      "source_id": "ESHRE_GUIDELINE_ENDOMETRIOSIS_2022_1",
+      "status": "failed",
+      "recommendations_count": 0,
+      "error": "Expected double-quoted property name in JSON at position 32132 (line 603 column 34)",
+      "timestamp": "2026-01-30T16:31:15.997Z"
+    },
+    {
+      "doc_id": "9763e5f3993d6a1a43a274ced316960e",
+      "source_id": "ESUR-SPIWG-male-infertility",
+      "status": "success",
+      "recommendations_count": 27,
+      "timestamp": "2026-01-30T16:31:36.562Z"
+    },
+    {
+      "doc_id": "ac0d3a566e70e91ecc443ffb31f50666",
+      "source_id": "ESUR-SPIWG-male-infertility__1_",
+      "status": "success",
+      "recommendations_count": 20,
+      "timestamp": "2026-01-30T16:31:53.189Z"
+    },
+    {
+      "doc_id": "7814e4a4fc13f33320a1f23ae95fd3de",
+      "source_id": "ESUR_2019_-_ESUR_Quick_Guide_to_Female_Pelvis_Imaging",
+      "status": "failed",
+      "recommendations_count": 0,
+      "error": "{\"error\":{\"code\":429,\"message\":\"Resource exhausted. Please try again later. Please refer to https://cloud.google.com/vertex-ai/generative-ai/docs/error-code-429 for more details.\",\"status\":\"RESOURCE_EXHAUSTED\"}}",
+      "timestamp": "2026-01-30T16:31:58.149Z"
+    },
+    {
+      "doc_id": "f31ccc3f10a560a565668dc0a7bf1347",
+      "source_id": "Endometrial_cancer-_ESMO_Clinical_Practice_Guideline_for_diagnosis__treatment_and_follow-up",
+      "status": "success",
+      "recommendations_count": 49,
+      "timestamp": "2026-01-30T16:32:38.329Z"
+    },
+    {
+      "doc_id": "c9b4244e7cb22a316216383069c28134",
+      "source_id": "Endometriosis_Apdx",
+      "status": "success",
+      "recommendations_count": 31,
+      "timestamp": "2026-01-30T16:32:57.868Z"
+    },
+    {
+      "doc_id": "f95a536e2e3e54991f8ef73c7cbbe783",
+      "source_id": "Groin_ENG_cov13178_ehs_groin_hernia_management_a5_en_10_lr_1",
+      "status": "success",
+      "recommendations_count": 29,
+      "timestamp": "2026-01-30T16:33:23.060Z"
+    },
+    {
+      "doc_id": "9baf6c324dd7f4aecd3aa9ff4ef2941f",
+      "source_id": "Hernia_Apdx",
+      "status": "success",
+      "recommendations_count": 44,
+      "timestamp": "2026-01-30T16:33:51.538Z"
+    },
+    {
+      "doc_id": "947f352f62c9e13084505a648a0d04aa",
+      "source_id": "InjuryScoringTables-3",
+      "status": "success",
+      "recommendations_count": 34,
+      "timestamp": "2026-01-30T16:34:12.821Z"
+    },
+    {
+      "doc_id": "dd66a68339c245024a279fdb2d2cb775",
+      "source_id": "InjuryScoringTables-3__1_",
+      "status": "success",
+      "recommendations_count": 34,
+      "timestamp": "2026-01-30T16:34:33.918Z"
+    },
+    {
+      "doc_id": "1a37020a1dd9087b27f9905d64e28865",
+      "source_id": "Intl_J_Gynecology___Obste_-_2025_-_Renz_-_Cancer_of_the_ovary__fallopian_tube__and_peritoneum__2025_update",
+      "status": "success",
+      "recommendations_count": 42,
+      "timestamp": "2026-01-30T16:35:05.896Z"
+    },
+    {
+      "doc_id": "91b86886a8acae786a665584a044613a",
+      "source_id": "JCO-2014-Cheson-3059-67",
+      "status": "success",
+      "recommendations_count": 27,
+      "timestamp": "2026-01-30T16:35:29.119Z"
+    },
+    {
+      "doc_id": "c44158ebfc336b4eadfc15edac92f013",
+      "source_id": "JCO642702",
+      "status": "success",
+      "recommendations_count": 21,
+      "timestamp": "2026-01-30T16:35:49.925Z"
+    },
+    {
+      "doc_id": "19a99dc49171aa639431241bb8102980",
+      "source_id": "LI-RADS-CEUS-Nonradiation-TRA-v2024-Core",
+      "status": "success",
+      "recommendations_count": 17,
+      "timestamp": "2026-01-30T16:36:04.945Z"
+    },
+    {
+      "doc_id": "94f6d21cad2ab15cfaa69dd042884fca",
+      "source_id": "LI-RADS-CEUS-Nonradiation-TRA-v2024-Manual",
+      "status": "success",
+      "recommendations_count": 12,
+      "timestamp": "2026-01-30T16:36:17.530Z"
+    },
+    {
+      "doc_id": "c534611b478e8a1022ad5db69e37d147",
+      "source_id": "LI-RADS-CT-MRI-2018-Core__2_",
+      "status": "success",
+      "recommendations_count": 4,
+      "timestamp": "2026-01-30T16:36:25.148Z"
+    },
+    {
+      "doc_id": "8d44a4f9688211cb396cbc2792057aaa",
+      "source_id": "LI-RADS-CTMR-Nonradiation-TRA-v2024-Core",
+      "status": "success",
+      "recommendations_count": 19,
+      "timestamp": "2026-01-30T16:36:42.717Z"
+    },
+    {
+      "doc_id": "539dc920aa1bb278da838131a055d0eb",
+      "source_id": "LI-RADS-CTMR-Radiation-TRA-v2024-Core",
+      "status": "success",
+      "recommendations_count": 10,
+      "timestamp": "2026-01-30T16:36:52.960Z"
+    },
+    {
+      "doc_id": "000b51bce567917f4a23ed2ce896c6d7",
+      "source_id": "LI-RADS-US-Surveillance-v2024-Core__1_",
+      "status": "success",
+      "recommendations_count": 10,
+      "timestamp": "2026-01-30T16:37:04.540Z"
+    },
+    {
+      "doc_id": "90fd032603d9cc46c851d8c5219878d3",
+      "source_id": "LIRADS-Lexicon",
+      "status": "success",
+      "recommendations_count": 6,
+      "timestamp": "2026-01-30T16:37:12.903Z"
+    },
+    {
+      "doc_id": "445b736a3c6a26820e938bd5c5dc63bc",
+      "source_id": "Lung-RADS-v1-1-Assessment-Categories",
+      "status": "success",
+      "recommendations_count": 5,
+      "timestamp": "2026-01-30T16:37:20.207Z"
+    },
+    {
+      "doc_id": "b5efa9ae59aa5434d5e6a352168d3719",
+      "source_id": "Lung-RADS-v1-1-Update",
+      "status": "success",
+      "recommendations_count": 6,
+      "timestamp": "2026-01-30T16:37:28.132Z"
+    },
+    {
+      "doc_id": "74e47d23b571ca9495d964e4dc6d9d5b",
+      "source_id": "LungRADS-v1-Assessment-Categories",
+      "status": "success",
+      "recommendations_count": 8,
+      "timestamp": "2026-01-30T16:37:36.925Z"
+    },
+    {
+      "doc_id": "60fc2ab3c2aab82e2685cc376555d411",
+      "source_id": "LungRADS-v1-Summary",
+      "status": "success",
+      "recommendations_count": 9,
+      "timestamp": "2026-01-30T16:37:46.964Z"
+    },
+    {
+      "doc_id": "106ea08d978db4e18f102ba1cd79bb8e",
+      "source_id": "Male_Infertility_Unabridged_Final",
+      "status": "success",
+      "recommendations_count": 17,
+      "timestamp": "2026-01-30T16:38:04.046Z"
+    },
+    {
+      "doc_id": "07f3627dfbccd86288d6377ef16eabd9",
+      "source_id": "Managing-Incidental-Lung-Findings-on-Thoracic-CT-ACR-2021",
+      "status": "failed",
+      "recommendations_count": 0,
+      "error": "Expected property name or '}' in JSON at position 19155 (line 490 column 4)",
+      "timestamp": "2026-01-30T16:38:44.203Z"
+    },
+    {
+      "doc_id": "2c1dc5ddb458bbe6555a147a273824df",
+      "source_id": "Manuscript_IRECIST_Lancet-Oncology_Seymour-et-al_revision_FINAL_clean_nov25",
+      "status": "success",
+      "recommendations_count": 16,
+      "timestamp": "2026-01-30T16:38:58.925Z"
+    },
+    {
+      "doc_id": "b9797f19d910edf7ed2c867b877211b1",
+      "source_id": "NAFLD-DIAGNOSIS-AND-MANAGEMENT-JAMA-artigo-5",
+      "status": "success",
+      "recommendations_count": 0,
+      "timestamp": "2026-01-30T16:39:08.955Z"
+    },
+    {
+      "doc_id": "de6b99fbe7032bcaa7446312382576be",
+      "source_id": "O-RADS-MRI-Assessment-Categories-Algorithm",
+      "status": "success",
+      "recommendations_count": 15,
+      "timestamp": "2026-01-30T16:39:20.726Z"
+    },
+    {
+      "doc_id": "0f33528fc4ead18fa59f11bab6ef1623",
+      "source_id": "O-RADS-MRI-Lexicon",
+      "status": "success",
+      "recommendations_count": 15,
+      "timestamp": "2026-01-30T16:39:37.264Z"
+    },
+    {
+      "doc_id": "6844cf691eaad91e9a502902e3238d10",
+      "source_id": "O-RADS-MRI-Risk-Score-Assessment",
+      "status": "success",
+      "recommendations_count": 6,
+      "timestamp": "2026-01-30T16:39:44.902Z"
+    },
+    {
+      "doc_id": "c90f3bd042cdbec271f883e0e7bef563",
+      "source_id": "O-RADS-MRI-Risk-Score-Governing-Concepts",
+      "status": "success",
+      "recommendations_count": 16,
+      "timestamp": "2026-01-30T16:39:58.475Z"
+    },
+    {
+      "doc_id": "2bbb9eda361aa42b321e9b710645ee94",
+      "source_id": "PI-RR-_The_Prostate_Imaging_for_Recurrence_Reporting_System_for_MRI_Assessment_of_Local_Prostate_Cancer_Recurrence_After_Radiation_Therapy_or_Radical_Prostatectomy_A_Review",
+      "status": "success",
+      "recommendations_count": 8,
+      "timestamp": "2026-01-30T16:40:08.663Z"
+    },
+    {
+      "doc_id": "514d5ec87db236747311d83aae6d7ce5",
+      "source_id": "PIIS0923753419656218",
+      "status": "success",
+      "recommendations_count": 8,
+      "timestamp": "2026-01-30T16:40:18.717Z"
+    },
+    {
+      "doc_id": "55de8b2790209d9a3776a0296792ea0f",
+      "source_id": "PIIS0959804922007511",
+      "status": "success",
+      "recommendations_count": 30,
+      "timestamp": "2026-01-30T16:40:38.780Z"
+    },
+    {
+      "doc_id": "4066ae9be4c39c9ef60a3ae87b70bfeb",
+      "source_id": "PIIS1546144020313995",
+      "status": "success",
+      "recommendations_count": 2,
+      "timestamp": "2026-01-30T16:40:45.726Z"
+    },
+    {
+      "doc_id": "2675440c33b3eb91a09c271c350464bb",
+      "source_id": "PIRADS-2019",
+      "status": "success",
+      "recommendations_count": 35,
+      "timestamp": "2026-01-30T16:41:11.333Z"
+    },
+    {
+      "doc_id": "baa219ac6a6e357473d5334c481efb75",
+      "source_id": "PIRADS-Lexicon",
+      "status": "success",
+      "recommendations_count": 1,
+      "timestamp": "2026-01-30T16:41:16.790Z"
+    },
+    {
+      "doc_id": "f6bcd73e3eabd4d11376e75ce46057ae",
+      "source_id": "PIRADS-Report-Template",
+      "status": "success",
+      "recommendations_count": 5,
+      "timestamp": "2026-01-30T16:41:24.280Z"
+    },
+    {
+      "doc_id": "236361161511fc815844c305d11f7485",
+      "source_id": "PIRADS-Revisions",
+      "status": "success",
+      "recommendations_count": 13,
+      "timestamp": "2026-01-30T16:41:36.115Z"
+    },
+    {
+      "doc_id": "38ea6b4e3c139e529c31f806b79b0739",
+      "source_id": "PSMA_PET_Guideline_2_0_1_17_23_PDF_for_website",
+      "status": "success",
+      "recommendations_count": 14,
+      "timestamp": "2026-01-30T16:41:51.366Z"
+    },
+    {
+      "doc_id": "aedcd19b8da487409e4489ae463432f6",
+      "source_id": "Post-treatment_Follow-up_of_Prostate_Cancer",
+      "status": "success",
+      "recommendations_count": 56,
+      "timestamp": "2026-01-30T16:42:23.036Z"
+    },
+    {
+      "doc_id": "be4edbd0365eff0e6fee385f28bc070e",
+      "source_id": "Postmenopausal_Subacute_or_Chronic_Pelvic_Pain_Apdx",
+      "status": "success",
+      "recommendations_count": 15,
+      "timestamp": "2026-01-30T16:42:37.270Z"
+    },
+    {
+      "doc_id": "e5d97d20747503e489b38c3755fc6a8c",
+      "source_id": "Pretreatment_Planning_of_Invasive_Cancer_of_the_Cervix",
+      "status": "success",
+      "recommendations_count": 16,
+      "timestamp": "2026-01-30T16:42:49.948Z"
+    },
+    {
+      "doc_id": "310e4b3e5262e28f4a39d184568d887c",
+      "source_id": "RCC-Active-Surveillance-Algorithm",
+      "status": "success",
+      "recommendations_count": 7,
+      "timestamp": "2026-01-30T16:42:59.108Z"
+    },
+    {
+      "doc_id": "2e6f8189d54746f1c09fc9f086e93d67",
+      "source_id": "RCC-Eval-RX-Algorithm",
+      "status": "success",
+      "recommendations_count": 29,
+      "timestamp": "2026-01-30T16:43:20.358Z"
+    },
+    {
+      "doc_id": "9910cc269bac0876097da6f2ecc1b4a7",
+      "source_id": "RCC-Follow-Up-Algorithm",
+      "status": "success",
+      "recommendations_count": 18,
+      "timestamp": "2026-01-30T16:43:35.516Z"
+    },
+    {
+      "doc_id": "9215422783c4ad0dc19e8bc95fea4ae3",
+      "source_id": "RECISTGuidelines",
+      "status": "success",
+      "recommendations_count": 29,
+      "timestamp": "2026-01-30T16:44:01.833Z"
+    },
+    {
+      "doc_id": "b12efdce5f067b9618962a11c857f71a",
+      "source_id": "Renal-Mass-JU-Pt1",
+      "status": "success",
+      "recommendations_count": 28,
+      "timestamp": "2026-01-30T16:44:29.588Z"
+    },
+    {
+      "doc_id": "46176183978aea3abe6db5daa7df4aac",
+      "source_id": "Renal-Mass-JU-Pt2",
+      "status": "success",
+      "recommendations_count": 19,
+      "timestamp": "2026-01-30T16:44:49.586Z"
+    },
+    {
+      "doc_id": "a50bf2c843aed54e534403ab2a63a6e7",
+      "source_id": "Renal_Mass_Website_11-14-23",
+      "status": "success",
+      "recommendations_count": 45,
+      "timestamp": "2026-01-30T16:45:31.225Z"
+    },
+    {
+      "doc_id": "8fe7da335089ca777d88117a100ffc7c",
+      "source_id": "TNM-Classification-of-Malignant-Tumours-8th-edition",
+      "status": "success",
+      "recommendations_count": 10,
+      "timestamp": "2026-01-30T16:45:44.950Z"
+    },
+    {
+      "doc_id": "14a1f1f8789ee506fd822b21d6aab698",
+      "source_id": "The-Proposed-Ninth-Edition-TNM-Classification-of-Lung-Cancer",
+      "status": "success",
+      "recommendations_count": 16,
+      "timestamp": "2026-01-30T16:45:59.083Z"
+    },
+    {
+      "doc_id": "b1df7094a6c3b016725e6d44e60dee64",
+      "source_id": "US_of_Lower_Extremity_Deep_Vein_Thrombosis-_A_Review",
+      "status": "success",
+      "recommendations_count": 3,
+      "timestamp": "2026-01-30T16:46:06.342Z"
+    },
+    {
+      "doc_id": "12541f79e1c564382b81c0cb4df88eb3",
+      "source_id": "Wahl_PERCIST_JNM_2009",
+      "status": "success",
+      "recommendations_count": 7,
+      "timestamp": "2026-01-30T16:46:15.430Z"
+    },
+    {
+      "doc_id": "3bb6de457510488f26723cf543d0f1e4",
+      "source_id": "acr_incidental_adrenal",
+      "status": "failed",
+      "recommendations_count": 0,
+      "error": "Bad control character in string literal in JSON at position 824 (line 20 column 48)",
+      "timestamp": "2026-01-30T16:46:31.446Z"
+    },
+    {
+      "doc_id": "4ae45e9c5ece9ad3cf3de750112d4754",
+      "source_id": "acr_incidental_renal",
+      "status": "success",
+      "recommendations_count": 23,
+      "timestamp": "2026-01-30T16:46:52.201Z"
+    },
+    {
+      "doc_id": "13e3639e383d5c8b5a717c3c5422b416",
+      "source_id": "acs-postmenopausal-pelvic-pain",
+      "status": "success",
+      "recommendations_count": 4,
+      "timestamp": "2026-01-30T16:47:00.305Z"
+    },
+    {
+      "doc_id": "59fa226785ab95ffaed1d4d5be6244e5",
+      "source_id": "bmjopen-2021-052294",
+      "status": "success",
+      "recommendations_count": 2,
+      "timestamp": "2026-01-30T16:47:07.270Z"
+    },
+    {
+      "doc_id": "f7f8ab79cab5af023e300ef1c563282b",
+      "source_id": "bosniak_v2019",
+      "status": "success",
+      "recommendations_count": 13,
+      "timestamp": "2026-01-30T16:47:18.310Z"
+    },
+    {
+      "doc_id": "ff41c77d256ef6d759b5aa909cce01a1",
+      "source_id": "clinical_imaging_2020",
+      "status": "success",
+      "recommendations_count": 3,
+      "timestamp": "2026-01-30T16:47:25.910Z"
+    },
+    {
+      "doc_id": "1faebef2c870016f1e572ab0dedd9c7d",
+      "source_id": "colorectal-8th-ed",
+      "status": "success",
+      "recommendations_count": 10,
+      "timestamp": "2026-01-30T16:47:35.363Z"
+    },
+    {
+      "doc_id": "99b06cc65c45164140d3c7b3f1f1d535",
+      "source_id": "consenso-e-atualizacao-no-tratamento-do-tev",
+      "status": "success",
+      "recommendations_count": 19,
+      "timestamp": "2026-01-30T16:47:54.182Z"
+    },
+    {
+      "doc_id": "c10f120f344cfc0cd2c467df9c3753f7",
+      "source_id": "cp-lung-17protocol-4002",
+      "status": "success",
+      "recommendations_count": 15,
+      "timestamp": "2026-01-30T16:48:10.995Z"
+    },
+    {
+      "doc_id": "b452a9a514dd8330dfded0e3df9b3f52",
+      "source_id": "current_evaluation_of_amenorrhea",
+      "status": "success",
+      "recommendations_count": 34,
+      "timestamp": "2026-01-30T16:48:36.404Z"
+    },
+    {
+      "doc_id": "424778d445d45d0721d2dd3b388f0621",
+      "source_id": "dddt-11-1719",
+      "status": "success",
+      "recommendations_count": 11,
+      "timestamp": "2026-01-30T16:48:47.513Z"
+    },
+    {
+      "doc_id": "dfa01e910ab24d3e0b273a9f6b652515",
+      "source_id": "disaverio2020",
+      "status": "success",
+      "recommendations_count": 51,
+      "timestamp": "2026-01-30T16:49:22.073Z"
+    },
+    {
+      "doc_id": "c75b54979d861cf698125e513e2e3f2b",
+      "source_id": "dixe-de-oliveira-santo-et-al-2023-grading-abdominal-trauma-changes-in-and-implications-of-the-revised-2018-aast-ois-for",
+      "status": "success",
+      "recommendations_count": 10,
+      "timestamp": "2026-01-30T16:49:33.540Z"
+    },
+    {
+      "doc_id": "98204ddd2f8cd3e47ef3db997e713249",
+      "source_id": "endometriosis_and_infertility",
+      "status": "success",
+      "recommendations_count": 15,
+      "timestamp": "2026-01-30T16:49:47.536Z"
+    },
+    {
+      "doc_id": "9a9581287636feb4adb078e1b9d8bc7c",
+      "source_id": "esgar_2021_article_8384",
+      "status": "success",
+      "recommendations_count": 8,
+      "timestamp": "2026-01-30T16:49:59.273Z"
+    },
+    {
+      "doc_id": "ebf80a94632b9f904c73616de2afa1c6",
+      "source_id": "esgar_consensus_2024_a",
+      "status": "success",
+      "recommendations_count": 13,
+      "timestamp": "2026-01-30T16:50:16.002Z"
+    },
+    {
+      "doc_id": "9380fa595f8d219348f3751195c483c3",
+      "source_id": "esgar_consensus_2024_b",
+      "status": "success",
+      "recommendations_count": 18,
+      "timestamp": "2026-01-30T16:50:32.183Z"
+    },
+    {
+      "doc_id": "bad74b14914ac8a275cabd158bd8a102",
+      "source_id": "esgar_consensus_2025_w",
+      "status": "success",
+      "recommendations_count": 46,
+      "timestamp": "2026-01-30T16:51:05.362Z"
+    },
+    {
+      "doc_id": "617c551aee217ef0adf2c6cabaf94f27",
+      "source_id": "esgar_consensus_2025_z",
+      "status": "success",
+      "recommendations_count": 29,
+      "timestamp": "2026-01-30T16:51:26.993Z"
+    },
+    {
+      "doc_id": "126d858c2d04618564897b23f3d1e29c",
+      "source_id": "esgar_consensus_liver_lesions_2015",
+      "status": "success",
+      "recommendations_count": 18,
+      "timestamp": "2026-01-30T16:51:42.022Z"
+    },
+    {
+      "doc_id": "b6a91300a678b019c7ecc7af63253ef0",
+      "source_id": "esgar_consensus_rectal_mri_2016",
+      "status": "success",
+      "recommendations_count": 47,
+      "timestamp": "2026-01-30T16:52:13.143Z"
+    },
+    {
+      "doc_id": "bbb9293f084ad286d9ec33a77010963c",
+      "source_id": "esgar_guideline_2019",
+      "status": "success",
+      "recommendations_count": 5,
+      "timestamp": "2026-01-30T16:52:21.389Z"
+    },
+    {
+      "doc_id": "04c7aefe0ff6820913cbfb764c9f1d60",
+      "source_id": "esgar_guideline_2020",
+      "status": "success",
+      "recommendations_count": 53,
+      "timestamp": "2026-01-30T16:52:58.502Z"
+    },
+    {
+      "doc_id": "54196c952c03dda21d3ce180110ecbd8",
+      "source_id": "esgar_imaging_protocol_2024",
+      "status": "success",
+      "recommendations_count": 11,
+      "timestamp": "2026-01-30T16:53:09.854Z"
+    },
+    {
+      "doc_id": "0f12a4762aff0736241b49098253cc79",
+      "source_id": "esgar_updated_guideline_2025",
+      "status": "success",
+      "recommendations_count": 16,
+      "timestamp": "2026-01-30T16:53:23.912Z"
+    },
+    {
+      "doc_id": "34e353f6c01d43ced77463576603b3f2",
+      "source_id": "esgar_updated_guideline_2025_dup",
+      "status": "success",
+      "recommendations_count": 16,
+      "timestamp": "2026-01-30T16:53:38.141Z"
+    },
+    {
+      "doc_id": "af56826254283f265c61c47670534537",
+      "source_id": "esge_gallbladder_polyp",
+      "status": "success",
+      "recommendations_count": 8,
+      "timestamp": "2026-01-30T16:53:50.094Z"
+    },
+    {
+      "doc_id": "a87c8fdbe4e35ff19debbf42d1df3871",
+      "source_id": "esteatose_",
+      "status": "failed",
+      "recommendations_count": 0,
+      "error": "Bad control character in string literal in JSON at position 5707 (line 93 column 157)",
+      "timestamp": "2026-01-30T16:54:21.135Z"
+    },
+    {
+      "doc_id": "b9be1bc570611fb4eaf04ba04e934808",
+      "source_id": "esur_guideline_106",
+      "status": "success",
+      "recommendations_count": 33,
+      "timestamp": "2026-01-30T16:54:48.240Z"
+    },
+    {
+      "doc_id": "f422732a573eeb1574fd08f33f41796a",
+      "source_id": "esur_guideline_107",
+      "status": "success",
+      "recommendations_count": 21,
+      "timestamp": "2026-01-30T16:55:05.326Z"
+    },
+    {
+      "doc_id": "1a18eb0da96b410d03349d0184ab2b7d",
+      "source_id": "esvs_aaa_2019",
+      "status": "success",
+      "recommendations_count": 11,
+      "timestamp": "2026-01-30T16:55:16.395Z"
+    },
+    {
+      "doc_id": "c608f2aadde1c124b7a4bc1aef3b007e",
+      "source_id": "ex-2025_2025-2-6",
+      "status": "success",
+      "recommendations_count": 11,
+      "timestamp": "2026-01-30T16:55:26.927Z"
+    },
+    {
+      "doc_id": "6fd90a5cc7f7ba3ce0c8f59552ecf54d",
+      "source_id": "fleischner_2005",
+      "status": "success",
+      "recommendations_count": 9,
+      "timestamp": "2026-01-30T16:55:38.015Z"
+    },
+    {
+      "doc_id": "036d1c610d44cb636604d1cb075bd1ab",
+      "source_id": "hepatic_steatosis_review",
+      "status": "failed",
+      "recommendations_count": 0,
+      "error": "Bad control character in string literal in JSON at position 5686 (line 93 column 157)",
+      "timestamp": "2026-01-30T16:56:04.003Z"
+    },
+    {
+      "doc_id": "e44786c23e5fad2cfb2f2e25971041ed",
+      "source_id": "hoac009",
+      "status": "failed",
+      "recommendations_count": 0,
+      "error": "Unterminated string in JSON at position 32510 (line 581 column 197)",
+      "timestamp": "2026-01-30T16:56:54.847Z"
+    },
+    {
+      "doc_id": "f7ad51b0530e084b0bd5b8ec4a847e1b",
+      "source_id": "jjaf106",
+      "status": "success",
+      "recommendations_count": 33,
+      "timestamp": "2026-01-30T16:57:21.286Z"
+    },
+    {
+      "doc_id": "10c5e7b5c2ccc84f2e9b112132f13586",
+      "source_id": "jjaf107",
+      "status": "success",
+      "recommendations_count": 21,
+      "timestamp": "2026-01-30T16:57:38.812Z"
+    },
+    {
+      "doc_id": "4bd2e391beaadc2acfd01f08d08e593b",
+      "source_id": "jnccn-article-p284",
+      "status": "success",
+      "recommendations_count": 3,
+      "timestamp": "2026-01-30T16:57:46.353Z"
+    },
+    {
+      "doc_id": "6d1a12866350402acbe10deb6401574d",
+      "source_id": "jvb-23-e20230107",
+      "status": "success",
+      "recommendations_count": 23,
+      "timestamp": "2026-01-30T16:58:06.423Z"
+    },
+    {
+      "doc_id": "a30aa822e0b614e1da22d902e152915c",
+      "source_id": "konstantinides2019",
+      "status": "failed",
+      "recommendations_count": 0,
+      "error": "Bad control character in string literal in JSON at position 2394 (line 53 column 136)",
+      "timestamp": "2026-01-30T16:58:24.031Z"
+    },
+    {
+      "doc_id": "55060c4ae1a46362f7fbc53dc57a5b1e",
+      "source_id": "macmahon2005",
+      "status": "success",
+      "recommendations_count": 9,
+      "timestamp": "2026-01-30T16:58:33.971Z"
+    },
+    {
+      "doc_id": "058294ec94b08c193d3d64cd5620b4d5",
+      "source_id": "macmahon2017",
+      "status": "success",
+      "recommendations_count": 25,
+      "timestamp": "2026-01-30T16:58:53.327Z"
+    },
+    {
+      "doc_id": "a7ec6410d5b9669a802b1ee4be987d34",
+      "source_id": "magers2018",
+      "status": "success",
+      "recommendations_count": 4,
+      "timestamp": "2026-01-30T16:59:01.413Z"
+    },
+    {
+      "doc_id": "3ae47aafe6e4d87176504e464167d751",
+      "source_id": "megibow2017",
+      "status": "failed",
+      "recommendations_count": 0,
+      "error": "Bad control character in string literal in JSON at position 2922 (line 77 column 55)",
+      "timestamp": "2026-01-30T16:59:20.659Z"
+    },
+    {
+      "doc_id": "06a6954e8f2e490713be26d9fd1f5efa",
+      "source_id": "merican_College_of_Radiology_ACR_Appropriateness_Criteria__Postmenopausal_Subacute_or_Chronic_Pelvic_Pain",
+      "status": "success",
+      "recommendations_count": 12,
+      "timestamp": "2026-01-30T16:59:32.572Z"
+    },
+    {
+      "doc_id": "6eec283e3e56c05d090316ef69d120f6",
+      "source_id": "messiou-et-al-2019-guidelines-for-acquisition-interpretation-and-reporting-of-whole-body-mri-in-myeloma-myeloma",
+      "status": "success",
+      "recommendations_count": 11,
+      "timestamp": "2026-01-30T16:59:44.647Z"
+    },
+    {
+      "doc_id": "89b950dfccdde5943f9c597af6ad63b0",
+      "source_id": "nafld_jama_2016",
+      "status": "success",
+      "recommendations_count": 0,
+      "timestamp": "2026-01-30T16:59:55.011Z"
+    },
+    {
+      "doc_id": "3fcd5bde6432d11ad613ea876e94c023",
+      "source_id": "needleman-et-al-2018-ultrasound-for-lower-extremity-deep-venous-thrombosis",
+      "status": "success",
+      "recommendations_count": 13,
+      "timestamp": "2026-01-30T17:00:10.184Z"
+    },
+    {
+      "doc_id": "609cd0c52c27753320bb98f807c341b5",
+      "source_id": "o_rads_us_v2020",
+      "status": "success",
+      "recommendations_count": 3,
+      "timestamp": "2026-01-30T17:00:17.290Z"
+    },
+    {
+      "doc_id": "8a3d853b7331be8324da0945502b5396",
+      "source_id": "oncology_ejc_2022_radiotherapy",
+      "status": "success",
+      "recommendations_count": 31,
+      "timestamp": "2026-01-30T17:00:38.202Z"
+    },
+    {
+      "doc_id": "ef36dbc3631e6451bca843548b54ae60",
+      "source_id": "oude-nijhuis-et-al-2020-european-guidelines-on-achalasia-united-european-gastroenterology-and-european-society-of",
+      "status": "success",
+      "recommendations_count": 30,
+      "timestamp": "2026-01-30T17:01:04.309Z"
+    },
+    {
+      "doc_id": "9b16589bf4b4d693f019340d802aa9e0",
+      "source_id": "peacock2020",
+      "status": "success",
+      "recommendations_count": 7,
+      "timestamp": "2026-01-30T17:01:14.021Z"
+    },
+    {
+      "doc_id": "fb66301be7a93095efcb8f6877a65987",
+      "source_id": "radiol_2016142043",
+      "status": "success",
+      "recommendations_count": 17,
+      "timestamp": "2026-01-30T17:01:32.435Z"
+    },
+    {
+      "doc_id": "88688e66a823505cf3b56495c5a62cbb",
+      "source_id": "reeder-et-al-2023-quantification-of-liver-iron-overload-with-mri-review-and-guidelines-from-the-esgar-and-sar",
+      "status": "success",
+      "recommendations_count": 25,
+      "timestamp": "2026-01-30T17:01:54.799Z"
+    },
+    {
+      "doc_id": "996e8498d16b22bd3620d96d7e17fb76",
+      "source_id": "s00330-015-3900-3",
+      "status": "success",
+      "recommendations_count": 17,
+      "timestamp": "2026-01-30T17:02:09.476Z"
+    },
+    {
+      "doc_id": "e26a190d96caa20fa251c8150db73b5e",
+      "source_id": "s00330-016-4471-7",
+      "status": "success",
+      "recommendations_count": 45,
+      "timestamp": "2026-01-30T17:02:40.095Z"
+    },
+    {
+      "doc_id": "e8dbc062293792897fbe91832d36f17c",
+      "source_id": "s00330-019-6002-9",
+      "status": "success",
+      "recommendations_count": 6,
+      "timestamp": "2026-01-30T17:02:48.017Z"
+    },
+    {
+      "doc_id": "020ede766b7ea27733e729549dc8a9fb",
+      "source_id": "s00330-020-06826-5",
+      "status": "success",
+      "recommendations_count": 53,
+      "timestamp": "2026-01-30T17:03:25.192Z"
+    },
+    {
+      "doc_id": "fb2ffd24cca188dbcb1b9039699289c2",
+      "source_id": "s00330-024-10940-z",
+      "status": "success",
+      "recommendations_count": 4,
+      "timestamp": "2026-01-30T17:03:32.467Z"
+    },
+    {
+      "doc_id": "7f812d3f2fc330b6c9b1e182045f9158",
+      "source_id": "s00330-024-11124-5",
+      "status": "success",
+      "recommendations_count": 13,
+      "timestamp": "2026-01-30T17:03:49.509Z"
+    },
+    {
+      "doc_id": "4f97de93b014b4aad11dbf5af9ba7a2a",
+      "source_id": "s00330-024-11241-1",
+      "status": "success",
+      "recommendations_count": 20,
+      "timestamp": "2026-01-30T17:04:07.399Z"
+    },
+    {
+      "doc_id": "25be1e10e4992fdbb997315e5c33c0f0",
+      "source_id": "s00330-025-11583-4",
+      "status": "success",
+      "recommendations_count": 19,
+      "timestamp": "2026-01-30T17:04:22.823Z"
+    },
+    {
+      "doc_id": "c0abc939c51363e92f9e195526a9d806",
+      "source_id": "s00330-025-11583-4__1_",
+      "status": "success",
+      "recommendations_count": 15,
+      "timestamp": "2026-01-30T17:04:37.152Z"
+    },
+    {
+      "doc_id": "86c271377e7f75a6a6ba0cf4b85a7bd5",
+      "source_id": "s00330-025-12274-w",
+      "status": "success",
+      "recommendations_count": 46,
+      "timestamp": "2026-01-30T17:05:09.670Z"
+    },
+    {
+      "doc_id": "93755f88af8d11a1fe28d0d5655e182f",
+      "source_id": "s00330-025-12275-9",
+      "status": "success",
+      "recommendations_count": 29,
+      "timestamp": "2026-01-30T17:05:31.578Z"
+    },
+    {
+      "doc_id": "4021e87c25e3d423795ce8331c80f222",
+      "source_id": "s10434-018-6462-1",
+      "status": "success",
+      "recommendations_count": 8,
+      "timestamp": "2026-01-30T17:05:40.986Z"
+    },
+    {
+      "doc_id": "a54f7cec9ea86bcdca74563e9b9e017d",
+      "source_id": "sadowski-et-al-2022-o-rads-mri-after-initial-ultrasound-for-adnexal-lesions-ajr-expert-panel-narrative-review",
+      "status": "success",
+      "recommendations_count": 20,
+      "timestamp": "2026-01-30T17:05:57.850Z"
+    },
+    {
+      "doc_id": "82cfdb55e1ad9c80197543287d0718ca",
+      "source_id": "sadowski-et-al-2022-o-rads-mri-risk-stratification-system-guide-for-assessing-adnexal-lesions-from-the-acr-o-rads",
+      "status": "success",
+      "recommendations_count": 8,
+      "timestamp": "2026-01-30T17:06:07.333Z"
+    },
+    {
+      "doc_id": "b72d0155e5453e8d975e3fd82fc16cb4",
+      "source_id": "sartelli2020",
+      "status": "success",
+      "recommendations_count": 26,
+      "timestamp": "2026-01-30T17:06:27.196Z"
+    },
+    {
+      "doc_id": "ce9aeeaf704066e34881921cafd41a5a",
+      "source_id": "scrotal_2025",
+      "status": "failed",
+      "recommendations_count": 0,
+      "error": "Bad control character in string literal in JSON at position 5559 (line 149 column 98)",
+      "timestamp": "2026-01-30T17:07:00.423Z"
+    },
+    {
+      "doc_id": "6cd899b9291ee09ba78042f000edcafb",
+      "source_id": "sru_endometrial",
+      "status": "success",
+      "recommendations_count": 3,
+      "timestamp": "2026-01-30T17:07:07.722Z"
+    },
+    {
+      "doc_id": "b0347526bc029f3cb3409ac21d55bf30",
+      "source_id": "svs_aaa_2018",
+      "status": "failed",
+      "recommendations_count": 0,
+      "error": "Bad control character in string literal in JSON at position 12246 (line 333 column 78)",
+      "timestamp": "2026-01-30T17:07:48.010Z"
+    },
+    {
+      "doc_id": "0fca7afcfd85f094abdd1151df016cfd",
+      "source_id": "tanaka2017",
+      "status": "failed",
+      "recommendations_count": 0,
+      "error": "Bad control character in string literal in JSON at position 2818 (line 61 column 198)",
+      "timestamp": "2026-01-30T17:08:17.932Z"
+    },
+    {
+      "doc_id": "fd1dea9837d4ce1b50822304d040fe09",
+      "source_id": "terlouw-et-al-2020-european-guidelines-on-chronic-mesenteric-ischaemia-joint-united-european-gastroenterology-european",
+      "status": "failed",
+      "recommendations_count": 0,
+      "error": "Bad control character in string literal in JSON at position 3476 (line 61 column 31)",
+      "timestamp": "2026-01-30T17:08:44.523Z"
+    },
+    {
+      "doc_id": "e14a63d77d8f5643a1c2019c52f762e9",
+      "source_id": "thomassinnaggara_2020_oi_190746",
+      "status": "success",
+      "recommendations_count": 3,
+      "timestamp": "2026-01-30T17:08:51.942Z"
+    },
+    {
+      "doc_id": "9a016370d5abfc47a3a1488656092302",
+      "source_id": "younossi2016",
+      "status": "success",
+      "recommendations_count": 1,
+      "timestamp": "2026-01-30T17:08:57.738Z"
+    },
+    {
+      "doc_id": "32d7fb3a848c5a77f543e7e929f3e33a",
+      "source_id": "zhang-et-al-2023-systematic-review-and-meta-analysis-of-o-rads-ultrasound-and-o-rads-mri-for-risk-assessment-of-ovarian",
+      "status": "success",
+      "recommendations_count": 2,
+      "timestamp": "2026-01-30T17:09:04.655Z"
+    }
+  ]
+}

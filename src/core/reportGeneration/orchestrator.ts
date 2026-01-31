@@ -7,6 +7,9 @@ import { generateTechniqueSection } from './agents/technical';
 import { generateFindings } from './agents/findings';
 import { generateComparisonSummary } from './agents/comparison';
 import { synthesizeImpression } from './agents/impression';
+import { runRecommendationsAgent, AgentContext as RecsContext } from './agents/recommendations';
+import { validateRecommendations } from './recommendations-guard';
+import { recordGuardSanitization } from './recommendations-observability';
 import { attachComputeResults, computeFormulas } from '../../services/calculator-client';
 import { CONFIG } from '../config';
 import { OPENAI_MODELS } from '../openai';
@@ -43,8 +46,8 @@ function resolveModality(bundle: CaseBundle): string {
   if (!examRaw) return 'UNKNOWN';
 
   const exam = normalizeText(examRaw);
-  if (exam.includes('TOMOGRAFIA') || exam.includes(' TC ' ) || exam.includes('TC ')) return 'CT';
-  if (exam.includes('RESSONANCIA') || exam.includes(' RM ' ) || exam.includes('RM ')) return 'MR';
+  if (exam.includes('TOMOGRAFIA') || exam.includes(' TC ') || exam.includes('TC ')) return 'CT';
+  if (exam.includes('RESSONANCIA') || exam.includes(' RM ') || exam.includes('RM ')) return 'MR';
   if (exam.includes('ULTRASSOM') || exam.includes('USG') || exam.includes('US ')) return 'US';
   return 'UNKNOWN';
 }
@@ -84,6 +87,25 @@ function countMissingMarkers(text: string): number {
   return matches ? matches.length : 0;
 }
 
+function extractPatientAge(report: ReportJSON): number | undefined {
+  // Try to extract age from clinical history or patient_age_group
+  const ageGroup = report.indication?.patient_age_group;
+  if (!ageGroup) return undefined;
+
+  // Parse common patterns like "45 anos", "45y", "adulto 45a"
+  const numMatch = ageGroup.match(/(\d+)/);
+  if (numMatch) {
+    return parseInt(numMatch[1], 10);
+  }
+
+  // Default adult age if "adulto" mentioned
+  if (ageGroup.toLowerCase().includes('adulto')) return 50;
+  if (ageGroup.toLowerCase().includes('idoso')) return 70;
+  if (ageGroup.toLowerCase().includes('criança') || ageGroup.toLowerCase().includes('pediatr')) return 10;
+
+  return undefined;
+}
+
 export function buildReport(
   bundle: CaseBundle,
   clinical: ClinicalOutput,
@@ -109,12 +131,12 @@ export function buildReport(
     },
     comparison: bundle.prior_reports?.raw_markdown
       ? {
-          available: true,
-          mode: bundle.comparison_mode,
-        }
+        available: true,
+        mode: bundle.comparison_mode,
+      }
       : {
-          available: false,
-        },
+        available: false,
+      },
     findings: findings.findings as Finding[],
     impression: {
       primary_diagnosis: '<VERIFICAR>.',
@@ -185,6 +207,52 @@ export async function processCasePipeline(bundle: CaseBundle): Promise<ReportPip
         limitations: comparison.limitations,
       },
     };
+  }
+
+  // === RECOMMENDATIONS AGENT (NEW) ===
+  // Call after Comparison, before Impression
+  // Regra-mãe: "Recomendação só entra se for recuperada + aplicável"
+  try {
+    const recsContext: RecsContext = {
+      patient_age: extractPatientAge(report),
+      risk_category: 'unknown', // Conservative default
+      immunosuppressed: false,
+      oncologic_context: report.indication?.clinical_history?.toLowerCase().includes('oncol') ||
+        report.indication?.clinical_history?.toLowerCase().includes('câncer') ||
+        report.indication?.clinical_history?.toLowerCase().includes('tumor'),
+    };
+
+    const enrichedReport = await runRecommendationsAgent(recsContext, report as any);
+
+    // Extract library payloads for full number verification
+    const libraryPayloads = (enrichedReport as any)._libraryPayloads || new Map();
+
+    // Validate with Guard - NOW WITH REAL PAYLOADS
+    const guardResult = validateRecommendations(
+      enrichedReport.recommendations || [],
+      libraryPayloads
+    );
+
+    if (!guardResult.valid) {
+      console.warn('[Orchestrator] Recommendations Guard violations:', guardResult.violations);
+    }
+
+    const originalRecs = enrichedReport.recommendations || [];
+    const sanitizedRecs = guardResult.sanitized_recommendations || [];
+    const sanitizedCount = sanitizedRecs.filter((rec, index) => rec.text !== originalRecs[index]?.text).length;
+    for (let i = 0; i < sanitizedCount; i += 1) {
+      recordGuardSanitization();
+    }
+
+    // Apply validated recommendations
+    report = {
+      ...report,
+      evidence_recommendations: guardResult.sanitized_recommendations as any,
+      references: enrichedReport.references as any,
+    };
+  } catch (error) {
+    console.error('[Orchestrator] RecommendationsAgent error:', error);
+    // Continue without recommendations - graceful degradation
   }
 
   const impression = await synthesizeImpression(report, bundle);

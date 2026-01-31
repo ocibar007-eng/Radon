@@ -1,0 +1,412 @@
+# EXPANDED COVERAGE - Unmapped Sources Integration
+# Added 2026-01-31 to map 102 unmapped sources
+
+# Append this to the existing coverage_spec.yaml
+
+  # ============================================================================
+  # DOMÍNIO: GINECOLOGIA E OBSTETRÍCIA (EXPANDED)
+  # ============================================================================
+  gynecology_obstetrics:
+    priority: P1
+    min_docs: 25
+    min_recs: 150
+    
+    topics:
+      
+      # --- Endometriose ---
+      endometriosis:
+        priority: P0
+        rec_types: [recommendation, expert_opinion]
+        must_have_sources:
+          - ESHRE_GUIDELINE_ENDOMETRIOSIS_2022_1
+          - endometriosis_and_infertility
+          - Endometriosis_Apdx
+        min_docs: 3
+        min_recs: 20
+      
+      # --- Sangramento Uterino Anormal ---
+      abnormal_uterine_bleeding:
+        priority: P0
+        rec_types: [recommendation]
+        must_have_sources:
+          - ACR_Appropriateness_Criteria__Abnormal_Uterine_Bleeding
+        min_docs: 1
+        min_recs: 5
+      
+      # --- Dor Pélvica ---
+      pelvic_pain:
+        priority: P0
+        rec_types: [recommendation]
+        must_have_sources:
+          - Acute_Pelvic_Pain_in_the_Reproductive_Age_Group
+          - acs-postmenopausal-pelvic-pain
+          - Postmenopausal_Subacute_or_Chronic_Pelvic_Pain_Apdx
+          - CPP_Unabridged_2025
+          - EAU-Guidelines-on-Chronic-Pelvic-Pain-2024
+        min_docs: 5
+        min_recs: 30
+      
+      # --- Massas Anexiais ---
+      adnexal_masses:
+        priority: P0
+        rec_types: [recommendation, classification]
+        must_have_sources:
+          - Clinically_Suspected_Adnexal_Mass-ET
+        min_docs: 1
+        min_recs: 10
+      
+      # --- Câncer Endometrial ---
+      endometrial_cancer:
+        priority: P0
+        rec_types: [recommendation, staging]
+        must_have_sources:
+          - Endometrial_cancer-_ESMO_Clinical_Practice_Guideline_for_diagnosis__treatment_and_follow-up
+          - ESGO-ESTRO-ESP-Guidelines-for-EC_-LO-July-2025
+        min_docs: 2
+        min_recs: 20
+      
+      # --- Câncer de Ovário ---
+      ovarian_cancer:
+        priority: P0
+        rec_types: [recommendation, staging]
+        must_have_sources:
+          - Intl_J_Gynecology___Obste_-_2025_-_Renz_-_Cancer_of_the_ovary__fallopian_tube__and_peritoneum__2025_update
+        min_docs: 1
+        min_recs: 15
+      
+      # --- Câncer Cervical ---
+      cervical_cancer:
+        priority: P0
+        rec_types: [recommendation]
+        must_have_sources:
+          - Pretreatment_Planning_of_Invasive_Cancer_of_the_Cervix
+        min_docs: 1
+        min_recs: 10
+      
+      # --- Imaging Pélvico ---
+      pelvis_imaging:
+        priority: P1
+        rec_types: [recommendation, reporting_standard]
+        must_have_sources:
+          - ESUR_2019_-_ESUR_Quick_Guide_to_Female_Pelvis_Imaging
+        min_docs: 1
+        min_recs: 15
+  
+  # ============================================================================
+  # DOMÍNIO: UROLOGIA E ANDROLOGIA (EXPANDED)
+  # ============================================================================
+  urology_andrology:
+    priority: P1
+    min_docs: 20
+    min_recs: 100
+    
+    topics:
+      
+      # --- Infertilidade Masculina ---
+      male_infertility:
+        priority: P0
+        rec_types: [recommendation]
+        must_have_sources:
+          - Male_Infertility_Unabridged_Final
+          - ESUR-SPIWG-male-infertility
+          - ESUR-SPIWG-male-infertility__1_
+          - EAU-Guidelines-on-Sexual-and-Reproductive-Health-2025
+        min_docs: 4
+        min_recs: 25
+      
+      # --- Ultrassom Escrotal ---
+      scrotal_ultrasound:
+        priority: P0
+        rec_types: [recommendation, reporting_standard]
+        must_have_sources:
+          - ACR_AIUM_SPR_SRU_PRACTICE_PARAMETER_FOR_THE_PERFORMANCE_OF_SCROTAL_ULTRASOUND_EXAMINATIONS
+          - scrotal_2025
+        min_docs: 2
+        min_recs: 20
+      
+      # --- Carcinoma Renal ---
+      renal_cell_carcinoma:
+        priority: P0
+        rec_types: [recommendation]
+        must_have_sources:
+          - RCC-Active-Surveillance-Algorithm
+          - RCC-Eval-RX-Algorithm
+          - RCC-Follow-Up-Algorithm
+          - Renal-Mass-JU-Pt1
+          - Renal-Mass-JU-Pt2
+          - Renal_Mass_Website_11-14-23
+        min_docs: 6
+        min_recs: 40
+  
+  # ============================================================================
+  # DOMÍNIO: ONCOLOGIA GERAL (EXPANDED)
+  # ============================================================================
+  oncology_general:
+    priority: P0
+    min_docs: 30
+    min_recs: 200
+    
+    topics:
+      
+      # --- TNM Staging ---
+      tnm_staging:
+        priority: P0
+        rec_types: [classification, staging]
+        must_have_sources:
+          - TNM-Classification-of-Malignant-Tumours-8th-edition
+          - The-Proposed-Ninth-Edition-TNM-Classification-of-Lung-Cancer
+          - colorectal-8th-ed
+          - cp-lung-17protocol-4002
+        min_docs: 4
+        min_recs: 50
+      
+      # --- Critérios de Resposta (RECIST, PERCIST) ---
+      response_criteria:
+        priority: P0
+        rec_types: [response_criteria, classification]
+        must_have_sources:
+          - RECISTGuidelines
+          - Wahl_PERCIST_JNM_2009
+          - JCO-2014-Cheson-3059-67
+        min_docs: 3
+        min_recs: 20
+      
+      # --- GIST ---
+      gist:
+        priority: P1
+        rec_types: [recommendation]
+        must_have_sources:
+          - 2023-GEIS-guidelines-for-GIST
+        min_docs: 1
+        min_recs: 10
+      
+      # --- PSMA PET ---
+      psma_pet:
+        priority: P1
+        rec_types: [recommendation, reporting_standard]
+        must_have_sources:
+          - PSMA_PET_Guideline_2_0_1_17_23_PDF_for_website
+        min_docs: 1
+        min_recs: 15
+  
+  # ============================================================================
+  # DOMÍNIO: EMERGÊNCIA E TRAUMA (NEW)
+  # ============================================================================
+  emergency_trauma:
+    priority: P1
+    min_docs: 10
+    min_recs: 60
+    
+    topics:
+      
+      # --- Trauma Abdominal ---
+      abdominal_trauma:
+        priority: P0
+        rec_types: [classification]
+        must_have_sources:
+          - InjuryScoringTables-3
+          - InjuryScoringTables-3__1_
+          - dixe-de-oliveira-santo-et-al-2023-grading-abdominal-trauma-changes-in-and-implications-of-the-revised-2018-aast-ois-for
+        min_docs: 3
+        min_recs: 30
+      
+      # --- Abdome Agudo ---
+      acute_abdomen:
+        priority: P0
+        rec_types: [recommendation]
+        must_have_sources:
+          - disaverio2020
+          - sartelli2020
+        min_docs: 2
+        min_recs: 30
+  
+  # ============================================================================
+  # DOMÍNIO: VASCULAR (EXPANDED)
+  # ============================================================================
+  vascular:
+    priority: P1
+    min_docs: 15
+    min_recs: 80
+    
+    topics:
+      
+      # --- Tromboembolismo Venoso ---
+      venous_thromboembolism:
+        priority: P0
+        rec_types: [recommendation]
+        must_have_sources:
+          - US_of_Lower_Extremity_Deep_Vein_Thrombosis-_A_Review
+          - ACR_AIUM_SPR_SRU_PRACTICE_PARAMETER_FOR_THE_PERFORMANCE_OF_PERIPHERAL_VENOUS_ULTRASOUND_EXAMINATION
+          - ACR_Appropriateness_Criteria__Radiologic_Management_of_Iliofemoral_Venous_Thrombosis
+          - jvb-23-e20230107
+          - consenso-e-atualizacao-no-tratamento-do-tev
+        min_docs: 5
+        min_recs: 40
+      
+      # --- Aneurisma de Aorta Abdominal ---
+      aortic_aneurysm:
+        priority: P0
+        rec_types: [recommendation]
+        must_have_sources:
+          - esvs_aaa_2019
+          - svs_aaa_2018
+        min_docs: 2
+        min_recs: 20
+      
+      # --- Embolia Pulmonar ---
+      pulmonary_embolism:
+        priority: P0
+        rec_types: [recommendation]
+        must_have_sources:
+          - konstantinides2019
+        min_docs: 1
+        min_recs: 20
+  
+  # ============================================================================
+  # DOMÍNIO: GASTROENTEROLOGIA (EXPANDED)
+  # ============================================================================
+  gastroenterology:
+    priority: P1
+    min_docs: 20
+    min_recs: 120
+    
+    topics:
+      
+      # --- Doença Inflamatória Intestinal ---
+      inflammatory_bowel_disease:
+        priority: P0
+        rec_types: [recommendation]
+        must_have_sources:
+          - jjaf106
+          - jjaf107
+        min_docs: 2
+        min_recs: 40
+      
+      # --- Isquemia Mesentérica ---
+      mesenteric_ischemia:
+        priority: P0
+        rec_types: [recommendation]
+        must_have_sources:
+          - terlouw-et-al-2020-european-guidelines-on-chronic-mesenteric-ischaemia-joint-united-european-gastroenterology-european
+        min_docs: 1
+        min_recs: 30
+      
+      # --- Acalasia ---
+      achalasia:
+        priority: P1
+        rec_types: [recommendation]
+        must_have_sources:
+          - oude-nijhuis-et-al-2020-european-guidelines-on-achalasia-united-european-gastroenterology-and-european-society-of
+        min_docs: 1
+        min_recs: 25
+      
+      # --- Pólipo de Vesícula ---
+      gallbladder_polyp:
+        priority: P1
+        rec_types: [recommendation]
+        must_have_sources:
+          - esge_gallbladder_polyp
+        min_docs: 1
+        min_recs: 10
+      
+      # --- Cistos Pancreáticos ---
+      pancreatic_cysts:
+        priority: P0
+        rec_types: [recommendation]
+        must_have_sources:
+          - tanaka2017
+        min_docs: 1
+        min_recs: 30
+  
+  # ============================================================================
+  # DOMÍNIO: HEPATOLOGIA (NEW)
+  # ============================================================================
+  hepatology:
+    priority: P1
+    min_docs: 10
+    min_recs: 60
+    
+    topics:
+      
+      # --- Esteatose Hepática / NAFLD ---
+      hepatic_steatosis:
+        priority: P0
+        rec_types: [recommendation]
+        must_have_sources:
+          - esteatose_
+          - hepatic_steatosis_review
+          - younossi2016
+          - nafld_jama_2016
+        min_docs: 4
+        min_recs: 40
+      
+      # --- Sobrecarga de Ferro ---
+      iron_overload:
+        priority: P1
+        rec_types: [recommendation]
+        must_have_sources:
+          - reeder-et-al-2023-quantification-of-liver-iron-overload-with-mri-review-and-guidelines-from-the-esgar-and-sar
+        min_docs: 1
+        min_recs: 20
+  
+  # ============================================================================
+  # DOMÍNIO: AMENORREIA E INFERTILIDADE (NEW)
+  # ============================================================================
+  reproductive_medicine:
+    priority: P1
+    min_docs: 5
+    min_recs: 40
+    
+    topics:
+      
+      # --- Amenorreia ---
+      amenorrhea:
+        priority: P0
+        rec_types: [recommendation]
+        must_have_sources:
+          - current_evaluation_of_amenorrhea
+        min_docs: 1
+        min_recs: 30
+  
+  # ============================================================================
+  # DOMÍNIO: DIVERSOS / GENERAL (CATCH-ALL)
+  # ============================================================================
+  general_miscellaneous:
+    priority: P2
+    min_docs: 30
+    min_recs: 100
+    
+    topics:
+      
+      # --- Diversos Guidelines e Papers ---
+      uncategorized:
+        priority: P2
+        rec_types: [recommendation, expert_opinion]
+        must_have_sources:
+          - 1-s2_0-S2211568414001569-main
+          - 10_1148_radiol_2019182646
+          - 10_1186_2Fs40658-017-0185-4
+          - 330_2021_Article_8384
+          - 40336_2017_Article_229
+          - 479_full
+          - 6605567
+          - 8606_00
+          - bmjopen-2021-052294
+          - clinical_imaging_2020
+          - dddt-11-1719
+          - EGT-2710_v1_Download
+          - ex-2025_2025-2-6
+          - hoac009
+          - jnccn-article-p284
+          - JCO642702
+          - magers2018
+          - megibow2017
+          - oncology_ejc_2022_radiotherapy
+          - peacock2020
+          - PIIS0923753419656218
+          - PIIS0959804922007511
+          - PIIS1546144020313995
+          - radiol_2016142043
+          - thomassinnaggara_2020_oi_190746
+        min_docs: 25
+        min_recs: 100
