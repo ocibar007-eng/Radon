@@ -192,22 +192,35 @@ export async function runRecommendationsAgent(
         // === GATE B: BIBLIOTECA INTERNA ===
         const result = queryRecommendations(params);
 
-        // ** PAYLOAD TRACKING FOR GUARD **
-        // Store the raw library payload for number verification
-        if (result.success && result.results.length > 0) {
-            const topResult = result.results[0];
-            if (topResult.guideline_id) {
-                libraryPayloadsMap.set(topResult.guideline_id, {
-                    recommendation_text: topResult.recommendation_text,
-                    full_result: topResult,
-                    // Include all numeric data from the result
-                    extracted_at: new Date().toISOString()
-                });
-            }
-        }
-
         // Process result following anti-hallucination rules
-        const entry = processQueryResult(result, finding, params);
+        const { entry, selectedResult } = processQueryResult(result, finding, params);
+
+        // ** PAYLOAD TRACKING FOR GUARD **
+        // Store payload for the ACTUAL result chosen (not just first)
+        if (selectedResult && selectedResult.guideline_id) {
+            // Serialize COMPLETE payload including ALL numerical data
+            const payload = {
+                guideline_id: selectedResult.guideline_id,
+                source_id: selectedResult.source_id,
+                recommendation_text: selectedResult.recommendation_text,
+                citation: selectedResult.citation,
+                version_date: selectedResult.version_date,
+
+                // Numerical data from applicability
+                minimum_size_mm: selectedResult.applicability.minimum_size_mm,
+                maximum_size_mm: selectedResult.applicability.maximum_size_mm,
+
+                // Numerical rules (contains all numeric constraints)
+                numerical_rules: selectedResult.numerical_rules,
+
+                // Full result for complete validation
+                full_result: JSON.parse(JSON.stringify(selectedResult)),
+
+                extracted_at: new Date().toISOString()
+            };
+
+            libraryPayloadsMap.set(selectedResult.guideline_id, payload);
+        }
 
         recordQuery({
             finding_type: params.finding_type,
@@ -283,6 +296,12 @@ export async function runRecommendationsAgent(
     console.log(`   📥 TRILHA 3 (CURADORIA): ${ingestionCandidates.length} ingestion candidates`);
     console.log(`   🗂️  Payloads tracked: ${libraryPayloadsMap.size}`);
 
+    // Convert Map to plain object for serialization
+    const payloadsObject: Record<string, any> = {};
+    libraryPayloadsMap.forEach((value, key) => {
+        payloadsObject[key] = value;
+    });
+
     // Return enriched report WITH payload map for Guard
     return {
         ...report,
@@ -290,9 +309,9 @@ export async function runRecommendationsAgent(
         references: Array.from(referencesMap.values()),
         consult_assist: consultAssist.length > 0 ? consultAssist : undefined,
         library_ingestion_candidates: ingestionCandidates.length > 0 ? ingestionCandidates : undefined,
-        // Internal: payload map for Guard validation (not rendered)
-        _libraryPayloads: libraryPayloadsMap
-    } as ReportJSON & { _libraryPayloads: Map<string, any> };
+        // Internal: payload object for Guard validation (not rendered)
+        _libraryPayloads: payloadsObject
+    } as ReportJSON & { _libraryPayloads: Record<string, any> };
 }
 
 // ============================================================================
@@ -379,16 +398,19 @@ function processQueryResult(
     result: QueryResponse,
     finding: Finding,
     params: QueryParams
-): RecommendationEntry | null {
+): { entry: RecommendationEntry | null; selectedResult: RecommendationResult | null } {
 
     // REGRA 1: Sem retorno → texto genérico SEM números
     if (!result.success || result.results.length === 0) {
         console.log(`      ⚠️ No recommendation found, using generic text`);
         return {
-            finding_type: params.finding_type,
-            text: "Considerar correlação clínica e seguimento conforme diretrizes institucionais.",
-            conditional: false,
-            // Sem reference_key = sem citação
+            entry: {
+                finding_type: params.finding_type,
+                text: "Considerar correlação clínica e seguimento conforme diretrizes institucionais.",
+                conditional: false,
+                // Sem reference_key = sem citação
+            },
+            selectedResult: null
         };
     }
 
@@ -412,9 +434,12 @@ function processQueryResult(
         // If we have results but none passed applicability (e.g. size mismatch),
         // we return generic text instead of wrong numbers.
         return {
-            finding_type: params.finding_type,
-            text: "Avaliar clinicamente; diretrizes disponíveis podem não ser aplicáveis a este caso específico.",
-            conditional: true
+            entry: {
+                finding_type: params.finding_type,
+                text: "Avaliar clinicamente; diretrizes disponíveis podem não ser aplicáveis a este caso específico.",
+                conditional: true
+            },
+            selectedResult: null
         };
     }
 
@@ -445,13 +470,16 @@ function processQueryResult(
             .join(", ");
 
         return {
-            finding_type: params.finding_type,
-            text: `Conforme ${top.guideline_id}, a conduta depende de: ${missingText}. Consultar tabela de seguimento da diretriz.`,
-            applicability: formatApplicability(top),
-            conditional: true,
-            source_id: top.source_id,
-            guideline_id: top.guideline_id,
-            reference_key: top.guideline_id
+            entry: {
+                finding_type: params.finding_type,
+                text: `Conforme ${top.guideline_id}, a conduta depende de: ${missingText}. Consultar tabela de seguimento da diretriz.`,
+                applicability: formatApplicability(top),
+                conditional: true,
+                source_id: top.source_id,
+                guideline_id: top.guideline_id,
+                reference_key: top.guideline_id
+            },
+            selectedResult: top
         };
     }
 
@@ -459,22 +487,28 @@ function processQueryResult(
     if (!checkApplicability(top, finding, params)) {
         console.log(`      ⚠️ Applicability check failed`);
         return {
-            finding_type: params.finding_type,
-            text: "Avaliar clinicamente; diretrizes disponíveis podem não ser aplicáveis a este caso específico.",
-            conditional: true
+            entry: {
+                finding_type: params.finding_type,
+                text: "Avaliar clinicamente; diretrizes disponíveis podem não ser aplicáveis a este caso específico.",
+                conditional: true
+            },
+            selectedResult: null
         };
     }
 
     // REGRA 4: Tudo OK → usar recomendação exata
     console.log(`      ✅ Using recommendation from ${top.guideline_id}`);
     return {
-        finding_type: params.finding_type,
-        text: top.recommendation_text,
-        applicability: formatApplicability(top),
-        conditional: false,
-        source_id: top.source_id,
-        guideline_id: top.guideline_id,
-        reference_key: top.guideline_id
+        entry: {
+            finding_type: params.finding_type,
+            text: top.recommendation_text,
+            applicability: formatApplicability(top),
+            conditional: false,
+            source_id: top.source_id,
+            guideline_id: top.guideline_id,
+            reference_key: top.guideline_id
+        },
+        selectedResult: top
     };
 }
 

@@ -225,7 +225,9 @@ export async function processCasePipeline(bundle: CaseBundle): Promise<ReportPip
     const enrichedReport = await runRecommendationsAgent(recsContext, report as any);
 
     // Extract library payloads for full number verification
-    const libraryPayloads = (enrichedReport as any)._libraryPayloads || new Map();
+    // Convert plain object back to Map for Guard
+    const payloadsObject = (enrichedReport as any)._libraryPayloads || {};
+    const libraryPayloads = new Map<string, any>(Object.entries(payloadsObject));
 
     // Validate with Guard - NOW WITH REAL PAYLOADS
     const guardResult = validateRecommendations(

@@ -60,7 +60,9 @@ async function testCase1_LibraryMatchApplicable() {
         console.log(`   ✅ text: "${rec.text}"`);
 
         // Validate with Guard
-        const libraryPayloads = (result as any)._libraryPayloads || new Map();
+        // Convert plain object back to Map for Guard
+        const payloadsObject = (result as any)._libraryPayloads || {};
+        const libraryPayloads = new Map<string, any>(Object.entries(payloadsObject));
         const guardResult = validateRecommendations(result.recommendations, libraryPayloads);
 
         console.log(`   🛡️  Guard valid: ${guardResult.valid ? '✅' : '❌'}`);

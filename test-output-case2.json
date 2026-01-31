@@ -26,5 +26,34 @@
       "citation": "Heber MacMahon et al.. Guidelines for Management of Small Pulmonary Nodules Detected on CT Scans: A Statement from the Fleischner Society. Radiology. 2005."
     }
   ],
-  "_libraryPayloads": {}
+  "_libraryPayloads": {
+    "FLEISCHNER_2005": {
+      "guideline_id": "FLEISCHNER_2005",
+      "source_id": "fleischner_2005",
+      "recommendation_text": "For nodules 6-8 mm in low-risk patients, initial follow-up CT at 6–12 months then at 18–24 months if no change.",
+      "citation": "Heber MacMahon et al.. Guidelines for Management of Small Pulmonary Nodules Detected on CT Scans: A Statement from the Fleischner Society. Radiology. 2005.",
+      "version_date": "2005",
+      "numerical_rules": [],
+      "full_result": {
+        "guideline_id": "FLEISCHNER_2005",
+        "source_id": "fleischner_2005",
+        "finding_type": "pulmonary_nodule",
+        "applicability": {
+          "age_group": "adult",
+          "immunosuppressed_excluded": false,
+          "oncologic_context_required": false
+        },
+        "inputs_required": [
+          "patient_age"
+        ],
+        "recommendation_text": "For nodules 6-8 mm in low-risk patients, initial follow-up CT at 6–12 months then at 18–24 months if no change.",
+        "numerical_rules": [],
+        "citation": "Heber MacMahon et al.. Guidelines for Management of Small Pulmonary Nodules Detected on CT Scans: A Statement from the Fleischner Society. Radiology. 2005.",
+        "version_date": "2005",
+        "confidence": 1,
+        "match_score": 0.85
+      },
+      "extracted_at": "2026-01-31T22:02:13.975Z"
+    }
+  }
 }
