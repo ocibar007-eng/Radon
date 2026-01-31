@@ -10,51 +10,22 @@
  * - Allowlist forte de fontes permitidas
  */
 
-import type { ConsultAssistEntry, ConsultAssistSource, LibraryIngestionCandidate } from '../../../types/report-json';
+import type { ConsultAssistEntry, LibraryIngestionCandidate } from '../../../types/report-json';
+import {
+  buildOptimizedQuery,
+  extractEvidenceWithLLM,
+  filterSearchResultsByAllowlist,
+  performWebSearch,
+} from './web-search-integration';
+import { BLOCKLIST, getAllowlistDomains } from './web-evidence-sources';
 
-// ============================================================================
-// ALLOWLIST DE FONTES (NÃO-VAGABUNDAS)
-// ============================================================================
-
-export const PRIMARY_SOURCES = {
-  // Sociedades / Guidelines (prioridade máxima)
-  acr: ['acr.org', 'acsearch.acr.org'],
-  rsna: ['rsna.org', 'pubs.rsna.org', 'radiology.rsna.org'],
-  sar: ['abdominalradiology.org'],
-  cbr: ['cbr.org.br'],
-  nccn: ['nccn.org'],
-  esr: ['esr.org', 'esur.org', 'eusobi.org'],
-  bir: ['bir.org.uk'],
-  nice: ['nice.org.uk'],
-  fleischner: ['fleischner.org'], // quando disponível via journal
-  government: ['.gov', '.nhs.uk'],
-};
-
-export const JOURNAL_SOURCES = {
-  // Journals peer-reviewed (usar com cautela para guidelines)
-  ajr: ['ajronline.org'],
-  jacr: ['jacr.org', 'sciencedirect.com/journal/journal-of-the-american-college-of-radiology'],
-  pubmed: ['pubmed.ncbi.nlm.nih.gov'],
-  nejm: ['nejm.org'],
-  bmj: ['bmj.com', 'thorax.bmj.com'],
-};
-
-export const SECONDARY_SOURCES = {
-  // Secundários (somente background; não pode ser única fonte de números)
-  radiopaedia: ['radiopaedia.org'],
-  radiologyassistant: ['radiologyassistant.nl'],
-};
-
-export const BLOCKLIST = [
-  'blog',
-  'forum',
-  'reddit',
-  'quora',
-  'healthline',
-  'webmd',
-  'medlineplus',
-  'mayoclinic.org', // não é fonte primária para guidelines radiológicos
-];
+export {
+  PRIMARY_SOURCES,
+  JOURNAL_SOURCES,
+  SECONDARY_SOURCES,
+  BLOCKLIST,
+  isSourceAllowed
+} from './web-evidence-sources';
 
 // ============================================================================
 // TYPES
@@ -78,40 +49,8 @@ export interface WebEvidenceResult {
 // SOURCE VALIDATION
 // ============================================================================
 
-export function isSourceAllowed(url: string): 'primary' | 'journal' | 'secondary' | 'blocked' {
-  const lowerUrl = url.toLowerCase();
-
-  // Check blocklist first
-  if (BLOCKLIST.some(blocked => lowerUrl.includes(blocked))) {
-    return 'blocked';
-  }
-
-  // Check primary sources
-  for (const domains of Object.values(PRIMARY_SOURCES)) {
-    if (domains.some(domain => lowerUrl.includes(domain))) {
-      return 'primary';
-    }
-  }
-
-  // Check journal sources
-  for (const domains of Object.values(JOURNAL_SOURCES)) {
-    if (domains.some(domain => lowerUrl.includes(domain))) {
-      return 'journal';
-    }
-  }
-
-  // Check secondary sources
-  for (const domains of Object.values(SECONDARY_SOURCES)) {
-    if (domains.some(domain => lowerUrl.includes(domain))) {
-      return 'secondary';
-    }
-  }
-
-  return 'blocked';
-}
-
 // ============================================================================
-// WEB SEARCH (PLACEHOLDER - integrar com WebSearch real)
+// WEB SEARCH (REAL INTEGRATION)
 // ============================================================================
 
 export async function searchWebEvidence(
@@ -129,20 +68,40 @@ export async function searchWebEvidence(
   try {
     // Build search query
     const query = buildSearchQuery(params);
-
-    // TODO: Integrar com WebSearch tool real do Claude
-    // Por enquanto, retornar placeholder para estrutura
     console.log(`   🔍 [WebEvidence] Query: "${query}"`);
-    console.log(`   ⚠️  [WebEvidence] Web search not yet integrated - returning null`);
+    const searchResults = await performWebSearch(query, {
+      maxResults: 8,
+      allowedDomains: getAllowlistDomains(),
+      blockedDomains: BLOCKLIST
+    });
 
-    // Quando integrar, fazer:
-    // 1. WebSearch com query
-    // 2. Filtrar por allowlist
-    // 3. Extrair evidências
-    // 4. Validar números (só incluir se explícitos na fonte)
-    // 5. Gerar consult_assist e/ou library_candidate
+    if (!searchResults || searchResults.length === 0) {
+      console.log(`   ⚠️  [WebEvidence] No web results returned`);
+      return null;
+    }
 
-    return null;
+    const filteredResults = filterSearchResultsByAllowlist(searchResults);
+    if (filteredResults.length === 0) {
+      console.log(`   ⚠️  [WebEvidence] All results blocked by allowlist`);
+      return null;
+    }
+
+    const extraction = await extractEvidenceWithLLM(
+      filteredResults.slice(0, 6),
+      params.finding_type,
+      params.finding_description
+    );
+
+    if (!extraction?.consult_assist) {
+      console.log(`   ℹ️  [WebEvidence] No structured evidence extracted`);
+      return null;
+    }
+
+    return {
+      consult_assist: extraction.consult_assist,
+      library_candidate: extraction.library_candidate
+    };
+
   } catch (error) {
     console.error(`   ❌ [WebEvidence] Search error:`, error);
     return null;
@@ -152,28 +111,40 @@ export async function searchWebEvidence(
 function buildSearchQuery(params: WebSearchParams): string {
   const parts: string[] = [];
 
-  // Finding type
-  parts.push(params.finding_type.replace('_', ' '));
+  const baseQuery = buildOptimizedQuery(params.finding_type, {
+    size_mm: params.size_mm,
+    morphology: params.morphology
+  });
 
-  // Add morphology if present
-  if (params.morphology) {
+  if (baseQuery) {
+    parts.push(baseQuery);
+  }
+
+  if (params.morphology && !baseQuery.includes(params.morphology)) {
     parts.push(params.morphology);
   }
 
-  // Add "guideline" or "management" keywords
-  parts.push('guideline OR management OR follow-up');
-
-  // Add size bracket if present (helps find relevant guidelines)
   if (params.size_mm !== undefined) {
-    if (params.size_mm <= 4) parts.push('small');
-    else if (params.size_mm <= 8) parts.push('medium');
-    else parts.push('large');
+    if (params.size_mm <= 4) parts.push('<=4mm');
+    else if (params.size_mm <= 8) parts.push('5-8mm');
+    else parts.push('>=9mm');
   }
 
-  // Prefer recent (2026)
+  if (params.risk_category) {
+    parts.push(params.risk_category);
+  }
+
+  if (params.patient_age) {
+    parts.push(`age ${params.patient_age}`);
+  }
+
+  if (!/guideline|management|follow-up/i.test(baseQuery)) {
+    parts.push('guideline OR management OR follow-up');
+  }
+
   parts.push('2024 OR 2025 OR 2026');
 
-  return parts.join(' ');
+  return parts.filter(Boolean).join(' ');
 }
 
 // ============================================================================
