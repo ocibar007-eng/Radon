@@ -38,10 +38,21 @@ export type ImpressionOutput = {
   primary_diagnosis: string;
   differentials?: string[];
   recommendations?: string[];
+  indication_relation?: string[];
+  incidental_findings?: string[];
+  adverse_events?: string[];
+  criteria_assessment?: string[];
 };
 
 export type ComparisonOutput = {
   summary: string;
   mode?: string;
   limitations?: string[];
+};
+
+export type RevisorOutput = {
+  revised_report: import('../../../types/report-json').ReportJSON;
+  corrections: string[];
+  confidence: number;
+  reasoning_tokens: number;
 };

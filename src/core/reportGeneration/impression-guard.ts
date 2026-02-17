@@ -61,8 +61,16 @@ export function applyImpressionProbabilityGuards(
     primary = softenStatement(primary);
   }
 
+  const updatedDiffs = impression.differentials?.map((diff) => {
+    if (hasEvidenceStem(diff, EVIDENCE_STEMS) && !corpusHasEvidence) {
+      return softenStatement(diff);
+    }
+    return diff;
+  });
+
   return {
     ...impression,
     primary_diagnosis: primary,
+    differentials: updatedDiffs,
   };
 }

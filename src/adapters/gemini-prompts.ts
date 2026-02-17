@@ -17,7 +17,13 @@ const DEBUG_LOGS = true;
 // Helper para chamadas com retry
 export async function generate(model: string, params: any): Promise<GenerateContentResponse> {
   const client = getGeminiClient();
-  return withExponentialBackoff<GenerateContentResponse>(() => client.models.generateContent({ model, ...params }));
+  const config = params?.config ? { ...params.config } : undefined;
+  if (config && !CONFIG.ENABLE_THINKING) {
+    delete config.thinkingConfig;
+  }
+  return withExponentialBackoff<GenerateContentResponse>(() =>
+    client.models.generateContent({ model, ...params, config })
+  );
 }
 
 export async function extractHeaderInfo(imageFile: File | Blob): Promise<PatientRegistrationDetails> {
@@ -433,7 +439,7 @@ export async function generateRadiologyChecklist(input: Record<string, any>): Pr
 export async function transcribeAudio(audioBlob: Blob): Promise<{ text: string, rows: AudioTranscriptRow[] }> {
   const audioPart = await fileToPart(audioBlob);
 
-  const response = await generate(CONFIG.MODEL_NAME, {
+  const response = await generate(CONFIG.MODEL_AUDIO, {
     contents: {
       role: 'user',
       parts: [audioPart, { text: PROMPTS.audio_transcribe_raw }]

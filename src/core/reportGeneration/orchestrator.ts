@@ -5,8 +5,8 @@ import type { ClinicalOutput, TechnicalOutput, FindingsOutput } from './agents/t
 import { processClinicalIndication } from './agents/clinical';
 import { generateTechniqueSection } from './agents/technical';
 import { generateFindings } from './agents/findings';
-import { generateComparisonSummary } from './agents/comparison';
 import { synthesizeImpression } from './agents/impression';
+import { runRevisor } from './agents/revisor';
 import { runRecommendationsAgent, AgentContext as RecsContext } from './agents/recommendations';
 import { validateRecommendations } from './recommendations-guard';
 import { recordGuardSanitization } from './recommendations-observability';
@@ -21,6 +21,16 @@ import { runDeterministicQA } from './qa/deterministic';
 import { healReport } from './qa/self-healing';
 import { classifyRisk } from './qa/risk';
 import { applyImpressionProbabilityGuards } from './impression-guard';
+import { applyVocabularyGate } from './vocabulary-gate';
+import {
+  extractExplicitRecommendations,
+  extractMostRecentDate,
+  extractMostRecentPriorReport,
+  buildComparisonContext,
+  buildDeterministicComparisonSummary,
+  isEnteroTCFromText
+} from './report-utils';
+import { localizeRecommendationsToPtGemini } from './recommendation-localizer-gemini';
 import type { QAResult } from '../../types/qa-result';
 import type { RiskAssessment } from './qa/risk';
 
@@ -46,10 +56,21 @@ function resolveModality(bundle: CaseBundle): string {
   if (!examRaw) return 'UNKNOWN';
 
   const exam = normalizeText(examRaw);
+  if (exam.includes('TCABT') || exam.includes('TC ABDOME')) return 'CT';
   if (exam.includes('TOMOGRAFIA') || exam.includes(' TC ') || exam.includes('TC ')) return 'CT';
   if (exam.includes('RESSONANCIA') || exam.includes(' RM ') || exam.includes('RM ')) return 'MR';
   if (exam.includes('ULTRASSOM') || exam.includes('USG') || exam.includes('US ')) return 'US';
   return 'UNKNOWN';
+}
+
+function resolveComparisonMode(
+  bundle: CaseBundle,
+  priorInfo: ReturnType<typeof extractMostRecentPriorReport> | undefined
+): string | undefined {
+  if (bundle.comparison_mode) return bundle.comparison_mode;
+  if (!bundle.prior_reports?.raw_markdown?.trim()) return undefined;
+  const context = buildComparisonContext(priorInfo, undefined);
+  return context.mode;
 }
 
 function resolveExamTitle(bundle: CaseBundle): string | undefined {
@@ -64,7 +85,14 @@ function resolveExamTitle(bundle: CaseBundle): string | undefined {
   const examRaw = candidates[0]
     || (Object.values(fields).find((val) => typeof val === 'string' && val.trim().length > 0) as string | undefined);
 
-  return examRaw?.trim();
+  if (!examRaw) return undefined;
+  const normalized = normalizeText(examRaw);
+  const examMap: Record<string, string> = {
+    TCABT: 'Tomografia Computadorizada de Abdome Total',
+    'TC ABDOME TOTAL': 'Tomografia Computadorizada de Abdome Total',
+    'TC ABDOME': 'Tomografia Computadorizada de Abdome',
+  };
+  return examMap[normalized] || examRaw.trim();
 }
 
 function collectComputeRequests(findings: FindingsOutput): ComputeRequest[] {
@@ -106,6 +134,23 @@ function extractPatientAge(report: ReportJSON): number | undefined {
   return undefined;
 }
 
+function extractComparisonHint(bundle: CaseBundle): { summary: string; date?: string } | null {
+  const raw = bundle.clinical_context?.raw_markdown || '';
+  if (!raw) return null;
+
+  const hasUS = /ultrassonografia|usg/i.test(raw);
+  if (!hasUS) return null;
+
+  const dateMatches = raw.match(/\b\d{2}\/\d{2}\/\d{4}\b/g);
+  const date = dateMatches ? dateMatches[dateMatches.length - 1] : undefined;
+
+  const summary = date
+    ? `Conforme informação clínica, há registro de ultrassonografia de abdome total e parede abdominal realizada em ${date}, na mesma data. Não foram disponibilizados seus achados e imagens para comparação direta.`
+    : 'Conforme informação clínica, há registro de ultrassonografia prévia. Não foram disponibilizados seus achados e imagens para comparação direta.';
+
+  return { summary, date };
+}
+
 export function buildReport(
   bundle: CaseBundle,
   clinical: ClinicalOutput,
@@ -113,6 +158,15 @@ export function buildReport(
   findings: FindingsOutput,
   computeResults?: ComputeResult[]
 ): ReportJSON {
+  const enterography = isEnteroTCFromText(
+    resolveExamTitle(bundle),
+    bundle.dictation_raw,
+    clinical.exam_reason
+  );
+  const priorInfo = extractMostRecentPriorReport(bundle.prior_reports?.raw_markdown || '');
+  const comparisonMode = resolveComparisonMode(bundle, priorInfo);
+  const comparisonDate = priorInfo?.date || extractMostRecentDate(bundle.prior_reports?.raw_markdown || '');
+  const comparisonSource = priorInfo?.institution;
   const report: ReportJSON = {
     case_id: bundle.case_id,
     modality: resolveModality(bundle),
@@ -132,7 +186,9 @@ export function buildReport(
     comparison: bundle.prior_reports?.raw_markdown
       ? {
         available: true,
-        mode: bundle.comparison_mode,
+        mode: comparisonMode,
+        date: comparisonDate,
+        source: comparisonSource,
       }
       : {
         available: false,
@@ -141,6 +197,7 @@ export function buildReport(
     impression: {
       primary_diagnosis: '<VERIFICAR>.',
     },
+    flags: enterography ? { enterography: true } : undefined,
     metadata: {
       created_at: new Date().toISOString(),
       model_used: CONFIG.MODEL_NAME,
@@ -196,17 +253,65 @@ export async function processCasePipeline(bundle: CaseBundle): Promise<ReportPip
   const start = Date.now();
   let report = await processCase(bundle);
 
+  const comparisonHint = extractComparisonHint(bundle);
+  if (comparisonHint && (!report.comparison || !report.comparison.available)) {
+    report = {
+      ...report,
+      comparison: {
+        available: true,
+        mode: 'external_report_only',
+        date: comparisonHint.date,
+        summary: comparisonHint.summary,
+      },
+    };
+  }
+
   if (bundle.prior_reports?.raw_markdown?.trim()) {
-    const comparison = await generateComparisonSummary(report, bundle);
+    const priorInfo = extractMostRecentPriorReport(bundle.prior_reports?.raw_markdown || '');
+    const comparisonContext = buildComparisonContext(priorInfo, report.modality);
+    const currentText = [
+      report.findings?.map((finding) => finding.description).join(' ') || '',
+      bundle.dictation_raw || '',
+    ].join(' ');
+    const comparisonSummary = buildDeterministicComparisonSummary(
+      priorInfo?.text || bundle.prior_reports?.raw_markdown || '',
+      currentText,
+      comparisonContext
+    );
     report = {
       ...report,
       comparison: {
         ...(report.comparison || { available: true }),
-        mode: comparison.mode || bundle.comparison_mode,
-        summary: comparison.summary,
-        limitations: comparison.limitations,
+        mode: comparisonContext.mode,
+        summary: comparisonSummary,
+        limitations: [],
+        date: report.comparison?.date || comparisonContext.priorDate,
+        source: report.comparison?.source || comparisonContext.institution,
       },
     };
+  }
+
+  try {
+    const dict_result_pre = applyVocabularyGate(report, {
+      caseId: report.case_id,
+      fields: {
+        findings: true,
+        comparison_summary: true,
+        impression_primary_diagnosis: false,
+        impression_recommendations: false,
+        impression_differentials: false,
+        impression_indication_relation: false,
+        impression_incidental_findings: false,
+        impression_adverse_events: false,
+        impression_criteria_assessment: false,
+      },
+    });
+    report = dict_result_pre.report;
+    if (dict_result_pre.diagnostics.needs_review_hits.length > 0) {
+      console.log(`[VocabularyGate] needs_review hits: ${dict_result_pre.diagnostics.needs_review_hits.length}`);
+    }
+  } catch (error) {
+    console.warn('[Orchestrator] VocabularyGate error:', error);
   }
 
   // === RECOMMENDATIONS AGENT (NEW) ===
@@ -262,14 +367,83 @@ export async function processCasePipeline(bundle: CaseBundle): Promise<ReportPip
     // Continue without recommendations - graceful degradation
   }
 
-  const impression = await synthesizeImpression(report, bundle);
+  const explicitInputRecommendations = extractExplicitRecommendations(
+    bundle.raw_input_markdown || [
+      bundle.prior_reports?.raw_markdown || '',
+      bundle.dictation_raw || '',
+    ].join('\n')
+  );
+
+  const impression = await synthesizeImpression(report, bundle, explicitInputRecommendations);
+
+  const curatedRecommendations = explicitInputRecommendations.length > 0
+    ? explicitInputRecommendations
+    : (report.evidence_recommendations?.map((rec) => rec.text) || []);
+
+  const localizedRecommendations = await localizeRecommendationsToPtGemini(curatedRecommendations);
+
   report = {
     ...report,
     impression: {
       ...report.impression,
-      ...applyImpressionProbabilityGuards(report.findings, impression),
+      ...applyImpressionProbabilityGuards(report.findings, {
+        ...impression,
+        recommendations: localizedRecommendations,
+      }),
+      recommendations: localizedRecommendations,
     },
   };
+
+  try {
+    const dict_result_post = applyVocabularyGate(report, {
+      caseId: report.case_id,
+      fields: {
+        findings: false,
+        comparison_summary: false,
+        impression_primary_diagnosis: true,
+        impression_recommendations: true,
+        impression_differentials: true,
+        impression_indication_relation: true,
+        impression_incidental_findings: true,
+        impression_adverse_events: true,
+        impression_criteria_assessment: true,
+      },
+    });
+    report = dict_result_post.report;
+    if (dict_result_post.diagnostics.needs_review_hits.length > 0) {
+      console.log(`[VocabularyGate] needs_review hits: ${dict_result_post.diagnostics.needs_review_hits.length}`);
+    }
+  } catch (error) {
+    console.warn('[Orchestrator] VocabularyGate error:', error);
+  }
+
+  // === REVISOR AGENT (Extended Thinking) ===
+  // Revisa o laudo completo antes do rendering final
+  // NOTA: Requer Vercel Pro (maxDuration > 10s) - desabilitado por padrão
+  if (CONFIG.REVISOR_ENABLED) {
+    try {
+      console.log('[Orchestrator] Iniciando Revisor (Extended Thinking)...');
+      const revisorResult = await runRevisor(report, bundle);
+
+      if (revisorResult.corrections.length > 0) {
+        console.log(`[Orchestrator] Revisor aplicou ${revisorResult.corrections.length} correções:`);
+        revisorResult.corrections.forEach((c, i) => console.log(`  ${i + 1}. ${c}`));
+        report = revisorResult.revised_report;
+      } else {
+        console.log('[Orchestrator] Revisor: nenhuma correção necessária');
+      }
+
+      // Log reasoning tokens para monitorar custos
+      if (revisorResult.reasoning_tokens > 0) {
+        console.log(`[Orchestrator] Revisor reasoning tokens: ${revisorResult.reasoning_tokens}`);
+      }
+    } catch (error) {
+      console.error('[Orchestrator] Revisor error:', error);
+      // Continue without revision - graceful degradation
+    }
+  } else {
+    console.log('[Orchestrator] Revisor desabilitado (REVISOR_ENABLED=0)');
+  }
 
   const initialMarkdown = await renderReportMarkdown(report);
   const canonicalizer = (text: string) => canonicalizeMarkdown(text).text;
@@ -309,7 +483,7 @@ export async function processCasePipeline(bundle: CaseBundle): Promise<ReportPip
       ...report.metadata,
       qa_passed: healing.qa.passed,
       risk_score: risk.level,
-      model_used: `${CONFIG.MODEL_NAME}+${OPENAI_MODELS.impression}`,
+      model_used: `${CONFIG.MODEL_NAME}+${OPENAI_MODELS.impression}+${CONFIG.REVISOR_MODEL}`,
     },
   };
 

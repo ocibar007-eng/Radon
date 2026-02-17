@@ -54,4 +54,42 @@ describe('Deterministic QA', () => {
     expect(result.structure.passed).toBe(false);
     expect(result.structure.missing_sections).toContain('impression.primary_diagnosis');
   });
+
+  it('flags missing comparison section', () => {
+    const report = buildReport();
+    const text = [
+      '---',
+      '',
+      '**IMPRESSÃO**',
+      '',
+      '---',
+      '',
+      '**Diagnóstico principal:**',
+      '',
+      '► Ok.',
+      '',
+      '**Diagnósticos diferenciais:**',
+      '',
+      '► Ok.',
+      '',
+      '**Relação com a indicação clínica:**',
+      '',
+      '► Ok.',
+      '',
+      '**Recomendações:**',
+      '',
+      '► Ok.',
+      '',
+      '**Achados incidentais:**',
+      '',
+      '► Ok.',
+      '',
+      '**Eventos adversos:**',
+      '',
+      '► Ok.',
+      '',
+    ].join('\n');
+    const result = runDeterministicQA(report, text);
+    expect(result.issues).toContain('Comparação: seção ausente');
+  });
 });

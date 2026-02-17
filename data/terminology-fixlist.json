@@ -1,0 +1,259 @@
+[
+    {
+        "wrong": "endometriósica",
+        "correct": "endometriótica",
+        "type": "sufixo_errado",
+        "note": "-ósica → -ótica (derivação correta de endometriose)"
+    },
+    {
+        "wrong": "endometriósico",
+        "correct": "endometriótico",
+        "type": "sufixo_errado",
+        "note": "-ósico → -ótico"
+    },
+    {
+        "wrong": "endometriósicas",
+        "correct": "endometrióticas",
+        "type": "sufixo_errado",
+        "note": "plural"
+    },
+    {
+        "wrong": "endometriósicos",
+        "correct": "endometrióticos",
+        "type": "sufixo_errado",
+        "note": "plural"
+    },
+    {
+        "wrong": "paratubal",
+        "correct": "paratubáreo",
+        "type": "anglicismo",
+        "note": "paratubal é inglês; PT-BR = paratubáreo"
+    },
+    {
+        "wrong": "paratubais",
+        "correct": "paratubáreos",
+        "type": "anglicismo",
+        "note": "plural"
+    },
+    {
+        "wrong": "paraovárico",
+        "correct": "paraovariano",
+        "type": "anglicismo",
+        "note": "paraovárico é anglicismo; PT-BR = paraovariano"
+    },
+    {
+        "wrong": "paraovárica",
+        "correct": "paraovariana",
+        "type": "anglicismo",
+        "note": "feminino"
+    },
+    {
+        "wrong": "paraováricas",
+        "correct": "paraovarianas",
+        "type": "anglicismo",
+        "note": "plural feminino"
+    },
+    {
+        "wrong": "paraováricos",
+        "correct": "paraovarianos",
+        "type": "anglicismo",
+        "note": "plural masculino"
+    },
+    {
+        "wrong": "reto-sigmoide",
+        "correct": "retossigmoide",
+        "type": "hifen_indevido",
+        "note": "Sem hífen, com duplicação de 's' (regra ortográfica prefixo+s)"
+    },
+    {
+        "wrong": "reto-sigmoidiano",
+        "correct": "retossigmoidiano",
+        "type": "hifen_indevido",
+        "note": "Sem hífen, com duplicação de 's'"
+    },
+    {
+        "wrong": "reto-sigmoidiana",
+        "correct": "retossigmoidiana",
+        "type": "hifen_indevido",
+        "note": "feminino"
+    },
+    {
+        "wrong": "reto-vesical",
+        "correct": "retovesical",
+        "type": "hifen_indevido",
+        "note": "Sem hífen (reto + consoante)"
+    },
+    {
+        "wrong": "reto-uterino",
+        "correct": "retouterino",
+        "type": "hifen_indevido",
+        "note": "Sem hífen"
+    },
+    {
+        "wrong": "reto-uterina",
+        "correct": "retouterina",
+        "type": "hifen_indevido",
+        "note": "feminino"
+    },
+    {
+        "wrong": "hepato-renal",
+        "correct": "hepatorrenal",
+        "type": "hifen_indevido",
+        "note": "Sem hífen, com duplicação de 'r'"
+    },
+    {
+        "wrong": "hepato-esplenomegalia",
+        "correct": "hepatoesplenomegalia",
+        "type": "hifen_indevido",
+        "note": "Sem hífen"
+    },
+    {
+        "wrong": "nefro-litíase",
+        "correct": "nefrolitíase",
+        "type": "hifen_indevido",
+        "note": "Sem hífen"
+    },
+    {
+        "wrong": "cole-litíase",
+        "correct": "colelitíase",
+        "type": "hifen_indevido",
+        "note": "Sem hífen"
+    },
+    {
+        "wrong": "colédoco-litíase",
+        "correct": "coledocolitíase",
+        "type": "hifen_indevido",
+        "note": "Sem hífen"
+    },
+    {
+        "wrong": "hiper-intenso",
+        "correct": "hiperintenso",
+        "type": "hifen_indevido",
+        "note": "Prefixo hiper- não leva hífen antes de consoante"
+    },
+    {
+        "wrong": "hipo-intenso",
+        "correct": "hipointenso",
+        "type": "hifen_indevido",
+        "note": "Prefixo hipo- não leva hífen antes de consoante"
+    },
+    {
+        "wrong": "iso-intenso",
+        "correct": "isointenso",
+        "type": "hifen_indevido",
+        "note": "Prefixo iso- não leva hífen"
+    },
+    {
+        "wrong": "hiper-denso",
+        "correct": "hiperdenso",
+        "type": "hifen_indevido",
+        "note": "Prefixo hiper- sem hífen"
+    },
+    {
+        "wrong": "hipo-denso",
+        "correct": "hipodenso",
+        "type": "hifen_indevido",
+        "note": "Prefixo hipo- sem hífen"
+    },
+    {
+        "wrong": "iso-denso",
+        "correct": "isodenso",
+        "type": "hifen_indevido",
+        "note": "Prefixo iso- sem hífen"
+    },
+    {
+        "wrong": "hiper-ecogênico",
+        "correct": "hiperecogênico",
+        "type": "hifen_indevido",
+        "note": "Prefixo hiper- sem hífen antes de vogal"
+    },
+    {
+        "wrong": "hipo-ecogênico",
+        "correct": "hipoecogênico",
+        "type": "hifen_indevido",
+        "note": "Prefixo hipo- sem hífen"
+    },
+    {
+        "wrong": "iso-ecogênico",
+        "correct": "isoecogênico",
+        "type": "hifen_indevido",
+        "note": "Prefixo iso- sem hífen"
+    },
+    {
+        "wrong": "peri-renal",
+        "correct": "perirrenal",
+        "type": "hifen_indevido",
+        "note": "Sem hífen, com duplicação de 'r'"
+    },
+    {
+        "wrong": "para-renal",
+        "correct": "pararrenal",
+        "type": "hifen_indevido",
+        "note": "Sem hífen, com duplicação de 'r'"
+    },
+    {
+        "wrong": "peri-hepático",
+        "correct": "peri-hepático",
+        "type": "ok_com_hifen",
+        "skip": true,
+        "note": "CORRETO: peri- + h = usa hífen (exceção)"
+    },
+    {
+        "wrong": "intra-abdominal",
+        "correct": "intra-abdominal",
+        "type": "ok_com_hifen",
+        "skip": true,
+        "note": "CORRETO: prefixo terminado em vogal + vogal igual = hífen"
+    },
+    {
+        "wrong": "côncavo",
+        "correct": "côncavo",
+        "type": "ok",
+        "skip": true,
+        "note": "CORRETO — manter como está"
+    },
+    {
+        "wrong": "parenquimal",
+        "correct": "parenquimatoso",
+        "type": "sufixo_errado",
+        "note": "parenquimal é anglicismo (parenchymal); PT-BR = parenquimatoso"
+    },
+    {
+        "wrong": "corticomedular",
+        "correct": "corticomedular",
+        "type": "ok",
+        "skip": true,
+        "note": "CORRETO — aceito em PT-BR"
+    },
+    {
+        "wrong": "sub-serosa",
+        "correct": "subserosa",
+        "type": "hifen_indevido",
+        "note": "Prefixo sub- sem hífen antes de consoante (exceto b e r)"
+    },
+    {
+        "wrong": "sub-capsular",
+        "correct": "subcapsular",
+        "type": "hifen_indevido",
+        "note": "Prefixo sub- sem hífen antes de 'c'"
+    },
+    {
+        "wrong": "sub-hepático",
+        "correct": "sub-hepático",
+        "type": "ok_com_hifen",
+        "skip": true,
+        "note": "CORRETO: sub- + h = usa hífen"
+    },
+    {
+        "wrong": "pré contraste",
+        "correct": "pré-contraste",
+        "type": "hifen_faltante",
+        "note": "Prefixo pré- sempre com hífen"
+    },
+    {
+        "wrong": "pós contraste",
+        "correct": "pós-contraste",
+        "type": "hifen_faltante",
+        "note": "Prefixo pós- sempre com hífen"
+    }
+]

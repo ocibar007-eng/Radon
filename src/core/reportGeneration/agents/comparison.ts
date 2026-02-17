@@ -16,7 +16,8 @@ const ComparisonOutputSchema = z.object({
 function buildComparisonPrompt(report: ReportJSON, bundle: CaseBundle): string {
   const payload = {
     report,
-    comparison_mode: bundle.comparison_mode || 'none',
+    comparison_mode: bundle.comparison_mode
+      || (bundle.prior_reports?.raw_markdown?.trim() ? 'external_report_only' : 'none'),
     prior_reports: bundle.prior_reports?.raw_markdown || '',
   };
 
@@ -24,6 +25,8 @@ function buildComparisonPrompt(report: ReportJSON, bundle: CaseBundle): string {
     OPENAI_PROMPTS.comparison,
     'Regras adicionais:',
     '- Use apenas os dados fornecidos.',
+    '- Se houver laudo previo, nao diga que ele nao foi disponibilizado.',
+    '- Se houver data no report.comparison.date, mencione a data na summary.',
     '- Se nao houver comparacao valida, indique claramente na summary.',
     '- Proibido meta-texto.',
     '',
@@ -37,20 +40,23 @@ export async function generateComparisonSummary(
   bundle: CaseBundle
 ): Promise<ComparisonOutput> {
   const prompt = buildComparisonPrompt(report, bundle);
-
-  const response = await generateOpenAIResponse({
-    model: OPENAI_MODELS.comparison,
-    input: prompt,
-    responseFormat: { type: 'json_object' },
-    temperature: 0,
-    maxOutputTokens: 800,
-  });
-
   const fallback: ComparisonOutput = {
     summary: '<VERIFICAR>.',
     mode: bundle.comparison_mode || 'none',
     limitations: [],
   };
+  try {
+    const response = await generateOpenAIResponse({
+      model: OPENAI_MODELS.comparison,
+      input: prompt,
+      responseFormat: { type: 'json_object' },
+      temperature: 0,
+      maxOutputTokens: 800,
+    });
 
-  return safeJsonParse(response.text || '{}', fallback, ComparisonOutputSchema);
+    return safeJsonParse(response.text || '{}', fallback, ComparisonOutputSchema);
+  } catch (error) {
+    console.warn('[ComparisonAgent] OpenAI unavailable, usando fallback local.');
+    return fallback;
+  }
 }

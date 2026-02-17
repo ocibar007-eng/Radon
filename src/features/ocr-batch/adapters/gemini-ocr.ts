@@ -4,7 +4,8 @@
  */
 
 import { getGeminiClient } from '@/core/gemini';
-import { BatchOcrResult } from '../types';
+import { CONFIG } from '@/core/config';
+import { OcrResult } from '../types';
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -27,7 +28,7 @@ async function processImageForApi(file: File): Promise<string> {
  * Executa OCR em uma imagem usando Gemini
  * Adaptado para API v1.35+ (usa response.text() ao invés de candidates)
  */
-export const runGeminiOcr = async (file: File): Promise<BatchOcrResult> => {
+export const runGeminiOcr = async (file: File): Promise<OcrResult> => {
     // Reutiliza cliente centralizado - não cria nova instância
     const ai = getGeminiClient();
 
@@ -79,7 +80,7 @@ export const runGeminiOcr = async (file: File): Promise<BatchOcrResult> => {
         try {
             // API v1.35+ - usa models.generateContent
             const response = await ai.models.generateContent({
-                model: 'gemini-2.0-flash',
+                model: CONFIG.MODEL_OCR,
                 contents: {
                     parts: [
                         { inlineData: { mimeType: 'image/jpeg', data: base64Image } },
@@ -96,7 +97,7 @@ export const runGeminiOcr = async (file: File): Promise<BatchOcrResult> => {
             const text = response.text;
             if (!text) throw new Error("Empty response from Gemini.");
 
-            return JSON.parse(text.trim()) as BatchOcrResult;
+            return JSON.parse(text.trim()) as OcrResult;
 
         } catch (error: unknown) {
             const errorMsg = error instanceof Error ? error.message : String(error);

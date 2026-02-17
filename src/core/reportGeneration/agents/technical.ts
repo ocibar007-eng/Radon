@@ -24,8 +24,10 @@ Regras principais:
 - Contraste de TC: "Henetix" (iodado nao ionico).
 - Protocolo rotina: fase portal (fase sem contraste apenas se explicita no input).
 - Protocolo oncologico: pre-contraste; arterial abdome superior; portal abdome todo; equilibrio. Tardia/excretora somente se mencionada.
-- Buscopan so em RM. Manitol so em entero-TC.
+- Buscopan so em RM. Manitol so em entero-TC, somente se explicitado no input.
+- Para Entero-TC/Enterografia, considerar contraste oral e fases descritas no ditado; nao inventar volumes.
 - Nao inventar dose/volume; so preencher volume_ml se explicitado.
+- Se houver informacao de jejum inadequado, mencionar como limitacao tecnica no protocolo.
 - Se faltar dado essencial, use "<VERIFICAR>" sempre depois do ponto final no texto do protocolo.
 - Retorne SOMENTE JSON valido com campos: equipment, protocol, contrast{used,type,volume_ml,phases}.
 
@@ -33,6 +35,7 @@ Dados do caso (JSON):
 ${JSON.stringify({
     case_id: input.case_id,
     case_metadata: input.case_metadata,
+    clinical_context: input.clinical_context,
     exam_data: input.exam_data,
     protocol_type: input.protocol_type,
     dictation_raw: input.dictation_raw,
