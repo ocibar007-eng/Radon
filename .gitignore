@@ -24,6 +24,8 @@ dist-ssr
 *.sw?
 .vercel
 .env
+inbox/PIPELINE_TOKEN.txt
+api/pipeline/bundle.cjs
 
 # Python
 .venv/

@@ -1,0 +1,321 @@
+# Status do Projeto Multiagente - O que está faltando?
+
+**Data:** 2026-02-05
+**Status:** Infraestrutura Parcialmente Implementada
+
+---
+
+## ✅ O QUE JÁ ESTÁ PRONTO
+
+### 1. **Planejamento Completo** ✅
+- ✅ [PLANO_CONSOLIDADO_MULTIAGENTE_V1.md](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/docs/specs/PLANO_CONSOLIDADO_MULTIAGENTE_V1.md) - Arquitetura aprovada (571 linhas)
+- ✅ [GUIA_PRATICO_EXECUCAO.md](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/docs/specs/GUIA_PRATICO_EXECUCAO.md) - Checklist de execução passo a passo (1102 linhas)
+- ✅ [PLANO_ARQUITETURA_MULTI_AGENTE_RADIOLOGIA.md](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/docs/specs/PLANO_ARQUITETURA_MULTI_AGENTE_RADIOLOGIA.md) - Arquitetura detalhada (50KB)
+- ✅ Estrutura de pastas definida
+- ✅ Roadmap em 3 fases (MVP → Estabilização → Melhoria Contínua)
+
+### 2. **Código Base Implementado** ✅
+- ✅ **Orchestrator** ([src/core/reportGeneration/orchestrator.ts](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/src/core/reportGeneration/orchestrator.ts)) - 430 linhas funcionando
+- ✅ **Agentes LLM** implementados:
+  - ✅ [clinical.ts](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/src/core/reportGeneration/agents/clinical.ts) - Indicação clínica
+  - ✅ [technical.ts](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/src/core/reportGeneration/agents/technical.ts) - Técnica do exame
+  - ✅ [findings.ts](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/src/core/reportGeneration/agents/findings.ts) - Achados por órgão
+  - ✅ [impression.ts](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/src/core/reportGeneration/agents/impression.ts) - Síntese e impressão
+  - ✅ [comparison.ts](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/src/core/reportGeneration/agents/comparison.ts) - Comparação com exames prévios
+  - ✅ [recommendations.ts](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/tests/validate-golden-recommendations.ts) - Sistema de recomendações (22KB)
+  - ✅ [dictionary.ts](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/src/core/reportGeneration/agents/dictionary.ts) - Vocabulary gate
+- ✅ **Calculator Python** ([services/calculator/](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/services/calculator)) - FastAPI pronto:
+  - ✅ [main.py](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/services/calculator/main.py) - API funcionando
+  - ✅ [formulas.py](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/services/calculator/formulas.py) - 18+ fórmulas implementadas (45KB)
+  - ✅ [schemas.py](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/services/calculator/schemas.py) - Pydantic schemas
+  - ✅ Testes unitários na pasta [tests/](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/services/calculator/tests)
+- ✅ **Sandbox Streamlit** ([tools/sandbox/app.py](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/tools/sandbox/app.py)) - Interface básica pronta
+- ✅ **Scripts shell** criados:
+  - ✅ [run_sandbox.sh](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/scripts/run_sandbox.sh)
+  - ✅ [run_golden_tests.sh](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/scripts/run_golden_tests.sh)
+  - ✅ [export_metrics_csv.sh](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/scripts/export_metrics_csv.sh)
+
+### 3. **Infraestrutura** 🟡 Parcial
+- ✅ Estrutura de pastas criada
+- ❌ **venv Python NÃO está criado** (precisa fazer setup)
+- ❌ **SQLite NÃO existe** ([data/metrics.sqlite](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/data/metrics.sqlite) não encontrado)
+- ❌ **Calculator Python NÃO está rodando** (sem processo ativo)
+
+---
+
+## ❌ O QUE ESTÁ FALTANDO PARA RODAR
+
+### 1. **Setup Python do Calculator** ⚠️ CRÍTICO
+```bash
+# Ir para a pasta do calculator
+cd services/calculator
+
+# Criar e ativar virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Instalar dependências
+pip install fastapi uvicorn pydantic pytest httpx
+
+# Testar
+pytest tests/
+```
+
+**Por que é crítico:** O Orchestrator TypeScript já chama o Calculator via HTTP. Sem ele rodando, o pipeline quebra ao tentar fazer qualquer cálculo.
+
+### 2. **Criar SQLite de Métricas** ⚠️ IMPORTANTE
+```bash
+# Voltar para raiz
+cd ../..
+
+# Criar banco
+python3 - <<'PY'
+import sqlite3
+con = sqlite3.connect('data/metrics.sqlite')
+cur = con.cursor()
+cur.executescript('''
+CREATE TABLE IF NOT EXISTS runs (
+  run_id TEXT PRIMARY KEY,
+  case_id TEXT,
+  created_at TEXT,
+  modality TEXT,
+  model_path TEXT,
+  prompt_version TEXT,
+  latency_ms INTEGER,
+  tokens_in INTEGER,
+  tokens_out INTEGER,
+  cost_usd REAL,
+  qa_pass INTEGER,
+  risk_score TEXT,
+  rating INTEGER,
+  tags TEXT,
+  artifacts_path TEXT
+);
+CREATE TABLE IF NOT EXISTS feedback (
+  feedback_id TEXT PRIMARY KEY,
+  run_id TEXT,
+  corrected_md_path TEXT,
+  diff_summary TEXT,
+  notes TEXT,
+  created_at TEXT
+);
+''')
+con.commit()
+con.close()
+print('OK: data/metrics.sqlite criado')
+PY
+```
+
+**Por que é importante:** O sistema loga todas as execuções automaticamente para análise de custo, performance e erros recorrentes.
+
+### 3. **Iniciar Calculator Service** ⚠️ CRÍTICO
+```bash
+# Em um terminal separado
+cd services/calculator
+source venv/bin/activate
+uvicorn main:app --reload --port 8081
+
+# Em outro terminal, testar
+curl http://localhost:8081/health
+# Deve retornar: {"status":"ok","formulas_available":["volume_ellipsoid",...]}
+```
+
+**Por que é crítico:** Sem o Calculator rodando, os agentes não conseguem processar casos que precisam de cálculos (washout adrenal, volumes, índices, etc.).
+
+### 4. **Integrar Sandbox com Orchestrator** 🟡 MÉDIO
+O Sandbox Streamlit ([tools/sandbox/app.py](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/tools/sandbox/app.py)) está criado mas **não está conectado** ao orchestrator TypeScript:
+
+```python
+# Linha 52 do app.py:
+# TODO: Integrate orchestrator
+st.info("Pipeline not integrated yet. Connect orchestrator here.")
+```
+
+**Opções:**
+1. **Opção A (Quick):** Chamar o orchestrator via API REST (criar endpoint no backend)
+2. **Opção B (Ideal):** Integrar via script Python que chama Node.js
+3. **Opção C (MVP):** Por enquanto testar só via scripts diretos e depois integrar UI
+
+### 5. **Golden Set (10 casos de teste)** 🟡 MÉDIO
+Precisa coletar e anonimizar 10 casos reais para criar o Golden Set v1:
+
+```
+tests/golden-set/cases/
+├── case_001/
+│   ├── input.json      # CaseBundle anonimizado
+│   └── expected_output.md  # Laudo esperado
+├── case_002/
+│   └── ...
+...
+└── case_010/
+```
+
+**Composição recomendada:**
+- 3 casos TC Abdome simples
+- 2 casos TC Abdome com contraste + cálculo
+- 2 casos RM
+- 2 casos USG
+- 1 caso oncológico (RECIST)
+
+### 6. **Variável de Ambiente para Calculator** 🟢 FÁCIL
+Adicionar no [.env](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/.env):
+```bash
+VITE_CALC_URL=http://localhost:8081
+```
+
+---
+
+## 🚀 COMANDOS PARA RODAR TUDO (RESUMO)
+
+### Passo 1: Setup Inicial (1x só)
+```bash
+# 1. Criar venv Python
+cd services/calculator
+python3 -m venv venv
+source venv/bin/activate
+pip install fastapi uvicorn pydantic pytest httpx streamlit
+cd ../..
+
+# 2. Criar SQLite
+python3 <<'PY'
+import sqlite3
+con = sqlite3.connect('data/metrics.sqlite')
+cur = con.cursor()
+cur.executescript('''
+CREATE TABLE IF NOT EXISTS runs (
+  run_id TEXT PRIMARY KEY,
+  case_id TEXT,
+  created_at TEXT,
+  modality TEXT,
+  model_path TEXT,
+  prompt_version TEXT,
+  latency_ms INTEGER,
+  tokens_in INTEGER,
+  tokens_out INTEGER,
+  cost_usd REAL,
+  qa_pass INTEGER,
+  risk_score TEXT,
+  rating INTEGER,
+  tags TEXT,
+  artifacts_path TEXT
+);
+CREATE TABLE IF NOT EXISTS feedback (
+  feedback_id TEXT PRIMARY KEY,
+  run_id TEXT,
+  corrected_md_path TEXT,
+  diff_summary TEXT,
+  notes TEXT,
+  created_at TEXT
+);
+''')
+con.commit()
+con.close()
+print('OK criado')
+PY
+
+# 3. Adicionar variável de ambiente
+echo "VITE_CALC_URL=http://localhost:8081" >> .env
+```
+
+### Passo 2: Rodar Serviços (toda vez)
+```bash
+# Terminal 1: Calculator Python
+cd services/calculator
+source venv/bin/activate
+uvicorn main:app --reload --port 8081
+
+# Terminal 2: Frontend React/Vite (se quiser UI web)
+npm run dev
+
+# Terminal 3: Sandbox Streamlit (radiologista)
+./scripts/run_sandbox.sh
+```
+
+### Passo 3: Testar Calculator
+```bash
+curl http://localhost:8081/health
+
+# Testar cálculo
+curl -X POST http://localhost:8081/compute \
+  -H "Content-Type: application/json" \
+  -d '{
+    "requests": [{
+      "formula": "volume_ellipsoid",
+      "inputs": {"d1": 5, "d2": 4, "d3": 3},
+      "ref_id": "test1"
+    }]
+  }'
+```
+
+---
+
+## 📊 STATUS ATUAL DAS FASES
+
+### ❌ MVP (Fase 1) - 0% Operacional
+- ✅ Código implementado
+- ❌ **Calculator não está rodando**
+- ❌ **SQLite não está criado**
+- ❌ **Golden Set não existe**
+- ❌ **Sandbox não integrado**
+
+### Estimativa para ficar 100% operacional:
+- **Setup inicial:** 30 minutos
+- **Coletar Golden Set:** 2-3 horas (depende de ter casos reais)
+- **Integrar Sandbox:** 2-4 horas (se optar por Opção B)
+
+---
+
+## 🎯 NEXT STEPS IMEDIATOS
+
+### Agora (próximos 30 min):
+1. ✅ Criar venv Python
+2. ✅ Instalar dependências
+3. ✅ Criar SQLite
+4. ✅ Rodar Calculator
+5. ✅ Testar health check
+
+### Depois (próximas horas):
+6. ⏳ Coletar/anonimizar 10 casos para Golden Set
+7. ⏳ Integrar Sandbox com Orchestrator
+8. ⏳ Rodar primeiro teste E2E
+
+### Esta semana:
+9. ⏳ Validar pipeline completo com 1 caso real
+10. ⏳ Fazer 10 casos do Golden Set passarem 100%
+
+---
+
+## 📝 DOCUMENTOS DE REFERÊNCIA
+
+Para executar, leia **NESTA ORDEM:**
+1. ✅ [docs/specs/COMECE_AQUI.md](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/docs/specs/COMECE_AQUI.md) - Overview rápido (já lido)
+2. 📖 [docs/specs/GUIA_PRATICO_EXECUCAO.md](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/docs/specs/GUIA_PRATICO_EXECUCAO.md) - Seu checklist diário
+3. 📖 [docs/specs/PLANO_CONSOLIDADO_MULTIAGENTE_V1.md](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/docs/specs/PLANO_CONSOLIDADO_MULTIAGENTE_V1.md) - Referência técnica
+
+---
+
+## ⚠️ BLOQUEADORES CRÍTICOS
+
+| Bloqueador | Impacto | Tempo para resolver |
+|------------|---------|-------------------|
+| Calculator não roda | 🔴 TOTAL | 15 min |
+| SQLite não existe | 🟡 Logs não salvam | 5 min |
+| Golden Set vazio | 🟡 Não pode testar | 2-3 horas |
+| Sandbox não integrado | 🟢 UI não funciona | 2-4 horas |
+
+---
+
+## ✅ CHECKLIST RÁPIDO
+
+Execute estes comandos e marque:
+
+- [ ] `cd services/calculator && python3 -m venv venv`
+- [ ] `source venv/bin/activate`
+- [ ] `pip install fastapi uvicorn pydantic pytest httpx streamlit`
+- [ ] `cd ../.. && python3 [script do SQLite acima]`
+- [ ] `cd services/calculator && source venv/bin/activate && uvicorn main:app --reload --port 8081`
+- [ ] Abrir novo terminal: `curl http://localhost:8081/health`
+- [ ] Testar cálculo (curl acima)
+- [ ] [./scripts/run_sandbox.sh](file:///Users/lucasdonizetecamargos/Downloads/app%20%286%29/scripts/run_sandbox.sh) (em outro terminal)
+
+**Depois disso, o sistema está SEMI-OPERACIONAL** (falta só o Golden Set e integração final).

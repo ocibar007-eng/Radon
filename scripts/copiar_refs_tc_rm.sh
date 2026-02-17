@@ -1,0 +1,30 @@
+#!/bin/bash
+# Script para copiar os 19 MDs de referência para Gems/referencias_tc_rm/
+DEST="/Users/lucasdonizetecamargos/Downloads/app (6)/Gems/referencias_tc_rm"
+SRC="/Users/lucasdonizetecamargos/Downloads/app (6)/data/recommendations/md_docs"
+P="$SRC/prompts"
+
+mkdir -p "$DEST"
+
+cp "$P/TC_RM_RUNTIME.md" "$DEST/"
+cp "$P/CALCULOS_MEDICOS (2).md" "$DEST/"
+cp "$P/CATALOGO_MEDIDAS (1).md" "$DEST/"
+cp "$SRC/bosniak_v2019.md" "$DEST/"
+cp "$SRC/macmahon2017.md" "$DEST/"
+cp "$SRC/acr_incidental_adrenal.md" "$DEST/"
+cp "$SRC/acr_incidental_renal.md" "$DEST/"
+cp "$SRC/LI-RADS-CT-MRI-2018-Core (2).md" "$DEST/"
+cp "$SRC/recist_1_1_original.md" "$DEST/"
+cp "$SRC/pi_rads_v2_1.md" "$DEST/"
+cp "$SRC/tanaka2017.md" "$DEST/"
+cp "$SRC/nafld_jama_2016.md" "$DEST/"
+cp "$SRC/tnm_8th_edition_complete.md" "$DEST/"
+cp "$SRC/Managing-Incidental-Lung-Findings-on-Thoracic-CT-ACR-2021.md" "$DEST/"
+cp "$SRC/Lung-RADS-v1-1-Update.md" "$DEST/"
+cp "$SRC/Manuscript_IRECIST_Lancet-Oncology_Seymour-et-al_revision_FINAL_clean_nov25.md" "$DEST/"
+cp "$SRC/svs_aaa_2018.md" "$DEST/"
+cp "$SRC/o_rads_mri_v2022.md" "$DEST/"
+cp "$SRC/aast_abdominal_trauma_grading_2023.md" "$DEST/"
+
+echo "✅ Pronto! $(ls "$DEST" | wc -l | tr -d ' ') arquivos copiados para $DEST"
+ls -1 "$DEST"
