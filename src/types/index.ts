@@ -164,6 +164,8 @@ export interface AppSession {
     checklistMarkdown: string;
     checklistData?: RadiologyChecklist;
     checklistQuery: string;
+    draftMarkdown?: string;
+    draftThinking?: string;
 }
 
 export type ProcessingQueueItem =

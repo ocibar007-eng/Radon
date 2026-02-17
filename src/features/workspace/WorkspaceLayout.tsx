@@ -1,15 +1,17 @@
 
 import React, { useState, useMemo, useEffect, useCallback, useRef, useLayoutEffect } from 'react';
-import { FileText, History, ListChecks, Download, Loader2, CheckCircle, UploadCloud, AlertTriangle, ScanLine, Eraser, ArrowDown, Pencil, Timer } from 'lucide-react';
+import { FileText, History, ListChecks, Download, Loader2, CheckCircle, UploadCloud, AlertTriangle, ScanLine, Eraser, ArrowDown, Pencil, Timer, Sparkles } from 'lucide-react';
 import { IntakeCard } from '../intake/IntakeCard';
 import { Button } from '../../components/ui/Button';
 import { ConfirmModal } from '../../components/ui/ConfirmModal';
 import { AudioRecorder } from '../audio/AudioRecorder';
+import { DraftTab } from '../draft';
 import { groupDocsVisuals } from '../../utils/grouping';
 import { PatientService } from '../../services/patient-service';
 import { isFirebaseEnabled } from '../../core/firebase';
 import { buildSessionSnapshot } from '../../utils/session-persistence';
 import { StorageService } from '../../services/storage-service';
+import { FEATURE_FLAGS } from '../../config/feature-flags';
 
 // Component Imports
 import { DocumentGallery } from '../intake/DocumentGallery';
@@ -39,6 +41,36 @@ interface WorkspaceLayoutProps {
     exitRequest: boolean;
     onExit: () => void;
     onCancelExit: () => void;
+}
+
+type WorkspaceTab = 'summary' | 'reports' | 'checklist' | 'draft';
+
+function inferDraftModality(examType?: string): 'TC' | 'RM' | 'USG' | undefined {
+    const normalized = (examType || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+    if (!normalized) return undefined;
+    if (normalized.includes('tomografia') || /\btc\b/.test(normalized)) return 'TC';
+    if (normalized.includes('ressonancia') || /\brm\b/.test(normalized)) return 'RM';
+    if (normalized.includes('ultrassonografia') || normalized.includes('ultrasonografia') || normalized.includes('usg')) return 'USG';
+    return undefined;
+}
+
+function inferDraftRegion(examType?: string): string | undefined {
+    if (!examType) return undefined;
+    const cleaned = examType.trim();
+    if (!cleaned) return undefined;
+    const region = cleaned
+        .replace(/^tomografia(\s+computadorizada)?\s*/i, '')
+        .replace(/^ressonancia(\s+magnetica)?\s*/i, '')
+        .replace(/^ultra-?sonografia\s*/i, '')
+        .replace(/^ultrassonografia\s*/i, '')
+        .replace(/^usg\s*/i, '')
+        .replace(/^tc\s*/i, '')
+        .replace(/^rm\s*/i, '')
+        .trim();
+    return region || cleaned;
 }
 
 /**
@@ -77,7 +109,7 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
     } = useWorkspaceActions(patient);
 
     // 3. Estado Local de UI
-    const [activeTab, setActiveTab] = useState<'summary' | 'reports' | 'checklist'>('summary');
+    const [activeTab, setActiveTab] = useState<WorkspaceTab>('summary');
     const [isHydrating, setIsHydrating] = useState(false);
     const [showClearConfirm, setShowClearConfirm] = useState(false);
     const [showExitConfirm, setShowExitConfirm] = useState(false);
@@ -99,6 +131,12 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
     useEffect(() => {
         sessionRef.current = session;
     }, [session]);
+
+    useEffect(() => {
+        if (!FEATURE_FLAGS.aiDraftTab && activeTab === 'draft') {
+            setActiveTab('summary');
+        }
+    }, [activeTab]);
 
     useEffect(() => {
         if (!patient || isHydrating) return;
@@ -396,6 +434,52 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
         };
     }, [session.checklistData]);
 
+    const draftContext = useMemo(() => {
+        const audioTranscripts = session.audioJobs
+            .filter(job => !!job.transcriptRaw?.trim())
+            .map((job, index) => `### Áudio ${index + 1}\n${job.transcriptRaw?.trim()}`);
+
+        const assistencialTranscripts = session.docs
+            .filter(doc => doc.classification === 'assistencial' && !!doc.verbatimText?.trim())
+            .map((doc, index) => `### Documento de suporte ${index + 1} (${doc.source})\n${doc.verbatimText?.trim()}`);
+
+        const priorReportDocs = session.docs
+            .filter(doc => doc.classification === 'laudo_previo' && !!doc.verbatimText?.trim());
+        const priorReports = priorReportDocs
+            .map((doc, index) => {
+                const dateTag = doc.metadata?.reportDate ? ` (${doc.metadata.reportDate})` : '';
+                return `### Laudo prévio ${index + 1}${dateTag}\nFonte: ${doc.source}\n${doc.verbatimText?.trim()}`;
+            })
+            .join('\n\n---\n\n')
+            .trim();
+
+        const clinicalData = session.clinicalMarkdown?.trim() || undefined;
+        const technicalNotes = [
+            session.patient?.tipo_exame?.valor ? `Exame solicitado: ${session.patient.tipo_exame.valor}` : null,
+            session.patient?.data_exame?.valor ? `Data do exame: ${session.patient.data_exame.valor}` : null,
+        ].filter(Boolean).join('\n');
+
+        const transcription = [...audioTranscripts, ...assistencialTranscripts].join('\n\n---\n\n').trim();
+        const fallbackText = clinicalData || priorReports || '';
+        const examType = session.patient?.tipo_exame?.valor || patient?.examType;
+
+        return {
+            caseTranscription: transcription || fallbackText,
+            clinicalData,
+            technicalData: technicalNotes || undefined,
+            priorReports: priorReports || undefined,
+            modality: inferDraftModality(examType),
+            region: inferDraftRegion(examType),
+            patientName: session.patient?.paciente?.valor || patient?.name,
+            patientOS: session.patient?.os?.valor || patient?.os,
+            counters: {
+                audio: audioTranscripts.length,
+                supportDocs: assistencialTranscripts.length,
+                priorReports: priorReportDocs.length,
+            },
+        };
+    }, [patient?.examType, patient?.name, patient?.os, session.audioJobs, session.clinicalMarkdown, session.docs, session.patient]);
+
     const reportStartedAt = session.sessionTiming?.reportStartedAt;
     const reportFinalizedAt = session.sessionTiming?.reportFinalizedAt;
     const reportElapsedMs = reportStartedAt
@@ -562,6 +646,16 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
                             >
                                 <ListChecks size={16} /> Checklist Radiológico
                             </button>
+                            {FEATURE_FLAGS.aiDraftTab && (
+                                <button
+                                    role="tab"
+                                    aria-selected={activeTab === 'draft'}
+                                    onClick={() => setActiveTab('draft')}
+                                    className={`tab-btn ${activeTab === 'draft' ? 'active' : ''}`}
+                                >
+                                    <Sparkles size={16} /> Pré-Laudo IA
+                                </button>
+                            )}
                         </div>
 
                         <div className="tabs-subbar">
@@ -573,6 +667,16 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
                                     <span className="divider">·</span>
                                     <span className="count-item text-accent">
                                         {checklistStats.totalItems} itens (P0: {checklistStats.p0Items})
+                                    </span>
+                                </>
+                            ) : activeTab === 'draft' ? (
+                                <>
+                                    <span className="count-item text-info">
+                                        {draftContext.counters.audio} áudios + {draftContext.counters.supportDocs} docs de suporte
+                                    </span>
+                                    <span className="divider">·</span>
+                                    <span className="count-item text-accent">
+                                        {draftContext.counters.priorReports} laudos prévios para comparação
                                     </span>
                                 </>
                             ) : (
@@ -625,6 +729,21 @@ export function WorkspaceLayout({ patient, exitRequest, onExit, onCancelExit }: 
                                         query={session.checklistQuery}
                                         onApplyQuery={handleChecklistQueryApply}
                                         onClearQuery={handleChecklistQueryClear}
+                                    />
+                                </div>
+                            )}
+
+                            {FEATURE_FLAGS.aiDraftTab && activeTab === 'draft' && (
+                                <div role="tabpanel">
+                                    <DraftTab
+                                        caseTranscription={draftContext.caseTranscription}
+                                        clinicalData={draftContext.clinicalData}
+                                        technicalData={draftContext.technicalData}
+                                        priorReports={draftContext.priorReports}
+                                        modality={draftContext.modality}
+                                        region={draftContext.region}
+                                        patientName={draftContext.patientName}
+                                        patientOS={draftContext.patientOS}
                                     />
                                 </div>
                             )}

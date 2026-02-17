@@ -136,6 +136,10 @@ export const ReportJSONSchema = z.object({
     primary_diagnosis: z.string(),
     differentials: z.array(z.string()).optional(),
     recommendations: z.array(z.string()).optional(),
+    indication_relation: z.array(z.string()).optional(),
+    incidental_findings: z.array(z.string()).optional(),
+    adverse_events: z.array(z.string()).optional(),
+    criteria_assessment: z.array(z.string()).optional(),
     risk_classification: z.string().optional(),
   }),
   flags: z.object({
@@ -144,6 +148,7 @@ export const ReportJSONSchema = z.object({
     hallucination_detected: z.boolean().optional(),
     auto_fix_applied: z.boolean().optional(),
     missing_data_markers: z.array(z.string()).optional(),
+    enterography: z.boolean().optional(),
   }).optional(),
   metadata: z.object({
     created_at: z.string(),
@@ -151,6 +156,11 @@ export const ReportJSONSchema = z.object({
     prompt_version: z.string(),
     qa_passed: z.boolean(),
     risk_score: z.enum(['S1', 'S2', 'S3']),
+    // Revisor metadata
+    revised: z.boolean().optional(),
+    revisor_corrections: z.number().optional(),
+    revisor_confidence: z.number().optional(),
+    revisor_reasoning_tokens: z.number().optional(),
   }),
 });
 

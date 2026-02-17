@@ -4,6 +4,7 @@ import { Sidebar } from '../components/Sidebar';
 import { PatientList } from '../components/PatientList';
 import { WorkspaceLayout } from '../features/workspace/WorkspaceLayout';
 import { OcrBatchPage } from '../features/ocr-batch';
+import { SandboxPage } from '../features/sandbox';
 import { GlobalGalleryModal } from '../components/GlobalGalleryModal';
 import { Patient } from '../types/patient';
 import { useBackgroundAudioTranscription } from '../hooks/useBackgroundAudioTranscription';
@@ -18,7 +19,7 @@ import { useBackgroundAudioTranscription } from '../hooks/useBackgroundAudioTran
  * - Sidebar and main content routing
  */
 export function AppRouter() {
-    const [currentView, setCurrentView] = useState<'list' | 'workspace' | 'ocr-batch'>('list');
+    const [currentView, setCurrentView] = useState<'list' | 'workspace' | 'ocr-batch' | 'sandbox'>('list');
     const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
     const [exitRequest, setExitRequest] = useState(false);
 
@@ -50,7 +51,7 @@ export function AppRouter() {
         handleSelectPatient(tempPatient);
     };
 
-    const handleChangeView = (view: 'list' | 'workspace' | 'ocr-batch') => {
+    const handleChangeView = (view: 'list' | 'workspace' | 'ocr-batch' | 'sandbox') => {
         if (view === 'list' && currentView === 'workspace') {
             setExitRequest(true);
             return;
@@ -75,6 +76,8 @@ export function AppRouter() {
                     />
                 ) : currentView === 'ocr-batch' ? (
                     <OcrBatchPage onBack={() => setCurrentView('list')} />
+                ) : currentView === 'sandbox' ? (
+                    <SandboxPage />
                 ) : (
                     <WorkspaceLayout
                         patient={selectedPatient}

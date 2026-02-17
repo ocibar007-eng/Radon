@@ -1,10 +1,10 @@
 
 import React from 'react';
-import { LayoutGrid, FileText, Settings, Zap, ScanLine } from 'lucide-react';
+import { LayoutGrid, FileText, Settings, Zap, ScanLine, FlaskConical } from 'lucide-react';
 
 interface SidebarProps {
-  currentView: 'list' | 'workspace' | 'ocr-batch';
-  onChangeView: (view: 'list' | 'workspace' | 'ocr-batch') => void;
+  currentView: 'list' | 'workspace' | 'ocr-batch' | 'sandbox';
+  onChangeView: (view: 'list' | 'workspace' | 'ocr-batch' | 'sandbox') => void;
   onQuickStart: () => void;
   hasActivePatient: boolean;
 }
@@ -60,6 +60,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, onQ
         >
           <ScanLine size={20} />
           <span className="nav-label">OCR</span>
+        </button>
+
+        <button
+          className={`nav-item ${currentView === 'sandbox' ? 'active' : ''}`}
+          onClick={() => onChangeView('sandbox')}
+          title="Sandbox - Testes do pipeline"
+          aria-label="Sandbox"
+        >
+          <FlaskConical size={20} />
+          <span className="nav-label">Sandbox</span>
         </button>
       </nav>
 
