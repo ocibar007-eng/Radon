@@ -1,0 +1,218 @@
+.sandbox-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+.sandbox-panel {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sandbox-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.sandbox-panel-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--color-text-primary);
+}
+
+.sandbox-toggle {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.sandbox-label {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.sandbox-input,
+.sandbox-textarea {
+  width: 100%;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-default);
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+  padding: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
+.sandbox-textarea {
+  min-height: 260px;
+  resize: vertical;
+}
+
+.sandbox-rendered {
+  width: 100%;
+  min-height: 260px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-default);
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+  padding: 0.75rem 1rem;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  line-height: 1.55;
+  overflow: auto;
+}
+
+.sandbox-rendered h1,
+.sandbox-rendered h2,
+.sandbox-rendered h3,
+.sandbox-rendered h4 {
+  margin: 0.75rem 0 0.5rem;
+  font-weight: 600;
+}
+
+.sandbox-rendered p {
+  margin: 0 0 0.75rem;
+}
+
+.sandbox-rendered strong {
+  font-weight: 600;
+}
+
+.sandbox-rendered hr {
+  border: none;
+  border-top: 1px solid var(--color-border-default);
+  margin: 0.75rem 0;
+}
+
+.sandbox-rendered ul,
+.sandbox-rendered ol {
+  margin: 0 0 0.75rem 1rem;
+}
+
+.sandbox-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.sandbox-actions-inline {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.sandbox-error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-accent-danger);
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+}
+
+.sandbox-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border-default);
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+}
+
+.sandbox-metrics span {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.sandbox-metrics strong {
+  font-size: 0.9rem;
+  color: var(--color-text-primary);
+}
+
+.sandbox-audit {
+  border-top: 1px solid var(--color-border-default);
+  padding-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sandbox-web-block {
+  border: 1px solid var(--color-border-default);
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-md);
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sandbox-web-entry {
+  border-top: 1px solid var(--color-border-default);
+  padding-top: 0.75rem;
+}
+
+.sandbox-web-entry:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
+.sandbox-web-title {
+  font-weight: 600;
+  margin: 0 0 0.35rem;
+}
+
+.sandbox-web-source {
+  font-size: 0.8rem;
+  color: var(--color-text-primary);
+  margin: 0 0 0.35rem;
+}
+
+.sandbox-audit-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.sandbox-audit h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+}
+
+.sandbox-audit ul {
+  margin: 0;
+  padding-left: 1rem;
+  color: var(--color-text-primary);
+  font-size: 0.85rem;
+}
+
+.sandbox-muted {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+@media (max-width: 1100px) {
+  .sandbox-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sandbox-audit-grid {
+    grid-template-columns: 1fr;
+  }
+}

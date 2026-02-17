@@ -1,6 +1,6 @@
 
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, setDoc } from 'firebase/firestore';
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, setDoc, getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
@@ -12,29 +12,36 @@ const firebaseConfig = {
   appId: process.env.FIREBASE_APP_ID?.replace(/"/g, '')
 };
 
+const firebaseConfigOk = Boolean(
+  firebaseConfig.apiKey &&
+  firebaseConfig.projectId &&
+  firebaseConfig.authDomain
+);
+
 console.log('[Firebase] Initializing with config:', {
-  projectId: firebaseConfig.projectId,
-  authDomain: firebaseConfig.authDomain,
-  apiKeyPresent: !!firebaseConfig.apiKey
+  apiKeyPresent: !!firebaseConfig.apiKey,
+  projectIdPresent: !!firebaseConfig.projectId,
+  authDomainPresent: !!firebaseConfig.authDomain,
+  enabled: firebaseConfigOk
 });
 
-const app = !getApps().length && firebaseConfig.apiKey
-  ? initializeApp(firebaseConfig)
-  : (getApps().length ? getApp() : null);
+const app = firebaseConfigOk
+  ? (getApps().length ? getApp() : initializeApp(firebaseConfig))
+  : null;
 
-// PATCH #7: Prevent Double Initialization (HMR Safe)
-import { getFirestore } from 'firebase/firestore';
+const enablePersistence = firebaseConfigOk && process.env.FIREBASE_PERSISTENCE === '1';
 
 export const db = app ? (() => {
+  if (!enablePersistence) {
+    return getFirestore(app);
+  }
   try {
     return initializeFirestore(app, {
       localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
     });
   } catch (e: any) {
-    if (e.code === 'failed-precondition' || e.message?.includes('already been called')) {
-      return getFirestore(app);
-    }
-    throw e;
+    console.warn('[Firebase] Persistência indisponível, usando modo padrão:', e?.message || e);
+    return getFirestore(app);
   }
 })() : null;
 

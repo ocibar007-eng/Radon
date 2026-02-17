@@ -41,15 +41,26 @@ export default defineConfig(({ mode }) => {
         FIREBASE_STORAGE_BUCKET: JSON.stringify(process.env.FIREBASE_STORAGE_BUCKET || env.FIREBASE_STORAGE_BUCKET),
         FIREBASE_MESSAGING_SENDER_ID: JSON.stringify(process.env.FIREBASE_MESSAGING_SENDER_ID || env.FIREBASE_MESSAGING_SENDER_ID),
         FIREBASE_APP_ID: JSON.stringify(process.env.FIREBASE_APP_ID || env.FIREBASE_APP_ID),
-        OPENAI_API_KEY: JSON.stringify(process.env.OPENAI_API_KEY || env.OPENAI_API_KEY),
         OPENAI_MODEL_COMPARISON: JSON.stringify(process.env.OPENAI_MODEL_COMPARISON || env.OPENAI_MODEL_COMPARISON),
         OPENAI_MODEL_IMPRESSION: JSON.stringify(process.env.OPENAI_MODEL_IMPRESSION || env.OPENAI_MODEL_IMPRESSION),
+        PIPELINE_URL: JSON.stringify(process.env.PIPELINE_URL || env.PIPELINE_URL || process.env.VITE_PIPELINE_URL || env.VITE_PIPELINE_URL),
+        VITE_PIPELINE_URL: JSON.stringify(process.env.VITE_PIPELINE_URL || env.VITE_PIPELINE_URL || process.env.PIPELINE_URL || env.PIPELINE_URL),
         CALCULATOR_URL: JSON.stringify(process.env.CALCULATOR_URL || env.CALCULATOR_URL || process.env.VITE_CALC_URL || env.VITE_CALC_URL),
       }
     },
     server: {
       port: 3000,
-      open: true
+      open: true,
+      watch: {
+        // Ignore runtime logs to prevent full-page reload during report generation.
+        ignored: ['**/data/**', '**/*.jsonl'],
+      },
+      proxy: {
+        '/api': {
+          target: 'http://localhost:3100',
+          changeOrigin: true,
+        },
+      },
     },
     build: {
       outDir: 'dist',
