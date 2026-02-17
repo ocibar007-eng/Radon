@@ -1332,6 +1332,1303 @@ def calculate_thyroid_volume_ellipsoid(
     return _result(total)
 
 
+# TC Abdome - Caracterizacao de Lesoes
+
+def calculate_lesion_washin_universal(
+    hu_nc: float,
+    hu_arterial: float,
+    hu_portal: float,
+    orgao: Optional[str] = None
+):
+    """
+    Wash-in genérico para qualquer lesão sólida em TC abdome.
+    
+    Interpretação por órgão:
+    - Fígado: >100%=HCC/hemangioma, 60-100%=HNF/adenoma, <60%=metástase
+    - Pâncreas: >60%=NET, <60%=adenocarcinoma
+    - Adrenal: >60%=feocromocitoma, <60%=adenoma/metástase
+    - Rim: >80%=angiomiolipoma/oncocitoma, <80%=CCR
+    """
+    denominator = hu_portal - hu_nc
+    if denominator == 0 or denominator < 0:
+        return _result(None, "Dados invalidos; lesao nao realca")
+    
+    washin = round(((hu_arterial - hu_nc) / denominator) * 100, 1)
+    organ = _normalize_text(orgao) if orgao else "generico"
+    
+    # Interpretação genérica
+    if washin > 100:
+        category = "Hipervascular (wash-in tardio)"
+        interpretation = "Sugere lesao com realce progressivo (hemangioma, HCC bem diferenciado)"
+    elif washin >= 60:
+        category = "Hipervascular (wash-in precoce)"
+        interpretation = "Realce arterial predominante (NET, feocromocitoma, HNF, oncocitoma)"
+    else:
+        category = "Hipovascular"
+        interpretation = "Realce portal predominante (metastase, adenocarcinoma pancreatico)"
+    
+    # Ajuste por órgão
+    if organ == "figado":
+        if washin > 100:
+            interpretation = "Sugestivo hemangioma ou HCC bem diferenciado"
+        elif washin >= 60:
+            interpretation = "Sugestivo HNF, adenoma hepatocelular ou HCC tipico"
+        else:
+            interpretation = "Sugestivo metastase ou lesao hipovascular"
+    
+    elif organ == "pancreas":
+        if washin >= 60:
+            interpretation = "Sugestivo tumor neuroendocrino (NET)"
+        else:
+            interpretation = "Sugestivo adenocarcinoma ductal"
+    
+    elif organ == "adrenal":
+        if washin > 60:
+            interpretation = "Sugestivo feocromocitoma"
+        else:
+            interpretation = "Padrao inespecifico (adenoma/metastase)"
+    
+    elif organ == "rim":
+        if washin > 80:
+            interpretation = "Hipervascular (angiomiolipoma pobre em gordura, oncocitoma)"
+        else:
+            interpretation = "Carcinoma celulas renais (padrao mais comum)"
+    
+    return _result(washin, category, interpretacao=interpretation, orgao=organ)
+
+
+def calculate_lesion_washout_universal(
+    hu_nc: float,
+    hu_arterial: float,
+    hu_tardia: float,
+    orgao: Optional[str] = None
+):
+    """
+    Wash-out genérico para lesões que realçam na arterial.
+    
+    Interpretação:
+    - >40% = wash-out rápido (hemangioma, feocromocitoma)
+    - 20-40% = wash-out moderado (HCC, NET)
+    - <20% = wash-out lento ou ausente (metástase, adenocarcinoma)
+    """
+    denominator = hu_arterial - hu_nc
+    if denominator <= 0:
+        return _result(None, "Lesao nao realca ou dados invalidos")
+    
+    washout = round(((hu_arterial - hu_tardia) / denominator) * 100, 1)
+    organ = _normalize_text(orgao) if orgao else "generico"
+    
+    if washout > 40:
+        category = "Wash-out rapido"
+        interpretation = "Hemangioma atipico, feocromocitoma, HCC moderadamente diferenciado"
+    elif washout >= 20:
+        category = "Wash-out moderado"
+        interpretation = "HCC tipico, NET, oncocitoma"
+    else:
+        category = "Wash-out lento/ausente"
+        interpretation = "Metastase, adenocarcinoma, HNF"
+    
+    # Ajuste por órgão
+    if organ == "figado":
+        if washout > 40:
+            interpretation = "Sugestivo hemangioma flash-filling ou HCC moderadamente diferenciado"
+        elif washout >= 20:
+            interpretation = "Padrao tipico de HCC (LI-RADS 5)"
+        else:
+            interpretation = "HNF, adenoma ou metastase hipervascular"
+    
+    return _result(washout, category, interpretacao=interpretation, orgao=organ)
+
+
+def calculate_adrenal_relative_washout(hu_portal: float, hu_tardia: float):
+    """
+    Adrenal Relative Washout (RPW) - usado quando NÃO há fase pré-contraste.
+    
+    RPW = ((HU_portal - HU_tardia) / HU_portal) × 100
+    
+    >40% = adenoma (especificidade 96% - Caoili 2002)
+    30-40% = borderline
+    <30% = sugestivo não-adenoma
+    """
+    denominator = hu_portal
+    if denominator == 0:
+        return _result(None)
+    washout = round(((hu_portal - hu_tardia) / denominator) * 100, 1)
+    if washout > 40:
+        category = "Adenoma"
+    elif washout >= 30:
+        category = "Borderline"
+    else:
+        category = "Sugestivo nao-adenoma"
+    return _result(washout, category, referencia="Caoili 2002")
+
+
+def grade_hepatic_steatosis_hu_absolute(hu_figado_nc: float):
+    """
+    Classificação de esteatose hepática por HU absoluto em TC sem contraste (120 kVp).
+    Critério de Starekova J, et al. Radiology 2021.
+    
+    HU ≥57 = ausente/limite
+    HU 40-56 = leve (S1)
+    HU 23-39 = moderada (S2)
+    HU <23 = acentuada/grave (S3)
+    """
+    hu = round(hu_figado_nc, 1)
+    
+    if hu >= 57:
+        grade = "S0"
+        category = "Ausente ou esteatose minima"
+    elif hu >= 40:
+        grade = "S1"
+        category = "Esteatose leve"
+    elif hu >= 23:
+        grade = "S2"
+        category = "Esteatose moderada"
+    else:
+        grade = "S3"
+        category = "Esteatose acentuada/grave"
+    
+    return _result(hu, category, grade=grade, referencia="Starekova 2021")
+
+
+def classify_pancreatic_tumor_enhancement(
+    hu_tumor_arterial: float,
+    hu_parenquima_pancreas_arterial: float,
+    hu_tumor_nc: Optional[float] = None
+):
+    """
+    Diferenciação adenocarcinoma (hipovascular) vs NET (hipervascular).
+    
+    Delta <15-20 HU = hipovascular → adenocarcinoma ductal (90% dos tumores pancreáticos)
+    Delta >20 HU = hipervascular → NET, tumor sólido-pseudopapilar, pancreatoblastoma
+    """
+    delta_realce = hu_tumor_arterial - hu_parenquima_pancreas_arterial
+    delta_realce = round(delta_realce, 1)
+    
+    if delta_realce < -20:
+        category = "Hipovascular acentuado"
+        interpretation = "Muito sugestivo de adenocarcinoma ductal"
+    elif delta_realce < 0:
+        category = "Hipovascular"
+        interpretation = "Sugestivo de adenocarcinoma ductal"
+    elif delta_realce <= 15:
+        category = "Isovascular"
+        interpretation = "Borderline; correlacionar clinica e morfologia"
+    else:
+        category = "Hipervascular"
+        interpretation = "Sugestivo de tumor neuroendocrino (NET), tumor solido-pseudopapilar, ou pancreatoblastoma"
+    
+    # Se temos NC, calcular realce absoluto do tumor
+    realce_absoluto = None
+    if hu_tumor_nc is not None:
+        realce_absoluto = round(hu_tumor_arterial - hu_tumor_nc, 1)
+    
+    return _result(
+        delta_realce,
+        category,
+        interpretacao=interpretation,
+        realce_absoluto_tumor=realce_absoluto
+    )
+
+
+def calculate_renal_mass_enhancement_absolute(
+    hu_massa_nc: float,
+    hu_massa_portal: float,
+    hu_massa_tardia: Optional[float] = None
+):
+    """
+    Critério clássico: realce absoluto >15-20 HU = massa sólida/realcante.
+    
+    <10 HU = cisto simples/proteináceo (Bosniak I-II)
+    10-20 HU = indeterminado; avaliar morfologia (Bosniak IIF vs III)
+    >20 HU = massa sólida realcante (Bosniak III-IV, CCR, angiomiolipoma)
+    """
+    realce_absoluto = round(hu_massa_portal - hu_massa_nc, 1)
+    
+    if realce_absoluto < 10:
+        category = "Sem realce significativo"
+        bosniak_suggestion = "Bosniak I-II (cisto simples ou minimamente complexo)"
+    elif realce_absoluto <= 20:
+        category = "Realce indeterminado/borderline"
+        bosniak_suggestion = "Bosniak IIF-III; avaliar morfologia (septos, paredes)"
+    else:
+        category = "Realce significativo (massa solida)"
+        bosniak_suggestion = "Bosniak III-IV se cistico, ou massa solida renal (CCR, angiomiolipoma)"
+    
+    # Se temos fase tardia, calcular wash-out
+    washout = None
+    if hu_massa_tardia is not None and realce_absoluto > 0:
+        washout = round(((hu_massa_portal - hu_massa_tardia) / realce_absoluto) * 100, 1)
+    
+    return _result(
+        realce_absoluto,
+        category,
+        bosniak_implication=bosniak_suggestion,
+        washout_percent=washout
+    )
+
+
+def grade_portal_vein_thrombosis(
+    diametro_veia_porta: float,
+    percentual_oclusao: float,
+    presenca_realce_trombo: Optional[bool] = None
+):
+    """
+    Graduação de trombose portal por percentual de oclusão.
+    
+    I   = <25% oclusão
+    II  = 25-50% oclusão
+    III = 50-75% oclusão
+    IV  = >75% oclusão (completa se 100%)
+    """
+    if percentual_oclusao < 25:
+        grade = "I"
+        category = "Trombose leve (<25%)"
+    elif percentual_oclusao < 50:
+        grade = "II"
+        category = "Trombose moderada (25-50%)"
+    elif percentual_oclusao < 75:
+        grade = "III"
+        category = "Trombose avancada (50-75%)"
+    else:
+        grade = "IV"
+        if percentual_oclusao >= 99:
+            category = "Trombose completa (100%)"
+        else:
+            category = "Trombose subtotal (>75%)"
+    
+    # Realce sugere trombo agudo/subagudo
+    age_suggestion = None
+    if presenca_realce_trombo is not None:
+        if _as_bool(presenca_realce_trombo):
+            age_suggestion = "Trombo agudo/subagudo (realce presente)"
+        else:
+            age_suggestion = "Trombo cronico (sem realce)"
+    
+    return _result(
+        round(percentual_oclusao, 1),
+        category,
+        grade=grade,
+        age_trombo=age_suggestion,
+        diametro_veia=round(diametro_veia_porta, 1)
+    )
+
+
+def calculate_meld_score(creatinina: float, bilirrubina: float, inr: float):
+    """
+    Model for End-Stage Liver Disease (MELD) score.
+    
+    MELD = 9.57×ln(Cr) + 3.78×ln(Bili) + 11.2×ln(INR) + 6.43
+    
+    <10 = baixo risco
+    10-19 = risco moderado
+    20-29 = alto risco
+    >=30 = risco muito alto
+    """
+    import math
+    
+    # Limitar valores mínimos para evitar log(0)
+    cr = max(creatinina, 1.0)
+    bili = max(bilirrubina, 1.0)
+    inr_val = max(inr, 1.0)
+    
+    meld = 9.57 * math.log(cr) + 3.78 * math.log(bili) + 11.2 * math.log(inr_val) + 6.43
+    meld = round(max(meld, 6), 0)  # Mínimo de 6
+    
+    if meld < 10:
+        category = "Baixo risco (3% mortalidade 90d)"
+    elif meld < 20:
+        category = "Risco moderado (6-20% mortalidade 90d)"
+    elif meld < 30:
+        category = "Alto risco (20-45% mortalidade 90d)"
+    else:
+        category = "Risco muito alto (>50% mortalidade 90d)"
+    
+    return _result(int(meld), category)
+
+
+def calculate_child_pugh_score(
+    bilirrubina: float,
+    albumina: float,
+    inr: float,
+    ascite_grau: str,
+    encefalopatia_grau: str
+):
+    """
+    Child-Pugh score para classificação de cirrose.
+    
+    Pontuação:
+    - Bilirrubina: <2=1pt, 2-3=2pt, >3=3pt
+    - Albumina: >3.5=1pt, 2.8-3.5=2pt, <2.8=3pt
+    - INR: <1.7=1pt, 1.7-2.3=2pt, >2.3=3pt
+    - Ascite: ausente=1pt, leve=2pt, moderada/tensao=3pt
+    - Encefalopatia: ausente=1pt, grau I-II=2pt, grau III-IV=3pt
+    
+    Score 5-6 = Child A
+    Score 7-9 = Child B
+    Score 10-15 = Child C
+    """
+    score = 0
+    
+    # Bilirrubina (mg/dL)
+    if bilirrubina < 2:
+        score += 1
+    elif bilirrubina <= 3:
+        score += 2
+    else:
+        score += 3
+    
+    # Albumina (g/dL)
+    if albumina > 3.5:
+        score += 1
+    elif albumina >= 2.8:
+        score += 2
+    else:
+        score += 3
+    
+    # INR
+    if inr < 1.7:
+        score += 1
+    elif inr <= 2.3:
+        score += 2
+    else:
+        score += 3
+    
+    # Ascite
+    ascite = _normalize_text(ascite_grau)
+    if ascite in {"ausente", "0", "nao"}:
+        score += 1
+    elif ascite in {"leve", "minimo", "1"}:
+        score += 2
+    else:
+        score += 3
+    
+    # Encefalopatia
+    encef = _normalize_text(encefalopatia_grau)
+    if encef in {"ausente", "0", "nao"}:
+        score += 1
+    elif encef in {"i", "ii", "1", "2", "leve"}:
+        score += 2
+    else:
+        score += 3
+    
+    if score <= 6:
+        child_class = "A"
+        category = "Child-Pugh A (compensada; sobrevida 1 ano >95%)"
+    elif score <= 9:
+        child_class = "B"
+        category = "Child-Pugh B (disfuncao significativa; sobrevida 1 ano 80%)"
+    else:
+        child_class = "C"
+        category = "Child-Pugh C (descompensada; sobrevida 1 ano 35%)"
+    
+    return _result(score, category, child_class=child_class)
+
+
+def classify_hepatic_lesion_density(hu_lesao_nc: float):
+    """
+    Classificação de lesão hepática por densidade HU sem contraste.
+    
+    <0 HU = Gordura (lipoma, adenoma rico em gordura)
+    0-20 HU = Água/fluido simples (cisto simples, abscesso liquido)
+    20-45 HU = Conteúdo proteináceo/hemorrágico
+    45-60 HU = Parênquima/sólido hipodenso
+    >70 HU = Hiperdenso (hemangioma, calcificação, metástase mucinosa)
+    """
+    hu = round(hu_lesao_nc, 1)
+    
+    if hu < 0:
+        category = "Densidade de gordura"
+        interpretation = "Lipoma hepatico, adenoma hepatocelular rico em gordura, ou artefato"
+    elif hu <= 20:
+        category = "Densidade de agua/fluido simples"
+        interpretation = "Cisto hepatico simples, abscesso liquido, ou biloma"
+    elif hu <= 45:
+        category = "Conteudo proteico/hemorragico"
+        interpretation = "Cisto complexo, hematoma, abscesso em organizacao"
+    elif hu <= 60:
+        category = "Parenquima/solido hipodenso"
+        interpretation = "Metastase tipica, HCC, colangiocarcinoma"
+    else:
+        category = "Hiperdenso"
+        interpretation = "Hemangioma, calcificacao, metastase mucinosa ou hipervascular"
+    
+    return _result(hu, category, interpretacao=interpretation)
+
+
+def grade_appendix_diameter(diametro_apendice: float):
+    """
+    Avaliação do diâmetro apendicular para diagnóstico de apendicite.
+    
+    <6mm = Normal
+    6-7mm = Borderline (correlacionar com clínica)
+    >7mm = Apendicite aguda provável
+    >10mm = Apendicite estabelecida
+    """
+    d = round(diametro_apendice, 1)
+    
+    if d < 6:
+        category = "Normal"
+    elif d <= 7:
+        category = "Borderline (correlacionar clinica)"
+    elif d <= 10:
+        category = "Apendicite aguda provavel"
+    else:
+        category = "Apendicite estabelecida"
+    
+    return _result(d, category)
+
+
+def classify_bowel_obstruction_level(
+    diametro_intestino_delgado_max: float,
+    diametro_colon_max: Optional[float] = None,
+    ponto_transicao_presente: Optional[bool] = None
+):
+    """
+    Classificação de obstrução intestinal por calibre.
+    
+    Intestino delgado:
+    - <3cm = Normal
+    - 3-4cm = Borderline/íleo paralítico
+    - >4cm = Obstrução de delgado
+    
+    Cólon:
+    - <6cm = Normal
+    - 6-9cm = Borderline
+    - >9cm = Obstrução de grosso calibre
+    """
+    d_delgado = round(diametro_intestino_delgado_max, 1)
+    
+    if d_delgado < 3:
+        category_delgado = "Calibre normal"
+    elif d_delgado <= 4:
+        category_delgado = "Borderline/ileo paralitico"
+    else:
+        category_delgado = "Obstrucao de delgado"
+    
+    category_colon = None
+    if diametro_colon_max is not None:
+        d_colon = round(diametro_colon_max, 1)
+        if d_colon < 6:
+            category_colon = "Colon normal"
+        elif d_colon <= 9:
+            category_colon = "Colon borderline/distensao leve"
+        else:
+            category_colon = "Obstrucao de grosso calibre"
+    
+    transition = None
+    if ponto_transicao_presente is not None:
+        transition = "Presente" if _as_bool(ponto_transicao_presente) else "Ausente"
+    
+    return _result(
+        d_delgado,
+        category_delgado,
+        diametro_colon=diametro_colon_max,
+        categoria_colon=category_colon,
+        ponto_transicao=transition
+    )
+
+
+def calculate_liver_fibrosis_index_ct(diametro_caudado_mm: float, diametro_lobo_direito_mm: float):
+    """
+    Índice de fibrose hepática morfológico por TC.
+    
+    Ratio = caudado / lobo direito
+    
+    <0.65 = Fibrose ausente/leve
+    >=0.65 = Sugestivo fibrose avançada/cirrose
+    """
+    ratio = _safe_div(diametro_caudado_mm, diametro_lobo_direito_mm, 3)
+    
+    if ratio is None:
+        return _result(None)
+    
+    if ratio < 0.65:
+        category = "Fibrose ausente ou leve"
+    else:
+        category = "Sugestivo fibrose avancada/cirrose"
+    
+    return _result(ratio, category)
+
+
+def calculate_pancreatic_duct_to_gland_ratio(
+    diametro_ducto_wirsung: float,
+    espessura_glandula: float
+):
+    """
+    Razão ducto/glândula pancreática.
+    
+    Ratio >0.5 = dilatação ductal desproporcional
+    Sugere pancreatite crônica ou IPMN
+    """
+    ratio = _safe_div(diametro_ducto_wirsung, espessura_glandula, 2)
+    
+    if ratio is None:
+        return _result(None)
+    
+    if ratio > 0.5:
+        category = "Dilatacao ductal desproporcional"
+        interpretation = "Sugestivo pancreatite cronica ou IPMN"
+    elif ratio > 0.3:
+        category = "Borderline"
+        interpretation = "Correlacionar clinica"
+    else:
+        category = "Proporcao normal"
+        interpretation = "Parenquima preservado"
+    
+    return _result(ratio, category, interpretacao=interpretation)
+
+
+def measure_mesenteric_lymph_node_size(eixo_curto_mm: float):
+    """
+    Classificação de linfonodo mesentérico por eixo curto.
+    
+    <10mm = Normal
+    10-15mm = Borderline (reativo vs patológico)
+    >15mm = Patológico (adenomegalia)
+    """
+    size = round(eixo_curto_mm, 1)
+    
+    if size < 10:
+        category = "Normal"
+    elif size <= 15:
+        category = "Borderline (reativo vs patologico)"
+    else:
+        category = "Patologico (adenomegalia)"
+    
+    return _result(size, category)
+
+
+def classify_retroperitoneal_lymph_nodes(
+    nivel_anatomico: str,
+    eixo_curto_max_mm: float
+):
+    """
+    Mapeamento de linfonodos retroperitoneais por nível anatômico.
+    
+    Níveis: para-aortico, aorto-caval, inter-aortocava, pre-aortico, etc
+    
+    >10mm = N+ (patológico) em cada nível
+    """
+    level = _normalize_text(nivel_anatomico)
+    size = round(eixo_curto_max_mm, 1)
+    
+    if size < 10:
+        n_stage = "N0"
+        category = "Sem adenomegalia"
+    else:
+        n_stage = "N1"
+        category = f"Adenomegalia no nivel {level}"
+    
+    return _result(size, category, n_stage=n_stage, nivel=level)
+
+
+def measure_splenic_artery_aneurysm_risk(diametro_aneurisma_mm: float):
+    """
+    Classificação de risco de aneurisma de artéria esplênica.
+    
+    <20mm = Watchful waiting (baixo risco ruptura)
+    20-25mm = Considerar cirurgia (risco moderado)
+    >25mm = Cirurgia recomendada (alto risco ruptura)
+    """
+    d = round(diametro_aneurisma_mm, 1)
+    
+    if d < 20:
+        category = "Watchful waiting"
+        risk = "Baixo risco de ruptura"
+    elif d <= 25:
+        category = "Considerar cirurgia"
+        risk = "Risco moderado de ruptura"
+    else:
+        category = "Cirurgia recomendada"
+        risk = "Alto risco de ruptura"
+    
+    return _result(d, category, risco_ruptura=risk)
+
+
+def calculate_renal_artery_stenosis_indirect(
+    diametro_rim_afetado_cm: float,
+    diametro_rim_contralateral_cm: float
+):
+    """
+    Avaliação indireta de estenose arterial renal por atrofia.
+    
+    Ratio = rim afetado / rim contralateral
+    
+    <0.9 = Atrofia sugestiva de estenose significativa
+    >=0.9 = Sem atrofia significativa
+    """
+    ratio = _safe_div(diametro_rim_afetado_cm, diametro_rim_contralateral_cm, 2)
+    
+    if ratio is None:
+        return _result(None)
+    
+    if ratio < 0.9:
+        category = "Atrofia sugestiva de estenose significativa"
+    else:
+        category = "Sem atrofia significativa"
+    
+    return _result(ratio, category)
+
+
+def measure_colonic_wall_thickness(espessura_parede_colon_mm: float):
+    """
+    Espessamento parietal colônico.
+    
+    <3mm = Normal
+    3-5mm = Borderline
+    >5mm = Espessado (colite, neoplasia)
+    """
+    thickness = round(espessura_parede_colon_mm, 1)
+    
+    if thickness < 3:
+        category = "Normal"
+    elif thickness <= 5:
+        category = "Borderline"
+    else:
+        category = "Espessado (colite, neoplasia)"
+    
+    return _result(thickness, category)
+
+
+def calculate_peritoneal_carcinomatosis_index(
+    numero_segmentos_envolvidos: int,
+    tamanho_maior_implante_mm: Optional[float] = None
+):
+    """
+    Peritoneal Cancer Index (PCI) simplificado.
+    
+    PCI = número de segmentos (0-12) + score por tamanho
+    
+    0-10 = Baixo
+    11-20 = Moderado
+    >20 = Extenso
+    """
+    pci = numero_segmentos_envolvidos
+    
+    if pci <= 10:
+        category = "Carcinomatose baixa carga"
+    elif pci <= 20:
+        category = "Carcinomatose moderada carga"
+    else:
+        category = "Carcinomatose extensa/alta carga"
+    
+    return _result(
+        pci,
+        category,
+        numero_segmentos=numero_segmentos_envolvidos,
+        maior_implante_mm=tamanho_maior_implante_mm
+    )
+
+
+def grade_ascites_volume(
+    ascite_periesplenica: bool,
+    ascite_difusa: bool,
+    deslocamento_visceras: bool
+):
+    """
+    Classificação de ascite por distribuição.
+    
+    Grau I   = Mínimo (periesplenical only)
+    Grau II  = Moderado (difuso, sem deslocamento)
+    Grau III = Volumoso (difuso + deslocamento vísceras)
+    """
+    periesplen = _as_bool(ascite_periesplenica)
+    difusa = _as_bool(ascite_difusa)
+    desloc = _as_bool(deslocamento_visceras)
+    
+    if desloc and difusa:
+        grade = "III"
+        category = "Ascite volumosa (tensao)"
+    elif difusa:
+        grade = "II"
+        category = "Ascite moderada"
+    elif periesplen:
+        grade = "I"
+        category = "Ascite minima"
+    else:
+        grade = "0"
+        category = "Sem ascite"
+    
+    return _result(None, category, grade=grade)
+
+
+def calculate_pancreatic_atrophy_index(
+    espessura_cabeca_mm: float,
+    espessura_corpo_mm: float,
+    espessura_cauda_mm: float
+):
+    """
+    Índice de atrofia pancreática (média das espessuras).
+    
+    <10mm média = Atrofia difusa (pancreatite crônica)
+    10-15mm = Borderline
+    >15mm = Preservado
+    """
+    avg = round((espessura_cabeca_mm + espessura_corpo_mm + espessura_cauda_mm) / 3, 1)
+    
+    if avg < 10:
+        category = "Atrofia difusa (pancreatite cronica)"
+    elif avg <= 15:
+        category = "Borderline/atrofia leve"
+    else:
+        category = "Parenquima preservado"
+    
+    return _result(
+        avg,
+        category,
+        cabeca=round(espessura_cabeca_mm, 1),
+        corpo=round(espessura_corpo_mm, 1),
+        cauda=round(espessura_cauda_mm, 1)
+    )
+
+
+def calculate_perforated_appendix_score(
+    pneumoperitonio: bool,
+    abscesso_periapendicular: bool,
+    dilatacao_apendice_mm: Optional[float] = None
+):
+    """
+    Score de perfuração apendicular.
+    
+    0-1 pontos = Não perfurado
+    2-3 pontos = Provável perfuração
+    
+    Critérios:
+    - Pneumoperitônio = 1pt
+    - Abscesso periapendicular = 1pt
+    - Dilatação >12mm = 1pt
+    """
+    score = 0
+    
+    if _as_bool(pneumoperitonio):
+        score += 1
+    
+    if _as_bool(abscesso_periapendicular):
+        score += 1
+    
+    if dilatacao_apendice_mm is not None and dilatacao_apendice_mm > 12:
+        score += 1
+    
+    if score <= 1:
+        category = "Apendicite nao perfurada"
+    else:
+        category = "Provavel perfuracao apendicular"
+    
+    return _result(score, category)
+
+
+def measure_gastric_wall_enhancement(hu_parede_gastrica_portal: float):
+    """
+    Realce da parede gástrica na fase portal.
+    
+    <40 HU = Sem realce significativo
+    40-60 HU = Realce moderado (gastrite)
+    >60 HU = Hiper-realce (gastrite ativa, neoplasia)
+    """
+    hu = round(hu_parede_gastrica_portal, 1)
+    
+    if hu < 40:
+        category = "Sem realce significativo"
+    elif hu <= 60:
+        category = "Realce moderado (gastrite)"
+    else:
+        category = "Hiper-realce (gastrite ativa, neoplasia)"
+    
+    return _result(hu, category)
+
+
+def grade_ureteral_obstruction(
+    diametro_ureter_mm: float,
+    grau_hidronefrose: str
+):
+    """
+    Graduação de obstrução ureteral combinando calibre + hidronefrose.
+    
+    Hidronefrose: 0, I, II, III, IV
+    
+    Combinação define severidade: Leve, Moderada, Grave
+    """
+    hidro = _normalize_text(grau_hidronefrose)
+    d_ureter = round(diametro_ureter_mm, 1)
+    
+    # Mapear grau hidronefrose
+    if hidro in {"0", "ausente", "nao"}:
+        hydro_grade = 0
+    elif hidro in {"i", "1"}:
+        hydro_grade = 1
+    elif hidro in {"ii", "2"}:
+        hydro_grade = 2
+    elif hydro in {"iii", "3"}:
+        hydro_grade = 3
+    else:
+        hydro_grade = 4
+    
+    # Classificar obstrução
+    if hydro_grade == 0 and d_ureter < 5:
+        category = "Sem obstrucao"
+    elif hydro_grade <= 1 and d_ureter < 7:
+        category = "Obstrucao leve"
+    elif hydro_grade <= 2 and d_ureter < 10:
+        category = "Obstrucao moderada"
+    else:
+        category = "Obstrucao grave"
+    
+    return _result(
+        d_ureter,
+        category,
+        grau_hidronefrose=hidro,
+        hydro_numeric=hydro_grade
+    )
+
+
+def calculate_renal_parenchymal_volume(
+    volume_rim_total_ml: float,
+    volume_sistema_coletor_ml: float
+):
+    """
+    Volume de parênquima renal funcional.
+    
+    Volume parênquima = volume total - volume sistema coletor
+    
+    Correlaciona com função glomerular (rins policísticos, hidronefrose)
+    """
+    parenchyma_vol = round(volume_rim_total_ml - volume_sistema_coletor_ml, 1)
+    
+    if parenchyma_vol < 0:
+        return _result(None, "Dados invalidos")
+    
+    # Percentual de parênquima
+    percent = _safe_div(parenchyma_vol, volume_rim_total_ml, None)
+    if percent is not None:
+        percent = round(percent * 100, 1)
+    
+    if percent is not None:
+        if percent < 30:
+            category = "Parenquima muito reduzido"
+        elif percent < 50:
+            category = "Parenquima significativamente reduzido"
+        elif percent < 70:
+            category = "Parenquima moderadamente reduzido"
+        else:
+            category = "Parenquima preservado"
+    else:
+        category = None
+    
+    return _result(
+        parenchyma_vol,
+        category,
+        percentual_parenquima=percent,
+        volume_total=volume_rim_total_ml
+    )
+
+
+def calculate_adc_value_classification(adc_value_x10_3: float, orgao: Optional[str] = None):
+    """
+    Classificação do valor de ADC (Coeficiente de Difusão Aparente).
+    Valores típicos em x10^-3 mm²/s.
+    
+    Interpretação genérica:
+    < 0.7-0.8 = Restrição significativa (alta celularidade/malignidade/abscesso)
+    0.8 - 1.2 = Restrição moderada / Indeterminado
+    > 1.2 = Sem restrição significativa (benigno/edema/necrose)
+    """
+    val = round(adc_value_x10_3, 2)
+    organ = _normalize_text(orgao) if orgao else "generico"
+    
+    if val < 0.75:
+        category = "Restricao significativa (baixa difusividade)"
+        interpretation = "Alta celularidade; suspeito para malignidade (se massa) ou abscesso"
+    elif val <= 1.2:
+        category = "Restricao moderada / Intermediario"
+        interpretation = "Celularidade intermediaria; indeterminado"
+    else:
+        category = "Sem restricao significativa (alta difusividade)"
+        interpretation = "Provavel benigno, edema, quisto ou necrose"
+    
+    # Ajustes específicos
+    if organ == "prostata":
+        if val < 0.75:
+            interpretation = "Altamente suspeito para CaP clinicamente significativo (PI-RADS 4/5)"
+        elif val < 1.0:
+            interpretation = "Suspeito / Equivoco"
+    elif organ == "rim":
+        if val < 1.5: # Rins tem ADC basal alto
+             # CCR costuma ter ADC menor que parenquima normal, mas variavel
+             pass
+             
+    return _result(val, category, interpretacao=interpretation, orgao=organ)
+
+
+def calculate_prostate_epe_risk_contact_length(comprimento_contato_capsular_mm: float):
+    """
+    Risco de Extensão Extraprostática (EPE) baseado no comprimento de contato (LCC).
+    
+    LCC > 12-15mm aumenta significativamente o risco de EPE.
+    """
+    lcc = round(comprimento_contato_capsular_mm, 1)
+    
+    if lcc < 6:
+        risk = "Baixo risco de EPE"
+    elif lcc < 12:
+        risk = "Risco moderado de EPE"
+    else:
+        risk = "Alto risco de EPE microscopica ou macroscopica"
+        
+    return _result(lcc, risk)
+
+
+def calculate_liver_iron_concentration_r2star(t2_star_ms: float):
+    """
+    Quantificação de ferro hepático por RM (R2*).
+    FORMULA: R2* = 1000 / T2* (ms)
+    
+    R2* < 40 Hz (? T2* > 25ms) = Normal
+    R2* > 40 Hz = Sobrecarga de ferro
+    """
+    if t2_star_ms <= 0:
+        return _result(None, "T2* invalido")
+        
+    r2_star = round(1000.0 / t2_star_ms, 1)
+    
+    if r2_star < 40:
+        category = "Normal (sem sobrecarga)"
+        grade = "Normal"
+    elif r2_star < 70:
+        category = "Sobrecarga leve"
+        grade = "Leve"
+    elif r2_star < 140:
+        category = "Sobrecarga moderada"
+        grade = "Moderada"
+    else:
+        category = "Sobrecarga grave"
+        grade = "Grave"
+        
+    return _result(r2_star, category, grade=grade, unit="Hz")
+
+
+def calculate_liver_fat_fraction_dixon(sinal_gordura: float, sinal_agua: float):
+    """
+    Fração de gordura hepática (PDFF estimado) por sequência Dixon/IP-OP.
+    Fat Fraction = F / (F + W)
+    
+    < 5% = Normal
+    5-10% = Esteatose leve
+    > 10% = Esteatose significativa
+    """
+    total_signal = sinal_gordura + sinal_agua
+    if total_signal == 0:
+        return _result(None)
+        
+    ff = round((sinal_gordura / total_signal) * 100, 1)
+    
+    if ff < 5:
+        category = "Normal"
+    elif ff < 10:
+        category = "Esteatose leve"
+    elif ff < 20:
+        category = "Esteatose moderada"
+    else:
+        category = "Esteatose grave"
+        
+    return _result(ff, category)
+
+
+def classify_rectal_tumor_height(distancia_borda_anal_cm: float):
+    """
+    Altura do tumor retal (RM): Define abordagem cirúrgica (Amputação vs RAB).
+    
+    < 5cm = Reto inferior (risco alto de AAP)
+    5-10cm = Reto médio
+    10-15cm = Reto superior
+    """
+    dist = round(distancia_borda_anal_cm, 1)
+    
+    if dist < 5:
+        category = "Reto inferior"
+        sugestao = "Avaliar necessidade de amputacao (AAP) vs preservacao esfincteriana ultra-baixa"
+    elif dist <= 10:
+        category = "Reto medio"
+        sugestao = "Candidato a resseccao anterior baixa (RAB)"
+    elif dist <= 15:
+        category = "Reto superior"
+        sugestao = "Candidato a resseccao anterior (RA)"
+    else:
+        category = "Juncao retossigmoide / Sigmoide"
+        sugestao = "Colectomia/Sigmoidectomia"
+        
+    return _result(dist, category, implicacao_cirurgica=sugestao)
+
+
+def grade_pelvic_congestion_syndrome(diametro_veia_ovariana_mm: float):
+    """
+    Síndrome de Congestão Pélvica (TC/RM).
+    Diâmetro da veia ovariana/gonadal.
+    
+    < 6mm = Normal
+    6-8mm = Ectasia leve / Borderline
+    > 8mm = Dilatação significativa (sugestivo de SCP se tortuosa)
+    """
+    d = round(diametro_veia_ovariana_mm, 1)
+    
+    if d < 6:
+        category = "Calibre normal"
+    elif d <= 8:
+        category = "Ectasia leve / Borderline"
+    else:
+        category = "Veia ovariana dilatada"
+        
+    return _result(d, category)
+
+
+def measure_uterine_junctional_zone_mri(espessura_jz_mm: float):
+    """
+    Espessura da Zona Juncional (JZ) uterina em T2 (RM).
+    Marcador de Adenomiose.
+    
+    < 8mm = Normal
+    8-12mm = Indeterminado
+    > 12mm = Adenomiose
+    """
+    jz = round(espessura_jz_mm, 1)
+    
+    if jz < 8:
+        category = "Normal"
+    elif jz <= 12:
+        category = "Indeterminado (correlacionar focos de alto sinal)"
+    else:
+        category = "Espessamento da zona juncional (Adenomiose)"
+        
+    return _result(jz, category)
+
+
+def classify_diverticulitis_hinchey_ct(
+    abscesso_presente: bool,
+    tamanho_abscesso_cm: Optional[float] = None,
+    peritonite_purulenta: Optional[bool] = None,
+    peritonite_fecal: Optional[bool] = None,
+    distancia_inflamacao: str = "pericolica" # pericolica vs pélvica/distante
+):
+    """
+    Classificação de Hinchey modificada (CT) para diverticulite aguda.
+    
+    Ia = Inflamação pericólica/fleimão (sem abscesso)
+    Ib = Abscesso < 4-5cm (pericólico/mesentérico)
+    II = Abscesso pélvico, intra-abdominal ou retroperitoneal (geralmente > 4cm ou distante)
+    III = Peritonite purulenta (ar livre, sem comunicação direta óbvia)
+    IV = Peritonite fecal (comunicação livre, fezes na cavidade)
+    """
+    abscesso = _as_bool(abscesso_presente)
+    purulenta = _as_bool(peritonite_purulenta)
+    fecal = _as_bool(peritonite_fecal)
+    
+    if fecal:
+        return _result("IV", "Peritonite fecal")
+    if purulenta:
+        return _result("III", "Peritonite purulenta")
+    
+    if abscesso:
+        # Se tamanho > 4cm ou localização distante -> Hinchey II
+        distante = "pelv" in _normalize_text(distancia_inflamacao) or "dist" in _normalize_text(distancia_inflamacao)
+        grande = tamanho_abscesso_cm is not None and tamanho_abscesso_cm > 4.0
+        
+        if grande or distante:
+            return _result("II", "Abscesso pelvico/abdominal distante ou grande")
+        else:
+            return _result("Ib", "Abscesso pericolico/mesenterico pequeno")
+            
+    return _result("Ia", "Inflamacao pericolica confinada/fleimao")
+
+
+def calculate_crohn_activity_mri_simplified(
+    espessura_parede_mm: float,
+    realce_mural_intenso: bool,
+    edema_mural_t2: bool,
+    ulceras: bool
+):
+    """
+    Estimativa simplificada de atividade de Crohn (MaRIA-like).
+    
+    Sinais de atividade: Espessamento >3mm, Realce intenso, Edema (alto T2), Úlceras.
+    """
+    thick = espessura_parede_mm > 3
+    enh = _as_bool(realce_mural_intenso)
+    edema = _as_bool(edema_mural_t2)
+    ulc = _as_bool(ulceras)
+    
+    score = 0
+    if thick: score += 1
+    if enh: score += 1
+    if edema: score += 1
+    if ulc: score += 2 # Úlceras são sinal forte
+    
+    if score == 0:
+        category = "Sem sinais de atividade inflamatoria"
+    elif score <= 2:
+        category = "Atividade inflamatoria leve"
+    else:
+        category = "Atividade inflamatoria moderada a grave"
+        
+    return _result(score, category)
+
+
+def classify_anal_fistula_parks_mri(
+    atravessa_esfincter_interno: bool,
+    atravessa_esfincter_externo: bool,
+    acima_elevador: bool
+):
+    """
+    Classificação de Parks simplificada para fístula perianal (RM).
+    """
+    ei = _as_bool(atravessa_esfincter_interno)
+    ee = _as_bool(atravessa_esfincter_externo)
+    supra = _as_bool(acima_elevador)
+    
+    if supra:
+        if atravessa_esfincter_externo:
+            return _result("Supra-esfincteriana ou Extra-esfincteriana (complexa)")
+        else:
+             return _result("Supra-esfincteriana (complexa)")
+             
+    if ee:
+        return _result("Trans-esfincteriana")
+        
+    if ei:
+        return _result("Inter-esfincteriana (mais comum)")
+        
+    return _result("Superficial / Submucosa")
+
+
+def grade_bladder_trabeculation(espessura_parede_mm: float, diverticulos: bool):
+    """
+    Graduação de esforço vesical / bexiga de luta.
+    """
+    thick = round(espessura_parede_mm, 1)
+    divs = _as_bool(diverticulos)
+    
+    if thick < 3 and not divs:
+        category = "Normal"
+    elif thick >= 3 and thick < 5 and not divs:
+        category = "Trabeculacao leve (espessamento parietal discreto)"
+    elif (thick >= 5) or (thick >= 3 and divs):
+        category = "Bexiga de esforco / Trabeculacao acentuada"
+        if divs:
+            category += " com diverticulos"
+            
+    return _result(thick, category)
+
+
+def calculate_seminal_vesicle_invasion_risk(
+    comprimento_contato_base_mm: float,
+    angulo_obliterado: bool
+):
+    """
+    Risco de invasão de vesículas seminais (T3b) em RM Próstata.
+    """
+    len_con = round(comprimento_contato_base_mm, 1)
+    angle = _as_bool(angulo_obliterado)
+    
+    if angle:
+        return _result("Alto risco", "Obliteracao do angulo prostato-seminal (Sinal direto)")
+        
+    if len_con > 15:
+        return _result("Alto risco", "Contato extenso com a base da vesicula")
+    elif len_con > 10:
+        return _result("Risco moderado", "Contato intermediario")
+        
+    return _result("Baixo risco", "Contato pequeno ou ausente")
+
+
+def calculate_kidney_stone_burden_cumulative(
+    diametros_calculos: list[float]
+):
+    """
+    Carga litásica cumulativa (soma dos diâmetros).
+    Útil para planejamento urológico (LECO vs Ureteroscopia vs NLP).
+    """
+    if not diametros_calculos:
+        return _result(0, "Sem calculos")
+        
+    total = sum(diametros_calculos)
+    count = len(diametros_calculos)
+    
+    if total < 20: # <2cm
+        category = "Carga litasica baixa (<2cm)"
+        therapy = "Favoravel a LECO ou Ureteroscopia flexivel"
+    else:
+        category = "Carga litasica alta (>2cm)"
+        therapy = "Considerar Nefrolitotripsia percutanea (NLP)"
+        
+    return _result(round(total, 1), category, numero_calculos=count, sugestao_terapeutica=therapy)
+
+
+def classify_adnexal_mass_mri_complexity(
+    componente_solido: bool,
+    septos_espessos: bool,
+    realce_pos_contraste: bool,
+    gordura_macroscopica: bool
+):
+    """
+    Caracterização simplificada de massa anexial por RM.
+    """
+    solido = _as_bool(componente_solido)
+    septos = _as_bool(septos_espessos)
+    realce = _as_bool(realce_pos_contraste)
+    gordura = _as_bool(gordura_macroscopica)
+    
+    if gordura and not realce:
+        return _result("Teratoma maduro (cisto dermoide)", "Provavelmente Benigno")
+        
+    if realce:
+        if solido:
+            return _result("Massa solida realcante", "Suspeito / Indeterminado (avaliar curvas perfusao)")
+        if septos:
+            return _result("Cisto complexo com septos espessos", "Suspeito / Indeterminado")
+            
+    return _result("Cisto simples ou sem elementos suspeitos", "Provavelmente Benigno")
+
+
+def measure_biliary_dilatation_severity_mri(diametro_coledoco_mm: float, pos_colecistectomia: bool):
+    """
+    Graduação de dilatação biliar (ColangioRM).
+    Pós-colecistectomia tolera diâmetros maiores.
+    """
+    d = round(diametro_coledoco_mm, 1)
+    pos = _as_bool(pos_colecistectomia)
+    
+    threshold_normal = 10.0 if pos else 7.0
+    
+    if d <= threshold_normal:
+        category = "Calibre normal"
+    elif d <= threshold_normal + 4:
+        category = "Dilatacao leve"
+    elif d <= threshold_normal + 8:
+        category = "Dilatacao moderada"
+    else:
+        category = "Dilatacao acentuada"
+        
+    return _result(d, category, status_pos_colecistectomia=pos)
+
+def assess_cervical_stromal_ring_mri(anel_estromal_integro: bool):
+    """
+    Avaliação de integridade do anel estromal cervical (RM).
+    Status do anel hipointenso em T2.
+    
+    Integro = Tumor confinado (estádio menor)
+    Rompido = Invasão estromal profunda ou parametrial provável
+    """
+    integro = _as_bool(anel_estromal_integro)
+    
+    if integro:
+        category = "Anel estromal integro"
+        interpretation = "Alta probabilidade de tumor confinado ao colo (preservacao margem)"
+    else:
+        category = "Ruptura do anel estromal"
+        interpretation = "Sugere invasao estromal profunda ou parametrial"
+        
+    return _result(category, interpretation)
+
+
 FORMULAS = {
     "calculate_resistive_index": calculate_resistive_index,
     "calculate_pulsatility_index": calculate_pulsatility_index,
@@ -1411,4 +2708,46 @@ FORMULAS = {
     "measure_rectal_cancer_depth": measure_rectal_cancer_depth,
     "classify_lymph_node_staging": classify_lymph_node_staging,
     "calculate_stone_skin_distance_mean": calculate_stone_skin_distance_mean,
+    "calculate_lesion_washin_universal": calculate_lesion_washin_universal,
+    "calculate_lesion_washout_universal": calculate_lesion_washout_universal,
+    "calculate_adrenal_relative_washout": calculate_adrenal_relative_washout,
+    "grade_hepatic_steatosis_hu_absolute": grade_hepatic_steatosis_hu_absolute,
+    "classify_pancreatic_tumor_enhancement": classify_pancreatic_tumor_enhancement,
+    "calculate_renal_mass_enhancement_absolute": calculate_renal_mass_enhancement_absolute,
+    "grade_portal_vein_thrombosis": grade_portal_vein_thrombosis,
+    "calculate_meld_score": calculate_meld_score,
+    "calculate_child_pugh_score": calculate_child_pugh_score,
+    "classify_hepatic_lesion_density": classify_hepatic_lesion_density,
+    "grade_appendix_diameter": grade_appendix_diameter,
+    "classify_bowel_obstruction_level": classify_bowel_obstruction_level,
+    "calculate_liver_fibrosis_index_ct": calculate_liver_fibrosis_index_ct,
+    "calculate_pancreatic_duct_to_gland_ratio": calculate_pancreatic_duct_to_gland_ratio,
+    "measure_mesenteric_lymph_node_size": measure_mesenteric_lymph_node_size,
+    "classify_retroperitoneal_lymph_nodes": classify_retroperitoneal_lymph_nodes,
+    "measure_splenic_artery_aneurysm_risk": measure_splenic_artery_aneurysm_risk,
+    "calculate_renal_artery_stenosis_indirect": calculate_renal_artery_stenosis_indirect,
+    "measure_colonic_wall_thickness": measure_colonic_wall_thickness,
+    "calculate_peritoneal_carcinomatosis_index": calculate_peritoneal_carcinomatosis_index,
+    "grade_ascites_volume": grade_ascites_volume,
+    "calculate_pancreatic_atrophy_index": calculate_pancreatic_atrophy_index,
+    "calculate_perforated_appendix_score": calculate_perforated_appendix_score,
+    "measure_gastric_wall_enhancement": measure_gastric_wall_enhancement,
+    "grade_ureteral_obstruction": grade_ureteral_obstruction,
+    "calculate_renal_parenchymal_volume": calculate_renal_parenchymal_volume,
+    "calculate_adc_value_classification": calculate_adc_value_classification,
+    "calculate_prostate_epe_risk_contact_length": calculate_prostate_epe_risk_contact_length,
+    "calculate_liver_iron_concentration_r2star": calculate_liver_iron_concentration_r2star,
+    "calculate_liver_fat_fraction_dixon": calculate_liver_fat_fraction_dixon,
+    "classify_rectal_tumor_height": classify_rectal_tumor_height,
+    "grade_pelvic_congestion_syndrome": grade_pelvic_congestion_syndrome,
+    "measure_uterine_junctional_zone_mri": measure_uterine_junctional_zone_mri,
+    "classify_diverticulitis_hinchey_ct": classify_diverticulitis_hinchey_ct,
+    "calculate_crohn_activity_mri_simplified": calculate_crohn_activity_mri_simplified,
+    "classify_anal_fistula_parks_mri": classify_anal_fistula_parks_mri,
+    "grade_bladder_trabeculation": grade_bladder_trabeculation,
+    "calculate_seminal_vesicle_invasion_risk": calculate_seminal_vesicle_invasion_risk,
+    "calculate_kidney_stone_burden_cumulative": calculate_kidney_stone_burden_cumulative,
+    "classify_adnexal_mass_mri_complexity": classify_adnexal_mass_mri_complexity,
+    "measure_biliary_dilatation_severity_mri": measure_biliary_dilatation_severity_mri,
+    "assess_cervical_stromal_ring_mri": assess_cervical_stromal_ring_mri,
 }

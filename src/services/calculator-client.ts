@@ -6,8 +6,34 @@ import {
 import type { ComputeRequest, ComputeResult } from '../types/compute-request';
 import type { ReportJSON } from '../types/report-json';
 
-const DEFAULT_CALC_URL = 'http://localhost:8081';
-const CALC_URL = process.env.CALCULATOR_URL || process.env.VITE_CALC_URL || DEFAULT_CALC_URL;
+const resolveCalcUrl = () => {
+  const envUrl = process.env.CALCULATOR_URL || process.env.VITE_CALC_URL;
+  if (envUrl) {
+    if (envUrl.startsWith('/')) {
+      if (typeof window !== 'undefined') {
+        return `${window.location.origin}${envUrl}`;
+      }
+      const vercelUrl = process.env.VERCEL_URL;
+      if (vercelUrl) {
+        return `https://${vercelUrl}${envUrl}`;
+      }
+    }
+    return envUrl;
+  }
+
+  if (typeof window !== 'undefined') {
+    return `${window.location.origin}/api/calculator`;
+  }
+
+  const vercelUrl = process.env.VERCEL_URL;
+  if (vercelUrl) {
+    return `https://${vercelUrl}/api/calculator`;
+  }
+
+  return 'http://localhost:8081';
+};
+
+const CALC_URL = resolveCalcUrl();
 
 export type CalculatorComputeRequest = Omit<ComputeRequest, 'formula'> & { formula: string };
 
