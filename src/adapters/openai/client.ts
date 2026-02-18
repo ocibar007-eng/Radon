@@ -1,6 +1,6 @@
-import { getOpenAIKey } from '../../core/openai';
-import { withExponentialBackoff } from '../../utils/retry';
-import { CONFIG } from '../../core/config';
+import { getOpenAIKey } from '../../core/openai.ts';
+import { withExponentialBackoff } from '../../utils/retry.ts';
+import { CONFIG } from '../../core/config.ts';
 
 const OPENAI_BASE_URL = 'https://api.openai.com/v1';
 

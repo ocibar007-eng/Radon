@@ -1,7 +1,8 @@
 {
     "functions": {
         "api/**/*.ts": {
-            "maxDuration": 300
+            "maxDuration": 300,
+            "includeFiles": "{src/**,Gems/**,exports/mega_consultavel_157md_60k_ai_split/**,data/recommendations/md_docs/prompts/**,data/terminology-fixlist.json}"
         }
     },
     "rewrites": [
