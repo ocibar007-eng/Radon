@@ -14,6 +14,15 @@ const mockSetDoc = vi.fn();
 const mockGetDocs = vi.fn();
 const mockUpdateDoc = vi.fn();
 const mockDeleteDoc = vi.fn();
+const mockDeleteSession = vi.fn();
+const mockDeletePatientFiles = vi.fn();
+
+vi.mock('./storage-service', () => ({
+  StorageService: {
+    deleteSession: (...args: any[]) => mockDeleteSession(...args),
+    deletePatientFiles: (...args: any[]) => mockDeletePatientFiles(...args)
+  }
+}));
 
 vi.mock('firebase/firestore', () => ({
   collection: vi.fn(),
@@ -33,6 +42,10 @@ vi.mock('firebase/firestore', () => ({
 describe('PatientService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockSetDoc.mockResolvedValue(undefined);
+    mockDeleteDoc.mockResolvedValue(undefined);
+    mockDeleteSession.mockResolvedValue(undefined);
+    mockDeletePatientFiles.mockResolvedValue(undefined);
   });
 
   const mockPatient: Patient = {
@@ -79,5 +92,15 @@ describe('PatientService', () => {
     expect(mockUpdateDoc).toHaveBeenCalledWith(undefined, expect.objectContaining({
       deletedAt: expect.any(Number)
     }));
+  });
+
+  it('deve excluir documento mesmo com erro de permissão no Storage durante purge', async () => {
+    mockDeletePatientFiles.mockRejectedValue({ code: 'storage/unauthorized' });
+
+    await PatientService.purgePatient('123');
+
+    expect(mockDeleteSession).toHaveBeenCalledWith('123');
+    expect(mockDeletePatientFiles).toHaveBeenCalledWith('123');
+    expect(mockDeleteDoc).toHaveBeenCalledTimes(1);
   });
 });
