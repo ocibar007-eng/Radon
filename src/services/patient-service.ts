@@ -312,7 +312,25 @@ export const PatientService = {
     await StorageService.deleteSession(id);
 
     if (isFirebaseEnabled() && db) {
-      await StorageService.deletePatientFiles(id);
+      try {
+        await StorageService.deletePatientFiles(id);
+      } catch (error: any) {
+        const code = error?.code;
+        const isStoragePermissionError =
+          code === 'storage/unauthorized' ||
+          code === 'storage/unauthenticated' ||
+          code === 'permission-denied';
+
+        if (!isStoragePermissionError) {
+          throw error;
+        }
+
+        console.warn('[PatientService] Storage cleanup skipped due to permissions:', {
+          patientId: id,
+          code
+        });
+      }
+
       const docRef = doc(db, COLLECTION, id);
       await deleteDoc(docRef);
       return;
