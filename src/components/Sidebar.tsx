@@ -1,15 +1,22 @@
 
 import React from 'react';
-import { LayoutGrid, FileText, Settings, Zap, ScanLine } from 'lucide-react';
+import { LayoutGrid, FileText, Settings, Zap, ScanLine, FlaskConical, ListChecks, ExternalLink } from 'lucide-react';
 
 interface SidebarProps {
-  currentView: 'list' | 'workspace' | 'ocr-batch';
-  onChangeView: (view: 'list' | 'workspace' | 'ocr-batch') => void;
+  currentView: 'list' | 'workspace' | 'ocr-batch' | 'sandbox';
+  onChangeView: (view: 'list' | 'workspace' | 'ocr-batch' | 'sandbox') => void;
   onQuickStart: () => void;
   hasActivePatient: boolean;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, onQuickStart, hasActivePatient }) => {
+  const worklistSheetUrl = String(import.meta.env.VITE_WORKLIST_SHEET_URL || 'https://docs.google.com/spreadsheets/d/1WMMBvb89TXDu3n5M3w_w3SXnsDnSlJVzcXeTQ1Wp_04/edit?gid=746869844#gid=746869844').trim();
+
+  const openWorklistSheet = () => {
+    if (!worklistSheetUrl) return;
+    window.open(worklistSheetUrl, '_blank', 'noopener,noreferrer');
+  };
+
   return (
     <aside className="shell-sidebar">
       {/* Brand Icon */}
@@ -22,11 +29,22 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, onQ
         <button
           className={`nav-item ${currentView === 'list' ? 'active' : ''}`}
           onClick={() => onChangeView('list')}
-          title="Lista de Trabalho"
-          aria-label="Lista de Trabalho"
+          title="Pacientes (lista de trabalho do app)"
+          aria-label="Pacientes"
+        >
+          <ListChecks size={20} />
+          <span className="nav-label">Pacientes</span>
+        </button>
+
+        <button
+          className="nav-item nav-item-external"
+          onClick={openWorklistSheet}
+          title="Abrir Worklist no Google Sheets"
+          aria-label="Abrir planilha Worklist"
         >
           <LayoutGrid size={20} />
-          <span className="nav-label">Lista</span>
+          <span className="nav-label">Planilha</span>
+          <ExternalLink size={11} className="nav-item-badge" />
         </button>
 
         <button
@@ -60,6 +78,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, onQ
         >
           <ScanLine size={20} />
           <span className="nav-label">OCR</span>
+        </button>
+
+        <button
+          className={`nav-item ${currentView === 'sandbox' ? 'active' : ''}`}
+          onClick={() => onChangeView('sandbox')}
+          title="Sandbox - Testes do pipeline"
+          aria-label="Sandbox"
+        >
+          <FlaskConical size={20} />
+          <span className="nav-label">Sandbox</span>
         </button>
       </nav>
 

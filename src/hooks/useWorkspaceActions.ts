@@ -9,6 +9,7 @@ import { groupDocsVisuals, ReportGroup } from '../utils/grouping';
 import * as GeminiAdapter from '../adapters/gemini-prompts';
 import { AttachmentDoc, AudioJob, DocClassification, PdfGlobalGroupingResult } from '../types';
 import { Patient } from '../types/patient';
+import { mirrorFinalizeToGoogleSheet } from '../services/google-sheet-sync-client';
 import { SimilarityResult } from '../utils/similarity';
 import { useToast } from '../components/ui/Toast';
 
@@ -877,12 +878,19 @@ export function useWorkspaceActions(patient: Patient | null) {
       }
 
       await PatientService.updatePatient(patient.id, updates);
+      if (patient.integrationSource === 'google_sheet_v3') {
+        const mirror = await mirrorFinalizeToGoogleSheet(patient.id);
+        if (!mirror.ok) {
+          console.warn('[GoogleSheetMirror] Finalização espelhada falhou:', mirror.error, mirror.details);
+          showToast('Finalizado no app, mas o espelho na planilha falhou. Tentaremos novamente no próximo evento.', 'warning');
+        }
+      }
       // Sucesso silencioso - o UI já mostra feedback visual (botão verde) e redireciona
     } catch (error) {
       console.error('Erro ao finalizar:', error);
       alert('❌ Erro ao finalizar exame. Tente novamente.');
     }
-  }, [patient, session]);
+  }, [patient, session, showToast]);
 
   // Callback para confirmar ou rejeitar agrupamento de múltiplas imagens
   const handleMultipleImagesConfirm = useCallback(async (shouldGroup: boolean) => {

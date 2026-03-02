@@ -64,6 +64,21 @@
   position: relative;
 }
 
+.nav-item-external {
+  border: 1px dashed var(--color-border-default);
+}
+
+.nav-item-external:hover:not(:disabled) {
+  border-style: solid;
+}
+
+.nav-item-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  opacity: 0.75;
+}
+
 .nav-item:hover:not(:disabled) {
   background: var(--color-bg-tertiary);
   color: var(--color-text-primary);

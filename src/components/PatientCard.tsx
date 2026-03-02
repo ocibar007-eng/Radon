@@ -7,6 +7,7 @@ import { Button } from './ui/Button';
 import { StatusChip } from './StatusChip';
 import { PatientService } from '../services/patient-service';
 import { ConfirmModal } from './ui/ConfirmModal';
+import { mirrorFinalizeToGoogleSheet } from '../services/google-sheet-sync-client';
 
 interface Props {
   patient: Patient;
@@ -74,11 +75,24 @@ export const PatientCard: React.FC<Props> = ({
         hasAttachments: hasContent,
       });
 
+      // Fecha o modal assim que a finalizacao local conclui; o espelho roda em segundo plano.
+      setShowFinalizeConfirm(false);
+
       if (onFinalize) {
         onFinalize(patient.id);
       }
 
-      setShowFinalizeConfirm(false);
+      if (patient.integrationSource === 'google_sheet_v3') {
+        void mirrorFinalizeToGoogleSheet(patient.id)
+          .then((mirror) => {
+            if (!mirror.ok) {
+              console.warn('[GoogleSheetMirror] Finalização espelhada falhou:', mirror.error, mirror.details);
+            }
+          })
+          .catch((error) => {
+            console.warn('[GoogleSheetMirror] Exceção ao espelhar finalização:', error);
+          });
+      }
     } catch (error) {
       console.error('Erro ao finalizar:', error);
     } finally {
