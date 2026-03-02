@@ -29,6 +29,13 @@ export interface Patient {
   finalizedAt?: number;          // timestamp da finalização
   finalizedBy?: string;          // user que finalizou (futuro)
 
+  // Metadados de integração com Google Sheets (Worklist)
+  integrationSource?: 'google_sheet_v3';
+  integrationExternalKey?: string;
+  integrationSheetRow?: number;
+  integrationLastSyncAt?: number;
+  integrationFinalizeMirroredAt?: number;
+
   // Dados Completos (podem ser carregados sob demanda em otimizações futuras)
   details?: PatientRegistrationDetails | null;
   clinicalSummary?: ClinicalSummary;
