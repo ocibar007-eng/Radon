@@ -7,3 +7,7 @@ Documento principal atualizado em:
 Documento técnico específico do submódulo:
 
 - `Google_sheet/HANDOFF_RADON_SYNC_WORKLIST_2026-03-02.md`
+
+Playbook operacional para outras IAs (anti-regressao):
+
+- `docs/AI_PLAYBOOK_GOOGLE_SHEET_SYNC.md`

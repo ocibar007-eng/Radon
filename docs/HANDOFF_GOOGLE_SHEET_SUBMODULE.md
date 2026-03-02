@@ -148,3 +148,17 @@ Como `Google_sheet` é submodule:
    - `git commit ...`
 
 Isso garante que o ponteiro do submodule fique correto no projeto principal.
+
+## 7) Guardrails para outras IAs (anti-regressao)
+
+Para evitar que outra IA remova a integracao por engano em deploy futuro:
+
+1. Rodar o verificador automatizado antes de deploy:
+   - `bash scripts/verify_google_sheet_sync_guardrails.sh --ref origin/main`
+2. Se o resultado for `FAILED`, nao deployar.
+3. Restaurar commits sentinela da integracao e rodar novamente.
+
+Playbook completo para agentes:
+- `docs/AI_PLAYBOOK_GOOGLE_SHEET_SYNC.md`
+
+Esse fluxo foi criado apos incidente real em 2026-03-02 (menu `Planilha` sumiu e sync caiu por deploy de base antiga).
